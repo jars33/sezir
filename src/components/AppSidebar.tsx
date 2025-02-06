@@ -1,5 +1,5 @@
 
-import { Home, BarChart } from "lucide-react"
+import { Home, BarChart, Settings, Users, Calendar, Inbox, Search } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -21,6 +21,31 @@ const items = [
     title: "Analytics",
     url: "/analytics",
     icon: BarChart,
+  },
+  {
+    title: "Calendar",
+    url: "/calendar",
+    icon: Calendar,
+  },
+  {
+    title: "Team",
+    url: "/team",
+    icon: Users,
+  },
+  {
+    title: "Inbox",
+    url: "/inbox",
+    icon: Inbox,
+  },
+  {
+    title: "Search",
+    url: "/search",
+    icon: Search,
+  },
+  {
+    title: "Settings",
+    url: "/settings",
+    icon: Settings,
   },
 ]
 
