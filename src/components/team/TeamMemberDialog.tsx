@@ -2,7 +2,6 @@
 import { useEffect } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import * as z from "zod"
 import { format } from "date-fns"
 import { useAuth } from "@/components/AuthProvider"
 import { supabase } from "@/integrations/supabase/client"
@@ -13,38 +12,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { Form } from "@/components/ui/form"
 import { useToast } from "@/hooks/use-toast"
+import { TeamMemberBasicFields } from "./TeamMemberBasicFields"
+import { TeamMemberContactFields } from "./TeamMemberContactFields"
+import { teamMemberFormSchema } from "./team-member-schema"
 import type { TeamMember, TeamMemberFormValues } from "@/types/team-member"
-
-const formSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  salary: z.string().min(1, "Salary is required"),
-  start_date: z.string().min(1, "Start date is required"),
-  end_date: z.string().nullable(),
-  personal_phone: z.string().nullable(),
-  personal_email: z.string().email().nullable(),
-  company_phone: z.string().nullable(),
-  company_email: z.string().email().nullable(),
-  type: z.enum(["contract", "external"]),
-  left_company: z.boolean(),
-  user_id: z.string(),
-})
 
 interface TeamMemberDialogProps {
   open: boolean
@@ -62,8 +35,8 @@ export function TeamMemberDialog({
   const { session } = useAuth()
   const { toast } = useToast()
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm({
+    resolver: zodResolver(teamMemberFormSchema),
     defaultValues: {
       name: "",
       salary: "",
@@ -111,7 +84,7 @@ export function TeamMemberDialog({
     }
   }, [member, form, session])
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: typeof teamMemberFormSchema._type) {
     if (!session?.user.id) return
 
     const teamMemberData: TeamMemberFormValues = {
@@ -162,151 +135,9 @@ export function TeamMemberDialog({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="salary"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Salary</FormLabel>
-                  <FormControl>
-                    <Input type="number" step="0.01" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="start_date"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Start Date</FormLabel>
-                  <FormControl>
-                    <Input type="date" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="end_date"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>End Date (optional)</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="date" 
-                      {...field} 
-                      value={field.value || ''} 
-                      onChange={(e) => {
-                        const value = e.target.value || null;
-                        field.onChange(value);
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Type</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="contract">Contract</SelectItem>
-                      <SelectItem value="external">External</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="personal_phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Personal Phone</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="personal_email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Personal Email</FormLabel>
-                  <FormControl>
-                    <Input type="email" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="company_phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Company Phone</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="company_email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Company Email</FormLabel>
-                  <FormControl>
-                    <Input type="email" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
+            <TeamMemberBasicFields form={form} />
+            <TeamMemberContactFields form={form} />
+            
             <div className="flex justify-end">
               <Button type="submit">
                 {member ? "Update" : "Add"} Team Member
