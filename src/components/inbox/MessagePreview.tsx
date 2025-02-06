@@ -1,20 +1,8 @@
-
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Mail, Star } from "lucide-react"
-
-interface Message {
-  id: string
-  subject: string
-  sender_id: string
-  recipient_id: string
-  preview: string
-  content: string
-  created_at: string
-  is_read: boolean
-  is_starred: boolean
-}
+import { Message } from "@/types/inbox"
 
 interface MessagePreviewProps {
   message: Message | null

@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
@@ -7,18 +6,7 @@ import { useAuth } from "@/components/AuthProvider"
 import { MessageList } from "@/components/inbox/MessageList"
 import { MessagePreview } from "@/components/inbox/MessagePreview"
 import { InboxToolbar } from "@/components/inbox/InboxToolbar"
-
-interface Message {
-  id: string
-  subject: string
-  sender_id: string
-  recipient_id: string
-  preview: string
-  content: string
-  created_at: string
-  is_read: boolean
-  is_starred: boolean
-}
+import { Message } from "@/types/inbox"
 
 export default function Inbox() {
   const [searchQuery, setSearchQuery] = useState("")
