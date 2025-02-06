@@ -1,17 +1,15 @@
 
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { format } from "date-fns"
-import { Calendar } from "@/components/ui/calendar"
-import { Toggle } from "@/components/ui/toggle"
+import { format, addMonths, startOfMonth } from "date-fns"
 import { Card } from "@/components/ui/card"
 import { supabase } from "@/integrations/supabase/client"
-import { CalendarProjectView } from "@/components/calendar/CalendarProjectView"
-import { CalendarTeamView } from "@/components/calendar/CalendarTeamView"
+import { Button } from "@/components/ui/button"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 
 export default function CalendarPage() {
-  const [view, setView] = useState<"projects" | "team">("projects")
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date())
+  const [startDate, setStartDate] = useState(startOfMonth(new Date()))
+  const months = Array.from({ length: 12 }, (_, i) => addMonths(startDate, i))
 
   const { data: projects } = useQuery({
     queryKey: ["calendar-projects"],
@@ -19,74 +17,134 @@ export default function CalendarPage() {
       const { data, error } = await supabase
         .from("projects")
         .select("*")
-        .not("start_date", "is", null)
+        .order("number", { ascending: true })
       
       if (error) throw error
       return data
     },
   })
 
-  const { data: teamMembers } = useQuery({
-    queryKey: ["calendar-team-members"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("team_members")
-        .select("*")
-        .not("start_date", "is", null)
-      
-      if (error) throw error
-      return data
-    },
-  })
+  const handlePreviousYear = () => {
+    setStartDate(prev => addMonths(prev, -12))
+  }
+
+  const handleNextYear = () => {
+    setStartDate(prev => addMonths(prev, 12))
+  }
 
   return (
-    <div className="container py-8">
+    <div className="container py-8 max-w-[1400px]">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Calendar</h1>
+        <h1 className="text-3xl font-bold">Project Timeline</h1>
         <div className="flex gap-2">
-          <Toggle
-            pressed={view === "projects"}
-            onPressedChange={() => setView("projects")}
-          >
-            Projects
-          </Toggle>
-          <Toggle
-            pressed={view === "team"}
-            onPressedChange={() => setView("team")}
-          >
-            Team Members
-          </Toggle>
+          <Button variant="outline" size="icon" onClick={handlePreviousYear}>
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="icon" onClick={handleNextYear}>
+            <ChevronRight className="h-4 w-4" />
+          </Button>
         </div>
       </div>
 
-      <div className="grid md:grid-cols-[300px,1fr] gap-8">
-        <div>
-          <Calendar
-            mode="single"
-            selected={selectedDate}
-            onSelect={(date) => date && setSelectedDate(date)}
-            className="border rounded-lg"
-          />
-        </div>
+      <Card className="overflow-x-auto">
+        <div className="min-w-[1200px]">
+          {/* Header with months */}
+          <div className="grid grid-cols-12 bg-[#F2FCE2] border-b">
+            {months.map((month) => (
+              <div
+                key={month.getTime()}
+                className="p-2 text-center text-sm font-medium border-r last:border-r-0"
+              >
+                {format(month, "MMM yyyy")}
+              </div>
+            ))}
+          </div>
 
-        <div className="space-y-6">
-          <h2 className="text-xl font-semibold">
-            {format(selectedDate, "MMMM d, yyyy")}
-          </h2>
-          
-          {view === "projects" ? (
-            <CalendarProjectView
-              date={selectedDate}
-              projects={projects ?? []}
-            />
-          ) : (
-            <CalendarTeamView
-              date={selectedDate}
-              teamMembers={teamMembers ?? []}
-            />
-          )}
+          {/* Projects list */}
+          <div className="divide-y">
+            {projects?.map((project) => (
+              <div
+                key={project.id}
+                className="grid grid-cols-[200px,1fr] hover:bg-gray-50"
+              >
+                <div className="p-3 border-r">
+                  <div className="font-medium">{project.name}</div>
+                  <div className="text-sm text-muted-foreground">
+                    #{project.number}
+                  </div>
+                </div>
+                <div className="grid grid-cols-12 relative">
+                  {project.start_date && (
+                    <div
+                      className={`absolute h-6 top-1/2 -translate-y-1/2 rounded ${
+                        project.status === "completed"
+                          ? "bg-green-100"
+                          : project.status === "in_progress"
+                          ? "bg-blue-100"
+                          : project.status === "planned"
+                          ? "bg-yellow-100"
+                          : "bg-red-100"
+                      }`}
+                      style={{
+                        left: `${getProjectStartPosition(
+                          new Date(project.start_date),
+                          months
+                        )}%`,
+                        width: `${getProjectWidth(
+                          new Date(project.start_date),
+                          project.end_date
+                            ? new Date(project.end_date)
+                            : addMonths(new Date(project.start_date), 1),
+                          months
+                        )}%`,
+                      }}
+                    />
+                  )}
+                  {months.map((month) => (
+                    <div
+                      key={month.getTime()}
+                      className="h-12 border-r last:border-r-0"
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      </Card>
     </div>
   )
+}
+
+function getProjectStartPosition(
+  startDate: Date,
+  months: Date[]
+): number {
+  const firstMonth = months[0]
+  const lastMonth = months[months.length - 1]
+  
+  if (startDate < firstMonth) return 0
+  if (startDate > lastMonth) return 100
+  
+  const totalDays = (lastMonth.getTime() - firstMonth.getTime()) / (1000 * 60 * 60 * 24)
+  const daysFromStart = (startDate.getTime() - firstMonth.getTime()) / (1000 * 60 * 60 * 24)
+  
+  return (daysFromStart / totalDays) * 100
+}
+
+function getProjectWidth(
+  startDate: Date,
+  endDate: Date,
+  months: Date[]
+): number {
+  const firstMonth = months[0]
+  const lastMonth = months[months.length - 1]
+  
+  const effectiveStartDate = startDate < firstMonth ? firstMonth : startDate
+  const effectiveEndDate = endDate > lastMonth ? lastMonth : endDate
+  
+  const totalDays = (lastMonth.getTime() - firstMonth.getTime()) / (1000 * 60 * 60 * 24)
+  const projectDays = (effectiveEndDate.getTime() - effectiveStartDate.getTime()) / (1000 * 60 * 60 * 24)
+  
+  return (projectDays / totalDays) * 100
 }
