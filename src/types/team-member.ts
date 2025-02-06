@@ -13,6 +13,7 @@ export type TeamMember = {
   left_company: boolean
   created_at: string
   updated_at: string
+  user_id: string
 }
 
 export type TeamMemberFormValues = Omit<

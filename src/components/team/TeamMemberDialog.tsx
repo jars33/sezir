@@ -121,7 +121,7 @@ export function TeamMemberDialog({
       status: values.status,
       type: values.type,
       left_company: values.left_company,
-      user_id: session.user.id,
+      user_id: session.user.id
     }
 
     try {
@@ -135,7 +135,7 @@ export function TeamMemberDialog({
       } else {
         const { error } = await supabase
           .from("team_members")
-          .insert([teamMemberData])
+          .insert(teamMemberData)
 
         if (error) throw error
       }
