@@ -69,6 +69,60 @@ export type Database = {
         }
         Relationships: []
       }
+      team_members: {
+        Row: {
+          company_email: string | null
+          company_phone: string | null
+          created_at: string
+          entry_month: string
+          entry_year: number
+          id: string
+          left_company: boolean
+          name: string
+          personal_email: string | null
+          personal_phone: string | null
+          salary: number
+          status: string
+          type: Database["public"]["Enums"]["employee_type"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_email?: string | null
+          company_phone?: string | null
+          created_at?: string
+          entry_month: string
+          entry_year: number
+          id?: string
+          left_company?: boolean
+          name: string
+          personal_email?: string | null
+          personal_phone?: string | null
+          salary: number
+          status?: string
+          type: Database["public"]["Enums"]["employee_type"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_email?: string | null
+          company_phone?: string | null
+          created_at?: string
+          entry_month?: string
+          entry_year?: number
+          id?: string
+          left_company?: boolean
+          name?: string
+          personal_email?: string | null
+          personal_phone?: string | null
+          salary?: number
+          status?: string
+          type?: Database["public"]["Enums"]["employee_type"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -77,6 +131,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      employee_type: "contract" | "external"
       project_status: "planned" | "in_progress" | "completed" | "cancelled"
     }
     CompositeTypes: {
