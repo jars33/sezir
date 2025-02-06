@@ -9,6 +9,51 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_archived: boolean
+          is_deleted: boolean
+          is_read: boolean
+          is_starred: boolean
+          preview: string
+          recipient_id: string
+          sender_id: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_archived?: boolean
+          is_deleted?: boolean
+          is_read?: boolean
+          is_starred?: boolean
+          preview: string
+          recipient_id: string
+          sender_id: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_archived?: boolean
+          is_deleted?: boolean
+          is_read?: boolean
+          is_starred?: boolean
+          preview?: string
+          recipient_id?: string
+          sender_id?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string

@@ -1,7 +1,8 @@
 
 import { useState } from "react"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Card } from "@/components/ui/card"
+import { toast } from "sonner"
 import {
   Mail,
   Star,
@@ -16,66 +17,115 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
+import { supabase } from "@/integrations/supabase/client"
+import { useAuth } from "@/components/AuthProvider"
 
 interface Message {
   id: string
   subject: string
-  sender: string
+  sender_id: string
+  recipient_id: string
   preview: string
-  date: string
-  isRead: boolean
-  isStarred: boolean
+  content: string
+  created_at: string
+  is_read: boolean
+  is_starred: boolean
 }
-
-// Temporary mock data - replace with actual data fetching later
-const mockMessages: Message[] = [
-  {
-    id: "1",
-    subject: "Project Update - Q1 Goals",
-    sender: "Sarah Johnson",
-    preview: "Here's the latest update on our Q1 project goals and milestones...",
-    date: "10:30 AM",
-    isRead: false,
-    isStarred: true,
-  },
-  {
-    id: "2",
-    subject: "Team Meeting Notes",
-    sender: "Mike Davidson",
-    preview: "Attached are the notes from yesterday's team sync meeting...",
-    date: "Yesterday",
-    isRead: true,
-    isStarred: false,
-  },
-  {
-    id: "3",
-    subject: "New Design System Guidelines",
-    sender: "Design Team",
-    preview: "We've updated our design system with new component specifications...",
-    date: "2 days ago",
-    isRead: true,
-    isStarred: false,
-  },
-]
 
 export default function Inbox() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null)
+  const queryClient = useQueryClient()
+  const { session } = useAuth()
 
-  const { data: messages = mockMessages, isLoading } = useQuery({
+  // Fetch messages
+  const { data: messages = [], isLoading } = useQuery({
     queryKey: ["messages"],
     queryFn: async () => {
-      // Replace with actual API call
-      return mockMessages
+      const { data, error } = await supabase
+        .from("messages")
+        .select("*")
+        .order("created_at", { ascending: false })
+
+      if (error) {
+        toast.error("Failed to load messages")
+        throw error
+      }
+
+      return data as Message[]
     },
   })
 
+  // Update message (read/starred status)
+  const updateMessageMutation = useMutation({
+    mutationFn: async ({
+      id,
+      updates,
+    }: {
+      id: string
+      updates: Partial<Message>
+    }) => {
+      const { error } = await supabase
+        .from("messages")
+        .update(updates)
+        .eq("id", id)
+
+      if (error) throw error
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["messages"] })
+    },
+    onError: () => {
+      toast.error("Failed to update message")
+    },
+  })
+
+  // Filter messages based on search query
   const filteredMessages = messages.filter(
     (message) =>
       message.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      message.sender.toLowerCase().includes(searchQuery.toLowerCase()) ||
       message.preview.toLowerCase().includes(searchQuery.toLowerCase())
   )
+
+  // Handle message selection
+  const handleMessageClick = async (message: Message) => {
+    setSelectedMessage(message)
+    if (!message.is_read) {
+      updateMessageMutation.mutate({
+        id: message.id,
+        updates: { is_read: true },
+      })
+    }
+  }
+
+  // Toggle starred status
+  const toggleStarred = async (message: Message) => {
+    updateMessageMutation.mutate({
+      id: message.id,
+      updates: { is_starred: !message.is_starred },
+    })
+  }
+
+  // Format date for display
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    const now = new Date()
+    const diff = now.getTime() - date.getTime()
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+
+    if (days === 0) {
+      return date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
+    } else if (days === 1) {
+      return "Yesterday"
+    } else if (days < 7) {
+      return date.toLocaleDateString([], { weekday: "long" })
+    } else {
+      return date.toLocaleDateString([], {
+        month: "short",
+        day: "numeric",
+      })
+    }
+  }
 
   return (
     <div className="container py-6 max-w-[1400px]">
@@ -83,7 +133,11 @@ export default function Inbox() {
         {/* Toolbar */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Button variant="outline" size="icon">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => queryClient.invalidateQueries({ queryKey: ["messages"] })}
+            >
               <RefreshCcw className="h-4 w-4" />
             </Button>
             <div className="flex items-center space-x-2">
@@ -125,6 +179,8 @@ export default function Inbox() {
               <div className="p-4 space-y-2">
                 {isLoading ? (
                   <p className="text-center text-muted-foreground">Loading...</p>
+                ) : filteredMessages.length === 0 ? (
+                  <p className="text-center text-muted-foreground">No messages found</p>
                 ) : (
                   filteredMessages.map((message) => (
                     <div
@@ -133,26 +189,38 @@ export default function Inbox() {
                         selectedMessage?.id === message.id
                           ? "bg-muted"
                           : "hover:bg-muted/50"
-                      } ${!message.isRead ? "font-medium" : ""}`}
-                      onClick={() => setSelectedMessage(message)}
+                      } ${!message.is_read ? "font-medium" : ""}`}
+                      onClick={() => handleMessageClick(message)}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1 min-w-0">
-                          <p className="truncate">{message.sender}</p>
-                          <p className="truncate text-sm">
-                            {message.subject}
-                          </p>
+                          <p className="truncate">From: {message.sender_id}</p>
+                          <p className="truncate text-sm">{message.subject}</p>
                           <p className="text-sm text-muted-foreground truncate">
                             {message.preview}
                           </p>
                         </div>
                         <div className="flex flex-col items-end ml-4 text-sm">
                           <span className="text-muted-foreground whitespace-nowrap">
-                            {message.date}
+                            {formatDate(message.created_at)}
                           </span>
-                          {message.isStarred && (
-                            <Star className="h-4 w-4 text-yellow-500 mt-1" />
-                          )}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              toggleStarred(message)
+                            }}
+                          >
+                            <Star
+                              className={`h-4 w-4 ${
+                                message.is_starred
+                                  ? "text-yellow-500 fill-yellow-500"
+                                  : ""
+                              }`}
+                            />
+                          </Button>
                         </div>
                       </div>
                     </div>
@@ -172,14 +240,18 @@ export default function Inbox() {
                       {selectedMessage.subject}
                     </h2>
                     <p className="text-muted-foreground">
-                      From: {selectedMessage.sender}
+                      From: {selectedMessage.sender_id}
                     </p>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Button variant="outline" size="icon">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => toggleStarred(selectedMessage)}
+                    >
                       <Star
                         className={`h-4 w-4 ${
-                          selectedMessage.isStarred
+                          selectedMessage.is_starred
                             ? "text-yellow-500 fill-yellow-500"
                             : ""
                         }`}
@@ -192,7 +264,7 @@ export default function Inbox() {
                 </div>
                 <Separator />
                 <div className="prose max-w-none">
-                  <p>{selectedMessage.preview}</p>
+                  <p>{selectedMessage.content}</p>
                 </div>
               </div>
             ) : (
