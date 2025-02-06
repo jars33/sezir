@@ -45,7 +45,7 @@ const formSchema = z.object({
   end_date: z.date().optional().nullable(),
 })
 
-type ProjectFormValues = z.infer<typeof formSchema>
+export type ProjectFormValues = z.infer<typeof formSchema>
 
 interface ProjectDialogProps {
   project?: {

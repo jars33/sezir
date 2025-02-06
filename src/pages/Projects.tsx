@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Edit2Icon, PlusCircle, Trash2Icon } from "lucide-react"
@@ -24,7 +23,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { ProjectDialog } from "@/components/ProjectDialog"
+import { ProjectDialog, ProjectFormValues } from "@/components/ProjectDialog"
 import { useAuth } from "@/components/AuthProvider"
 
 type Project = {
@@ -67,7 +66,7 @@ export default function Projects() {
     },
   })
 
-  const handleCreateProject = async (values: Omit<Project, "id">) => {
+  const handleCreateProject = async (values: ProjectFormValues) => {
     try {
       const { error } = await supabase.from("projects").insert([
         {
@@ -87,7 +86,7 @@ export default function Projects() {
     }
   }
 
-  const handleEditProject = async (values: Omit<Project, "id">) => {
+  const handleEditProject = async (values: ProjectFormValues) => {
     if (!editProject) return
 
     try {
