@@ -1,7 +1,7 @@
 
 import { useState } from "react"
-import { useQuery } from "@tanstack/react-query"
-import { PlusCircle } from "lucide-react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { Edit2Icon, PlusCircle, Trash2Icon } from "lucide-react"
 import { toast } from "sonner"
 import { supabase } from "@/integrations/supabase/client"
 import { Button } from "@/components/ui/button"
@@ -14,6 +14,18 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { ProjectDialog } from "@/components/ProjectDialog"
+import { useAuth } from "@/components/AuthProvider"
 
 type Project = {
   id: string
@@ -32,6 +44,12 @@ const statusColors = {
 }
 
 export default function Projects() {
+  const { session } = useAuth()
+  const queryClient = useQueryClient()
+  const [createDialogOpen, setCreateDialogOpen] = useState(false)
+  const [editProject, setEditProject] = useState<Project | null>(null)
+  const [deleteProject, setDeleteProject] = useState<Project | null>(null)
+
   const { data: projects, isLoading } = useQuery({
     queryKey: ["projects"],
     queryFn: async () => {
@@ -49,6 +67,66 @@ export default function Projects() {
     },
   })
 
+  const handleCreateProject = async (values: Omit<Project, "id">) => {
+    try {
+      const { error } = await supabase.from("projects").insert([
+        {
+          ...values,
+          user_id: session?.user.id,
+        },
+      ])
+
+      if (error) throw error
+
+      await queryClient.invalidateQueries({ queryKey: ["projects"] })
+      setCreateDialogOpen(false)
+      toast.success("Project created successfully")
+    } catch (error) {
+      toast.error("Failed to create project")
+      console.error(error)
+    }
+  }
+
+  const handleEditProject = async (values: Omit<Project, "id">) => {
+    if (!editProject) return
+
+    try {
+      const { error } = await supabase
+        .from("projects")
+        .update(values)
+        .eq("id", editProject.id)
+
+      if (error) throw error
+
+      await queryClient.invalidateQueries({ queryKey: ["projects"] })
+      setEditProject(null)
+      toast.success("Project updated successfully")
+    } catch (error) {
+      toast.error("Failed to update project")
+      console.error(error)
+    }
+  }
+
+  const handleDeleteProject = async () => {
+    if (!deleteProject) return
+
+    try {
+      const { error } = await supabase
+        .from("projects")
+        .delete()
+        .eq("id", deleteProject.id)
+
+      if (error) throw error
+
+      await queryClient.invalidateQueries({ queryKey: ["projects"] })
+      setDeleteProject(null)
+      toast.success("Project deleted successfully")
+    } catch (error) {
+      toast.error("Failed to delete project")
+      console.error(error)
+    }
+  }
+
   if (isLoading) {
     return <div className="p-6">Loading...</div>
   }
@@ -57,7 +135,7 @@ export default function Projects() {
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-gray-900">Projects</h1>
-        <Button>
+        <Button onClick={() => setCreateDialogOpen(true)}>
           <PlusCircle className="mr-2 h-4 w-4" />
           New Project
         </Button>
@@ -72,6 +150,7 @@ export default function Projects() {
               <TableHead>Status</TableHead>
               <TableHead>Start Date</TableHead>
               <TableHead>End Date</TableHead>
+              <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -97,11 +176,63 @@ export default function Projects() {
                     ? new Date(project.end_date).toLocaleDateString()
                     : "-"}
                 </TableCell>
+                <TableCell>
+                  <div className="flex space-x-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setEditProject(project)}
+                    >
+                      <Edit2Icon className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setDeleteProject(project)}
+                    >
+                      <Trash2Icon className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </div>
+
+      <ProjectDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+        onSubmit={handleCreateProject}
+      />
+
+      <ProjectDialog
+        project={editProject ?? undefined}
+        open={Boolean(editProject)}
+        onOpenChange={(open) => !open && setEditProject(null)}
+        onSubmit={handleEditProject}
+      />
+
+      <AlertDialog
+        open={Boolean(deleteProject)}
+        onOpenChange={(open) => !open && setDeleteProject(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              project.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteProject}>
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
