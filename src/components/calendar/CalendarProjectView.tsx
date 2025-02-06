@@ -4,7 +4,6 @@ import { Card } from "@/components/ui/card"
 import { useQuery } from "@tanstack/react-query"
 import { isSameDay } from "date-fns"
 import { supabase } from "@/integrations/supabase/client"
-import type { Database } from "@/integrations/supabase/types"
 
 type Project = {
   id: string
@@ -15,7 +14,12 @@ type Project = {
   end_date: string | null
 }
 
-type ProjectAssignment = Database["public"]["Tables"]["project_assignments"]["Row"] & {
+type ProjectAssignment = {
+  id: string
+  project_id: string
+  team_member_id: string
+  start_date: string
+  end_date: string | null
   team_member: {
     name: string
   }
@@ -52,7 +56,7 @@ export function CalendarProjectView({ date, projects }: CalendarProjectViewProps
         .or(`end_date.is.null,end_date.gte.${formattedDate}`)
 
       if (error) throw error
-      return (data || []) as ProjectAssignment[]
+      return data as ProjectAssignment[]
     },
   })
 
