@@ -17,6 +17,9 @@ type Project = {
   status: "planned" | "in_progress" | "completed" | "cancelled"
   start_date: string | null
   end_date: string | null
+  created_at: string
+  updated_at: string
+  user_id: string
 }
 
 export default function Projects() {
@@ -46,10 +49,12 @@ export default function Projects() {
   const handleCreateProject = async (values: ProjectFormValues) => {
     try {
       const projectData = {
-        ...values,
+        number: values.number,
+        name: values.name,
         user_id: session?.user.id,
         start_date: values.start_date?.toISOString().split('T')[0] || null,
         end_date: values.end_date?.toISOString().split('T')[0] || null,
+        status: values.status,
       }
 
       const { error } = await supabase
@@ -72,9 +77,11 @@ export default function Projects() {
 
     try {
       const projectData = {
-        ...values,
+        number: values.number,
+        name: values.name,
         start_date: values.start_date?.toISOString().split('T')[0] || null,
         end_date: values.end_date?.toISOString().split('T')[0] || null,
+        status: values.status,
       }
 
       const { error } = await supabase

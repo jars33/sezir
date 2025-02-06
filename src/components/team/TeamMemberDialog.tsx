@@ -16,7 +16,7 @@ import { Form } from "@/components/ui/form"
 import { useToast } from "@/hooks/use-toast"
 import { TeamMemberBasicFields } from "./TeamMemberBasicFields"
 import { TeamMemberContactFields } from "./TeamMemberContactFields"
-import { teamMemberFormSchema } from "./team-member-schema"
+import { teamMemberFormSchema, type TeamMemberFormSchema } from "./team-member-schema"
 import type { TeamMember, TeamMemberFormValues } from "@/types/team-member"
 
 interface TeamMemberDialogProps {
@@ -35,18 +35,18 @@ export function TeamMemberDialog({
   const { session } = useAuth()
   const { toast } = useToast()
 
-  const form = useForm({
+  const form = useForm<TeamMemberFormSchema>({
     resolver: zodResolver(teamMemberFormSchema),
     defaultValues: {
       name: "",
       salary: "",
       start_date: format(new Date(), 'yyyy-MM-dd'),
       end_date: null,
-      personal_phone: "",
-      personal_email: "",
-      company_phone: "",
-      company_email: "",
-      type: "contract",
+      personal_phone: null,
+      personal_email: null,
+      company_phone: null,
+      company_email: null,
+      type: "contract" as const,
       left_company: false,
       user_id: "",
     },
@@ -59,10 +59,10 @@ export function TeamMemberDialog({
         salary: member.salary.toString(),
         start_date: member.start_date,
         end_date: member.end_date,
-        personal_phone: member.personal_phone || "",
-        personal_email: member.personal_email || "",
-        company_phone: member.company_phone || "",
-        company_email: member.company_email || "",
+        personal_phone: member.personal_phone,
+        personal_email: member.personal_email,
+        company_phone: member.company_phone,
+        company_email: member.company_email,
         type: member.type,
         left_company: member.left_company,
         user_id: member.user_id,
@@ -73,18 +73,18 @@ export function TeamMemberDialog({
         salary: "",
         start_date: format(new Date(), 'yyyy-MM-dd'),
         end_date: null,
-        personal_phone: "",
-        personal_email: "",
-        company_phone: "",
-        company_email: "",
-        type: "contract",
+        personal_phone: null,
+        personal_email: null,
+        company_phone: null,
+        company_email: null,
+        type: "contract" as const,
         left_company: false,
         user_id: session.user.id,
       })
     }
   }, [member, form, session])
 
-  async function onSubmit(values: typeof teamMemberFormSchema._type) {
+  async function onSubmit(values: TeamMemberFormSchema) {
     if (!session?.user.id) return
 
     const teamMemberData: TeamMemberFormValues = {
@@ -92,10 +92,10 @@ export function TeamMemberDialog({
       salary: parseFloat(values.salary),
       start_date: values.start_date,
       end_date: values.end_date,
-      personal_phone: values.personal_phone || null,
-      personal_email: values.personal_email || null,
-      company_phone: values.company_phone || null,
-      company_email: values.company_email || null,
+      personal_phone: values.personal_phone,
+      personal_email: values.personal_email,
+      company_phone: values.company_phone,
+      company_email: values.company_email,
       type: values.type,
       left_company: values.left_company,
       user_id: session.user.id,
