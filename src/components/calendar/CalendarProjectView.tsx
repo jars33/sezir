@@ -1,7 +1,9 @@
 
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
+import { useQuery } from "@tanstack/react-query"
 import { isSameDay } from "date-fns"
+import { supabase } from "@/integrations/supabase/client"
 
 type Project = {
   id: string
@@ -10,6 +12,17 @@ type Project = {
   status: "planned" | "in_progress" | "completed" | "cancelled"
   start_date: string | null
   end_date: string | null
+}
+
+type ProjectAssignment = {
+  id: string
+  project_id: string
+  team_member_id: string
+  start_date: string
+  end_date: string | null
+  team_member: {
+    name: string
+  }
 }
 
 interface CalendarProjectViewProps {
@@ -24,6 +37,27 @@ export function CalendarProjectView({ date, projects }: CalendarProjectViewProps
     completed: "bg-green-100 text-green-800",
     cancelled: "bg-red-100 text-red-800",
   }
+
+  const { data: assignments } = useQuery({
+    queryKey: ["project-assignments", date],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("project_assignments")
+        .select(`
+          id,
+          project_id,
+          team_member_id,
+          start_date,
+          end_date,
+          team_member:team_members(name)
+        `)
+        .lte("start_date", date.toISOString().split("T")[0])
+        .or(`end_date.is.null,end_date.gte.${date.toISOString().split("T")[0]}`)
+
+      if (error) throw error
+      return data as ProjectAssignment[]
+    },
+  })
 
   const filteredProjects = projects.filter((project) => {
     if (!project.start_date) return false
@@ -40,19 +74,37 @@ export function CalendarProjectView({ date, projects }: CalendarProjectViewProps
 
   return (
     <div className="space-y-4">
-      {filteredProjects.map((project) => (
-        <Card key={project.id} className="p-4">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="font-medium">{project.name}</p>
-              <p className="text-sm text-muted-foreground">#{project.number}</p>
+      {filteredProjects.map((project) => {
+        const projectAssignments = assignments?.filter(
+          (a) => a.project_id === project.id
+        )
+
+        return (
+          <Card key={project.id} className="p-4">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="font-medium">{project.name}</p>
+                <p className="text-sm text-muted-foreground">#{project.number}</p>
+                {projectAssignments && projectAssignments.length > 0 && (
+                  <div className="mt-2">
+                    <p className="text-sm font-medium text-gray-600">Assigned team members:</p>
+                    <ul className="mt-1 space-y-1">
+                      {projectAssignments.map((assignment) => (
+                        <li key={assignment.id} className="text-sm text-gray-600">
+                          {assignment.team_member.name}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+              <Badge variant="secondary" className={statusColors[project.status]}>
+                {project.status.replace("_", " ")}
+              </Badge>
             </div>
-            <Badge variant="secondary" className={statusColors[project.status]}>
-              {project.status.replace("_", " ")}
-            </Badge>
-          </div>
-        </Card>
-      ))}
+          </Card>
+        )
+      })}
     </div>
   )
 }
