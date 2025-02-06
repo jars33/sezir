@@ -8,6 +8,7 @@ import Auth from "@/pages/Auth"
 import Index from "@/pages/Index"
 import Projects from "@/pages/Projects"
 import Team from "@/pages/Team"
+import Calendar from "@/pages/Calendar"
 import NotFound from "@/pages/NotFound"
 import "./App.css"
 
@@ -25,6 +26,7 @@ function App() {
               <Route index element={<Index />} />
               <Route path="projects" element={<Projects />} />
               <Route path="team" element={<Team />} />
+              <Route path="calendar" element={<Calendar />} />
               <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>
