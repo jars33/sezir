@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card"
 import { useQuery } from "@tanstack/react-query"
 import { isSameDay } from "date-fns"
 import { supabase } from "@/integrations/supabase/client"
+import type { Database } from "@/integrations/supabase/types"
 
 type Project = {
   id: string
@@ -14,12 +15,7 @@ type Project = {
   end_date: string | null
 }
 
-type ProjectAssignment = {
-  id: string
-  project_id: string
-  team_member_id: string
-  start_date: string
-  end_date: string | null
+type ProjectAssignment = Database["public"]["Tables"]["project_assignments"]["Row"] & {
   team_member: {
     name: string
   }
@@ -41,6 +37,7 @@ export function CalendarProjectView({ date, projects }: CalendarProjectViewProps
   const { data: assignments } = useQuery({
     queryKey: ["project-assignments", date],
     queryFn: async () => {
+      const formattedDate = date.toISOString().split("T")[0]
       const { data, error } = await supabase
         .from("project_assignments")
         .select(`
@@ -51,11 +48,11 @@ export function CalendarProjectView({ date, projects }: CalendarProjectViewProps
           end_date,
           team_member:team_members(name)
         `)
-        .lte("start_date", date.toISOString().split("T")[0])
-        .or(`end_date.is.null,end_date.gte.${date.toISOString().split("T")[0]}`)
+        .lte("start_date", formattedDate)
+        .or(`end_date.is.null,end_date.gte.${formattedDate}`)
 
       if (error) throw error
-      return data as ProjectAssignment[]
+      return (data || []) as ProjectAssignment[]
     },
   })
 
