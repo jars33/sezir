@@ -1,3 +1,4 @@
+
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -43,7 +44,12 @@ export default function Auth() {
           email: values.email,
           password: values.password,
         })
-        if (error) throw error
+        if (error) {
+          if (error.message.includes("rate limit")) {
+            throw new Error("Please wait a few seconds before trying again")
+          }
+          throw error
+        }
         toast({
           title: "Success!",
           description: "Please check your email to verify your account.",
