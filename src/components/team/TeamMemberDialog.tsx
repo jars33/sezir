@@ -36,13 +36,14 @@ const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
   salary: z.string().min(1, "Salary is required"),
   start_date: z.string().min(1, "Start date is required"),
+  end_date: z.string().nullable(),
   personal_phone: z.string().nullable(),
   personal_email: z.string().email().nullable(),
   company_phone: z.string().nullable(),
   company_email: z.string().email().nullable(),
-  status: z.string().min(1, "Status is required"),
   type: z.enum(["contract", "external"]),
   left_company: z.boolean(),
+  user_id: z.string(),
 })
 
 interface TeamMemberDialogProps {
@@ -67,13 +68,14 @@ export function TeamMemberDialog({
       name: "",
       salary: "",
       start_date: format(new Date(), 'yyyy-MM-dd'),
+      end_date: null,
       personal_phone: "",
       personal_email: "",
       company_phone: "",
       company_email: "",
-      status: "active",
       type: "contract",
       left_company: false,
+      user_id: "",
     },
   })
 
@@ -83,29 +85,31 @@ export function TeamMemberDialog({
         name: member.name,
         salary: member.salary.toString(),
         start_date: member.start_date,
+        end_date: member.end_date,
         personal_phone: member.personal_phone || "",
         personal_email: member.personal_email || "",
         company_phone: member.company_phone || "",
         company_email: member.company_email || "",
-        status: member.status,
         type: member.type,
         left_company: member.left_company,
+        user_id: member.user_id,
       })
-    } else {
+    } else if (session?.user.id) {
       form.reset({
         name: "",
         salary: "",
         start_date: format(new Date(), 'yyyy-MM-dd'),
+        end_date: null,
         personal_phone: "",
         personal_email: "",
         company_phone: "",
         company_email: "",
-        status: "active",
         type: "contract",
         left_company: false,
+        user_id: session.user.id,
       })
     }
-  }, [member, form])
+  }, [member, form, session])
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!session?.user.id) return
@@ -114,14 +118,14 @@ export function TeamMemberDialog({
       name: values.name,
       salary: parseFloat(values.salary),
       start_date: values.start_date,
+      end_date: values.end_date,
       personal_phone: values.personal_phone || null,
       personal_email: values.personal_email || null,
       company_phone: values.company_phone || null,
       company_email: values.company_email || null,
-      status: values.status,
       type: values.type,
       left_company: values.left_company,
-      user_id: session.user.id
+      user_id: session.user.id,
     }
 
     try {
@@ -202,6 +206,28 @@ export function TeamMemberDialog({
 
             <FormField
               control={form.control}
+              name="end_date"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>End Date (optional)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="date" 
+                      {...field} 
+                      value={field.value || ''} 
+                      onChange={(e) => {
+                        const value = e.target.value || null;
+                        field.onChange(value);
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="type"
               render={({ field }) => (
                 <FormItem>
@@ -220,20 +246,6 @@ export function TeamMemberDialog({
                       <SelectItem value="external">External</SelectItem>
                     </SelectContent>
                   </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Status</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

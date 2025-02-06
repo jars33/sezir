@@ -4,11 +4,11 @@ export type TeamMember = {
   name: string
   salary: number
   start_date: string
+  end_date: string | null
   personal_phone: string | null
   personal_email: string | null
   company_phone: string | null
   company_email: string | null
-  status: string
   type: "contract" | "external"
   left_company: boolean
   created_at: string

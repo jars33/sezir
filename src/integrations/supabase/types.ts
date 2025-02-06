@@ -74,6 +74,7 @@ export type Database = {
           company_email: string | null
           company_phone: string | null
           created_at: string
+          end_date: string | null
           id: string
           left_company: boolean
           name: string
@@ -81,7 +82,6 @@ export type Database = {
           personal_phone: string | null
           salary: number
           start_date: string
-          status: string
           type: Database["public"]["Enums"]["employee_type"]
           updated_at: string
           user_id: string
@@ -90,6 +90,7 @@ export type Database = {
           company_email?: string | null
           company_phone?: string | null
           created_at?: string
+          end_date?: string | null
           id?: string
           left_company?: boolean
           name: string
@@ -97,7 +98,6 @@ export type Database = {
           personal_phone?: string | null
           salary: number
           start_date: string
-          status?: string
           type: Database["public"]["Enums"]["employee_type"]
           updated_at?: string
           user_id: string
@@ -106,6 +106,7 @@ export type Database = {
           company_email?: string | null
           company_phone?: string | null
           created_at?: string
+          end_date?: string | null
           id?: string
           left_company?: boolean
           name?: string
@@ -113,7 +114,6 @@ export type Database = {
           personal_phone?: string | null
           salary?: number
           start_date?: string
-          status?: string
           type?: Database["public"]["Enums"]["employee_type"]
           updated_at?: string
           user_id?: string

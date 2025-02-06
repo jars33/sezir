@@ -66,6 +66,7 @@ export function TeamMemberList({ members, onEdit, onSuccess }: TeamMemberListPro
             <TableHead>Type</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Start Date</TableHead>
+            <TableHead>End Date</TableHead>
             <TableHead>Company Email</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
@@ -75,8 +76,11 @@ export function TeamMemberList({ members, onEdit, onSuccess }: TeamMemberListPro
             <TableRow key={member.id}>
               <TableCell>{member.name}</TableCell>
               <TableCell className="capitalize">{member.type}</TableCell>
-              <TableCell className="capitalize">{member.status}</TableCell>
+              <TableCell>{member.end_date ? "Inactive" : "Active"}</TableCell>
               <TableCell>{format(new Date(member.start_date), 'MM/dd/yyyy')}</TableCell>
+              <TableCell>
+                {member.end_date ? format(new Date(member.end_date), 'MM/dd/yyyy') : "-"}
+              </TableCell>
               <TableCell>{member.company_email || "-"}</TableCell>
               <TableCell>
                 <div className="flex gap-2">
