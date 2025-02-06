@@ -74,14 +74,13 @@ export type Database = {
           company_email: string | null
           company_phone: string | null
           created_at: string
-          entry_month: string
-          entry_year: number
           id: string
           left_company: boolean
           name: string
           personal_email: string | null
           personal_phone: string | null
           salary: number
+          start_date: string
           status: string
           type: Database["public"]["Enums"]["employee_type"]
           updated_at: string
@@ -91,14 +90,13 @@ export type Database = {
           company_email?: string | null
           company_phone?: string | null
           created_at?: string
-          entry_month: string
-          entry_year: number
           id?: string
           left_company?: boolean
           name: string
           personal_email?: string | null
           personal_phone?: string | null
           salary: number
+          start_date: string
           status?: string
           type: Database["public"]["Enums"]["employee_type"]
           updated_at?: string
@@ -108,14 +106,13 @@ export type Database = {
           company_email?: string | null
           company_phone?: string | null
           created_at?: string
-          entry_month?: string
-          entry_year?: number
           id?: string
           left_company?: boolean
           name?: string
           personal_email?: string | null
           personal_phone?: string | null
           salary?: number
+          start_date?: string
           status?: string
           type?: Database["public"]["Enums"]["employee_type"]
           updated_at?: string

@@ -3,6 +3,7 @@ import { useEffect } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
+import { format } from "date-fns"
 import { useAuth } from "@/components/AuthProvider"
 import { supabase } from "@/integrations/supabase/client"
 import { Button } from "@/components/ui/button"
@@ -34,8 +35,7 @@ import type { TeamMember, TeamMemberFormValues } from "@/types/team-member"
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
   salary: z.string().min(1, "Salary is required"),
-  entry_month: z.string().min(1, "Entry month is required"),
-  entry_year: z.string().min(1, "Entry year is required"),
+  start_date: z.string().min(1, "Start date is required"),
   personal_phone: z.string().nullable(),
   personal_email: z.string().email().nullable(),
   company_phone: z.string().nullable(),
@@ -66,8 +66,7 @@ export function TeamMemberDialog({
     defaultValues: {
       name: "",
       salary: "",
-      entry_month: "",
-      entry_year: "",
+      start_date: format(new Date(), 'yyyy-MM-dd'),
       personal_phone: "",
       personal_email: "",
       company_phone: "",
@@ -83,8 +82,7 @@ export function TeamMemberDialog({
       form.reset({
         name: member.name,
         salary: member.salary.toString(),
-        entry_month: member.entry_month,
-        entry_year: member.entry_year.toString(),
+        start_date: member.start_date,
         personal_phone: member.personal_phone || "",
         personal_email: member.personal_email || "",
         company_phone: member.company_phone || "",
@@ -94,7 +92,18 @@ export function TeamMemberDialog({
         left_company: member.left_company,
       })
     } else {
-      form.reset()
+      form.reset({
+        name: "",
+        salary: "",
+        start_date: format(new Date(), 'yyyy-MM-dd'),
+        personal_phone: "",
+        personal_email: "",
+        company_phone: "",
+        company_email: "",
+        status: "active",
+        type: "contract",
+        left_company: false,
+      })
     }
   }, [member, form])
 
@@ -104,8 +113,7 @@ export function TeamMemberDialog({
     const teamMemberData: TeamMemberFormValues = {
       name: values.name,
       salary: parseFloat(values.salary),
-      entry_month: values.entry_month,
-      entry_year: parseInt(values.entry_year),
+      start_date: values.start_date,
       personal_phone: values.personal_phone || null,
       personal_email: values.personal_email || null,
       company_phone: values.company_phone || null,
@@ -178,35 +186,19 @@ export function TeamMemberDialog({
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="entry_month"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Entry Month</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="entry_year"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Entry Year</FormLabel>
-                    <FormControl>
-                      <Input type="number" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <FormField
+              control={form.control}
+              name="start_date"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Start Date</FormLabel>
+                  <FormControl>
+                    <Input type="date" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}

@@ -1,5 +1,6 @@
 
 import { useState } from "react"
+import { format } from "date-fns"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
 import {
@@ -64,7 +65,7 @@ export function TeamMemberList({ members, onEdit, onSuccess }: TeamMemberListPro
             <TableHead>Name</TableHead>
             <TableHead>Type</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Entry Date</TableHead>
+            <TableHead>Start Date</TableHead>
             <TableHead>Company Email</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
@@ -75,7 +76,7 @@ export function TeamMemberList({ members, onEdit, onSuccess }: TeamMemberListPro
               <TableCell>{member.name}</TableCell>
               <TableCell className="capitalize">{member.type}</TableCell>
               <TableCell className="capitalize">{member.status}</TableCell>
-              <TableCell>{`${member.entry_month}/${member.entry_year}`}</TableCell>
+              <TableCell>{format(new Date(member.start_date), 'MM/dd/yyyy')}</TableCell>
               <TableCell>{member.company_email || "-"}</TableCell>
               <TableCell>
                 <div className="flex gap-2">

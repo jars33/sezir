@@ -3,8 +3,7 @@ export type TeamMember = {
   id: string
   name: string
   salary: number
-  entry_month: string
-  entry_year: number
+  start_date: string
   personal_phone: string | null
   personal_email: string | null
   company_phone: string | null
