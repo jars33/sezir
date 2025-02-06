@@ -1,3 +1,4 @@
+
 import { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
@@ -11,17 +12,28 @@ import { Message } from "@/types/inbox"
 export default function Inbox() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null)
+  const [view, setView] = useState<"received" | "sent">("received")
   const queryClient = useQueryClient()
   const { session } = useAuth()
 
   // Fetch messages
   const { data: messages = [], isLoading } = useQuery({
-    queryKey: ["messages"],
+    queryKey: ["messages", view],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const query = supabase
         .from("messages")
         .select("*")
+        .eq("is_deleted", false)
         .order("created_at", { ascending: false })
+
+      // Filter based on view
+      if (view === "received") {
+        query.eq("recipient_id", session?.user.id)
+      } else {
+        query.eq("sender_id", session?.user.id)
+      }
+
+      const { data, error } = await query
 
       if (error) {
         toast.error("Failed to load messages")
@@ -30,6 +42,7 @@ export default function Inbox() {
 
       return data as Message[]
     },
+    enabled: !!session?.user.id,
   })
 
   // Update message (read/starred status)
@@ -59,7 +72,7 @@ export default function Inbox() {
   // Handle message selection
   const handleMessageClick = async (message: Message) => {
     setSelectedMessage(message)
-    if (!message.is_read) {
+    if (!message.is_read && message.recipient_id === session?.user.id) {
       updateMessageMutation.mutate({
         id: message.id,
         updates: { is_read: true },
@@ -96,6 +109,14 @@ export default function Inbox() {
     }
   }
 
+  if (!session) {
+    return (
+      <div className="container py-6 text-center">
+        Please sign in to view your messages
+      </div>
+    )
+  }
+
   return (
     <div className="container py-6 max-w-[1400px]">
       <div className="flex flex-col space-y-4">
@@ -103,6 +124,8 @@ export default function Inbox() {
           onRefresh={() => queryClient.invalidateQueries({ queryKey: ["messages"] })}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
+          view={view}
+          onViewChange={setView}
         />
 
         <div className="grid grid-cols-[350px,1fr] gap-4">
