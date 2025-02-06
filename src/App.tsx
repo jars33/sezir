@@ -9,6 +9,7 @@ import Index from "@/pages/Index"
 import Projects from "@/pages/Projects"
 import Team from "@/pages/Team"
 import Calendar from "@/pages/Calendar"
+import Inbox from "@/pages/Inbox"
 import NotFound from "@/pages/NotFound"
 import "./App.css"
 
@@ -27,6 +28,7 @@ function App() {
               <Route path="projects" element={<Projects />} />
               <Route path="team" element={<Team />} />
               <Route path="calendar" element={<Calendar />} />
+              <Route path="inbox" element={<Inbox />} />
               <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>
