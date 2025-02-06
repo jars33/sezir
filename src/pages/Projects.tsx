@@ -1,29 +1,13 @@
+
 import { useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { Edit2Icon, PlusCircle, Trash2Icon } from "lucide-react"
+import { PlusCircle } from "lucide-react"
 import { toast } from "sonner"
 import { supabase } from "@/integrations/supabase/client"
 import { Button } from "@/components/ui/button"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
 import { ProjectDialog, ProjectFormValues } from "@/components/ProjectDialog"
+import { ProjectList } from "@/components/projects/ProjectList"
+import { DeleteProjectDialog } from "@/components/projects/DeleteProjectDialog"
 import { useAuth } from "@/components/AuthProvider"
 
 type Project = {
@@ -33,13 +17,6 @@ type Project = {
   status: "planned" | "in_progress" | "completed" | "cancelled"
   start_date: string | null
   end_date: string | null
-}
-
-const statusColors = {
-  planned: "bg-yellow-100 text-yellow-800",
-  in_progress: "bg-blue-100 text-blue-800",
-  completed: "bg-green-100 text-green-800",
-  cancelled: "bg-red-100 text-red-800",
 }
 
 export default function Projects() {
@@ -68,12 +45,16 @@ export default function Projects() {
 
   const handleCreateProject = async (values: ProjectFormValues) => {
     try {
-      const { error } = await supabase.from("projects").insert([
-        {
-          ...values,
-          user_id: session?.user.id,
-        },
-      ])
+      const projectData = {
+        ...values,
+        user_id: session?.user.id,
+        start_date: values.start_date?.toISOString().split('T')[0] || null,
+        end_date: values.end_date?.toISOString().split('T')[0] || null,
+      }
+
+      const { error } = await supabase
+        .from("projects")
+        .insert([projectData])
 
       if (error) throw error
 
@@ -90,9 +71,15 @@ export default function Projects() {
     if (!editProject) return
 
     try {
+      const projectData = {
+        ...values,
+        start_date: values.start_date?.toISOString().split('T')[0] || null,
+        end_date: values.end_date?.toISOString().split('T')[0] || null,
+      }
+
       const { error } = await supabase
         .from("projects")
-        .update(values)
+        .update(projectData)
         .eq("id", editProject.id)
 
       if (error) throw error
@@ -140,64 +127,11 @@ export default function Projects() {
         </Button>
       </div>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Project Number</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Start Date</TableHead>
-              <TableHead>End Date</TableHead>
-              <TableHead className="w-[100px]">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {projects?.map((project) => (
-              <TableRow key={project.id}>
-                <TableCell>{project.number}</TableCell>
-                <TableCell>{project.name}</TableCell>
-                <TableCell>
-                  <Badge
-                    variant="secondary"
-                    className={statusColors[project.status]}
-                  >
-                    {project.status.replace("_", " ")}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  {project.start_date
-                    ? new Date(project.start_date).toLocaleDateString()
-                    : "-"}
-                </TableCell>
-                <TableCell>
-                  {project.end_date
-                    ? new Date(project.end_date).toLocaleDateString()
-                    : "-"}
-                </TableCell>
-                <TableCell>
-                  <div className="flex space-x-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setEditProject(project)}
-                    >
-                      <Edit2Icon className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setDeleteProject(project)}
-                    >
-                      <Trash2Icon className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+      <ProjectList
+        projects={projects ?? []}
+        onEdit={setEditProject}
+        onDelete={setDeleteProject}
+      />
 
       <ProjectDialog
         open={createDialogOpen}
@@ -212,26 +146,11 @@ export default function Projects() {
         onSubmit={handleEditProject}
       />
 
-      <AlertDialog
+      <DeleteProjectDialog
         open={Boolean(deleteProject)}
         onOpenChange={(open) => !open && setDeleteProject(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              project.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteProject}>
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        onConfirm={handleDeleteProject}
+      />
     </div>
   )
 }
