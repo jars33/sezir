@@ -1,61 +1,38 @@
-import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
-import { HomeIcon, UsersIcon, FolderIcon, ChartBarIcon, CalendarIcon } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom"
+import { Button } from "@/components/ui/button"
+import { supabase } from "@/integrations/supabase/client"
+import { useAuth } from "./AuthProvider"
 
-const navigation = [
-  { name: "Dashboard", href: "/", icon: HomeIcon },
-  { name: "Projects", href: "/projects", icon: FolderIcon },
-  { name: "Team", href: "/team", icon: UsersIcon },
-  { name: "Finance", href: "/finance", icon: ChartBarIcon },
-  { name: "Planning", href: "/planning", icon: CalendarIcon },
-];
+export default function MainLayout() {
+  const navigate = useNavigate()
+  const { session, loading } = useAuth()
 
-export const MainLayout = ({ children }: { children: React.ReactNode }) => {
-  const location = useLocation();
+  const handleSignOut = async () => {
+    await supabase.auth.signOut()
+    navigate("/auth")
+  }
+
+  if (loading) {
+    return <div>Loading...</div>
+  }
+
+  if (!session) {
+    navigate("/auth")
+    return null
+  }
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full">
-        <Sidebar>
-          <SidebarContent>
-            <div className="px-3 py-4">
-              <div className="mb-8">
-                <h1 className="text-2xl font-bold text-primary">ConsultPro</h1>
-              </div>
-              <nav className="space-y-1">
-                {navigation.map((item) => {
-                  const isActive = location.pathname === item.href;
-                  return (
-                    <Link
-                      key={item.name}
-                      to={item.href}
-                      className={`flex items-center px-3 py-2 text-sm font-medium rounded-md ${
-                        isActive
-                          ? "bg-primary text-white"
-                          : "text-gray-600 hover:bg-gray-50"
-                      }`}
-                    >
-                      <item.icon
-                        className={`mr-3 h-6 w-6 ${
-                          isActive ? "text-white" : "text-gray-400"
-                        }`}
-                      />
-                      {item.name}
-                    </Link>
-                  );
-                })}
-              </nav>
-            </div>
-          </SidebarContent>
-        </Sidebar>
-        <main className="flex-1 overflow-auto bg-gray-50">
-          <div className="py-6">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-              {children}
-            </div>
+    <div className="min-h-screen bg-background">
+      <div className="border-b">
+        <div className="flex h-16 items-center px-4">
+          <div className="ml-auto flex items-center space-x-4">
+            <Button onClick={handleSignOut}>Sign Out</Button>
           </div>
-        </main>
+        </div>
       </div>
-    </SidebarProvider>
-  );
-};
+      <main className="flex-1">
+        <Outlet />
+      </main>
+    </div>
+  )
+}
