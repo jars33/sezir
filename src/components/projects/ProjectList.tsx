@@ -18,6 +18,9 @@ type Project = {
   status: "planned" | "in_progress" | "completed" | "cancelled"
   start_date: string | null
   end_date: string | null
+  created_at: string
+  updated_at: string
+  user_id: string
 }
 
 const statusColors = {
