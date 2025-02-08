@@ -39,8 +39,8 @@ export function ProjectDialog({
       number: project?.number ?? "",
       name: project?.name ?? "",
       status: project?.status ?? "planned",
-      start_date: project?.start_date ? new Date(project.start_date) : null,
-      end_date: project?.end_date ? new Date(project.end_date) : null,
+      start_date: project?.start_date ?? null,
+      end_date: project?.end_date ?? null,
     },
   })
 
