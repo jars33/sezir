@@ -53,8 +53,8 @@ export default function Projects() {
         number: values.number,
         name: values.name,
         user_id: session?.user.id,
-        start_date: values.start_date?.toISOString().split('T')[0] || null,
-        end_date: values.end_date?.toISOString().split('T')[0] || null,
+        start_date: values.start_date || null,
+        end_date: values.end_date || null,
         status: values.status,
       }
 
@@ -80,8 +80,8 @@ export default function Projects() {
       const projectData = {
         number: values.number,
         name: values.name,
-        start_date: values.start_date?.toISOString().split('T')[0] || null,
-        end_date: values.end_date?.toISOString().split('T')[0] || null,
+        start_date: values.start_date || null,
+        end_date: values.end_date || null,
         status: values.status,
       }
 
