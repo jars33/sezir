@@ -5,7 +5,8 @@ import { PlusCircle } from "lucide-react"
 import { toast } from "sonner"
 import { supabase } from "@/integrations/supabase/client"
 import { Button } from "@/components/ui/button"
-import { ProjectDialog, ProjectFormValues } from "@/components/ProjectDialog"
+import { ProjectDialog } from "@/components/ProjectDialog"
+import { type ProjectFormSchema } from "@/components/projects/project-schema"
 import { ProjectList } from "@/components/projects/ProjectList"
 import { DeleteProjectDialog } from "@/components/projects/DeleteProjectDialog"
 import { useAuth } from "@/components/AuthProvider"
@@ -46,7 +47,7 @@ export default function Projects() {
     },
   })
 
-  const handleCreateProject = async (values: ProjectFormValues) => {
+  const handleCreateProject = async (values: ProjectFormSchema) => {
     try {
       const projectData = {
         number: values.number,
@@ -72,7 +73,7 @@ export default function Projects() {
     }
   }
 
-  const handleEditProject = async (values: ProjectFormValues) => {
+  const handleEditProject = async (values: ProjectFormSchema) => {
     if (!editProject) return
 
     try {
@@ -160,4 +161,3 @@ export default function Projects() {
       />
     </div>
   )
-}
