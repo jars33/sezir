@@ -1,3 +1,4 @@
+
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { format, addMonths, startOfMonth, endOfMonth, differenceInDays } from "date-fns"
@@ -48,16 +49,21 @@ export default function CalendarPage() {
       <Card className="overflow-x-auto">
         <div className="min-w-[1200px]">
           <div className="grid grid-cols-[250px_1fr]">
-            <div className="bg-[#F2FCE2] border-b border-r h-10 flex items-center px-4 font-medium">
+            <div className="bg-[#F2FCE2] border-b border-r h-12 flex items-center px-4 font-medium">
               Project
             </div>
             <div className="grid grid-cols-12 bg-[#F2FCE2] border-b">
               {months.map((month) => (
                 <div
                   key={month.getTime()}
-                  className="p-2 text-center text-sm font-medium border-r last:border-r-0"
+                  className="h-12 text-center border-r last:border-r-0 flex flex-col justify-center"
                 >
-                  {format(month, "MMM yyyy")}
+                  <div className="text-sm font-medium">
+                    {format(month, "MMM")}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {format(month, "yyyy")}
+                  </div>
                 </div>
               ))}
             </div>
