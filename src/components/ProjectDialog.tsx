@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/dialog"
 import { Form } from "@/components/ui/form"
 import { ProjectBasicFields } from "./projects/ProjectBasicFields"
-import { ProjectDateFields } from "./projects/ProjectDateFields"
 import { projectFormSchema, type ProjectFormSchema } from "./projects/project-schema"
 
 interface ProjectDialogProps {
@@ -56,7 +55,6 @@ export function ProjectDialog({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <ProjectBasicFields form={form} />
-            <ProjectDateFields form={form} />
             <DialogFooter>
               <Button type="submit">
                 {project ? "Update Project" : "Create Project"}

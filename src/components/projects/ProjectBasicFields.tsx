@@ -1,15 +1,5 @@
 
-import { CalendarIcon } from "lucide-react"
-import { format } from "date-fns"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import {
   Select,
@@ -18,12 +8,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import { Calendar } from "@/components/ui/calendar"
 import type { UseFormReturn } from "react-hook-form"
 import type { ProjectFormSchema } from "./project-schema"
 
@@ -82,6 +66,40 @@ export function ProjectBasicFields({ form }: ProjectBasicFieldsProps) {
                 <SelectItem value="cancelled">Cancelled</SelectItem>
               </SelectContent>
             </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={form.control}
+        name="start_date"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Start Date</FormLabel>
+            <FormControl>
+              <Input type="date" {...field} value={field.value?.toISOString().split('T')[0] || ''} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={form.control}
+        name="end_date"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>End Date (optional)</FormLabel>
+            <FormControl>
+              <Input 
+                type="date" 
+                {...field} 
+                value={field.value?.toISOString().split('T')[0] || ''} 
+                onChange={(e) => {
+                  const value = e.target.value ? new Date(e.target.value) : null;
+                  field.onChange(value);
+                }}
+              />
+            </FormControl>
             <FormMessage />
           </FormItem>
         )}
