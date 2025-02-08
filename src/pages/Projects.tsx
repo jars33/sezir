@@ -1,14 +1,14 @@
-
 import { useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { PlusCircle } from "lucide-react"
 import { toast } from "sonner"
 import { supabase } from "@/integrations/supabase/client"
 import { Button } from "@/components/ui/button"
-import { ProjectDialog, ProjectFormValues } from "@/components/ProjectDialog"
+import { ProjectDialog } from "@/components/ProjectDialog"
 import { ProjectList } from "@/components/projects/ProjectList"
 import { DeleteProjectDialog } from "@/components/projects/DeleteProjectDialog"
 import { useAuth } from "@/components/AuthProvider"
+import { type ProjectFormValues } from "@/components/projects/project-schema"
 
 type Project = {
   id: string
