@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { format, addMonths, startOfMonth, endOfMonth, differenceInDays } from "date-fns"
@@ -48,32 +47,34 @@ export default function CalendarPage() {
 
       <Card className="overflow-x-auto">
         <div className="min-w-[1200px]">
-          {/* Header with months */}
-          <div className="grid grid-cols-12 bg-[#F2FCE2] border-b">
-            {months.map((month) => (
-              <div
-                key={month.getTime()}
-                className="p-2 text-center text-sm font-medium border-r last:border-r-0"
-              >
-                {format(month, "MMM yyyy")}
-              </div>
-            ))}
-          </div>
+          <div className="grid grid-cols-[250px_1fr]">
+            <div className="bg-[#F2FCE2] border-b border-r h-10 flex items-center px-4 font-medium">
+              Project
+            </div>
+            <div className="grid grid-cols-12 bg-[#F2FCE2] border-b">
+              {months.map((month) => (
+                <div
+                  key={month.getTime()}
+                  className="p-2 text-center text-sm font-medium border-r last:border-r-0"
+                >
+                  {format(month, "MMM yyyy")}
+                </div>
+              ))}
+            </div>
 
-          {/* Projects list */}
-          <div className="divide-y">
-            {projects?.map((project) => (
-              <div
-                key={project.id}
-                className="grid grid-cols-[200px,1fr] hover:bg-gray-50"
-              >
-                <div className="p-3 border-r">
+            <div className="divide-y">
+              {projects?.map((project) => (
+                <div key={project.id} className="px-4 py-3">
                   <div className="font-medium">{project.name}</div>
                   <div className="text-sm text-muted-foreground">
                     #{project.number}
                   </div>
                 </div>
-                <div className="grid grid-cols-12 relative">
+              ))}
+            </div>
+            <div className="divide-y">
+              {projects?.map((project) => (
+                <div key={project.id} className="relative h-12">
                   {project.start_date && (
                     <div
                       className={`absolute h-6 top-1/2 -translate-y-1/2 rounded ${
@@ -102,15 +103,17 @@ export default function CalendarPage() {
                       }}
                     />
                   )}
-                  {months.map((month) => (
-                    <div
-                      key={month.getTime()}
-                      className="h-12 border-r last:border-r-0"
-                    />
-                  ))}
+                  <div className="grid grid-cols-12 h-full">
+                    {months.map((month) => (
+                      <div
+                        key={month.getTime()}
+                        className="border-r last:border-r-0"
+                      />
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </Card>
