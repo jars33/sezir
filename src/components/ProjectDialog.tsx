@@ -12,6 +12,7 @@ import {
 import { Form } from "@/components/ui/form"
 import { ProjectBasicFields } from "./projects/ProjectBasicFields"
 import { projectFormSchema, type ProjectFormSchema } from "./projects/project-schema"
+import { useEffect } from "react"
 
 interface ProjectDialogProps {
   project?: {
@@ -36,13 +37,34 @@ export function ProjectDialog({
   const form = useForm<ProjectFormSchema>({
     resolver: zodResolver(projectFormSchema),
     defaultValues: {
-      number: project?.number ?? "",
-      name: project?.name ?? "",
-      status: project?.status ?? "planned",
-      start_date: project?.start_date ?? null,
-      end_date: project?.end_date ?? null,
+      number: "",
+      name: "",
+      status: "planned",
+      start_date: null,
+      end_date: null,
     },
   })
+
+  // Reset form with project data when editing
+  useEffect(() => {
+    if (project) {
+      form.reset({
+        number: project.number,
+        name: project.name,
+        status: project.status,
+        start_date: project.start_date,
+        end_date: project.end_date,
+      })
+    } else {
+      form.reset({
+        number: "",
+        name: "",
+        status: "planned",
+        start_date: null,
+        end_date: null,
+      })
+    }
+  }, [project, form])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
