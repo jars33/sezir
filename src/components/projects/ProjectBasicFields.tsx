@@ -77,7 +77,15 @@ export function ProjectBasicFields({ form }: ProjectBasicFieldsProps) {
           <FormItem>
             <FormLabel>Start Date</FormLabel>
             <FormControl>
-              <Input type="date" {...field} value={field.value?.toISOString().split('T')[0] || ''} />
+              <Input 
+                type="date" 
+                {...field} 
+                value={field.value || ''} 
+                onChange={(e) => {
+                  const value = e.target.value || null;
+                  field.onChange(value);
+                }}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -93,9 +101,9 @@ export function ProjectBasicFields({ form }: ProjectBasicFieldsProps) {
               <Input 
                 type="date" 
                 {...field} 
-                value={field.value?.toISOString().split('T')[0] || ''} 
+                value={field.value || ''} 
                 onChange={(e) => {
-                  const value = e.target.value ? new Date(e.target.value) : null;
+                  const value = e.target.value || null;
                   field.onChange(value);
                 }}
               />
