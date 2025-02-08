@@ -70,9 +70,9 @@ export default function CalendarPage() {
 
             <div className="divide-y">
               {projects?.map((project) => (
-                <div key={project.id} className="px-4 py-3">
-                  <div className="font-medium">{project.name}</div>
-                  <div className="text-sm text-muted-foreground">
+                <div key={project.id} className="h-12 px-4 flex flex-col justify-center">
+                  <div className="font-medium leading-tight">{project.name}</div>
+                  <div className="text-sm text-muted-foreground leading-tight">
                     #{project.number}
                   </div>
                 </div>
