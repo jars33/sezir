@@ -47,10 +47,12 @@ export function TeamMemberBasicFields({ form }: TeamMemberBasicFieldsProps) {
         render={({ field }) => (
           <FormItem>
             <FormLabel>Start Date</FormLabel>
-            <DatePicker 
-              value={field.value ? new Date(field.value) : null}
-              onChange={(date) => field.onChange(date ? date.toISOString().split('T')[0] : null)}
-            />
+            <FormControl>
+              <DatePicker 
+                value={field.value ? new Date(field.value) : null}
+                onChange={(date) => field.onChange(date ? date.toISOString().split('T')[0] : null)}
+              />
+            </FormControl>
             <FormMessage />
           </FormItem>
         )}
@@ -62,10 +64,12 @@ export function TeamMemberBasicFields({ form }: TeamMemberBasicFieldsProps) {
         render={({ field }) => (
           <FormItem>
             <FormLabel>End Date (optional)</FormLabel>
-            <DatePicker 
-              value={field.value ? new Date(field.value) : null}
-              onChange={(date) => field.onChange(date ? date.toISOString().split('T')[0] : null)}
-            />
+            <FormControl>
+              <DatePicker 
+                value={field.value ? new Date(field.value) : null}
+                onChange={(date) => field.onChange(date ? date.toISOString().split('T')[0] : null)}
+              />
+            </FormControl>
             <FormMessage />
           </FormItem>
         )}
