@@ -1,7 +1,7 @@
 
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { format, addMonths, startOfMonth } from "date-fns"
+import { format, addMonths, startOfMonth, endOfMonth, differenceInDays } from "date-fns"
 import { Card } from "@/components/ui/card"
 import { supabase } from "@/integrations/supabase/client"
 import { Button } from "@/components/ui/button"
@@ -88,14 +88,16 @@ export default function CalendarPage() {
                       style={{
                         left: `${getProjectStartPosition(
                           new Date(project.start_date),
-                          months
+                          months[0],
+                          months[months.length - 1]
                         )}%`,
                         width: `${getProjectWidth(
                           new Date(project.start_date),
                           project.end_date
                             ? new Date(project.end_date)
                             : addMonths(new Date(project.start_date), 1),
-                          months
+                          months[0],
+                          months[months.length - 1]
                         )}%`,
                       }}
                     />
@@ -118,16 +120,15 @@ export default function CalendarPage() {
 
 function getProjectStartPosition(
   startDate: Date,
-  months: Date[]
+  timelineStart: Date,
+  timelineEnd: Date
 ): number {
-  const firstMonth = months[0]
-  const lastMonth = months[months.length - 1]
+  const totalDays = differenceInDays(timelineEnd, timelineStart)
+  const daysFromStart = differenceInDays(startDate, timelineStart)
   
-  if (startDate < firstMonth) return 0
-  if (startDate > lastMonth) return 100
-  
-  const totalDays = (lastMonth.getTime() - firstMonth.getTime()) / (1000 * 60 * 60 * 24)
-  const daysFromStart = (startDate.getTime() - firstMonth.getTime()) / (1000 * 60 * 60 * 24)
+  // Clamp to timeline range
+  if (startDate < timelineStart) return 0
+  if (startDate > timelineEnd) return 100
   
   return (daysFromStart / totalDays) * 100
 }
@@ -135,16 +136,16 @@ function getProjectStartPosition(
 function getProjectWidth(
   startDate: Date,
   endDate: Date,
-  months: Date[]
+  timelineStart: Date,
+  timelineEnd: Date
 ): number {
-  const firstMonth = months[0]
-  const lastMonth = months[months.length - 1]
+  const totalDays = differenceInDays(timelineEnd, timelineStart)
   
-  const effectiveStartDate = startDate < firstMonth ? firstMonth : startDate
-  const effectiveEndDate = endDate > lastMonth ? lastMonth : endDate
+  // Clamp dates to timeline range
+  const effectiveStartDate = startDate < timelineStart ? timelineStart : startDate
+  const effectiveEndDate = endDate > timelineEnd ? timelineEnd : endDate
   
-  const totalDays = (lastMonth.getTime() - firstMonth.getTime()) / (1000 * 60 * 60 * 24)
-  const projectDays = (effectiveEndDate.getTime() - effectiveStartDate.getTime()) / (1000 * 60 * 60 * 24)
+  const duration = differenceInDays(effectiveEndDate, effectiveStartDate)
   
-  return (projectDays / totalDays) * 100
+  return (duration / totalDays) * 100
 }
