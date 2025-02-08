@@ -49,7 +49,7 @@ export default function CalendarPage() {
       <Card className="overflow-x-auto">
         <div className="min-w-[1200px]">
           <div className="grid grid-cols-[250px_1fr]">
-            <div className="bg-[#F2FCE2] border-b border-r h-12 flex items-center px-4 font-medium">
+            <div className="bg-[#F2FCE2] border-b border-r h-12 flex items-center justify-center px-4 font-medium">
               Project
             </div>
             <div className="grid grid-cols-12 bg-[#F2FCE2] border-b">
