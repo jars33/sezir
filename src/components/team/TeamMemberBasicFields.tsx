@@ -2,7 +2,6 @@
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { DatePicker } from "@/components/ui/date-picker"
 import type { UseFormReturn } from "react-hook-form"
 import type { TeamMemberFormSchema } from "./team-member-schema"
 
@@ -48,10 +47,7 @@ export function TeamMemberBasicFields({ form }: TeamMemberBasicFieldsProps) {
           <FormItem>
             <FormLabel>Start Date</FormLabel>
             <FormControl>
-              <DatePicker 
-                value={field.value ? new Date(field.value) : null}
-                onChange={(date) => field.onChange(date ? date.toISOString().split('T')[0] : null)}
-              />
+              <Input type="date" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -65,9 +61,14 @@ export function TeamMemberBasicFields({ form }: TeamMemberBasicFieldsProps) {
           <FormItem>
             <FormLabel>End Date (optional)</FormLabel>
             <FormControl>
-              <DatePicker 
-                value={field.value ? new Date(field.value) : null}
-                onChange={(date) => field.onChange(date ? date.toISOString().split('T')[0] : null)}
+              <Input 
+                type="date" 
+                {...field} 
+                value={field.value || ''} 
+                onChange={(e) => {
+                  const value = e.target.value || null;
+                  field.onChange(value);
+                }}
               />
             </FormControl>
             <FormMessage />
