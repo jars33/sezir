@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { format } from "date-fns"
 import { useQuery } from "@tanstack/react-query"
+import { PlusCircle } from "lucide-react"
 import { useAuth } from "@/components/AuthProvider"
 import { supabase } from "@/integrations/supabase/client"
 import { Button } from "@/components/ui/button"
@@ -259,10 +260,23 @@ export default function TeamMemberDetails() {
           
           {id && (
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold">Salary History</h2>
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold">Salary History</h2>
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={() => {
+                    const salarySection = document.getElementById('add-salary-section');
+                    if (salarySection) {
+                      salarySection.style.display = salarySection.style.display === 'none' ? 'block' : 'none';
+                    }
+                  }}
+                >
+                  <PlusCircle className="h-5 w-5" />
+                </Button>
+              </div>
               
-              <div className="mb-8">
-                <h3 className="text-lg font-semibold mb-4">Add New Salary</h3>
+              <div id="add-salary-section" style={{ display: 'none' }} className="mb-8">
                 <Form {...salaryForm}>
                   <form onSubmit={salaryForm.handleSubmit(handleAddSalary)} className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
