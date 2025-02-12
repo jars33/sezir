@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -8,11 +7,13 @@ import { useAuth } from "@/components/AuthProvider"
 import { supabase } from "@/integrations/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
 import { TeamMemberBasicFields } from "@/components/team/TeamMemberBasicFields"
 import { TeamMemberContactFields } from "@/components/team/TeamMemberContactFields"
 import { teamMemberFormSchema, type TeamMemberFormSchema } from "@/components/team/team-member-schema"
-import type { TeamMember, TeamMemberFormValues } from "@/types/team-member"
+import type { TeamMember, TeamMemberFormValues, SalaryHistory } from "@/types/team-member"
 
 export default function TeamMemberDetails() {
   const { id } = useParams()
@@ -104,6 +105,62 @@ export default function TeamMemberDetails() {
     },
     enabled: !!member,
   })
+
+  const { data: salaryHistory, refetch: refetchSalary } = useQuery({
+    queryKey: ["team-member-salaries", id],
+    queryFn: async () => {
+      if (!id) return []
+      const { data, error } = await supabase
+        .from('salary_history')
+        .select('*')
+        .eq('team_member_id', id)
+        .order('start_date', { ascending: false })
+
+      if (error) throw error
+      return data as SalaryHistory[]
+    },
+    enabled: !!id,
+  })
+
+  const salaryForm = useForm({
+    defaultValues: {
+      amount: "",
+      start_date: format(new Date(), 'yyyy-MM-dd'),
+      end_date: "",
+    },
+  })
+
+  const handleAddSalary = async (values: { amount: string, start_date: string, end_date: string }) => {
+    if (!id || !session?.user.id) return
+
+    try {
+      const { error } = await supabase
+        .from("salary_history")
+        .insert({
+          team_member_id: id,
+          amount: parseFloat(values.amount),
+          start_date: values.start_date,
+          end_date: values.end_date || null,
+        })
+
+      if (error) throw error
+
+      toast({
+        title: "Success",
+        description: "New salary added successfully",
+      })
+      
+      // Reset form and refresh salary history
+      salaryForm.reset()
+      refetchSalary()
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      })
+    }
+  }
 
   async function onSubmit(values: TeamMemberFormSchema) {
     if (!session?.user.id) return
@@ -209,6 +266,99 @@ export default function TeamMemberDetails() {
           </div>
         </form>
       </Form>
+
+      {id && (
+        <div className="mt-12">
+          <h2 className="text-2xl font-bold mb-6">Salary History</h2>
+          
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold mb-4">Add New Salary</h3>
+            <Form {...salaryForm}>
+              <form onSubmit={salaryForm.handleSubmit(handleAddSalary)} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <FormField
+                    control={salaryForm.control}
+                    name="amount"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Amount</FormLabel>
+                        <FormControl>
+                          <Input type="number" step="0.01" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={salaryForm.control}
+                    name="start_date"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Start Date</FormLabel>
+                        <FormControl>
+                          <Input type="date" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={salaryForm.control}
+                    name="end_date"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>End Date (optional)</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="date" 
+                            {...field}
+                            value={field.value || ''}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                
+                <div className="flex justify-end">
+                  <Button type="submit">Add Salary</Button>
+                </div>
+              </form>
+            </Form>
+          </div>
+
+          <div className="border rounded-lg overflow-hidden">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Amount</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Start Date</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">End Date</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {salaryHistory?.map((salary) => (
+                  <tr key={salary.id}>
+                    <td className="px-4 py-3 text-sm">{salary.amount}</td>
+                    <td className="px-4 py-3 text-sm">{salary.start_date}</td>
+                    <td className="px-4 py-3 text-sm">{salary.end_date || '-'}</td>
+                  </tr>
+                ))}
+                {!salaryHistory?.length && (
+                  <tr>
+                    <td colSpan={3} className="px-4 py-3 text-sm text-center text-gray-500">
+                      No salary history found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
