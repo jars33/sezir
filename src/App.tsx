@@ -7,6 +7,7 @@ import MainLayout from "@/components/MainLayout"
 import Auth from "@/pages/Auth"
 import Index from "@/pages/Index"
 import Projects from "@/pages/Projects"
+import ProjectDetails from "@/pages/ProjectDetails"
 import Team from "@/pages/Team"
 import Calendar from "@/pages/Calendar"
 import Inbox from "@/pages/Inbox"
@@ -26,6 +27,7 @@ function App() {
             <Route path="/" element={<MainLayout />}>
               <Route index element={<Index />} />
               <Route path="projects" element={<Projects />} />
+              <Route path="projects/:id" element={<ProjectDetails />} />
               <Route path="team" element={<Team />} />
               <Route path="calendar" element={<Calendar />} />
               <Route path="inbox" element={<Inbox />} />

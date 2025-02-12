@@ -1,5 +1,7 @@
+
 import { useState } from "react"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useNavigate } from "react-router-dom"
+import { useQuery } from "@tanstack/react-query"
 import { PlusCircle } from "lucide-react"
 import { toast } from "sonner"
 import { supabase } from "@/integrations/supabase/client"
@@ -7,9 +9,6 @@ import { Button } from "@/components/ui/button"
 import { ProjectDialog } from "@/components/ProjectDialog"
 import { type ProjectFormSchema } from "@/components/projects/project-schema"
 import { ProjectList } from "@/components/projects/ProjectList"
-import { DeleteProjectDialog } from "@/components/projects/DeleteProjectDialog"
-import { ProjectRevenueList } from "@/components/projects/revenues/ProjectRevenueList"
-import { ProjectCostsList } from "@/components/projects/costs/ProjectCostsList"
 import { useAuth } from "@/components/AuthProvider"
 
 type Project = {
@@ -26,11 +25,8 @@ type Project = {
 
 export default function Projects() {
   const { session } = useAuth()
-  const queryClient = useQueryClient()
+  const navigate = useNavigate()
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
-  const [editProject, setEditProject] = useState<Project | null>(null)
-  const [deleteProject, setDeleteProject] = useState<Project | null>(null)
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
 
   const { data: projects, isLoading } = useQuery({
     queryKey: ["projects"],
@@ -60,63 +56,22 @@ export default function Projects() {
         status: values.status,
       }
 
-      const { error } = await supabase.from("projects").insert([projectData])
+      const { data, error } = await supabase
+        .from("projects")
+        .insert([projectData])
+        .select()
+        .single()
 
       if (error) throw error
 
-      await queryClient.invalidateQueries({ queryKey: ["projects"] })
       setCreateDialogOpen(false)
       toast.success("Project created successfully")
+      
+      if (data) {
+        navigate(`/projects/${data.id}`)
+      }
     } catch (error) {
       toast.error("Failed to create project")
-      console.error(error)
-    }
-  }
-
-  const handleEditProject = async (values: ProjectFormSchema) => {
-    if (!editProject) return
-
-    try {
-      const projectData = {
-        number: values.number,
-        name: values.name,
-        start_date: values.start_date || null,
-        end_date: values.end_date || null,
-        status: values.status,
-      }
-
-      const { error } = await supabase
-        .from("projects")
-        .update(projectData)
-        .eq("id", editProject.id)
-
-      if (error) throw error
-
-      await queryClient.invalidateQueries({ queryKey: ["projects"] })
-      setEditProject(null)
-      toast.success("Project updated successfully")
-    } catch (error) {
-      toast.error("Failed to update project")
-      console.error(error)
-    }
-  }
-
-  const handleDeleteProject = async () => {
-    if (!deleteProject) return
-
-    try {
-      const { error } = await supabase
-        .from("projects")
-        .delete()
-        .eq("id", deleteProject.id)
-
-      if (error) throw error
-
-      await queryClient.invalidateQueries({ queryKey: ["projects"] })
-      setDeleteProject(null)
-      toast.success("Project deleted successfully")
-    } catch (error) {
-      toast.error("Failed to delete project")
       console.error(error)
     }
   }
@@ -137,36 +92,16 @@ export default function Projects() {
 
       <ProjectList
         projects={projects ?? []}
-        onEdit={setEditProject}
-        onDelete={setDeleteProject}
-        onSelect={setSelectedProject}
-        selectedProject={selectedProject}
+        onEdit={(project) => navigate(`/projects/${project.id}`)}
+        onDelete={(project) => navigate(`/projects/${project.id}`)}
+        onSelect={(project) => navigate(`/projects/${project.id}`)}
+        selectedProject={null}
       />
-
-      {selectedProject && (
-        <>
-          <ProjectRevenueList projectId={selectedProject.id} />
-          <ProjectCostsList projectId={selectedProject.id} />
-        </>
-      )}
 
       <ProjectDialog
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
         onSubmit={handleCreateProject}
-      />
-
-      <ProjectDialog
-        project={editProject ?? undefined}
-        open={Boolean(editProject)}
-        onOpenChange={(open) => !open && setEditProject(null)}
-        onSubmit={handleEditProject}
-      />
-
-      <DeleteProjectDialog
-        open={Boolean(deleteProject)}
-        onOpenChange={(open) => !open && setDeleteProject(null)}
-        onConfirm={handleDeleteProject}
       />
     </div>
   )
