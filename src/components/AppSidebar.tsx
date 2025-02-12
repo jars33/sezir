@@ -56,16 +56,16 @@ const items = [
 
 export function AppSidebar() {
   return (
-    <Sidebar className="w-52"> {/* Reduced from default width */}
+    <Sidebar className="w-44"> {/* Further reduced width */}
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel className="px-2 text-xs">Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a href={item.url} className="px-2"> {/* Reduced padding */}
+                    <a href={item.url} className="px-2 py-1.5 text-sm"> {/* Added smaller text and reduced vertical padding */}
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
                     </a>

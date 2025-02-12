@@ -156,7 +156,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle>Project Timeline</CardTitle>
           <div className="flex gap-2">
@@ -186,15 +186,15 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
             return (
               <div
                 key={month.getTime()}
-                className="bg-white p-4 min-h-[200px] space-y-4"
+                className="bg-white p-2 min-h-[150px] space-y-2" // Reduced padding and height
               >
-                <div className="flex items-center justify-between">
-                  <h3 className="font-medium">{format(month, "MMM yyyy")}</h3>
-                  <div className="flex gap-1">
+                <div className="flex items-center justify-between gap-1">
+                  <h3 className="text-sm font-medium">{format(month, "MMM yyyy")}</h3>
+                  <div className="flex">
                     <Button
                       variant="ghost"
-                      size="icon"
-                      className="hover:bg-green-50"
+                      size="sm"
+                      className="h-7 w-7 p-0 hover:bg-green-50"
                       onClick={() => setAddRevenueDate(month)}
                       title="Add Revenue"
                     >
@@ -202,8 +202,8 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
                     </Button>
                     <Button
                       variant="ghost"
-                      size="icon"
-                      className="hover:bg-blue-50"
+                      size="sm"
+                      className="h-7 w-7 p-0 hover:bg-blue-50"
                       onClick={() => setAddVariableCostDate(month)}
                       title="Add Variable Cost"
                     >
@@ -211,8 +211,8 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
                     </Button>
                     <Button
                       variant="ghost"
-                      size="icon"
-                      className="hover:bg-orange-50"
+                      size="sm"
+                      className="h-7 w-7 p-0 hover:bg-orange-50"
                       onClick={() => setAddOverheadCostDate(month)}
                       title="Add Overhead Cost"
                     >
@@ -224,7 +224,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
                 {monthRevenues?.map((revenue) => (
                   <div
                     key={revenue.id}
-                    className="p-2 bg-green-50 border border-green-200 rounded text-sm"
+                    className="p-1.5 bg-green-50 border border-green-200 rounded text-sm"
                   >
                     ${revenue.amount.toFixed(2)}
                   </div>
@@ -233,7 +233,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
                 {monthVariableCosts?.map((cost) => (
                   <div
                     key={cost.id}
-                    className="p-2 bg-blue-50 border border-blue-200 rounded text-sm"
+                    className="p-1.5 bg-blue-50 border border-blue-200 rounded text-sm"
                   >
                     <div>${cost.amount.toFixed(2)}</div>
                     {cost.description && (
@@ -245,7 +245,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
                 {monthOverheadCosts?.map((cost) => (
                   <div
                     key={cost.id}
-                    className="p-2 bg-orange-50 border border-orange-200 rounded text-sm"
+                    className="p-1.5 bg-orange-50 border border-orange-200 rounded text-sm"
                   >
                     ${cost.amount.toFixed(2)}
                   </div>
