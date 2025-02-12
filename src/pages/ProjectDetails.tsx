@@ -1,14 +1,12 @@
-
 import { useParams, useNavigate } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
 import { ArrowLeft } from "lucide-react"
 import { toast } from "sonner"
 import { supabase } from "@/integrations/supabase/client"
 import { Button } from "@/components/ui/button"
-import { ProjectRevenueList } from "@/components/projects/revenues/ProjectRevenueList"
-import { ProjectCostsList } from "@/components/projects/costs/ProjectCostsList"
 import { ProjectDialog } from "@/components/ProjectDialog"
 import { DeleteProjectDialog } from "@/components/projects/DeleteProjectDialog"
+import { ProjectTimelineView } from "@/components/projects/ProjectTimelineView"
 import { useState } from "react"
 import type { ProjectFormSchema } from "@/components/projects/project-schema"
 
@@ -126,8 +124,7 @@ export default function ProjectDetails() {
         </div>
       </div>
 
-      <ProjectRevenueList projectId={project.id} />
-      <ProjectCostsList projectId={project.id} />
+      <ProjectTimelineView projectId={project.id} />
 
       <ProjectDialog
         project={project}

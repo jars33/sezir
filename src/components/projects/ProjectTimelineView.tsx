@@ -1,0 +1,294 @@
+
+import { useState } from "react"
+import { useQuery } from "@tanstack/react-query"
+import { addMonths, format, startOfMonth, endOfMonth } from "date-fns"
+import { ChevronLeft, ChevronRight, PlusCircle } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { supabase } from "@/integrations/supabase/client"
+import { toast } from "sonner"
+import { ProjectRevenueDialog } from "./revenues/ProjectRevenueDialog"
+import { ProjectVariableCostDialog } from "./costs/ProjectVariableCostDialog"
+import { ProjectOverheadCostDialog } from "./costs/ProjectOverheadCostDialog"
+
+interface TimelineItem {
+  id: string
+  month: string
+  amount: number
+  description?: string
+}
+
+interface ProjectTimelineViewProps {
+  projectId: string
+}
+
+export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
+  const [startDate, setStartDate] = useState(startOfMonth(new Date()))
+  const [addRevenueDate, setAddRevenueDate] = useState<Date | null>(null)
+  const [addVariableCostDate, setAddVariableCostDate] = useState<Date | null>(null)
+  const [addOverheadCostDate, setAddOverheadCostDate] = useState<Date | null>(null)
+
+  const months = Array.from({ length: 12 }, (_, i) => addMonths(startDate, i))
+
+  const { data: revenues } = useQuery({
+    queryKey: ["project-revenues", projectId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("project_revenues")
+        .select("*")
+        .eq("project_id", projectId)
+
+      if (error) {
+        toast.error("Failed to load revenues")
+        throw error
+      }
+
+      return data as TimelineItem[]
+    },
+  })
+
+  const { data: variableCosts } = useQuery({
+    queryKey: ["project-variable-costs", projectId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("project_variable_costs")
+        .select("*")
+        .eq("project_id", projectId)
+
+      if (error) {
+        toast.error("Failed to load variable costs")
+        throw error
+      }
+
+      return data as TimelineItem[]
+    },
+  })
+
+  const { data: overheadCosts } = useQuery({
+    queryKey: ["project-overhead-costs", projectId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("project_overhead_costs")
+        .select("*")
+        .eq("project_id", projectId)
+
+      if (error) {
+        toast.error("Failed to load overhead costs")
+        throw error
+      }
+
+      return data as TimelineItem[]
+    },
+  })
+
+  const handlePreviousYear = () => {
+    setStartDate(prev => addMonths(prev, -12))
+  }
+
+  const handleNextYear = () => {
+    setStartDate(prev => addMonths(prev, 12))
+  }
+
+  const handleAddRevenue = async (values: { month: string; amount: string }) => {
+    try {
+      const { error } = await supabase.from("project_revenues").insert([
+        {
+          project_id: projectId,
+          month: values.month + "-01",
+          amount: parseFloat(values.amount),
+        },
+      ])
+
+      if (error) throw error
+
+      toast.success("Revenue added successfully")
+      setAddRevenueDate(null)
+    } catch (error) {
+      toast.error("Failed to add revenue")
+    }
+  }
+
+  const handleAddVariableCost = async (values: {
+    month: string
+    amount: string
+    description: string
+  }) => {
+    try {
+      const { error } = await supabase.from("project_variable_costs").insert([
+        {
+          project_id: projectId,
+          month: values.month + "-01",
+          amount: parseFloat(values.amount),
+          description: values.description,
+        },
+      ])
+
+      if (error) throw error
+
+      toast.success("Variable cost added successfully")
+      setAddVariableCostDate(null)
+    } catch (error) {
+      toast.error("Failed to add variable cost")
+    }
+  }
+
+  const handleAddOverheadCost = async (values: { month: string; amount: string }) => {
+    try {
+      const { error } = await supabase.from("project_overhead_costs").insert([
+        {
+          project_id: projectId,
+          month: values.month + "-01",
+          amount: parseFloat(values.amount),
+        },
+      ])
+
+      if (error) throw error
+
+      toast.success("Overhead cost added successfully")
+      setAddOverheadCostDate(null)
+    } catch (error) {
+      toast.error("Failed to add overhead cost")
+    }
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle>Project Timeline</CardTitle>
+          <div className="flex gap-2">
+            <Button variant="outline" size="icon" onClick={handlePreviousYear}>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button variant="outline" size="icon" onClick={handleNextYear}>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-12 gap-px bg-gray-200 rounded-lg overflow-hidden">
+          {months.map((month) => {
+            const monthStr = format(month, "yyyy-MM")
+            const monthRevenues = revenues?.filter(
+              (r) => r.month.startsWith(monthStr)
+            )
+            const monthVariableCosts = variableCosts?.filter(
+              (c) => c.month.startsWith(monthStr)
+            )
+            const monthOverheadCosts = overheadCosts?.filter(
+              (c) => c.month.startsWith(monthStr)
+            )
+
+            return (
+              <div
+                key={month.getTime()}
+                className="bg-white p-4 min-h-[200px] space-y-4"
+              >
+                <div className="flex items-center justify-between">
+                  <h3 className="font-medium">{format(month, "MMM yyyy")}</h3>
+                  <div className="flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setAddRevenueDate(month)}
+                    >
+                      <PlusCircle className="h-4 w-4 text-green-600" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setAddVariableCostDate(month)}
+                    >
+                      <PlusCircle className="h-4 w-4 text-blue-600" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setAddOverheadCostDate(month)}
+                    >
+                      <PlusCircle className="h-4 w-4 text-orange-600" />
+                    </Button>
+                  </div>
+                </div>
+
+                {monthRevenues?.map((revenue) => (
+                  <div
+                    key={revenue.id}
+                    className="p-2 bg-green-50 border border-green-200 rounded text-sm"
+                  >
+                    ${revenue.amount.toFixed(2)}
+                  </div>
+                ))}
+
+                {monthVariableCosts?.map((cost) => (
+                  <div
+                    key={cost.id}
+                    className="p-2 bg-blue-50 border border-blue-200 rounded text-sm"
+                  >
+                    <div>${cost.amount.toFixed(2)}</div>
+                    {cost.description && (
+                      <div className="text-xs text-gray-600">{cost.description}</div>
+                    )}
+                  </div>
+                ))}
+
+                {monthOverheadCosts?.map((cost) => (
+                  <div
+                    key={cost.id}
+                    className="p-2 bg-orange-50 border border-orange-200 rounded text-sm"
+                  >
+                    ${cost.amount.toFixed(2)}
+                  </div>
+                ))}
+              </div>
+            )
+          })}
+        </div>
+
+        <ProjectRevenueDialog
+          open={Boolean(addRevenueDate)}
+          onOpenChange={(open) => !open && setAddRevenueDate(null)}
+          onSubmit={handleAddRevenue}
+          defaultValues={
+            addRevenueDate
+              ? {
+                  month: format(addRevenueDate, "yyyy-MM"),
+                  amount: "",
+                }
+              : undefined
+          }
+        />
+
+        <ProjectVariableCostDialog
+          open={Boolean(addVariableCostDate)}
+          onOpenChange={(open) => !open && setAddVariableCostDate(null)}
+          onSubmit={handleAddVariableCost}
+          defaultValues={
+            addVariableCostDate
+              ? {
+                  month: format(addVariableCostDate, "yyyy-MM"),
+                  amount: "",
+                  description: "",
+                }
+              : undefined
+          }
+        />
+
+        <ProjectOverheadCostDialog
+          open={Boolean(addOverheadCostDate)}
+          onOpenChange={(open) => !open && setAddOverheadCostDate(null)}
+          onSubmit={handleAddOverheadCost}
+          defaultValues={
+            addOverheadCostDate
+              ? {
+                  month: format(addOverheadCostDate, "yyyy-MM"),
+                  amount: "",
+                }
+              : undefined
+          }
+        />
+      </CardContent>
+    </Card>
+  )
+}
