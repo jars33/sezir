@@ -1,6 +1,5 @@
-
 import { useState } from "react"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { addMonths, format, startOfMonth, setMonth } from "date-fns"
 import { ChevronLeft, ChevronRight, PlusCircle } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -23,6 +22,7 @@ interface ProjectTimelineViewProps {
 }
 
 export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
+  const queryClient = useQueryClient()
   const [startDate, setStartDate] = useState(() => {
     const now = new Date()
     return startOfMonth(setMonth(now, 0)) // Set to January of current year
@@ -104,6 +104,8 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
 
       if (error) throw error
 
+      // Invalidate both queries to ensure timeline and revenue list update
+      queryClient.invalidateQueries({ queryKey: ["project-revenues"] })
       toast.success("Revenue added successfully")
       setAddRevenueDate(null)
     } catch (error) {
@@ -128,6 +130,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
 
       if (error) throw error
 
+      queryClient.invalidateQueries({ queryKey: ["project-variable-costs"] })
       toast.success("Variable cost added successfully")
       setAddVariableCostDate(null)
     } catch (error) {
@@ -147,6 +150,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
 
       if (error) throw error
 
+      queryClient.invalidateQueries({ queryKey: ["project-overhead-costs"] })
       toast.success("Overhead cost added successfully")
       setAddOverheadCostDate(null)
     } catch (error) {
