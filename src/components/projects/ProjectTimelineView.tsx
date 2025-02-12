@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { addMonths, format, startOfMonth, setMonth } from "date-fns"
@@ -164,13 +163,44 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle>Project Timeline</CardTitle>
-          <div className="flex gap-2">
-            <Button variant="outline" size="icon" onClick={handlePreviousYear}>
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="icon" onClick={handleNextYear}>
-              <ChevronRight className="h-4 w-4" />
-            </Button>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="hover:bg-green-50 hover:text-green-600"
+                onClick={() => setAddRevenueDate(new Date())}
+              >
+                <PlusCircle className="h-4 w-4 mr-2" />
+                Revenue
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="hover:bg-blue-50 hover:text-blue-600"
+                onClick={() => setAddVariableCostDate(new Date())}
+              >
+                <PlusCircle className="h-4 w-4 mr-2" />
+                Variable Cost
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="hover:bg-orange-50 hover:text-orange-600"
+                onClick={() => setAddOverheadCostDate(new Date())}
+              >
+                <PlusCircle className="h-4 w-4 mr-2" />
+                Overhead Cost
+              </Button>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" size="icon" onClick={handlePreviousYear}>
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="icon" onClick={handleNextYear}>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
       </CardHeader>
@@ -195,38 +225,6 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
               >
                 <div className="flex items-center justify-between gap-1 mb-2">
                   <h3 className="text-sm font-medium">{format(month, "MMM yyyy")}</h3>
-                  <div className="flex gap-1">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-7 px-2 hover:bg-green-50 hover:text-green-600 flex items-center gap-1"
-                      onClick={() => setAddRevenueDate(month)}
-                      title="Add Revenue"
-                    >
-                      <PlusCircle className="h-4 w-4" />
-                      <span className="sr-only">Revenue</span>
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-7 px-2 hover:bg-blue-50 hover:text-blue-600 flex items-center gap-1"
-                      onClick={() => setAddVariableCostDate(month)}
-                      title="Add Variable Cost"
-                    >
-                      <PlusCircle className="h-4 w-4" />
-                      <span className="sr-only">Variable</span>
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-7 px-2 hover:bg-orange-50 hover:text-orange-600 flex items-center gap-1"
-                      onClick={() => setAddOverheadCostDate(month)}
-                      title="Add Overhead Cost"
-                    >
-                      <PlusCircle className="h-4 w-4" />
-                      <span className="sr-only">Overhead</span>
-                    </Button>
-                  </div>
                 </div>
 
                 {monthRevenues?.map((revenue) => (
