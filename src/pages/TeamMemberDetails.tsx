@@ -171,7 +171,37 @@ export default function TeamMemberDetails() {
     }
 
     try {
-      const { error } = await supabase
+      // Get the most recent salary that doesn't have an end date
+      const { data: currentSalary, error: currentSalaryError } = await supabase
+        .from('salary_history')
+        .select('*')
+        .eq('team_member_id', id)
+        .is('end_date', null)
+        .order('start_date', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (currentSalaryError && currentSalaryError.code !== 'PGRST116') throw currentSalaryError;
+
+      // Calculate the day before the new start date
+      const newStartDate = new Date(values.start_date);
+      const endDateForPreviousSalary = new Date(newStartDate);
+      endDateForPreviousSalary.setDate(newStartDate.getDate() - 1);
+
+      // If there's a current salary, update its end date
+      if (currentSalary) {
+        const { error: updateError } = await supabase
+          .from("salary_history")
+          .update({
+            end_date: format(endDateForPreviousSalary, 'yyyy-MM-dd')
+          })
+          .eq('id', currentSalary.id);
+
+        if (updateError) throw updateError;
+      }
+
+      // Insert the new salary
+      const { error: insertError } = await supabase
         .from("salary_history")
         .insert({
           team_member_id: id,
@@ -180,7 +210,7 @@ export default function TeamMemberDetails() {
           end_date: values.end_date || null,
         });
 
-      if (error) throw error;
+      if (insertError) throw insertError;
 
       toast({
         title: "Success",
