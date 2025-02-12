@@ -205,8 +205,8 @@ export default function TeamMemberDetails() {
     }
   }
 
-  const handleShowAddSalary = () => {
-    // Just show the form without any database operation
+  const handleShowAddSalary = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent form submission
     const salarySection = document.getElementById('add-salary-section');
     if (salarySection) {
       salarySection.style.display = 'block';
@@ -286,6 +286,7 @@ export default function TeamMemberDetails() {
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold">Salary History</h2>
                 <Button 
+                  type="button" // Add this to prevent form submission
                   variant="ghost" 
                   size="icon"
                   onClick={handleShowAddSalary}
