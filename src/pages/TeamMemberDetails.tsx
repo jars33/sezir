@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -132,8 +131,42 @@ export default function TeamMemberDetails() {
     },
   })
 
+  const checkDateOverlap = (startDate: string, endDate: string | null, currentSalaryId?: string) => {
+    if (!salaryHistory) return false;
+    
+    return salaryHistory.some(salary => {
+      if (currentSalaryId && salary.id === currentSalaryId) return false;
+      
+      const salaryStart = new Date(salary.start_date);
+      const salaryEnd = salary.end_date ? new Date(salary.end_date) : null;
+      const newStart = new Date(startDate);
+      const newEnd = endDate ? new Date(endDate) : null;
+      
+      // If either salary has no end date, it extends indefinitely
+      if (!salaryEnd && !newEnd) return true;
+      if (!salaryEnd) return newStart <= new Date(salary.start_date);
+      if (!newEnd) return salaryStart <= new Date(startDate);
+      
+      // Check if date ranges overlap
+      return (
+        (newStart <= salaryEnd && newEnd >= salaryStart) ||
+        (salaryStart <= newEnd && salaryEnd >= newStart)
+      );
+    });
+  };
+
   const handleAddSalary = async (values: { amount: string, start_date: string, end_date: string }) => {
-    if (!id || !session?.user.id) return
+    if (!id || !session?.user.id) return;
+
+    // Check for date overlap before submitting
+    if (checkDateOverlap(values.start_date, values.end_date || null)) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "The salary period overlaps with an existing period. Please adjust the dates.",
+      });
+      return;
+    }
 
     try {
       const { error } = await supabase
@@ -143,24 +176,30 @@ export default function TeamMemberDetails() {
           amount: parseFloat(values.amount),
           start_date: values.start_date,
           end_date: values.end_date || null,
-        })
+        });
 
-      if (error) throw error
+      if (error) throw error;
 
       toast({
         title: "Success",
         description: "New salary added successfully",
-      })
+      });
       
       // Reset form and refresh salary history
-      salaryForm.reset()
-      refetchSalary()
+      salaryForm.reset();
+      refetchSalary();
+      
+      // Hide the salary form
+      const salarySection = document.getElementById('add-salary-section');
+      if (salarySection) {
+        salarySection.style.display = 'none';
+      }
     } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Error",
         description: error.message,
-      })
+      });
     }
   }
 
