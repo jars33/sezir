@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { PlusCircle } from "lucide-react"
@@ -10,6 +9,7 @@ import { type ProjectFormSchema } from "@/components/projects/project-schema"
 import { ProjectList } from "@/components/projects/ProjectList"
 import { DeleteProjectDialog } from "@/components/projects/DeleteProjectDialog"
 import { ProjectRevenueList } from "@/components/projects/revenues/ProjectRevenueList"
+import { ProjectCostsList } from "@/components/projects/costs/ProjectCostsList"
 import { useAuth } from "@/components/AuthProvider"
 
 type Project = {
@@ -144,7 +144,10 @@ export default function Projects() {
       />
 
       {selectedProject && (
-        <ProjectRevenueList projectId={selectedProject.id} />
+        <>
+          <ProjectRevenueList projectId={selectedProject.id} />
+          <ProjectCostsList projectId={selectedProject.id} />
+        </>
       )}
 
       <ProjectDialog
