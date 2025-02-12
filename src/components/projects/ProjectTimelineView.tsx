@@ -1,7 +1,7 @@
 
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { addMonths, format, startOfMonth, endOfMonth } from "date-fns"
+import { addMonths, format, startOfMonth, setMonth } from "date-fns"
 import { ChevronLeft, ChevronRight, PlusCircle } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -23,7 +23,10 @@ interface ProjectTimelineViewProps {
 }
 
 export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
-  const [startDate, setStartDate] = useState(startOfMonth(new Date()))
+  const [startDate, setStartDate] = useState(() => {
+    const now = new Date()
+    return startOfMonth(setMonth(now, 0)) // Set to January of current year
+  })
   const [addRevenueDate, setAddRevenueDate] = useState<Date | null>(null)
   const [addVariableCostDate, setAddVariableCostDate] = useState<Date | null>(null)
   const [addOverheadCostDate, setAddOverheadCostDate] = useState<Date | null>(null)
@@ -191,21 +194,27 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
                     <Button
                       variant="ghost"
                       size="icon"
+                      className="hover:bg-green-50"
                       onClick={() => setAddRevenueDate(month)}
+                      title="Add Revenue"
                     >
                       <PlusCircle className="h-4 w-4 text-green-600" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
+                      className="hover:bg-blue-50"
                       onClick={() => setAddVariableCostDate(month)}
+                      title="Add Variable Cost"
                     >
                       <PlusCircle className="h-4 w-4 text-blue-600" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
+                      className="hover:bg-orange-50"
                       onClick={() => setAddOverheadCostDate(month)}
+                      title="Add Overhead Cost"
                     >
                       <PlusCircle className="h-4 w-4 text-orange-600" />
                     </Button>
