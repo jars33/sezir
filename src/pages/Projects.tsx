@@ -9,6 +9,7 @@ import { ProjectDialog } from "@/components/ProjectDialog"
 import { type ProjectFormSchema } from "@/components/projects/project-schema"
 import { ProjectList } from "@/components/projects/ProjectList"
 import { DeleteProjectDialog } from "@/components/projects/DeleteProjectDialog"
+import { ProjectRevenueList } from "@/components/projects/revenues/ProjectRevenueList"
 import { useAuth } from "@/components/AuthProvider"
 
 type Project = {
@@ -29,6 +30,7 @@ export default function Projects() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [editProject, setEditProject] = useState<Project | null>(null)
   const [deleteProject, setDeleteProject] = useState<Project | null>(null)
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
 
   const { data: projects, isLoading } = useQuery({
     queryKey: ["projects"],
@@ -58,9 +60,7 @@ export default function Projects() {
         status: values.status,
       }
 
-      const { error } = await supabase
-        .from("projects")
-        .insert([projectData])
+      const { error } = await supabase.from("projects").insert([projectData])
 
       if (error) throw error
 
@@ -139,7 +139,13 @@ export default function Projects() {
         projects={projects ?? []}
         onEdit={setEditProject}
         onDelete={setDeleteProject}
+        onSelect={setSelectedProject}
+        selectedProject={selectedProject}
       />
+
+      {selectedProject && (
+        <ProjectRevenueList projectId={selectedProject.id} />
+      )}
 
       <ProjectDialog
         open={createDialogOpen}

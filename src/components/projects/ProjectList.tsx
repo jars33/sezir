@@ -10,6 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
+import { cn } from "@/lib/utils"
 
 type Project = {
   id: string
@@ -34,9 +35,17 @@ interface ProjectListProps {
   projects: Project[]
   onEdit: (project: Project) => void
   onDelete: (project: Project) => void
+  onSelect: (project: Project) => void
+  selectedProject: Project | null
 }
 
-export function ProjectList({ projects, onEdit, onDelete }: ProjectListProps) {
+export function ProjectList({
+  projects,
+  onEdit,
+  onDelete,
+  onSelect,
+  selectedProject,
+}: ProjectListProps) {
   return (
     <div className="rounded-md border">
       <Table>
@@ -52,14 +61,18 @@ export function ProjectList({ projects, onEdit, onDelete }: ProjectListProps) {
         </TableHeader>
         <TableBody>
           {projects?.map((project) => (
-            <TableRow key={project.id}>
+            <TableRow
+              key={project.id}
+              className={cn(
+                "cursor-pointer hover:bg-muted/50",
+                selectedProject?.id === project.id && "bg-muted"
+              )}
+              onClick={() => onSelect(project)}
+            >
               <TableCell>{project.number}</TableCell>
               <TableCell>{project.name}</TableCell>
               <TableCell>
-                <Badge
-                  variant="secondary"
-                  className={statusColors[project.status]}
-                >
+                <Badge variant="secondary" className={statusColors[project.status]}>
                   {project.status.replace("_", " ")}
                 </Badge>
               </TableCell>
@@ -78,14 +91,20 @@ export function ProjectList({ projects, onEdit, onDelete }: ProjectListProps) {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => onEdit(project)}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onEdit(project)
+                    }}
                   >
                     <Edit2Icon className="h-4 w-4" />
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => onDelete(project)}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onDelete(project)
+                    }}
                   >
                     <Trash2Icon className="h-4 w-4" />
                   </Button>
