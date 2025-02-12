@@ -26,19 +26,59 @@ export function TeamMemberBasicFields({ form }: TeamMemberBasicFieldsProps) {
         )}
       />
 
-      <FormField
-        control={form.control}
-        name="salary"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Salary</FormLabel>
-            <FormControl>
-              <Input type="number" step="0.01" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      <div className="space-y-4 border rounded-lg p-4 bg-gray-50">
+        <h3 className="font-medium">Salary Information</h3>
+        
+        <FormField
+          control={form.control}
+          name="salary.amount"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Salary Amount</FormLabel>
+              <FormControl>
+                <Input type="number" step="0.01" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="salary.start_date"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Salary Start Date</FormLabel>
+              <FormControl>
+                <Input type="date" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="salary.end_date"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Salary End Date (optional)</FormLabel>
+              <FormControl>
+                <Input 
+                  type="date" 
+                  {...field} 
+                  value={field.value || ''} 
+                  onChange={(e) => {
+                    const value = e.target.value || null;
+                    field.onChange(value);
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
 
       <FormField
         control={form.control}

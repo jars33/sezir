@@ -2,7 +2,6 @@
 export type TeamMember = {
   id: string
   name: string
-  salary: number
   start_date: string
   end_date: string | null
   personal_phone: string | null
@@ -16,7 +15,23 @@ export type TeamMember = {
   user_id: string
 }
 
+export type SalaryHistory = {
+  id: string
+  team_member_id: string
+  amount: number
+  start_date: string
+  end_date: string | null
+  created_at: string
+  updated_at: string
+}
+
 export type TeamMemberFormValues = Omit<
   TeamMember,
   "id" | "created_at" | "updated_at"
->
+> & {
+  salary: {
+    amount: string
+    start_date: string
+    end_date: string | null
+  }
+}

@@ -267,6 +267,44 @@ export type Database = {
         }
         Relationships: []
       }
+      salary_history: {
+        Row: {
+          amount: number
+          created_at: string
+          end_date: string | null
+          id: string
+          start_date: string
+          team_member_id: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          start_date: string
+          team_member_id: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          start_date?: string
+          team_member_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "salary_history_team_member_id_fkey"
+            columns: ["team_member_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       team_members: {
         Row: {
           company_email: string | null
@@ -278,7 +316,6 @@ export type Database = {
           name: string
           personal_email: string | null
           personal_phone: string | null
-          salary: number
           start_date: string
           type: Database["public"]["Enums"]["employee_type"]
           updated_at: string
@@ -294,7 +331,6 @@ export type Database = {
           name: string
           personal_email?: string | null
           personal_phone?: string | null
-          salary: number
           start_date: string
           type: Database["public"]["Enums"]["employee_type"]
           updated_at?: string
@@ -310,7 +346,6 @@ export type Database = {
           name?: string
           personal_email?: string | null
           personal_phone?: string | null
-          salary?: number
           start_date?: string
           type?: Database["public"]["Enums"]["employee_type"]
           updated_at?: string

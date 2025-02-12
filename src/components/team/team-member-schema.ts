@@ -3,7 +3,11 @@ import * as z from "zod"
 
 export const teamMemberFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  salary: z.string().min(1, "Salary is required"),
+  salary: z.object({
+    amount: z.string().min(1, "Salary amount is required"),
+    start_date: z.string().min(1, "Salary start date is required"),
+    end_date: z.string().nullable(),
+  }),
   start_date: z.string().min(1, "Start date is required"),
   end_date: z.string().nullable(),
   personal_phone: z.string().nullable(),

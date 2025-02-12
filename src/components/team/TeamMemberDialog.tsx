@@ -17,7 +17,7 @@ import { useToast } from "@/hooks/use-toast"
 import { TeamMemberBasicFields } from "./TeamMemberBasicFields"
 import { TeamMemberContactFields } from "./TeamMemberContactFields"
 import { teamMemberFormSchema, type TeamMemberFormSchema } from "./team-member-schema"
-import type { TeamMember, TeamMemberFormValues } from "@/types/team-member"
+import type { TeamMember, TeamMemberFormValues, SalaryHistory } from "@/types/team-member"
 
 interface TeamMemberDialogProps {
   open: boolean
@@ -39,7 +39,11 @@ export function TeamMemberDialog({
     resolver: zodResolver(teamMemberFormSchema),
     defaultValues: {
       name: "",
-      salary: "",
+      salary: {
+        amount: "",
+        start_date: format(new Date(), 'yyyy-MM-dd'),
+        end_date: null,
+      },
       start_date: format(new Date(), 'yyyy-MM-dd'),
       end_date: null,
       personal_phone: null,
@@ -53,68 +57,125 @@ export function TeamMemberDialog({
   })
 
   useEffect(() => {
-    if (member) {
-      form.reset({
-        name: member.name,
-        salary: member.salary.toString(),
-        start_date: member.start_date,
-        end_date: member.end_date,
-        personal_phone: member.personal_phone,
-        personal_email: member.personal_email,
-        company_phone: member.company_phone,
-        company_email: member.company_email,
-        type: member.type,
-        left_company: member.left_company,
-        user_id: member.user_id,
-      })
-    } else if (session?.user.id) {
-      form.reset({
-        name: "",
-        salary: "",
-        start_date: format(new Date(), 'yyyy-MM-dd'),
-        end_date: null,
-        personal_phone: null,
-        personal_email: null,
-        company_phone: null,
-        company_email: null,
-        type: "contract" as const,
-        left_company: false,
-        user_id: session.user.id,
-      })
+    const loadMemberData = async () => {
+      if (member) {
+        // Fetch the latest salary for this member
+        const { data: salaryData, error: salaryError } = await supabase
+          .from('salary_history')
+          .select('*')
+          .eq('team_member_id', member.id)
+          .order('start_date', { ascending: false })
+          .limit(1)
+          .single()
+
+        if (salaryError && salaryError.code !== 'PGRST116') {
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to load salary history",
+          })
+          return
+        }
+
+        form.reset({
+          name: member.name,
+          salary: {
+            amount: salaryData ? salaryData.amount.toString() : "",
+            start_date: salaryData ? salaryData.start_date : format(new Date(), 'yyyy-MM-dd'),
+            end_date: salaryData ? salaryData.end_date : null,
+          },
+          start_date: member.start_date,
+          end_date: member.end_date,
+          personal_phone: member.personal_phone,
+          personal_email: member.personal_email,
+          company_phone: member.company_phone,
+          company_email: member.company_email,
+          type: member.type,
+          left_company: member.left_company,
+          user_id: member.user_id,
+        })
+      } else if (session?.user.id) {
+        form.reset({
+          name: "",
+          salary: {
+            amount: "",
+            start_date: format(new Date(), 'yyyy-MM-dd'),
+            end_date: null,
+          },
+          start_date: format(new Date(), 'yyyy-MM-dd'),
+          end_date: null,
+          personal_phone: null,
+          personal_email: null,
+          company_phone: null,
+          company_email: null,
+          type: "contract" as const,
+          left_company: false,
+          user_id: session.user.id,
+        })
+      }
     }
-  }, [member, form, session])
+
+    loadMemberData()
+  }, [member, form, session, toast])
 
   async function onSubmit(values: TeamMemberFormSchema) {
     if (!session?.user.id) return
 
-    const teamMemberData: TeamMemberFormValues = {
-      name: values.name,
-      salary: parseFloat(values.salary),
-      start_date: values.start_date,
-      end_date: values.end_date,
-      personal_phone: values.personal_phone,
-      personal_email: values.personal_email,
-      company_phone: values.company_phone,
-      company_email: values.company_email,
-      type: values.type,
-      left_company: values.left_company,
-      user_id: session.user.id,
-    }
-
     try {
+      const teamMemberData: Omit<TeamMemberFormValues, "salary"> = {
+        name: values.name,
+        start_date: values.start_date,
+        end_date: values.end_date,
+        personal_phone: values.personal_phone,
+        personal_email: values.personal_email,
+        company_phone: values.company_phone,
+        company_email: values.company_email,
+        type: values.type,
+        left_company: values.left_company,
+        user_id: session.user.id,
+      }
+
       if (member) {
-        const { error } = await supabase
+        // Update existing team member
+        const { error: teamMemberError } = await supabase
           .from("team_members")
           .update(teamMemberData)
           .eq("id", member.id)
 
-        if (error) throw error
+        if (teamMemberError) throw teamMemberError
+
+        // Update or insert salary history
+        const { error: salaryError } = await supabase
+          .from("salary_history")
+          .insert({
+            team_member_id: member.id,
+            amount: parseFloat(values.salary.amount),
+            start_date: values.salary.start_date,
+            end_date: values.salary.end_date,
+          })
+
+        if (salaryError) throw salaryError
       } else {
-        const { error } = await supabase
+        // Insert new team member
+        const { data: newMember, error: teamMemberError } = await supabase
           .from("team_members")
           .insert(teamMemberData)
+          .select()
+          .single()
 
-        if (error) throw error
+        if (teamMemberError) throw teamMemberError
+
+        // Insert salary history for new member
+        const { error: salaryError } = await supabase
+          .from("salary_history")
+          .insert({
+            team_member_id: newMember.id,
+            amount: parseFloat(values.salary.amount),
+            start_date: values.salary.start_date,
+            end_date: values.salary.end_date,
+          })
+
+        if (salaryError) throw salaryError
       }
 
       onSuccess()
