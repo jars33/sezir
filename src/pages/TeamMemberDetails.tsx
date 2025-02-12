@@ -59,6 +59,14 @@ export default function TeamMemberDetails() {
     },
   })
 
+  const salaryForm = useForm({
+    defaultValues: {
+      amount: "",
+      start_date: format(new Date(), 'yyyy-MM-dd'),
+      end_date: "",
+    },
+  })
+
   useQuery({
     queryKey: ["team-member-salary", id],
     queryFn: async () => {
@@ -83,54 +91,6 @@ export default function TeamMemberDetails() {
     enabled: !!id && !!member,
   })
 
-  useQuery({
-    queryKey: ["team-member-form", member?.id],
-    queryFn: async () => {
-      if (!member) return null
-      
-      form.reset({
-        name: member.name,
-        start_date: member.start_date,
-        end_date: member.end_date,
-        personal_phone: member.personal_phone,
-        personal_email: member.personal_email,
-        company_phone: member.company_phone,
-        company_email: member.company_email,
-        type: member.type,
-        left_company: member.left_company,
-        user_id: member.user_id,
-        salary: form.getValues("salary"), // Keep existing salary values
-      })
-      
-      return null
-    },
-    enabled: !!member,
-  })
-
-  const { data: salaryHistory, refetch: refetchSalary } = useQuery({
-    queryKey: ["team-member-salaries", id],
-    queryFn: async () => {
-      if (!id) return []
-      const { data, error } = await supabase
-        .from('salary_history')
-        .select('*')
-        .eq('team_member_id', id)
-        .order('start_date', { ascending: false })
-
-      if (error) throw error
-      return data as SalaryHistory[]
-    },
-    enabled: !!id,
-  })
-
-  const salaryForm = useForm({
-    defaultValues: {
-      amount: "",
-      start_date: format(new Date(), 'yyyy-MM-dd'),
-      end_date: "",
-    },
-  })
-
   const checkDateOverlap = (startDate: string, endDate: string | null) => {
     if (!salaryHistory) return false;
     
@@ -141,8 +101,6 @@ export default function TeamMemberDetails() {
       const salaryStart = new Date(salary.start_date).getTime();
       const salaryEnd = salary.end_date ? new Date(salary.end_date).getTime() : Infinity;
       
-      // Two date ranges overlap if one range's start is before the other's end
-      // and the first range's end is after the other's start
       return (newStart <= salaryEnd && newEnd >= salaryStart);
     });
   };
@@ -203,81 +161,25 @@ export default function TeamMemberDetails() {
         description: error.message,
       });
     }
-  }
+  };
 
-  async function onSubmit(values: TeamMemberFormSchema) {
-    if (!session?.user.id) return
-
-    try {
-      const teamMemberData: Omit<TeamMemberFormValues, "salary"> = {
-        name: values.name,
-        start_date: values.start_date,
-        end_date: values.end_date,
-        personal_phone: values.personal_phone,
-        personal_email: values.personal_email,
-        company_phone: values.company_phone,
-        company_email: values.company_email,
-        type: values.type,
-        left_company: values.left_company,
-        user_id: session.user.id,
+  const handleShowAddSalary = () => {
+    if (salaryHistory && salaryHistory.length > 0) {
+      const sortedSalaries = [...salaryHistory].sort((a, b) => 
+        new Date(b.start_date).getTime() - new Date(a.start_date).getTime()
+      );
+      const mostRecentSalary = sortedSalaries[0];
+      
+      if (mostRecentSalary.end_date) {
+        salaryForm.setValue('start_date', mostRecentSalary.end_date);
       }
-
-      if (id) {
-        // Update existing team member
-        const { error: teamMemberError } = await supabase
-          .from("team_members")
-          .update(teamMemberData)
-          .eq("id", id)
-
-        if (teamMemberError) throw teamMemberError
-
-        // Update or insert salary history
-        const { error: salaryError } = await supabase
-          .from("salary_history")
-          .insert({
-            team_member_id: id,
-            amount: parseFloat(values.salary.amount),
-            start_date: values.salary.start_date,
-            end_date: values.salary.end_date,
-          })
-
-        if (salaryError) throw salaryError
-      } else {
-        // Insert new team member
-        const { data: newMember, error: teamMemberError } = await supabase
-          .from("team_members")
-          .insert(teamMemberData)
-          .select()
-          .single()
-
-        if (teamMemberError) throw teamMemberError
-
-        // Insert salary history for new member
-        const { error: salaryError } = await supabase
-          .from("salary_history")
-          .insert({
-            team_member_id: newMember.id,
-            amount: parseFloat(values.salary.amount),
-            start_date: values.salary.start_date,
-            end_date: values.salary.end_date,
-          })
-
-        if (salaryError) throw salaryError
-      }
-
-      toast({
-        title: "Success",
-        description: `Team member ${id ? "updated" : "added"} successfully`,
-      })
-      navigate("/team")
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message,
-      })
     }
-  }
+    
+    const salarySection = document.getElementById('add-salary-section');
+    if (salarySection) {
+      salarySection.style.display = 'block';
+    }
+  };
 
   if (isLoading) {
     return <div className="p-8">Loading...</div>
@@ -306,12 +208,7 @@ export default function TeamMemberDetails() {
                 <Button 
                   variant="ghost" 
                   size="icon"
-                  onClick={() => {
-                    const salarySection = document.getElementById('add-salary-section');
-                    if (salarySection) {
-                      salarySection.style.display = salarySection.style.display === 'none' ? 'block' : 'none';
-                    }
-                  }}
+                  onClick={handleShowAddSalary}
                 >
                   <PlusCircle className="h-5 w-5" />
                 </Button>
