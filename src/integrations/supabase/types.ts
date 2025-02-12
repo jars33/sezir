@@ -358,7 +358,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      add_salary_and_update_previous: {
+        Args: {
+          p_team_member_id: string
+          p_amount: number
+          p_start_date: string
+          p_end_date: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       employee_type: "contract" | "external"
