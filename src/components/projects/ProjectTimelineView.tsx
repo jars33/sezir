@@ -1,3 +1,4 @@
+
 import { useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { addMonths, format, startOfMonth, setMonth } from "date-fns"
@@ -190,37 +191,40 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
             return (
               <div
                 key={month.getTime()}
-                className="bg-white p-2 min-h-[150px] space-y-2" // Reduced padding and height
+                className="bg-white p-2 min-h-[150px] space-y-2"
               >
-                <div className="flex items-center justify-between gap-1">
+                <div className="flex items-center justify-between gap-1 mb-2">
                   <h3 className="text-sm font-medium">{format(month, "MMM yyyy")}</h3>
-                  <div className="flex">
+                  <div className="flex gap-1">
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
-                      className="h-7 w-7 p-0 hover:bg-green-50"
+                      className="h-7 px-2 hover:bg-green-50 hover:text-green-600 flex items-center gap-1"
                       onClick={() => setAddRevenueDate(month)}
                       title="Add Revenue"
                     >
-                      <PlusCircle className="h-4 w-4 text-green-600" />
+                      <PlusCircle className="h-4 w-4" />
+                      <span className="sr-only">Revenue</span>
                     </Button>
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
-                      className="h-7 w-7 p-0 hover:bg-blue-50"
+                      className="h-7 px-2 hover:bg-blue-50 hover:text-blue-600 flex items-center gap-1"
                       onClick={() => setAddVariableCostDate(month)}
                       title="Add Variable Cost"
                     >
-                      <PlusCircle className="h-4 w-4 text-blue-600" />
+                      <PlusCircle className="h-4 w-4" />
+                      <span className="sr-only">Variable</span>
                     </Button>
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
-                      className="h-7 w-7 p-0 hover:bg-orange-50"
+                      className="h-7 px-2 hover:bg-orange-50 hover:text-orange-600 flex items-center gap-1"
                       onClick={() => setAddOverheadCostDate(month)}
                       title="Add Overhead Cost"
                     >
-                      <PlusCircle className="h-4 w-4 text-orange-600" />
+                      <PlusCircle className="h-4 w-4" />
+                      <span className="sr-only">Overhead</span>
                     </Button>
                   </div>
                 </div>
