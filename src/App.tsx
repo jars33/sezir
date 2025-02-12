@@ -9,6 +9,7 @@ import Index from "@/pages/Index"
 import Projects from "@/pages/Projects"
 import ProjectDetails from "@/pages/ProjectDetails"
 import Team from "@/pages/Team"
+import TeamMemberDetails from "@/pages/TeamMemberDetails"
 import Calendar from "@/pages/Calendar"
 import Inbox from "@/pages/Inbox"
 import NotFound from "@/pages/NotFound"
@@ -29,6 +30,8 @@ function App() {
               <Route path="projects" element={<Projects />} />
               <Route path="projects/:id" element={<ProjectDetails />} />
               <Route path="team" element={<Team />} />
+              <Route path="team/new" element={<TeamMemberDetails />} />
+              <Route path="team/:id" element={<TeamMemberDetails />} />
               <Route path="calendar" element={<Calendar />} />
               <Route path="inbox" element={<Inbox />} />
               <Route path="*" element={<NotFound />} />

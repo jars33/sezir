@@ -1,17 +1,15 @@
 
-import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
+import { useNavigate } from "react-router-dom"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
 import { TeamMemberList } from "@/components/team/TeamMemberList"
-import { TeamMemberDialog } from "@/components/team/TeamMemberDialog"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/components/AuthProvider"
 import type { TeamMember } from "@/types/team-member"
 
 export default function Team() {
-  const [open, setOpen] = useState(false)
-  const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null)
+  const navigate = useNavigate()
   const { session } = useAuth()
   const { toast } = useToast()
 
@@ -29,22 +27,7 @@ export default function Team() {
   })
 
   const handleEdit = (member: TeamMember) => {
-    setSelectedMember(member)
-    setOpen(true)
-  }
-
-  const handleClose = () => {
-    setSelectedMember(null)
-    setOpen(false)
-  }
-
-  const handleSuccess = () => {
-    refetch()
-    handleClose()
-    toast({
-      title: "Success",
-      description: `Team member ${selectedMember ? "updated" : "added"} successfully`,
-    })
+    navigate(`/team/${member.id}`)
   }
 
   if (!session) return null
@@ -53,17 +36,10 @@ export default function Team() {
     <div className="container py-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Team Members</h1>
-        <Button onClick={() => setOpen(true)}>Add Team Member</Button>
+        <Button onClick={() => navigate("/team/new")}>Add Team Member</Button>
       </div>
       
       <TeamMemberList members={members || []} onEdit={handleEdit} onSuccess={() => refetch()} />
-      
-      <TeamMemberDialog
-        open={open}
-        onOpenChange={setOpen}
-        member={selectedMember}
-        onSuccess={handleSuccess}
-      />
     </div>
   )
 }
