@@ -1,3 +1,4 @@
+
 import { useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { addMonths, format, startOfMonth, setMonth } from "date-fns"
@@ -210,13 +211,19 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
             const monthStr = format(month, "yyyy-MM")
             const monthRevenues = revenues?.filter(
               (r) => r.month.startsWith(monthStr)
-            )
+            ) || []
             const monthVariableCosts = variableCosts?.filter(
               (c) => c.month.startsWith(monthStr)
-            )
+            ) || []
             const monthOverheadCosts = overheadCosts?.filter(
               (c) => c.month.startsWith(monthStr)
-            )
+            ) || []
+
+            // Calculate total revenue and costs
+            const totalRevenue = monthRevenues.reduce((sum, r) => sum + Number(r.amount), 0)
+            const totalVariableCosts = monthVariableCosts.reduce((sum, c) => sum + Number(c.amount), 0)
+            const totalOverheadCosts = monthOverheadCosts.reduce((sum, c) => sum + Number(c.amount), 0)
+            const profit = totalRevenue - totalVariableCosts - totalOverheadCosts
 
             return (
               <div
@@ -256,6 +263,15 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
                     ${cost.amount.toFixed(2)}
                   </div>
                 ))}
+
+                {/* Profit line */}
+                <div className={`mt-auto p-1.5 rounded text-sm font-medium ${
+                  profit >= 0 
+                    ? "bg-purple-50 border border-purple-200 text-purple-700"
+                    : "bg-red-50 border border-red-200 text-red-700"
+                }`}>
+                  Profit: ${profit.toFixed(2)}
+                </div>
               </div>
             )
           })}
