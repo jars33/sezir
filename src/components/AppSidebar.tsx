@@ -56,7 +56,7 @@ const items = [
 
 export function AppSidebar() {
   return (
-    <Sidebar>
+    <Sidebar className="w-52"> {/* Reduced from default width */}
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
@@ -65,7 +65,7 @@ export function AppSidebar() {
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a href={item.url}>
+                    <a href={item.url} className="px-2"> {/* Reduced padding */}
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
                     </a>

@@ -30,9 +30,9 @@ export default function MainLayout() {
         <AppSidebar />
         <div className="flex-1">
           <div className="border-b">
-            <div className="flex h-16 items-center px-4">
+            <div className="flex h-16 items-center px-2"> {/* Reduced padding */}
               <SidebarTrigger />
-              <div className="ml-auto flex items-center space-x-4">
+              <div className="ml-auto flex items-center space-x-2"> {/* Reduced spacing */}
                 <Button onClick={handleSignOut}>Sign Out</Button>
               </div>
             </div>
