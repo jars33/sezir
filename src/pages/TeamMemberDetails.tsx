@@ -1,3 +1,4 @@
+
 import { useParams, useNavigate } from "react-router-dom"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -67,29 +68,56 @@ export default function TeamMemberDetails() {
     },
   })
 
-  useQuery({
-    queryKey: ["team-member-salary", id],
+  const { data: salaryHistory, refetch: refetchSalary } = useQuery({
+    queryKey: ["salary-history", id],
     queryFn: async () => {
-      if (!id) return null
+      if (!id) return []
       const { data, error } = await supabase
         .from('salary_history')
         .select('*')
         .eq('team_member_id', id)
         .order('start_date', { ascending: false })
-        .limit(1)
-        .single()
 
-      if (error && error.code !== 'PGRST116') throw error
-      
-      if (data) {
-        form.setValue("salary.amount", data.amount.toString())
-        form.setValue("salary.start_date", data.start_date)
-        form.setValue("salary.end_date", data.end_date)
-      }
-      return data
+      if (error) throw error
+      return data as SalaryHistory[]
     },
-    enabled: !!id && !!member,
+    enabled: !!id,
   })
+
+  const onSubmit = async (values: TeamMemberFormSchema) => {
+    if (!session?.user.id) return
+
+    try {
+      if (id) {
+        const { error } = await supabase
+          .from("team_members")
+          .update({
+            ...values,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", id)
+
+        if (error) throw error
+      } else {
+        const { error } = await supabase
+          .from("team_members")
+          .insert({
+            ...values,
+            user_id: session.user.id,
+          })
+
+        if (error) throw error
+      }
+
+      navigate("/team")
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      })
+    }
+  }
 
   const checkDateOverlap = (startDate: string, endDate: string | null) => {
     if (!salaryHistory) return false;
@@ -165,11 +193,13 @@ export default function TeamMemberDetails() {
 
   const handleShowAddSalary = () => {
     if (salaryHistory && salaryHistory.length > 0) {
+      // Sort salary history by start date in descending order to get the most recent
       const sortedSalaries = [...salaryHistory].sort((a, b) => 
         new Date(b.start_date).getTime() - new Date(a.start_date).getTime()
       );
       const mostRecentSalary = sortedSalaries[0];
       
+      // If the most recent salary has an end date, use it as the start date for the new salary
       if (mostRecentSalary.end_date) {
         salaryForm.setValue('start_date', mostRecentSalary.end_date);
       }
