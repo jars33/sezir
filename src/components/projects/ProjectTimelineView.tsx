@@ -228,44 +228,46 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
             return (
               <div
                 key={month.getTime()}
-                className="bg-white p-2 min-h-[150px] space-y-2"
+                className="bg-white p-2 min-h-[150px] flex flex-col"
               >
                 <div className="flex items-center justify-between gap-1 mb-2">
                   <h3 className="text-sm font-medium">{format(month, "MMM yyyy")}</h3>
                 </div>
 
-                {monthRevenues?.map((revenue) => (
-                  <div
-                    key={revenue.id}
-                    className="p-1.5 bg-green-50 border border-green-200 rounded text-sm"
-                  >
-                    ${revenue.amount.toFixed(2)}
-                  </div>
-                ))}
+                <div className="space-y-2 flex-1">
+                  {monthRevenues?.map((revenue) => (
+                    <div
+                      key={revenue.id}
+                      className="p-1.5 bg-green-50 border border-green-200 rounded text-sm"
+                    >
+                      ${revenue.amount.toFixed(2)}
+                    </div>
+                  ))}
 
-                {monthVariableCosts?.map((cost) => (
-                  <div
-                    key={cost.id}
-                    className="p-1.5 bg-blue-50 border border-blue-200 rounded text-sm"
-                  >
-                    <div>${cost.amount.toFixed(2)}</div>
-                    {cost.description && (
-                      <div className="text-xs text-gray-600">{cost.description}</div>
-                    )}
-                  </div>
-                ))}
+                  {monthVariableCosts?.map((cost) => (
+                    <div
+                      key={cost.id}
+                      className="p-1.5 bg-blue-50 border border-blue-200 rounded text-sm"
+                    >
+                      <div>${cost.amount.toFixed(2)}</div>
+                      {cost.description && (
+                        <div className="text-xs text-gray-600">{cost.description}</div>
+                      )}
+                    </div>
+                  ))}
 
-                {monthOverheadCosts?.map((cost) => (
-                  <div
-                    key={cost.id}
-                    className="p-1.5 bg-orange-50 border border-orange-200 rounded text-sm"
-                  >
-                    ${cost.amount.toFixed(2)}
-                  </div>
-                ))}
+                  {monthOverheadCosts?.map((cost) => (
+                    <div
+                      key={cost.id}
+                      className="p-1.5 bg-orange-50 border border-orange-200 rounded text-sm"
+                    >
+                      ${cost.amount.toFixed(2)}
+                    </div>
+                  ))}
+                </div>
 
                 {/* Profit line */}
-                <div className={`mt-auto p-1.5 rounded text-sm font-medium ${
+                <div className={`mt-2 p-1.5 rounded text-sm font-medium ${
                   profit >= 0 
                     ? "bg-purple-50 border border-purple-200 text-purple-700"
                     : "bg-red-50 border border-red-200 text-red-700"
