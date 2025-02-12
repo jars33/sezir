@@ -249,7 +249,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
                       key={cost.id}
                       className="p-1.5 bg-red-50 border border-red-200 rounded text-sm"
                     >
-                      <div>${cost.amount.toFixed(2)}</div>
+                      <div>-${cost.amount.toFixed(2)}</div>
                       {cost.description && (
                         <div className="text-xs text-gray-600">{cost.description}</div>
                       )}
@@ -261,7 +261,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
                       key={cost.id}
                       className="p-1.5 bg-orange-50 border border-orange-200 rounded text-sm"
                     >
-                      ${cost.amount.toFixed(2)}
+                      -${cost.amount.toFixed(2)}
                     </div>
                   ))}
                 </div>
