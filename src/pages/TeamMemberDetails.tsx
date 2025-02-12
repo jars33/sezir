@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -214,6 +213,54 @@ export default function TeamMemberDetails() {
     }
   }
 
+  const handleSubmit = async (values: TeamMemberFormSchema) => {
+    if (!session?.user.id) return
+
+    try {
+      const teamMemberData = {
+        name: values.name,
+        start_date: values.start_date,
+        end_date: values.end_date,
+        personal_phone: values.personal_phone,
+        personal_email: values.personal_email,
+        company_phone: values.company_phone,
+        company_email: values.company_email,
+        type: values.type,
+        left_company: values.left_company,
+        user_id: session.user.id,
+      }
+
+      if (id) {
+        // Update existing team member
+        const { error: teamMemberError } = await supabase
+          .from("team_members")
+          .update(teamMemberData)
+          .eq("id", id)
+
+        if (teamMemberError) throw teamMemberError
+      } else {
+        // Insert new team member
+        const { error: teamMemberError } = await supabase
+          .from("team_members")
+          .insert(teamMemberData)
+
+        if (teamMemberError) throw teamMemberError
+      }
+
+      toast({
+        title: "Success",
+        description: `Team member ${id ? "updated" : "added"} successfully`,
+      })
+      navigate("/team")
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      })
+    }
+  }
+
   if (isLoading) {
     return <div className="p-8">Loading...</div>
   }
@@ -230,7 +277,7 @@ export default function TeamMemberDetails() {
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
           <TeamMemberBasicFields form={form} />
           <TeamMemberContactFields form={form} />
           
