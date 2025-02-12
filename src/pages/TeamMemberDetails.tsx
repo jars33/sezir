@@ -59,7 +59,7 @@ export default function TeamMemberDetails() {
     },
   })
 
-  useQuery({
+  const { data: initialSalary, refetch: refetchInitialSalary } = useQuery({
     queryKey: ["team-member-salary", id],
     queryFn: async () => {
       if (!id) return null
@@ -81,30 +81,6 @@ export default function TeamMemberDetails() {
       return data
     },
     enabled: !!id && !!member,
-  })
-
-  useQuery({
-    queryKey: ["team-member-form", member?.id],
-    queryFn: async () => {
-      if (!member) return null
-      
-      form.reset({
-        name: member.name,
-        start_date: member.start_date,
-        end_date: member.end_date,
-        personal_phone: member.personal_phone,
-        personal_email: member.personal_email,
-        company_phone: member.company_phone,
-        company_email: member.company_email,
-        type: member.type,
-        left_company: member.left_company,
-        user_id: member.user_id,
-        salary: form.getValues("salary"), // Keep existing salary values
-      })
-      
-      return null
-    },
-    enabled: !!member,
   })
 
   const { data: salaryHistory, refetch: refetchSalary } = useQuery({
@@ -141,8 +117,6 @@ export default function TeamMemberDetails() {
       const salaryStart = new Date(salary.start_date).getTime();
       const salaryEnd = salary.end_date ? new Date(salary.end_date).getTime() : Infinity;
       
-      // Two date ranges overlap if one range's start is before the other's end
-      // and the first range's end is after the other's start
       return (newStart <= salaryEnd && newEnd >= salaryStart);
     });
   };
@@ -185,9 +159,9 @@ export default function TeamMemberDetails() {
         description: "New salary added successfully",
       });
       
-      // Reset form and refresh salary history
+      // Reset form and refresh both salary queries
       salaryForm.reset();
-      refetchSalary();
+      await Promise.all([refetchSalary(), refetchInitialSalary()]);
       
       // Hide the salary form
       const salarySection = document.getElementById('add-salary-section');
