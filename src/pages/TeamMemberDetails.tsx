@@ -84,15 +84,22 @@ export default function TeamMemberDetails() {
     enabled: !!id,
   })
 
-  const onSubmit = async (values: TeamMemberFormSchema) => {
+  const handleSubmit = async (values: TeamMemberFormSchema) => {
     if (!session?.user.id) return
+
+    // Remove the salary field before sending to Supabase
+    const { salary, ...teamMemberData } = values
+    const dataToSubmit = {
+      ...teamMemberData,
+      user_id: session.user.id,
+    }
 
     try {
       if (id) {
         const { error } = await supabase
           .from("team_members")
           .update({
-            ...values,
+            ...dataToSubmit,
             updated_at: new Date().toISOString(),
           })
           .eq("id", id)
@@ -101,10 +108,7 @@ export default function TeamMemberDetails() {
       } else {
         const { error } = await supabase
           .from("team_members")
-          .insert({
-            ...values,
-            user_id: session.user.id,
-          })
+          .insert(dataToSubmit)
 
         if (error) throw error
       }
@@ -227,7 +231,7 @@ export default function TeamMemberDetails() {
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
           <TeamMemberBasicFields form={form} />
           <TeamMemberContactFields form={form} />
           
