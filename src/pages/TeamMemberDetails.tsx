@@ -131,32 +131,34 @@ export default function TeamMemberDetails() {
     },
   })
 
-  const checkDateOverlap = (startDate: string, endDate: string | null, currentSalaryId?: string) => {
+  const checkDateOverlap = (startDate: string, endDate: string | null) => {
     if (!salaryHistory) return false;
     
+    const newStart = new Date(startDate).getTime();
+    const newEnd = endDate ? new Date(endDate).getTime() : Infinity;
+    
     return salaryHistory.some(salary => {
-      if (currentSalaryId && salary.id === currentSalaryId) return false;
+      const salaryStart = new Date(salary.start_date).getTime();
+      const salaryEnd = salary.end_date ? new Date(salary.end_date).getTime() : Infinity;
       
-      const salaryStart = new Date(salary.start_date);
-      const salaryEnd = salary.end_date ? new Date(salary.end_date) : null;
-      const newStart = new Date(startDate);
-      const newEnd = endDate ? new Date(endDate) : null;
-      
-      // If either salary has no end date, it extends indefinitely
-      if (!salaryEnd && !newEnd) return true;
-      if (!salaryEnd) return newStart <= new Date(salary.start_date);
-      if (!newEnd) return salaryStart <= new Date(startDate);
-      
-      // Check if date ranges overlap
-      return (
-        (newStart <= salaryEnd && newEnd >= salaryStart) ||
-        (salaryStart <= newEnd && salaryEnd >= newStart)
-      );
+      // Two date ranges overlap if one range's start is before the other's end
+      // and the first range's end is after the other's start
+      return (newStart <= salaryEnd && newEnd >= salaryStart);
     });
   };
 
   const handleAddSalary = async (values: { amount: string, start_date: string, end_date: string }) => {
     if (!id || !session?.user.id) return;
+
+    // Validate the dates
+    if (values.end_date && new Date(values.end_date) < new Date(values.start_date)) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "End date cannot be before start date",
+      });
+      return;
+    }
 
     // Check for date overlap before submitting
     if (checkDateOverlap(values.start_date, values.end_date || null)) {
