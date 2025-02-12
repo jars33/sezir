@@ -178,7 +178,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
               <Button
                 variant="outline"
                 size="sm"
-                className="hover:bg-blue-50 hover:text-blue-600"
+                className="hover:bg-red-50 hover:text-red-600"
                 onClick={() => setAddVariableCostDate(new Date())}
               >
                 <PlusCircle className="h-4 w-4 mr-2" />
@@ -247,7 +247,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
                   {monthVariableCosts?.map((cost) => (
                     <div
                       key={cost.id}
-                      className="p-1.5 bg-blue-50 border border-blue-200 rounded text-sm"
+                      className="p-1.5 bg-red-50 border border-red-200 rounded text-sm"
                     >
                       <div>${cost.amount.toFixed(2)}</div>
                       {cost.description && (
