@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog"
 import {
   Form,
@@ -37,6 +38,8 @@ interface ProjectVariableCostDialogProps {
   onOpenChange: (open: boolean) => void
   onSubmit: (values: { month: string; amount: string; description: string }) => void
   defaultValues?: Partial<VariableCostFormSchema>
+  showDelete?: boolean
+  onDelete?: () => void
 }
 
 export function ProjectVariableCostDialog({
@@ -44,6 +47,8 @@ export function ProjectVariableCostDialog({
   onOpenChange,
   onSubmit,
   defaultValues,
+  showDelete,
+  onDelete,
 }: ProjectVariableCostDialogProps) {
   const [isPeriod, setIsPeriod] = useState(false)
 
@@ -193,11 +198,21 @@ export function ProjectVariableCostDialog({
               )}
             />
 
-            <div className="flex justify-end">
+            <DialogFooter className="gap-2 sm:gap-0">
+              {showDelete && onDelete && (
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={onDelete}
+                  className="sm:mr-auto"
+                >
+                  Delete Variable Cost
+                </Button>
+              )}
               <Button type="submit">
                 {defaultValues ? "Update" : "Add"} Variable Cost
               </Button>
-            </div>
+            </DialogFooter>
           </form>
         </Form>
       </DialogContent>

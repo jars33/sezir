@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog"
 import {
   Form,
@@ -35,6 +36,8 @@ interface ProjectOverheadCostDialogProps {
   onOpenChange: (open: boolean) => void
   onSubmit: (values: { month: string; amount: string }) => void
   defaultValues?: Partial<OverheadCostFormSchema>
+  showDelete?: boolean
+  onDelete?: () => void
 }
 
 export function ProjectOverheadCostDialog({
@@ -42,6 +45,8 @@ export function ProjectOverheadCostDialog({
   onOpenChange,
   onSubmit,
   defaultValues,
+  showDelete,
+  onDelete,
 }: ProjectOverheadCostDialogProps) {
   const [isPeriod, setIsPeriod] = useState(false)
 
@@ -168,11 +173,21 @@ export function ProjectOverheadCostDialog({
               )}
             />
 
-            <div className="flex justify-end">
+            <DialogFooter className="gap-2 sm:gap-0">
+              {showDelete && onDelete && (
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={onDelete}
+                  className="sm:mr-auto"
+                >
+                  Delete Overhead Cost
+                </Button>
+              )}
               <Button type="submit">
                 {defaultValues ? "Update" : "Add"} Overhead Cost
               </Button>
-            </div>
+            </DialogFooter>
           </form>
         </Form>
       </DialogContent>
