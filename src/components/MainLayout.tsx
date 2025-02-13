@@ -28,14 +28,14 @@ export default function MainLayout() {
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
         <AppSidebar />
-        <div className="flex-1">
-          <div className="flex h-12 items-center px-4 justify-between">
+        <div className="flex-1 flex flex-col">
+          <div className="h-12 flex items-center px-4 justify-between border-b">
             <SidebarTrigger />
             <Button onClick={handleSignOut}>Sign Out</Button>
           </div>
-          <main className="flex-1">
+          <div className="flex-1">
             <Outlet />
-          </main>
+          </div>
         </div>
       </div>
     </SidebarProvider>
