@@ -37,9 +37,6 @@ export default function MainLayout() {
     <div className="min-h-screen flex w-full bg-white">
       {/* Sidebar */}
       <aside className="w-64 border-r border-[#e5e5e5] bg-white flex flex-col">
-        <div className="p-4 border-b border-[#e5e5e5]">
-          <h1 className="text-xl font-semibold text-[#111827]">App</h1>
-        </div>
         <nav className="flex-1 p-4">
           <ul className="space-y-2">
             {navigationItems.map((item) => {
