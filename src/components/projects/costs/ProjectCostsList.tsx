@@ -300,18 +300,16 @@ export function ProjectCostsList({ projectId }: ProjectCostsListProps) {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 p-0 hover:bg-slate-100"
                           onClick={() => setEditVariableCost(cost)}
                         >
-                          <Edit2Icon className="h-4 w-4 text-slate-600" />
+                          <Edit2Icon className="h-4 w-4" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 p-0 hover:bg-red-100"
                           onClick={() => setDeleteVariableCost(cost)}
                         >
-                          <Trash2Icon className="h-4 w-4 text-red-600" />
+                          <Trash2Icon className="h-4 w-4" />
                         </Button>
                       </div>
                     </TableCell>
@@ -352,18 +350,16 @@ export function ProjectCostsList({ projectId }: ProjectCostsListProps) {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 p-0 hover:bg-slate-100"
                           onClick={() => setEditOverheadCost(cost)}
                         >
-                          <Edit2Icon className="h-4 w-4 text-slate-600" />
+                          <Edit2Icon className="h-4 w-4" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 p-0 hover:bg-red-100"
                           onClick={() => setDeleteOverheadCost(cost)}
                         >
-                          <Trash2Icon className="h-4 w-4 text-red-600" />
+                          <Trash2Icon className="h-4 w-4" />
                         </Button>
                       </div>
                     </TableCell>
