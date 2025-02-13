@@ -31,6 +31,9 @@ export function TimelineMonth({
   const totalVariableCosts = variableCosts.reduce((sum, c) => sum + Number(c.amount), 0)
   const totalOverheadCosts = overheadCosts.reduce((sum, c) => sum + Number(c.amount), 0)
   const profit = totalRevenue - totalVariableCosts - totalOverheadCosts
+  
+  const hasCosts = variableCosts.length > 0 || overheadCosts.length > 0
+  const hasRevenues = revenues.length > 0
 
   return (
     <div className="bg-white p-2 min-h-[250px] flex flex-col">
@@ -40,7 +43,7 @@ export function TimelineMonth({
 
       <div className="flex-1 flex flex-col">
         {/* Revenues section */}
-        <div className="space-y-2 flex-1">
+        <div className={`space-y-2 ${!hasCosts ? 'flex-1' : ''}`}>
           {revenues.map((revenue) => (
             <div
               key={revenue.id}
@@ -52,11 +55,13 @@ export function TimelineMonth({
           ))}
         </div>
 
-        {/* Separator line */}
-        <div className="border-t border-gray-200 my-2" />
+        {/* Separator line only if there are either revenues or costs */}
+        {(hasRevenues || hasCosts) && (
+          <div className="border-t border-gray-200 my-2" />
+        )}
 
         {/* Costs section */}
-        <div className="space-y-2 flex-1">
+        <div className={`space-y-2 ${!hasRevenues ? 'flex-1' : ''}`}>
           {variableCosts.map((cost) => (
             <div
               key={cost.id}
