@@ -101,7 +101,7 @@ export default function ProjectDetails() {
 
   return (
     <div className="space-y-6 p-6">
-      <div className="flex flex-col md:grid md:grid-cols-3 items-center gap-4">
+      <div className="flex flex-col gap-6 md:grid md:grid-cols-3 md:items-center md:gap-4">
         <Button
           variant="ghost"
           onClick={() => navigate("/projects")}
@@ -118,11 +118,14 @@ export default function ProjectDetails() {
             Status: {project.status.replace("_", " ")}
           </p>
         </div>
-        <div className="flex space-x-2 self-end md:col-start-3 md:justify-end md:self-center">
-          <Button onClick={() => setEditDialogOpen(true)}>Edit Project</Button>
+        <div className="flex flex-col sm:flex-row gap-2 sm:space-x-2 md:col-start-3 md:justify-end md:self-center">
+          <Button onClick={() => setEditDialogOpen(true)} className="w-full sm:w-auto">
+            Edit Project
+          </Button>
           <Button
             variant="destructive"
             onClick={() => setDeleteDialogOpen(true)}
+            className="w-full sm:w-auto"
           >
             Delete Project
           </Button>
