@@ -1,5 +1,5 @@
 
-import { Home, Search, Calendar, Settings, FileText, BrainCircuit, Inbox, Users, Folder } from "lucide-react"
+import { LayoutDashboard, BarChart3, Folder, Calendar, Users, Inbox, Search, Settings } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -13,24 +13,14 @@ import {
 
 const items = [
   {
-    title: "Search",
-    url: "/search",
-    icon: Search,
-  },
-  {
-    title: "Home",
+    title: "Dashboard",
     url: "/",
-    icon: Home,
+    icon: LayoutDashboard,
   },
   {
-    title: "Inbox",
-    url: "/inbox",
-    icon: Inbox,
-  },
-  {
-    title: "Documents",
-    url: "/documents",
-    icon: FileText,
+    title: "Analytics",
+    url: "/analytics",
+    icon: BarChart3,
   },
   {
     title: "Projects",
@@ -48,9 +38,14 @@ const items = [
     icon: Users,
   },
   {
-    title: "AI",
-    url: "/ai",
-    icon: BrainCircuit,
+    title: "Inbox",
+    url: "/inbox",
+    icon: Inbox,
+  },
+  {
+    title: "Search",
+    url: "/search",
+    icon: Search,
   },
   {
     title: "Settings",
