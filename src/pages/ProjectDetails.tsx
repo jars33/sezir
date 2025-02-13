@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
 import { ArrowLeft } from "lucide-react"
@@ -99,22 +98,20 @@ export default function ProjectDetails() {
 
   return (
     <div className="space-y-6 p-6">
-      <div className="flex flex-col items-center space-y-2">
-        <Button
-          variant="ghost"
-          onClick={() => navigate("/projects")}
-          className="self-start"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Projects
-        </Button>
-        <div className="text-center">
-          <h1 className="text-2xl font-semibold text-gray-900">
-            {project.number} - {project.name}
-          </h1>
-          <p className="text-sm text-gray-500">
-            Status: {project.status.replace("_", " ")}
-          </p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <Button variant="ghost" onClick={() => navigate("/projects")}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Projects
+          </Button>
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900">
+              {project.number} - {project.name}
+            </h1>
+            <p className="text-sm text-gray-500">
+              Status: {project.status.replace("_", " ")}
+            </p>
+          </div>
         </div>
         <div className="flex space-x-2">
           <Button onClick={() => setEditDialogOpen(true)}>Edit Project</Button>
