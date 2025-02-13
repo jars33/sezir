@@ -14,7 +14,7 @@ interface DeleteCostDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onConfirm: () => void
-  type: "variable" | "overhead"
+  type: "variable" | "overhead" | "revenue"
 }
 
 export function DeleteCostDialog({
@@ -29,7 +29,7 @@ export function DeleteCostDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>Are you sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete the {type} cost.
+            This action cannot be undone. This will permanently delete the {type} {type === 'revenue' ? 'entry' : 'cost'}.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
