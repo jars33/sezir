@@ -73,7 +73,7 @@ export default function MainLayout() {
 
         {/* Main content */}
         <div className="flex-1 flex flex-col">
-          <header className="h-12 flex items-center px-3 gap-2 border-b border-[#e5e5e5] bg-white">
+          <header className="h-12 flex items-center px-4 gap-2 border-b border-[#e5e5e5] bg-white">
             <SidebarTrigger />
             <div className="flex-1" />
             <Button 
@@ -84,7 +84,7 @@ export default function MainLayout() {
               Sign Out
             </Button>
           </header>
-          <div className="flex-1 p-6">
+          <div className="flex-1 p-4 max-w-none">
             <Outlet />
           </div>
         </div>
