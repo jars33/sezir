@@ -1,3 +1,4 @@
+
 import { useState } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import { addMonths, format, startOfMonth, setMonth, getYear } from "date-fns"
@@ -266,6 +267,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
         onPreviousYear={handlePreviousYear}
         onNextYear={handleNextYear}
         totalProfit={totalProfit}
+        startDate={startDate}
       />
       <CardContent>
         <div className="grid grid-cols-12 gap-px bg-gray-200 rounded-lg overflow-hidden">

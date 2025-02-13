@@ -2,6 +2,7 @@
 import { ChevronLeft, ChevronRight, PlusCircle } from "lucide-react"
 import { CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { format } from "date-fns"
 
 interface TimelineHeaderProps {
   onAddRevenue: () => void
@@ -10,6 +11,7 @@ interface TimelineHeaderProps {
   onPreviousYear: () => void
   onNextYear: () => void
   totalProfit: number
+  startDate: Date
 }
 
 export function TimelineHeader({
@@ -19,18 +21,24 @@ export function TimelineHeader({
   onPreviousYear,
   onNextYear,
   totalProfit,
+  startDate,
 }: TimelineHeaderProps) {
   return (
     <CardHeader className="pb-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <CardTitle>Project Timeline</CardTitle>
-          <div className={`text-lg font-semibold ${
-            totalProfit >= 0 
-              ? "text-green-600"
-              : "text-red-600"
-          }`}>
-            ${totalProfit.toFixed(2)}
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-500">
+              Total for {format(startDate, "yyyy")}:
+            </span>
+            <div className={`text-lg font-semibold ${
+              totalProfit >= 0 
+                ? "text-green-600"
+                : "text-red-600"
+            }`}>
+              ${totalProfit.toFixed(2)}
+            </div>
           </div>
         </div>
         <div className="flex items-center gap-4">
