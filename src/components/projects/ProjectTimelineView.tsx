@@ -1,7 +1,7 @@
 
 import { useState } from "react"
 import { useQueryClient } from "@tanstack/react-query"
-import { addMonths, format, startOfMonth, setMonth } from "date-fns"
+import { addMonths, format, startOfMonth, setMonth, getYear } from "date-fns"
 import { Card, CardContent } from "@/components/ui/card"
 import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
@@ -43,11 +43,24 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
 
   const { revenues, variableCosts, overheadCosts } = useTimelineData(projectId)
   const months = Array.from({ length: 12 }, (_, i) => addMonths(startDate, i))
+  const currentYear = getYear(startDate)
 
-  // Calculate total profit for the year
-  const totalRevenues = revenues?.reduce((sum, r) => sum + Number(r.amount), 0) || 0
-  const totalVariableCosts = variableCosts?.reduce((sum, c) => sum + Number(c.amount), 0) || 0
-  const totalOverheadCosts = overheadCosts?.reduce((sum, c) => sum + Number(c.amount), 0) || 0
+  // Calculate total profit for the displayed year only
+  const totalRevenues = revenues?.reduce((sum, r) => {
+    const year = getYear(new Date(r.month))
+    return year === currentYear ? sum + Number(r.amount) : sum
+  }, 0) || 0
+
+  const totalVariableCosts = variableCosts?.reduce((sum, c) => {
+    const year = getYear(new Date(c.month))
+    return year === currentYear ? sum + Number(c.amount) : sum
+  }, 0) || 0
+
+  const totalOverheadCosts = overheadCosts?.reduce((sum, c) => {
+    const year = getYear(new Date(c.month))
+    return year === currentYear ? sum + Number(c.amount) : sum
+  }, 0) || 0
+
   const totalProfit = totalRevenues - totalVariableCosts - totalOverheadCosts
 
   const handlePreviousYear = () => {
