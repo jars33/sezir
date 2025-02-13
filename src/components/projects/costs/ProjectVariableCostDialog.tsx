@@ -2,11 +2,13 @@
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
+import { useState } from "react"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog"
 import {
   Form,
@@ -19,10 +21,11 @@ import {
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
+import { Checkbox } from "@/components/ui/checkbox"
 
 const variableCostFormSchema = z.object({
-  startMonth: z.string().min(1, "Start month is required"),
-  endMonth: z.string().min(1, "End month is required"),
+  month: z.string().min(1, "Month is required"),
+  endMonth: z.string().optional(),
   amount: z.string().min(1, "Amount is required"),
   description: z.string().min(1, "Description is required"),
 })
@@ -42,10 +45,12 @@ export function ProjectVariableCostDialog({
   onSubmit,
   defaultValues,
 }: ProjectVariableCostDialogProps) {
+  const [isPeriod, setIsPeriod] = useState(false)
+
   const form = useForm<VariableCostFormSchema>({
     resolver: zodResolver(variableCostFormSchema),
     defaultValues: {
-      startMonth: defaultValues?.startMonth || "",
+      month: defaultValues?.month || "",
       endMonth: defaultValues?.endMonth || "",
       amount: defaultValues?.amount || "",
       description: defaultValues?.description || "",
@@ -53,8 +58,17 @@ export function ProjectVariableCostDialog({
   })
 
   const handleSubmit = (values: VariableCostFormSchema) => {
-    const startDate = new Date(values.startMonth)
-    const endDate = new Date(values.endMonth)
+    if (!isPeriod) {
+      onSubmit({
+        month: values.month,
+        amount: values.amount,
+        description: values.description,
+      })
+      return
+    }
+
+    const startDate = new Date(values.month)
+    const endDate = new Date(values.endMonth || values.month)
 
     if (endDate < startDate) {
       form.setError("endMonth", {
@@ -88,15 +102,32 @@ export function ProjectVariableCostDialog({
           <DialogTitle>
             {defaultValues ? "Edit Variable Cost" : "Add Variable Cost"}
           </DialogTitle>
+          <DialogDescription>
+            Add variable cost for a single month or a period
+          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="period"
+                checked={isPeriod}
+                onCheckedChange={(checked) => setIsPeriod(checked === true)}
+              />
+              <label
+                htmlFor="period"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Period
+              </label>
+            </div>
+
             <FormField
               control={form.control}
-              name="startMonth"
+              name="month"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Start Month</FormLabel>
+                  <FormLabel>{isPeriod ? "Start Month" : "Month"}</FormLabel>
                   <FormControl>
                     <Input type="month" {...field} />
                   </FormControl>
@@ -104,19 +135,23 @@ export function ProjectVariableCostDialog({
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="endMonth"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>End Month</FormLabel>
-                  <FormControl>
-                    <Input type="month" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+
+            {isPeriod && (
+              <FormField
+                control={form.control}
+                name="endMonth"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>End Month</FormLabel>
+                    <FormControl>
+                      <Input type="month" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
             <FormField
               control={form.control}
               name="amount"
@@ -136,6 +171,7 @@ export function ProjectVariableCostDialog({
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="description"
@@ -149,6 +185,7 @@ export function ProjectVariableCostDialog({
                 </FormItem>
               )}
             />
+
             <div className="flex justify-end">
               <Button type="submit">
                 {defaultValues ? "Update" : "Add"} Variable Cost
