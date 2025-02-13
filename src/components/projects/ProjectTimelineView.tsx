@@ -34,6 +34,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
   const [selectedRevenue, setSelectedRevenue] = useState<TimelineItem | null>(null)
   const [selectedVariableCost, setSelectedVariableCost] = useState<TimelineItem | null>(null)
   const [selectedOverheadCost, setSelectedOverheadCost] = useState<TimelineItem | null>(null)
+  const [deleteRevenue, setDeleteRevenue] = useState<TimelineItem | null>(null)
   const [deleteVariableCost, setDeleteVariableCost] = useState<TimelineItem | null>(null)
   const [deleteOverheadCost, setDeleteOverheadCost] = useState<TimelineItem | null>(null)
 
@@ -231,6 +232,24 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
     }
   }
 
+  const handleDeleteRevenue = async () => {
+    if (!deleteRevenue) return
+    try {
+      const { error } = await supabase
+        .from("project_revenues")
+        .delete()
+        .eq("id", deleteRevenue.id)
+
+      if (error) throw error
+
+      queryClient.invalidateQueries({ queryKey: ["project-revenues"] })
+      toast.success("Revenue deleted successfully")
+      setDeleteRevenue(null)
+    } catch (error) {
+      toast.error("Failed to delete revenue")
+    }
+  }
+
   const handleDeleteVariableCost = async () => {
     if (!deleteVariableCost) return
     try {
@@ -414,6 +433,11 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
                 }
               : undefined
           }
+          showDelete
+          onDelete={() => {
+            setDeleteRevenue(selectedRevenue)
+            setSelectedRevenue(null)
+          }}
         />
 
         <ProjectVariableCostDialog
@@ -444,6 +468,11 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
                 }
               : undefined
           }
+          showDelete
+          onDelete={() => {
+            setDeleteVariableCost(selectedVariableCost)
+            setSelectedVariableCost(null)
+          }}
         />
 
         <ProjectOverheadCostDialog
@@ -472,6 +501,18 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
                 }
               : undefined
           }
+          showDelete
+          onDelete={() => {
+            setDeleteOverheadCost(selectedOverheadCost)
+            setSelectedOverheadCost(null)
+          }}
+        />
+
+        <DeleteCostDialog
+          open={Boolean(deleteRevenue)}
+          onOpenChange={(open) => !open && setDeleteRevenue(null)}
+          onConfirm={handleDeleteRevenue}
+          type="revenue"
         />
 
         <DeleteCostDialog
