@@ -267,12 +267,12 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
                 </div>
 
                 {/* Profit line */}
-                <div className={`mt-2 p-1.5 rounded text-sm font-medium ${
+                <div className={`mt-2 text-sm font-medium ${
                   profit >= 0 
-                    ? "bg-purple-50 border border-purple-200 text-purple-700"
-                    : "bg-red-50 border border-red-200 text-red-700"
+                    ? "text-purple-700"
+                    : "text-red-700"
                 }`}>
-                  Profit: ${profit.toFixed(2)}
+                  ${profit.toFixed(2)}
                 </div>
               </div>
             )
