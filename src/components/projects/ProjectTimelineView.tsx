@@ -10,7 +10,6 @@ import { ProjectRevenueDialog } from "./revenues/ProjectRevenueDialog"
 import { ProjectVariableCostDialog } from "./costs/ProjectVariableCostDialog"
 import { ProjectOverheadCostDialog } from "./costs/ProjectOverheadCostDialog"
 import { DeleteCostDialog } from "./costs/DeleteCostDialog"
-import { CostActionsDialog } from "./costs/CostActionsDialog"
 
 interface TimelineItem {
   id: string
@@ -37,9 +36,6 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
   const [selectedOverheadCost, setSelectedOverheadCost] = useState<TimelineItem | null>(null)
   const [deleteVariableCost, setDeleteVariableCost] = useState<TimelineItem | null>(null)
   const [deleteOverheadCost, setDeleteOverheadCost] = useState<TimelineItem | null>(null)
-  const [selectedRevenueForActions, setSelectedRevenueForActions] = useState<TimelineItem | null>(null)
-  const [selectedVariableCostForActions, setSelectedVariableCostForActions] = useState<TimelineItem | null>(null)
-  const [selectedOverheadCostForActions, setSelectedOverheadCostForActions] = useState<TimelineItem | null>(null)
 
   const months = Array.from({ length: 12 }, (_, i) => addMonths(startDate, i))
 
@@ -331,7 +327,6 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
               (c) => c.month.startsWith(monthStr)
             ) || []
 
-            // Calculate total revenue and costs
             const totalRevenue = monthRevenues.reduce((sum, r) => sum + Number(r.amount), 0)
             const totalVariableCosts = monthVariableCosts.reduce((sum, c) => sum + Number(c.amount), 0)
             const totalOverheadCosts = monthOverheadCosts.reduce((sum, c) => sum + Number(c.amount), 0)
@@ -350,7 +345,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
                   {monthRevenues?.map((revenue) => (
                     <div
                       key={revenue.id}
-                      onClick={() => setSelectedRevenueForActions(revenue)}
+                      onClick={() => setSelectedRevenue(revenue)}
                       className="p-1.5 bg-green-50 border border-green-200 rounded text-sm cursor-pointer hover:bg-green-100"
                     >
                       ${revenue.amount.toFixed(2)}
@@ -360,7 +355,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
                   {monthVariableCosts?.map((cost) => (
                     <div
                       key={cost.id}
-                      onClick={() => setSelectedVariableCostForActions(cost)}
+                      onClick={() => setSelectedVariableCost(cost)}
                       className="p-1.5 bg-red-50 border border-red-200 rounded text-sm cursor-pointer hover:bg-red-100"
                     >
                       <div>-${cost.amount.toFixed(2)}</div>
@@ -373,7 +368,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
                   {monthOverheadCosts?.map((cost) => (
                     <div
                       key={cost.id}
-                      onClick={() => setSelectedOverheadCostForActions(cost)}
+                      onClick={() => setSelectedOverheadCost(cost)}
                       className="p-1.5 bg-orange-50 border border-orange-200 rounded text-sm cursor-pointer hover:bg-orange-100"
                     >
                       -${cost.amount.toFixed(2)}
@@ -381,7 +376,6 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
                   ))}
                 </div>
 
-                {/* Profit line */}
                 <div className={`mt-2 text-sm font-medium ${
                   profit >= 0 
                     ? "text-green-600"
@@ -492,53 +486,6 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
           onOpenChange={(open) => !open && setDeleteOverheadCost(null)}
           onConfirm={handleDeleteOverheadCost}
           type="overhead"
-        />
-
-        <CostActionsDialog
-          open={Boolean(selectedRevenueForActions)}
-          onOpenChange={(open) => !open && setSelectedRevenueForActions(null)}
-          onEdit={() => {
-            setSelectedRevenue(selectedRevenueForActions)
-            setSelectedRevenueForActions(null)
-          }}
-          onDelete={() => {
-            setSelectedRevenueForActions(null)
-          }}
-          type="variable"
-          amount={selectedRevenueForActions?.amount || 0}
-          month={selectedRevenueForActions?.month || ''}
-        />
-
-        <CostActionsDialog
-          open={Boolean(selectedVariableCostForActions)}
-          onOpenChange={(open) => !open && setSelectedVariableCostForActions(null)}
-          onEdit={() => {
-            setSelectedVariableCost(selectedVariableCostForActions)
-            setSelectedVariableCostForActions(null)
-          }}
-          onDelete={() => {
-            setDeleteVariableCost(selectedVariableCostForActions)
-            setSelectedVariableCostForActions(null)
-          }}
-          type="variable"
-          amount={selectedVariableCostForActions?.amount || 0}
-          month={selectedVariableCostForActions?.month || ''}
-        />
-
-        <CostActionsDialog
-          open={Boolean(selectedOverheadCostForActions)}
-          onOpenChange={(open) => !open && setSelectedOverheadCostForActions(null)}
-          onEdit={() => {
-            setSelectedOverheadCost(selectedOverheadCostForActions)
-            setSelectedOverheadCostForActions(null)
-          }}
-          onDelete={() => {
-            setDeleteOverheadCost(selectedOverheadCostForActions)
-            setSelectedOverheadCostForActions(null)
-          }}
-          type="overhead"
-          amount={selectedOverheadCostForActions?.amount || 0}
-          month={selectedOverheadCostForActions?.month || ''}
         />
       </CardContent>
     </Card>
