@@ -71,9 +71,16 @@ export function ProjectRevenueDialog({
       return
     }
 
+    // Set dates to first of month for accurate month calculations
+    startDate.setDate(1)
+    endDate.setDate(1)
+    
+    // Add one month to end date to include the end month itself
+    endDate.setMonth(endDate.getMonth() + 1)
+
     const months: Date[] = []
-    let currentDate = startDate
-    while (currentDate <= endDate) {
+    let currentDate = new Date(startDate)
+    while (currentDate < endDate) {
       months.push(new Date(currentDate))
       currentDate.setMonth(currentDate.getMonth() + 1)
     }
