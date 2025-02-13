@@ -40,7 +40,7 @@ export function CostActionsDialog({
         </DialogHeader>
         <div className="py-6">
           <div className="mb-6 text-center">
-            <div className="text-2xl font-semibold">${amount.toFixed(2)}</div>
+            <div className="text-2xl font-semibold">€{amount.toFixed(2)}</div>
             <div className="text-sm text-gray-500">{formattedMonth}</div>
           </div>
           <div className="space-y-2">

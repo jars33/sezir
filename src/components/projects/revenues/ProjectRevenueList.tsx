@@ -150,7 +150,7 @@ export function ProjectRevenueList({ projectId }: ProjectRevenueListProps) {
           <div>
             <CardTitle>Revenues</CardTitle>
             <CardDescription>
-              Total Revenue: ${totalRevenue.toFixed(2)}
+              Total Revenue: €{totalRevenue.toFixed(2)}
             </CardDescription>
           </div>
           <Button onClick={() => setCreateDialogOpen(true)}>
@@ -177,7 +177,7 @@ export function ProjectRevenueList({ projectId }: ProjectRevenueListProps) {
                     month: "long",
                   })}
                 </TableCell>
-                <TableCell>${revenue.amount.toFixed(2)}</TableCell>
+                <TableCell>€{revenue.amount.toFixed(2)}</TableCell>
                 <TableCell>
                   <div className="flex space-x-2">
                     <Button

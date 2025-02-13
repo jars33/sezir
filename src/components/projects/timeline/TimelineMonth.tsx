@@ -50,7 +50,7 @@ export function TimelineMonth({
               onClick={() => onSelectRevenue(revenue)}
               className="p-1.5 bg-green-50 border border-green-200 rounded text-sm cursor-pointer hover:bg-green-100"
             >
-              ${revenue.amount.toFixed(2)}
+              €{revenue.amount.toFixed(2)}
             </div>
           ))}
         </div>
@@ -68,7 +68,7 @@ export function TimelineMonth({
               onClick={() => onSelectVariableCost(cost)}
               className="p-1.5 bg-red-50 border border-red-200 rounded text-sm cursor-pointer hover:bg-red-100"
             >
-              <div>-${cost.amount.toFixed(2)}</div>
+              <div>-€{cost.amount.toFixed(2)}</div>
               {cost.description && (
                 <div className="text-xs text-gray-600">{cost.description}</div>
               )}
@@ -81,7 +81,7 @@ export function TimelineMonth({
               onClick={() => onSelectOverheadCost(cost)}
               className="p-1.5 bg-orange-50 border border-orange-200 rounded text-sm cursor-pointer hover:bg-orange-100"
             >
-              -${cost.amount.toFixed(2)}
+              -€{cost.amount.toFixed(2)}
             </div>
           ))}
         </div>
@@ -92,7 +92,7 @@ export function TimelineMonth({
           ? "text-green-600"
           : "text-red-600"
       }`}>
-        ${profit.toFixed(2)}
+        €{profit.toFixed(2)}
       </div>
     </div>
   )
