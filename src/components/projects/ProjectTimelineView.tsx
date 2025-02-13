@@ -44,6 +44,12 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
   const { revenues, variableCosts, overheadCosts } = useTimelineData(projectId)
   const months = Array.from({ length: 12 }, (_, i) => addMonths(startDate, i))
 
+  // Calculate total profit for the year
+  const totalRevenues = revenues?.reduce((sum, r) => sum + Number(r.amount), 0) || 0
+  const totalVariableCosts = variableCosts?.reduce((sum, c) => sum + Number(c.amount), 0) || 0
+  const totalOverheadCosts = overheadCosts?.reduce((sum, c) => sum + Number(c.amount), 0) || 0
+  const totalProfit = totalRevenues - totalVariableCosts - totalOverheadCosts
+
   const handlePreviousYear = () => {
     setStartDate(prev => addMonths(prev, -12))
   }
@@ -249,6 +255,19 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
         onNextYear={handleNextYear}
       />
       <CardContent>
+        <div className="mb-4 flex items-center justify-between">
+          <div className="text-sm text-gray-500">
+            Total for {format(startDate, "yyyy")}
+          </div>
+          <div className={`text-lg font-semibold ${
+            totalProfit >= 0 
+              ? "text-green-600"
+              : "text-red-600"
+          }`}>
+            ${totalProfit.toFixed(2)}
+          </div>
+        </div>
+
         <div className="grid grid-cols-12 gap-px bg-gray-200 rounded-lg overflow-hidden">
           {months.map((month) => {
             const monthStr = format(month, "yyyy-MM")
