@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { addMonths, format, startOfMonth, setMonth } from "date-fns"
@@ -269,8 +268,8 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
                 {/* Profit line */}
                 <div className={`mt-2 text-sm font-medium ${
                   profit >= 0 
-                    ? "text-purple-700"
-                    : "text-red-700"
+                    ? "text-green-600"
+                    : "text-red-600"
                 }`}>
                   ${profit.toFixed(2)}
                 </div>
