@@ -22,7 +22,7 @@ import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
 import { ProjectVariableCostDialog } from "./ProjectVariableCostDialog"
 import { ProjectOverheadCostDialog } from "./ProjectOverheadCostDialog"
-import { DeleteProjectDialog } from "../DeleteProjectDialog"
+import { DeleteCostDialog } from "./DeleteCostDialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 interface ProjectCost {
@@ -411,16 +411,18 @@ export function ProjectCostsList({ projectId }: ProjectCostsListProps) {
           }
         />
 
-        <DeleteProjectDialog
+        <DeleteCostDialog
           open={Boolean(deleteVariableCost)}
           onOpenChange={(open) => !open && setDeleteVariableCost(null)}
           onConfirm={handleDeleteVariableCost}
+          type="variable"
         />
 
-        <DeleteProjectDialog
+        <DeleteCostDialog
           open={Boolean(deleteOverheadCost)}
           onOpenChange={(open) => !open && setDeleteOverheadCost(null)}
           onConfirm={handleDeleteOverheadCost}
+          type="overhead"
         />
       </CardContent>
     </Card>
