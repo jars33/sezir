@@ -101,24 +101,24 @@ export default function ProjectDetails() {
 
   return (
     <div className="space-y-6 p-6">
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="flex flex-col md:grid md:grid-cols-3 items-center gap-4">
         <Button
           variant="ghost"
           onClick={() => navigate("/projects")}
-          className="self-start"
+          className="self-start md:col-start-1"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Projects
         </Button>
-        <div className="w-full sm:absolute sm:left-1/2 sm:-translate-x-1/2 text-center">
-          <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 truncate">
+        <div className="w-full text-center md:col-start-2">
+          <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 truncate max-w-[500px] mx-auto">
             {project.number} - {project.name}
           </h1>
           <p className="text-sm text-gray-500">
             Status: {project.status.replace("_", " ")}
           </p>
         </div>
-        <div className="flex space-x-2 self-end sm:self-auto">
+        <div className="flex space-x-2 self-end md:col-start-3 md:justify-end md:self-center">
           <Button onClick={() => setEditDialogOpen(true)}>Edit Project</Button>
           <Button
             variant="destructive"
