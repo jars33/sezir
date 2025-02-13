@@ -29,10 +29,10 @@ export default function MainLayout() {
       <div className="min-h-screen flex w-full bg-background">
         <AppSidebar />
         <div className="flex-1 flex flex-col">
-          <div className="h-12 flex items-center px-4 justify-between border-b">
+          <header className="h-14 flex items-center px-6 justify-between border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <SidebarTrigger />
             <Button onClick={handleSignOut}>Sign Out</Button>
-          </div>
+          </header>
           <div className="flex-1">
             <Outlet />
           </div>
