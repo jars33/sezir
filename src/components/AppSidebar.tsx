@@ -1,5 +1,5 @@
 
-import { Home, BarChart, Settings, Users, Calendar, Inbox, Search, Folder } from "lucide-react"
+import { Home, Search, Calendar, Settings, FileText, BrainCircuit, Inbox, Users, Folder } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -13,14 +13,24 @@ import {
 
 const items = [
   {
-    title: "Dashboard",
+    title: "Search",
+    url: "/search",
+    icon: Search,
+  },
+  {
+    title: "Home",
     url: "/",
     icon: Home,
   },
   {
-    title: "Analytics",
-    url: "/analytics",
-    icon: BarChart,
+    title: "Inbox",
+    url: "/inbox",
+    icon: Inbox,
+  },
+  {
+    title: "Documents",
+    url: "/documents",
+    icon: FileText,
   },
   {
     title: "Projects",
@@ -38,14 +48,9 @@ const items = [
     icon: Users,
   },
   {
-    title: "Inbox",
-    url: "/inbox",
-    icon: Inbox,
-  },
-  {
-    title: "Search",
-    url: "/search",
-    icon: Search,
+    title: "AI",
+    url: "/ai",
+    icon: BrainCircuit,
   },
   {
     title: "Settings",
@@ -56,16 +61,18 @@ const items = [
 
 export function AppSidebar() {
   return (
-    <Sidebar className="w-44"> {/* Further reduced width */}
-      <SidebarContent>
+    <Sidebar className="w-[240px] bg-[#191919]">
+      <SidebarContent className="py-2">
         <SidebarGroup>
-          <SidebarGroupLabel className="px-2 text-xs">Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a href={item.url} className="px-2 py-1.5 text-sm"> {/* Added smaller text and reduced vertical padding */}
+                    <a 
+                      href={item.url} 
+                      className="px-2 py-1 text-sm text-[#878787] hover:bg-[#373737] rounded-sm flex items-center gap-2 transition-colors"
+                    >
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
                     </a>

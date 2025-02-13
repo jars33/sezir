@@ -26,12 +26,20 @@ export default function MainLayout() {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
+      <div className="min-h-screen flex w-full bg-[#191919]">
         <AppSidebar />
         <div className="flex-1 flex flex-col">
-          <header className="h-14 flex items-center px-6 justify-between border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <SidebarTrigger />
-            <Button onClick={handleSignOut}>Sign Out</Button>
+          <header className="h-12 flex items-center px-3 justify-between border-b border-[#373737] bg-[#191919]">
+            <div className="flex items-center gap-2">
+              <SidebarTrigger className="text-[#878787] hover:bg-[#373737] rounded-sm" />
+            </div>
+            <Button 
+              variant="ghost" 
+              onClick={handleSignOut}
+              className="text-[#878787] hover:bg-[#373737] hover:text-white"
+            >
+              Sign Out
+            </Button>
           </header>
           <div className="flex-1">
             <Outlet />
