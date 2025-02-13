@@ -29,13 +29,9 @@ export default function MainLayout() {
       <div className="min-h-screen flex w-full bg-background">
         <AppSidebar />
         <div className="flex-1">
-          <div className="border-b">
-            <div className="flex h-16 items-center px-2"> {/* Reduced padding */}
-              <SidebarTrigger />
-              <div className="ml-auto flex items-center space-x-2"> {/* Reduced spacing */}
-                <Button onClick={handleSignOut}>Sign Out</Button>
-              </div>
-            </div>
+          <div className="flex h-12 items-center px-4 justify-between">
+            <SidebarTrigger />
+            <Button onClick={handleSignOut}>Sign Out</Button>
           </div>
           <main className="flex-1">
             <Outlet />
