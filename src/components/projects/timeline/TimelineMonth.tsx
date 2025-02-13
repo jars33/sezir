@@ -57,7 +57,9 @@ export function TimelineMonth({
 
         {/* Separator line only if there are either revenues or costs */}
         {(hasRevenues || hasCosts) && (
-          <div className="border-t border-gray-200 my-2" />
+          <div className="border-t border-gray-200 mx-[-0.5rem] px-2">
+            <div className="my-1.5" />
+          </div>
         )}
 
         {/* Costs section */}
