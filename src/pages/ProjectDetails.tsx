@@ -9,6 +9,7 @@ import { ProjectDialog } from "@/components/ProjectDialog"
 import { DeleteProjectDialog } from "@/components/projects/DeleteProjectDialog"
 import { ProjectTimelineView } from "@/components/projects/ProjectTimelineView"
 import { useState } from "react"
+import { useIsMobile } from "@/hooks/use-mobile"
 import type { ProjectFormSchema } from "@/components/projects/project-schema"
 
 type Project = {
@@ -26,6 +27,7 @@ type Project = {
 export default function ProjectDetails() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const isMobile = useIsMobile()
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
@@ -99,20 +101,24 @@ export default function ProjectDetails() {
 
   return (
     <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <Button variant="ghost" onClick={() => navigate("/projects")}>
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <Button
+          variant="ghost"
+          onClick={() => navigate("/projects")}
+          className="self-start"
+        >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Projects
         </Button>
-        <div className="absolute left-1/2 -translate-x-1/2 text-center">
-          <h1 className="text-2xl font-semibold text-gray-900">
+        <div className="w-full sm:absolute sm:left-1/2 sm:-translate-x-1/2 text-center">
+          <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 truncate">
             {project.number} - {project.name}
           </h1>
           <p className="text-sm text-gray-500">
             Status: {project.status.replace("_", " ")}
           </p>
         </div>
-        <div className="flex space-x-2">
+        <div className="flex space-x-2 self-end sm:self-auto">
           <Button onClick={() => setEditDialogOpen(true)}>Edit Project</Button>
           <Button
             variant="destructive"
