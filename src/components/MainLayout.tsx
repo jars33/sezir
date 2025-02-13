@@ -41,38 +41,40 @@ export default function MainLayout() {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-white">
-        <Sidebar>
-          <SidebarContent>
-            <nav className="flex-1 p-2">
-              <ul className="space-y-1">
-                {navigationItems.map((item) => {
-                  const isActive = location.pathname === item.path || 
-                    (item.path !== "/" && location.pathname.startsWith(item.path))
-                  return (
-                    <li key={item.path}>
-                      <Link
-                        to={item.path}
-                        className={cn(
-                          "flex items-center gap-2 px-2 py-1.5 rounded-md text-sm font-medium transition-colors",
-                          isActive
-                            ? "bg-[#f1f1f1] text-black"
-                            : "text-[#6B6F76] hover:bg-[#f1f1f1] hover:text-black"
-                        )}
-                      >
-                        <item.icon className="w-4 h-4" />
-                        <span>{item.label}</span>
-                      </Link>
-                    </li>
-                  )
-                })}
-              </ul>
-            </nav>
-          </SidebarContent>
-        </Sidebar>
+      <div className="min-h-screen w-full bg-white relative">
+        <div className="absolute left-0 top-0 h-full z-40">
+          <Sidebar>
+            <SidebarContent>
+              <nav className="flex-1 p-2">
+                <ul className="space-y-1">
+                  {navigationItems.map((item) => {
+                    const isActive = location.pathname === item.path || 
+                      (item.path !== "/" && location.pathname.startsWith(item.path))
+                    return (
+                      <li key={item.path}>
+                        <Link
+                          to={item.path}
+                          className={cn(
+                            "flex items-center gap-2 px-2 py-1.5 rounded-md text-sm font-medium transition-colors",
+                            isActive
+                              ? "bg-[#f1f1f1] text-black"
+                              : "text-[#6B6F76] hover:bg-[#f1f1f1] hover:text-black"
+                          )}
+                        >
+                          <item.icon className="w-4 h-4" />
+                          <span>{item.label}</span>
+                        </Link>
+                      </li>
+                    )
+                  })}
+                </ul>
+              </nav>
+            </SidebarContent>
+          </Sidebar>
+        </div>
 
         {/* Main content */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col min-h-screen">
           <header className="h-12 flex items-center px-4 gap-2 border-b border-[#e5e5e5] bg-white">
             <SidebarTrigger />
             <div className="flex-1" />
