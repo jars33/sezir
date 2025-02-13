@@ -1,5 +1,5 @@
 
-import { Edit2Icon, PlusCircle, Trash2Icon } from "lucide-react"
+import { PlusCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -23,6 +23,7 @@ import { toast } from "sonner"
 import { ProjectVariableCostDialog } from "./ProjectVariableCostDialog"
 import { ProjectOverheadCostDialog } from "./ProjectOverheadCostDialog"
 import { DeleteCostDialog } from "./DeleteCostDialog"
+import { CostActionsDialog } from "./CostActionsDialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 interface ProjectCost {
@@ -43,6 +44,8 @@ export function ProjectCostsList({ projectId }: ProjectCostsListProps) {
   const queryClient = useQueryClient()
   const [createVariableCostDialogOpen, setCreateVariableCostDialogOpen] = useState(false)
   const [createOverheadCostDialogOpen, setCreateOverheadCostDialogOpen] = useState(false)
+  const [selectedVariableCost, setSelectedVariableCost] = useState<ProjectCost | null>(null)
+  const [selectedOverheadCost, setSelectedOverheadCost] = useState<ProjectCost | null>(null)
   const [editVariableCost, setEditVariableCost] = useState<ProjectCost | null>(null)
   const [editOverheadCost, setEditOverheadCost] = useState<ProjectCost | null>(null)
   const [deleteVariableCost, setDeleteVariableCost] = useState<ProjectCost | null>(null)
@@ -281,12 +284,15 @@ export function ProjectCostsList({ projectId }: ProjectCostsListProps) {
                   <TableHead>Month</TableHead>
                   <TableHead>Description</TableHead>
                   <TableHead>Amount</TableHead>
-                  <TableHead className="w-[100px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {variableCosts?.map((cost) => (
-                  <TableRow key={cost.id}>
+                  <TableRow 
+                    key={cost.id}
+                    className="cursor-pointer hover:bg-slate-50"
+                    onClick={() => setSelectedVariableCost(cost)}
+                  >
                     <TableCell>
                       {new Date(cost.month).toLocaleDateString(undefined, {
                         year: "numeric",
@@ -295,24 +301,6 @@ export function ProjectCostsList({ projectId }: ProjectCostsListProps) {
                     </TableCell>
                     <TableCell>{cost.description}</TableCell>
                     <TableCell>${cost.amount.toFixed(2)}</TableCell>
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setEditVariableCost(cost)}
-                        >
-                          <Edit2Icon className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setDeleteVariableCost(cost)}
-                        >
-                          <Trash2Icon className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -332,12 +320,15 @@ export function ProjectCostsList({ projectId }: ProjectCostsListProps) {
                 <TableRow>
                   <TableHead>Month</TableHead>
                   <TableHead>Amount</TableHead>
-                  <TableHead className="w-[100px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {overheadCosts?.map((cost) => (
-                  <TableRow key={cost.id}>
+                  <TableRow 
+                    key={cost.id}
+                    className="cursor-pointer hover:bg-slate-50"
+                    onClick={() => setSelectedOverheadCost(cost)}
+                  >
                     <TableCell>
                       {new Date(cost.month).toLocaleDateString(undefined, {
                         year: "numeric",
@@ -345,24 +336,6 @@ export function ProjectCostsList({ projectId }: ProjectCostsListProps) {
                       })}
                     </TableCell>
                     <TableCell>${cost.amount.toFixed(2)}</TableCell>
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setEditOverheadCost(cost)}
-                        >
-                          <Edit2Icon className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setDeleteOverheadCost(cost)}
-                        >
-                          <Trash2Icon className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -423,6 +396,42 @@ export function ProjectCostsList({ projectId }: ProjectCostsListProps) {
           onOpenChange={(open) => !open && setDeleteOverheadCost(null)}
           onConfirm={handleDeleteOverheadCost}
           type="overhead"
+        />
+
+        <CostActionsDialog
+          open={Boolean(selectedVariableCost)}
+          onOpenChange={(open) => !open && setSelectedVariableCost(null)}
+          onEdit={() => {
+            if (selectedVariableCost) {
+              setEditVariableCost(selectedVariableCost)
+            }
+          }}
+          onDelete={() => {
+            if (selectedVariableCost) {
+              setDeleteVariableCost(selectedVariableCost)
+            }
+          }}
+          type="variable"
+          amount={selectedVariableCost?.amount || 0}
+          month={selectedVariableCost?.month || ""}
+        />
+
+        <CostActionsDialog
+          open={Boolean(selectedOverheadCost)}
+          onOpenChange={(open) => !open && setSelectedOverheadCost(null)}
+          onEdit={() => {
+            if (selectedOverheadCost) {
+              setEditOverheadCost(selectedOverheadCost)
+            }
+          }}
+          onDelete={() => {
+            if (selectedOverheadCost) {
+              setDeleteOverheadCost(selectedOverheadCost)
+            }
+          }}
+          type="overhead"
+          amount={selectedOverheadCost?.amount || 0}
+          month={selectedOverheadCost?.month || ""}
         />
       </CardContent>
     </Card>
