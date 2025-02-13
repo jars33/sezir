@@ -1,3 +1,4 @@
+
 import { useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { addMonths, format, startOfMonth, setMonth } from "date-fns"
@@ -9,6 +10,7 @@ import { toast } from "sonner"
 import { ProjectRevenueDialog } from "./revenues/ProjectRevenueDialog"
 import { ProjectVariableCostDialog } from "./costs/ProjectVariableCostDialog"
 import { ProjectOverheadCostDialog } from "./costs/ProjectOverheadCostDialog"
+import { DeleteCostDialog } from "./costs/DeleteCostDialog"
 
 interface TimelineItem {
   id: string
@@ -30,6 +32,11 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
   const [addRevenueDate, setAddRevenueDate] = useState<Date | null>(null)
   const [addVariableCostDate, setAddVariableCostDate] = useState<Date | null>(null)
   const [addOverheadCostDate, setAddOverheadCostDate] = useState<Date | null>(null)
+  const [selectedRevenue, setSelectedRevenue] = useState<TimelineItem | null>(null)
+  const [selectedVariableCost, setSelectedVariableCost] = useState<TimelineItem | null>(null)
+  const [selectedOverheadCost, setSelectedOverheadCost] = useState<TimelineItem | null>(null)
+  const [deleteVariableCost, setDeleteVariableCost] = useState<TimelineItem | null>(null)
+  const [deleteOverheadCost, setDeleteOverheadCost] = useState<TimelineItem | null>(null)
 
   const months = Array.from({ length: 12 }, (_, i) => addMonths(startDate, i))
 
@@ -104,12 +111,32 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
 
       if (error) throw error
 
-      // Invalidate both queries to ensure timeline and revenue list update
       queryClient.invalidateQueries({ queryKey: ["project-revenues"] })
       toast.success("Revenue added successfully")
       setAddRevenueDate(null)
     } catch (error) {
       toast.error("Failed to add revenue")
+    }
+  }
+
+  const handleUpdateRevenue = async (values: { month: string; amount: string }) => {
+    if (!selectedRevenue) return
+    try {
+      const { error } = await supabase
+        .from("project_revenues")
+        .update({
+          month: values.month + "-01",
+          amount: parseFloat(values.amount),
+        })
+        .eq("id", selectedRevenue.id)
+
+      if (error) throw error
+
+      queryClient.invalidateQueries({ queryKey: ["project-revenues"] })
+      toast.success("Revenue updated successfully")
+      setSelectedRevenue(null)
+    } catch (error) {
+      toast.error("Failed to update revenue")
     }
   }
 
@@ -138,6 +165,32 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
     }
   }
 
+  const handleUpdateVariableCost = async (values: {
+    month: string
+    amount: string
+    description: string
+  }) => {
+    if (!selectedVariableCost) return
+    try {
+      const { error } = await supabase
+        .from("project_variable_costs")
+        .update({
+          month: values.month + "-01",
+          amount: parseFloat(values.amount),
+          description: values.description,
+        })
+        .eq("id", selectedVariableCost.id)
+
+      if (error) throw error
+
+      queryClient.invalidateQueries({ queryKey: ["project-variable-costs"] })
+      toast.success("Variable cost updated successfully")
+      setSelectedVariableCost(null)
+    } catch (error) {
+      toast.error("Failed to update variable cost")
+    }
+  }
+
   const handleAddOverheadCost = async (values: { month: string; amount: string }) => {
     try {
       const { error } = await supabase.from("project_overhead_costs").insert([
@@ -155,6 +208,63 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
       setAddOverheadCostDate(null)
     } catch (error) {
       toast.error("Failed to add overhead cost")
+    }
+  }
+
+  const handleUpdateOverheadCost = async (values: { month: string; amount: string }) => {
+    if (!selectedOverheadCost) return
+    try {
+      const { error } = await supabase
+        .from("project_overhead_costs")
+        .update({
+          month: values.month + "-01",
+          amount: parseFloat(values.amount),
+        })
+        .eq("id", selectedOverheadCost.id)
+
+      if (error) throw error
+
+      queryClient.invalidateQueries({ queryKey: ["project-overhead-costs"] })
+      toast.success("Overhead cost updated successfully")
+      setSelectedOverheadCost(null)
+    } catch (error) {
+      toast.error("Failed to update overhead cost")
+    }
+  }
+
+  const handleDeleteVariableCost = async () => {
+    if (!deleteVariableCost) return
+    try {
+      const { error } = await supabase
+        .from("project_variable_costs")
+        .delete()
+        .eq("id", deleteVariableCost.id)
+
+      if (error) throw error
+
+      queryClient.invalidateQueries({ queryKey: ["project-variable-costs"] })
+      toast.success("Variable cost deleted successfully")
+      setDeleteVariableCost(null)
+    } catch (error) {
+      toast.error("Failed to delete variable cost")
+    }
+  }
+
+  const handleDeleteOverheadCost = async () => {
+    if (!deleteOverheadCost) return
+    try {
+      const { error } = await supabase
+        .from("project_overhead_costs")
+        .delete()
+        .eq("id", deleteOverheadCost.id)
+
+      if (error) throw error
+
+      queryClient.invalidateQueries({ queryKey: ["project-overhead-costs"] })
+      toast.success("Overhead cost deleted successfully")
+      setDeleteOverheadCost(null)
+    } catch (error) {
+      toast.error("Failed to delete overhead cost")
     }
   }
 
@@ -237,7 +347,8 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
                   {monthRevenues?.map((revenue) => (
                     <div
                       key={revenue.id}
-                      className="p-1.5 bg-green-50 border border-green-200 rounded text-sm"
+                      onClick={() => setSelectedRevenue(revenue)}
+                      className="p-1.5 bg-green-50 border border-green-200 rounded text-sm cursor-pointer hover:bg-green-100"
                     >
                       ${revenue.amount.toFixed(2)}
                     </div>
@@ -246,7 +357,8 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
                   {monthVariableCosts?.map((cost) => (
                     <div
                       key={cost.id}
-                      className="p-1.5 bg-red-50 border border-red-200 rounded text-sm"
+                      onClick={() => setSelectedVariableCost(cost)}
+                      className="p-1.5 bg-red-50 border border-red-200 rounded text-sm cursor-pointer hover:bg-red-100"
                     >
                       <div>-${cost.amount.toFixed(2)}</div>
                       {cost.description && (
@@ -258,7 +370,8 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
                   {monthOverheadCosts?.map((cost) => (
                     <div
                       key={cost.id}
-                      className="p-1.5 bg-orange-50 border border-orange-200 rounded text-sm"
+                      onClick={() => setSelectedOverheadCost(cost)}
+                      className="p-1.5 bg-orange-50 border border-orange-200 rounded text-sm cursor-pointer hover:bg-orange-100"
                     >
                       -${cost.amount.toFixed(2)}
                     </div>
@@ -292,6 +405,20 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
           }
         />
 
+        <ProjectRevenueDialog
+          open={Boolean(selectedRevenue)}
+          onOpenChange={(open) => !open && setSelectedRevenue(null)}
+          onSubmit={handleUpdateRevenue}
+          defaultValues={
+            selectedRevenue
+              ? {
+                  month: selectedRevenue.month.slice(0, 7),
+                  amount: selectedRevenue.amount.toString(),
+                }
+              : undefined
+          }
+        />
+
         <ProjectVariableCostDialog
           open={Boolean(addVariableCostDate)}
           onOpenChange={(open) => !open && setAddVariableCostDate(null)}
@@ -302,6 +429,21 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
                   month: format(addVariableCostDate, "yyyy-MM"),
                   amount: "",
                   description: "",
+                }
+              : undefined
+          }
+        />
+
+        <ProjectVariableCostDialog
+          open={Boolean(selectedVariableCost)}
+          onOpenChange={(open) => !open && setSelectedVariableCost(null)}
+          onSubmit={handleUpdateVariableCost}
+          defaultValues={
+            selectedVariableCost
+              ? {
+                  month: selectedVariableCost.month.slice(0, 7),
+                  amount: selectedVariableCost.amount.toString(),
+                  description: selectedVariableCost.description || "",
                 }
               : undefined
           }
@@ -319,6 +461,34 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
                 }
               : undefined
           }
+        />
+
+        <ProjectOverheadCostDialog
+          open={Boolean(selectedOverheadCost)}
+          onOpenChange={(open) => !open && setSelectedOverheadCost(null)}
+          onSubmit={handleUpdateOverheadCost}
+          defaultValues={
+            selectedOverheadCost
+              ? {
+                  month: selectedOverheadCost.month.slice(0, 7),
+                  amount: selectedOverheadCost.amount.toString(),
+                }
+              : undefined
+          }
+        />
+
+        <DeleteCostDialog
+          open={Boolean(deleteVariableCost)}
+          onOpenChange={(open) => !open && setDeleteVariableCost(null)}
+          onConfirm={handleDeleteVariableCost}
+          type="variable"
+        />
+
+        <DeleteCostDialog
+          open={Boolean(deleteOverheadCost)}
+          onOpenChange={(open) => !open && setDeleteOverheadCost(null)}
+          onConfirm={handleDeleteOverheadCost}
+          type="overhead"
         />
       </CardContent>
     </Card>
