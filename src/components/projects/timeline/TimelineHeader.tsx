@@ -9,6 +9,7 @@ interface TimelineHeaderProps {
   onAddOverheadCost: () => void
   onPreviousYear: () => void
   onNextYear: () => void
+  totalProfit: number
 }
 
 export function TimelineHeader({
@@ -17,11 +18,21 @@ export function TimelineHeader({
   onAddOverheadCost,
   onPreviousYear,
   onNextYear,
+  totalProfit,
 }: TimelineHeaderProps) {
   return (
     <CardHeader className="pb-2">
       <div className="flex items-center justify-between">
-        <CardTitle>Project Timeline</CardTitle>
+        <div className="flex items-center gap-4">
+          <CardTitle>Project Timeline</CardTitle>
+          <div className={`text-lg font-semibold ${
+            totalProfit >= 0 
+              ? "text-green-600"
+              : "text-red-600"
+          }`}>
+            ${totalProfit.toFixed(2)}
+          </div>
+        </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <Button
