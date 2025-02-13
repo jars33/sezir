@@ -43,7 +43,7 @@ export default function MainLayout() {
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-white">
         <div className="fixed left-0 top-0 h-full">
-          <Sidebar className="h-full w-[100px]">
+          <Sidebar className="h-full w-[150px]">
             <SidebarContent>
               <nav className="flex-1 p-2">
                 <ul className="space-y-1">
@@ -74,7 +74,7 @@ export default function MainLayout() {
         </div>
 
         {/* Main content */}
-        <div className="flex-1 flex flex-col ml-[100px] transition-[margin] duration-300 ease-in-out data-[collapsed=true]:ml-[64px] w-[calc(100%-100px)]">
+        <div className="flex-1 flex flex-col ml-[150px] transition-[margin] duration-300 ease-in-out data-[collapsed=true]:ml-[64px] w-[calc(100%-150px)]">
           <header className="h-12 flex items-center px-4 gap-2 border-b border-[#e5e5e5] bg-white sticky top-0 z-10">
             <SidebarTrigger />
             <div className="flex-1" />
