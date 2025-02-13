@@ -36,9 +36,9 @@ export default function MainLayout() {
   return (
     <div className="min-h-screen flex w-full bg-white">
       {/* Sidebar */}
-      <aside className="w-64 border-r border-[#e5e5e5] bg-white flex flex-col">
-        <nav className="flex-1 p-4">
-          <ul className="space-y-2">
+      <aside className="w-48 border-r border-[#e5e5e5] bg-white flex flex-col">
+        <nav className="flex-1 p-2">
+          <ul className="space-y-1">
             {navigationItems.map((item) => {
               const isActive = location.pathname === item.path || 
                 (item.path !== "/" && location.pathname.startsWith(item.path))
@@ -47,13 +47,13 @@ export default function MainLayout() {
                   <Link
                     to={item.path}
                     className={cn(
-                      "flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                      "flex items-center gap-2 px-2 py-1.5 rounded-md text-sm font-medium transition-colors",
                       isActive
                         ? "bg-[#f1f1f1] text-black"
                         : "text-[#6B6F76] hover:bg-[#f1f1f1] hover:text-black"
                     )}
                   >
-                    <item.icon className="w-5 h-5" />
+                    <item.icon className="w-4 h-4" />
                     {item.label}
                   </Link>
                 </li>
