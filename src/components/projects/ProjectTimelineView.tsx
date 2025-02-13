@@ -71,7 +71,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
     setStartDate(prev => addMonths(prev, 12))
   }
 
-  const handleAddRevenue = async (values: { month: string; amount: string }) => {
+  const handleCreateRevenue = async (values: { month: string; amount: string }) => {
     try {
       const { error } = await supabase.from("project_revenues").insert([
         {
@@ -88,6 +88,47 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
       setAddRevenueDate(null)
     } catch (error) {
       toast.error("Failed to add revenue")
+    }
+  }
+
+  const handleCreateVariableCost = async (values: { month: string; amount: string; description: string }) => {
+    try {
+      const { error } = await supabase.from("project_variable_costs").insert([
+        {
+          project_id: projectId,
+          month: values.month + "-01",
+          amount: parseFloat(values.amount),
+          description: values.description,
+        },
+      ])
+
+      if (error) throw error
+
+      queryClient.invalidateQueries({ queryKey: ["project-variable-costs"] })
+      toast.success("Variable cost added successfully")
+      setAddVariableCostDate(null)
+    } catch (error) {
+      toast.error("Failed to add variable cost")
+    }
+  }
+
+  const handleCreateOverheadCost = async (values: { month: string; amount: string }) => {
+    try {
+      const { error } = await supabase.from("project_overhead_costs").insert([
+        {
+          project_id: projectId,
+          month: values.month + "-01",
+          amount: parseFloat(values.amount),
+        },
+      ])
+
+      if (error) throw error
+
+      queryClient.invalidateQueries({ queryKey: ["project-overhead-costs"] })
+      toast.success("Overhead cost added successfully")
+      setAddOverheadCostDate(null)
+    } catch (error) {
+      toast.error("Failed to add overhead cost")
     }
   }
 
@@ -112,36 +153,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
     }
   }
 
-  const handleAddVariableCost = async (values: {
-    month: string
-    amount: string
-    description: string
-  }) => {
-    try {
-      const { error } = await supabase.from("project_variable_costs").insert([
-        {
-          project_id: projectId,
-          month: values.month + "-01",
-          amount: parseFloat(values.amount),
-          description: values.description,
-        },
-      ])
-
-      if (error) throw error
-
-      queryClient.invalidateQueries({ queryKey: ["project-variable-costs"] })
-      toast.success("Variable cost added successfully")
-      setAddVariableCostDate(null)
-    } catch (error) {
-      toast.error("Failed to add variable cost")
-    }
-  }
-
-  const handleUpdateVariableCost = async (values: {
-    month: string
-    amount: string
-    description: string
-  }) => {
+  const handleUpdateVariableCost = async (values: { month: string; amount: string; description: string }) => {
     if (!selectedVariableCost) return
     try {
       const { error } = await supabase
@@ -160,26 +172,6 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
       setSelectedVariableCost(null)
     } catch (error) {
       toast.error("Failed to update variable cost")
-    }
-  }
-
-  const handleAddOverheadCost = async (values: { month: string; amount: string }) => {
-    try {
-      const { error } = await supabase.from("project_overhead_costs").insert([
-        {
-          project_id: projectId,
-          month: values.month + "-01",
-          amount: parseFloat(values.amount),
-        },
-      ])
-
-      if (error) throw error
-
-      queryClient.invalidateQueries({ queryKey: ["project-overhead-costs"] })
-      toast.success("Overhead cost added successfully")
-      setAddOverheadCostDate(null)
-    } catch (error) {
-      toast.error("Failed to add overhead cost")
     }
   }
 
@@ -301,7 +293,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
         <ProjectRevenueDialog
           open={Boolean(addRevenueDate)}
           onOpenChange={(open) => !open && setAddRevenueDate(null)}
-          onSubmit={handleAddRevenue}
+          onSubmit={handleCreateRevenue}
           defaultValues={
             addRevenueDate
               ? {
@@ -334,7 +326,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
         <ProjectVariableCostDialog
           open={Boolean(addVariableCostDate)}
           onOpenChange={(open) => !open && setAddVariableCostDate(null)}
-          onSubmit={handleAddVariableCost}
+          onSubmit={handleCreateVariableCost}
           defaultValues={
             addVariableCostDate
               ? {
@@ -369,7 +361,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
         <ProjectOverheadCostDialog
           open={Boolean(addOverheadCostDate)}
           onOpenChange={(open) => !open && setAddOverheadCostDate(null)}
-          onSubmit={handleAddOverheadCost}
+          onSubmit={handleCreateOverheadCost}
           defaultValues={
             addOverheadCostDate
               ? {
