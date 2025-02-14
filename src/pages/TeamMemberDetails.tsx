@@ -147,6 +147,17 @@ export default function TeamMemberDetails() {
 
     console.log('Adding salary with values:', values);
 
+    // Validate amount is a valid number
+    const amount = parseFloat(values.amount);
+    if (isNaN(amount) || amount <= 0) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please enter a valid salary amount greater than 0",
+      });
+      return;
+    }
+
     if (values.end_date && new Date(values.end_date) < new Date(values.start_date)) {
       toast({
         variant: "destructive",
@@ -159,7 +170,7 @@ export default function TeamMemberDetails() {
     try {
       const { error } = await supabase.rpc('add_salary_and_update_previous', {
         p_team_member_id: id,
-        p_amount: parseFloat(values.amount),
+        p_amount: amount, // Using validated amount
         p_start_date: values.start_date,
         p_end_date: values.end_date || null,
       });
