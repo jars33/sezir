@@ -191,7 +191,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
         startDate={startDate}
       />
       <CardContent className="overflow-x-auto">
-        <div className="w-full" style={{ minWidth: 'max(1200px, 100%)' }}>
+        <div className="min-w-[1200px]">
           <div className="grid grid-cols-12 gap-px bg-gray-200 rounded-lg overflow-hidden">
             {months.map((month) => {
               const monthStr = format(month, "yyyy-MM")
