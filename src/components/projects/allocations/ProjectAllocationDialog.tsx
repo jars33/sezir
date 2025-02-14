@@ -137,6 +137,14 @@ export function ProjectAllocationDialog({
                         selected={field.value}
                         onSelect={field.onChange}
                         initialFocus
+                        ISOWeek
+                        fromMonth={new Date()}
+                        showOutsideDays={false}
+                        captionLayout="dropdown-buttons"
+                        disabled={(date) => {
+                          // Only allow selecting the first day of each month
+                          return date.getDate() !== 1
+                        }}
                       />
                     </PopoverContent>
                   </Popover>
