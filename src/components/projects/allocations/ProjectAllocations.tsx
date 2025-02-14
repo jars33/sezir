@@ -1,3 +1,4 @@
+
 import { useState } from "react"
 import { format, startOfMonth, setMonth, getYear } from "date-fns"
 import { PlusCircle } from "lucide-react"
@@ -202,7 +203,7 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Project Allocations</CardTitle>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-1">
           <Button 
             variant="outline"
             size="sm"
@@ -212,7 +213,7 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
               setDialogOpen(true)
             }}
           >
-            <PlusCircle className="h-4 w-4 mr-2" />
+            <PlusCircle className="h-4 w-4 mr-1" />
             Add Allocation
           </Button>
         </div>
@@ -228,16 +229,16 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
               }) || []
 
               return (
-                <div key={month.getTime()} className="bg-white p-4 min-h-[250px] flex flex-col">
-                  <div className="text-sm font-medium mb-4">
+                <div key={month.getTime()} className="bg-white p-1 min-h-[250px] flex flex-col">
+                  <div className="text-sm font-medium mb-1">
                     {format(month, "MMM yyyy")}
                   </div>
-                  <div className="flex-1 space-y-2">
+                  <div className="flex-1 space-y-1">
                     {monthAllocations.map((allocation) => (
                       <div
                         key={allocation.id}
                         onClick={() => handleAllocationClick(allocation)}
-                        className="p-2 bg-blue-50 border border-blue-100 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors"
+                        className="p-1 bg-blue-50 border border-blue-100 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors"
                       >
                         <div className="text-sm font-medium">
                           {allocation.project_assignments.team_members.name}
