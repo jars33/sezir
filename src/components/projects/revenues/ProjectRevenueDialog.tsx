@@ -147,7 +147,7 @@ export function ProjectRevenueDialog({
               )}
             />
 
-            {isPeriod && !defaultValues && (
+            {isPeriod && (
               <FormField
                 control={form.control}
                 name="endMonth"
@@ -195,7 +195,7 @@ export function ProjectRevenueDialog({
                 </Button>
               )}
               <Button type="submit">
-                {defaultValues ? 'Update' : 'Add'} Revenue
+                {defaultValues ? "Update" : "Add"} Revenue
               </Button>
             </DialogFooter>
           </form>
