@@ -363,7 +363,7 @@ export type Database = {
           p_team_member_id: string
           p_amount: number
           p_start_date: string
-          p_end_date: string
+          p_end_date?: string
         }
         Returns: undefined
       }

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { format } from "date-fns"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useAuth } from "@/components/AuthProvider"
 import { supabase } from "@/integrations/supabase/client"
 import { Button } from "@/components/ui/button"
@@ -13,13 +13,14 @@ import { TeamMemberBasicFields } from "@/components/team/TeamMemberBasicFields"
 import { TeamMemberContactFields } from "@/components/team/TeamMemberContactFields"
 import { SalaryHistory } from "@/components/team/salary/SalaryHistory"
 import { teamMemberFormSchema, type TeamMemberFormSchema } from "@/components/team/team-member-schema"
-import type { TeamMember, TeamMemberFormValues } from "@/types/team-member"
+import type { TeamMember } from "@/types/team-member"
 
 export default function TeamMemberDetails() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { session } = useAuth()
   const { toast } = useToast()
+  const queryClient = useQueryClient()
 
   const form = useForm<TeamMemberFormSchema>({
     resolver: zodResolver(teamMemberFormSchema),
@@ -80,7 +81,7 @@ export default function TeamMemberDetails() {
     enabled: !!id,
   })
 
-  const { data: initialSalary, refetch: refetchInitialSalary } = useQuery({
+  const { data: initialSalary } = useQuery({
     queryKey: ["team-member-salary", id],
     queryFn: async () => {
       if (!id) return null
@@ -104,7 +105,7 @@ export default function TeamMemberDetails() {
     enabled: !!id && !!member,
   })
 
-  const { data: salaryHistory, refetch: refetchSalary } = useQuery({
+  const { data: salaryHistory } = useQuery({
     queryKey: ["team-member-salaries", id],
     queryFn: async () => {
       if (!id) return []
@@ -130,12 +131,10 @@ export default function TeamMemberDetails() {
       const salaryStart = new Date(salary.start_date).getTime();
       const salaryEnd = salary.end_date ? new Date(salary.end_date).getTime() : Infinity;
       
-      // Don't count it as overlap if the new start date is after the current salary's end date
       if (salaryEnd !== Infinity && newStart > salaryEnd) {
         return false;
       }
       
-      // Don't count it as overlap if the new end date is before the current salary's start date
       if (newEnd !== Infinity && newEnd < salaryStart) {
         return false;
       }
@@ -149,7 +148,6 @@ export default function TeamMemberDetails() {
 
     console.log('Adding salary with values:', values);
 
-    // Validate the dates
     if (values.end_date && new Date(values.end_date) < new Date(values.start_date)) {
       toast({
         variant: "destructive",
@@ -159,7 +157,6 @@ export default function TeamMemberDetails() {
       return;
     }
 
-    // Check for date overlap before submitting
     if (checkDateOverlap(values.start_date, values.end_date || null)) {
       toast({
         variant: "destructive",
@@ -191,13 +188,14 @@ export default function TeamMemberDetails() {
 
       console.log('Successfully added salary');
       
+      // Invalidate and refetch both queries
+      await queryClient.invalidateQueries({ queryKey: ["team-member-salaries", id] });
+      await queryClient.invalidateQueries({ queryKey: ["team-member-salary", id] });
+      
       toast({
         title: "Success",
         description: "New salary added successfully",
       });
-      
-      // Reset form and refresh queries
-      await Promise.all([refetchSalary(), refetchInitialSalary()]);
       
       // Hide the salary form
       const salarySection = document.getElementById('add-salary-section');
@@ -232,7 +230,6 @@ export default function TeamMemberDetails() {
       }
 
       if (id) {
-        // Update existing team member
         const { error: teamMemberError } = await supabase
           .from("team_members")
           .update(teamMemberData)
@@ -240,7 +237,6 @@ export default function TeamMemberDetails() {
 
         if (teamMemberError) throw teamMemberError
       } else {
-        // Insert new team member
         const { error: teamMemberError } = await supabase
           .from("team_members")
           .insert(teamMemberData)
