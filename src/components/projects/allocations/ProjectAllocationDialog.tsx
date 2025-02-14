@@ -73,6 +73,24 @@ export function ProjectAllocationDialog({
     },
   })
 
+  const handleAllocationChange = (e: React.ChangeEvent<HTMLInputElement>, field: any) => {
+    const value = e.target.value
+    const numberValue = parseInt(value)
+    
+    if (value === "") {
+      field.onChange("")
+      return
+    }
+
+    if (isNaN(numberValue)) {
+      return
+    }
+
+    // Clamp the value between 0 and 100
+    const clampedValue = Math.min(Math.max(numberValue, 0), 100)
+    field.onChange(clampedValue.toString())
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
@@ -134,10 +152,13 @@ export function ProjectAllocationDialog({
                   <FormLabel>Allocation Percentage</FormLabel>
                   <FormControl>
                     <Input
-                      {...field}
                       type="number"
                       min="0"
                       max="100"
+                      step="1"
+                      onChange={(e) => handleAllocationChange(e, field)}
+                      value={field.value}
+                      placeholder="Enter a value between 0 and 100"
                     />
                   </FormControl>
                   <FormMessage />
