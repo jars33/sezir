@@ -56,6 +56,9 @@ export function TimelineMonth({
     return amount.toFixed(2)
   }
 
+  const monthNumber = month.getMonth()
+  const shouldShowSeparator = [1, 3, 4].includes(monthNumber) // February (1), April (3), May (4)
+
   return (
     <div className="bg-white p-2 min-h-[250px] flex flex-col">
       <div className="flex items-center justify-center gap-1 mb-2">
@@ -76,8 +79,8 @@ export function TimelineMonth({
           ))}
         </div>
 
-        {/* Separator line if there are revenues and (allocations or costs) */}
-        {hasRevenues && (hasAllocations || hasCosts) && (
+        {/* Separator line if the month is February, April, or May */}
+        {shouldShowSeparator && (
           <div className="border-t border-gray-200 my-2 w-full" />
         )}
 
