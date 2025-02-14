@@ -1,4 +1,3 @@
-
 import { useQueryClient } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
@@ -94,6 +93,7 @@ export function TimelineActions({
         if (error) throw error
         queryClient.invalidateQueries({ queryKey: ["project-variable-costs"] })
         toast.success("Variable cost added successfully")
+        setAddVariableCostDate(null)
       } else {
         const { error } = await supabase.from("project_overhead_costs").insert([
           {
@@ -106,10 +106,8 @@ export function TimelineActions({
         if (error) throw error
         queryClient.invalidateQueries({ queryKey: ["project-overhead-costs"] })
         toast.success("Overhead cost added successfully")
+        setAddOverheadCostDate(null)
       }
-
-      setAddVariableCostDate(null)
-      setAddOverheadCostDate(null)
     } catch (error) {
       toast.error(`Failed to add ${values.type} cost`)
     }
