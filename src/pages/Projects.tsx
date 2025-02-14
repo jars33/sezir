@@ -67,11 +67,8 @@ export default function Projects() {
       setCreateDialogOpen(false)
       toast.success("Project created successfully")
       
-      if (data?.id) {
+      if (data) {
         navigate(`/projects/${data.id}`)
-      } else {
-        toast.error("Project was created but ID was not returned")
-        navigate("/projects")
       }
     } catch (error) {
       toast.error("Failed to create project")
