@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { TimelineHeader } from "./timeline/TimelineHeader"
 import { TimelineMonth } from "./timeline/TimelineMonth"
 import { TimelineActions } from "./timeline/TimelineActions"
+import { TimelineSummary } from "./timeline/TimelineSummary"
 import { useTimelineData } from "./timeline/useTimelineData"
 import { useTimelineCalculations } from "./timeline/TimelineCalculations"
 import { useProjectYear } from "@/hooks/use-project-year"
@@ -190,42 +191,52 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
         totalProfit={totalProfit}
         startDate={startDate}
       />
-      <CardContent className="overflow-x-auto">
-        <div className="min-w-[1200px]">
-          <div className="grid grid-cols-12 gap-px bg-gray-200 rounded-lg overflow-hidden">
-            {months.map((month) => {
-              const monthStr = format(month, "yyyy-MM")
-              const monthRevenues = revenues?.filter(
-                (r) => r.month.startsWith(monthStr)
-              ) || []
-              const monthVariableCosts = variableCosts?.filter(
-                (c) => c.month.startsWith(monthStr)
-              ) || []
-              const monthOverheadCosts = overheadCosts?.filter(
-                (c) => c.month.startsWith(monthStr)
-              ) || []
-              const monthAllocations = allocations?.filter(
-                (a) => a.month.startsWith(monthStr)
-              ) || []
+      <CardContent className="space-y-6">
+        <TimelineSummary
+          year={year}
+          revenues={revenues}
+          variableCosts={variableCosts}
+          overheadCosts={overheadCosts}
+          allocations={allocations}
+        />
+        
+        <div className="overflow-x-auto">
+          <div className="min-w-[1200px]">
+            <div className="grid grid-cols-12 gap-px bg-gray-200 rounded-lg overflow-hidden">
+              {months.map((month) => {
+                const monthStr = format(month, "yyyy-MM")
+                const monthRevenues = revenues?.filter(
+                  (r) => r.month.startsWith(monthStr)
+                ) || []
+                const monthVariableCosts = variableCosts?.filter(
+                  (c) => c.month.startsWith(monthStr)
+                ) || []
+                const monthOverheadCosts = overheadCosts?.filter(
+                  (c) => c.month.startsWith(monthStr)
+                ) || []
+                const monthAllocations = allocations?.filter(
+                  (a) => a.month.startsWith(monthStr)
+                ) || []
 
-              return (
-                <TimelineMonth
-                  key={month.getTime()}
-                  month={month}
-                  revenues={monthRevenues}
-                  variableCosts={monthVariableCosts}
-                  overheadCosts={monthOverheadCosts}
-                  allocations={monthAllocations}
-                  onSelectRevenue={setSelectedRevenue}
-                  onSelectVariableCost={setSelectedVariableCost}
-                  onSelectOverheadCost={setSelectedOverheadCost}
-                  onSelectAllocation={(allocation) => {
-                    setSelectedAllocation(allocation)
-                    setAllocationDialogOpen(true)
-                  }}
-                />
-              )
-            })}
+                return (
+                  <TimelineMonth
+                    key={month.getTime()}
+                    month={month}
+                    revenues={monthRevenues}
+                    variableCosts={monthVariableCosts}
+                    overheadCosts={monthOverheadCosts}
+                    allocations={monthAllocations}
+                    onSelectRevenue={setSelectedRevenue}
+                    onSelectVariableCost={setSelectedVariableCost}
+                    onSelectOverheadCost={setSelectedOverheadCost}
+                    onSelectAllocation={(allocation) => {
+                      setSelectedAllocation(allocation)
+                      setAllocationDialogOpen(true)
+                    }}
+                  />
+                )
+              })}
+            </div>
           </div>
         </div>
 
