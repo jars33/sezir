@@ -1,5 +1,5 @@
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { format } from "date-fns"
 import {
   Dialog,
@@ -53,6 +53,11 @@ interface ProjectAllocationDialogProps {
   onOpenChange: (open: boolean) => void
   onSubmit: (values: { teamMemberId: string; month: Date; allocation: string }) => Promise<void>
   teamMembers: Array<{ id: string; name: string }>
+  initialAllocation?: {
+    teamMemberId: string
+    month: Date
+    allocation: string
+  }
 }
 
 export function ProjectAllocationDialog({
@@ -61,6 +66,7 @@ export function ProjectAllocationDialog({
   onOpenChange,
   onSubmit,
   teamMembers,
+  initialAllocation,
 }: ProjectAllocationDialogProps) {
   const [isPeriod, setIsPeriod] = useState(false)
   
@@ -71,6 +77,25 @@ export function ProjectAllocationDialog({
       startMonth: new Date(),
     },
   })
+
+  // Reset form when dialog opens/closes or initialAllocation changes
+  useEffect(() => {
+    if (open) {
+      if (initialAllocation) {
+        form.reset({
+          teamMemberId: initialAllocation.teamMemberId,
+          startMonth: initialAllocation.month,
+          allocation: initialAllocation.allocation,
+        })
+        setIsPeriod(false) // Disable period selection when editing
+      } else {
+        form.reset({
+          allocation: "100",
+          startMonth: new Date(),
+        })
+      }
+    }
+  }, [open, initialAllocation, form])
 
   const handleAllocationChange = (e: React.ChangeEvent<HTMLInputElement>, field: any) => {
     const value = e.target.value
@@ -129,26 +154,28 @@ export function ProjectAllocationDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add Team Member Allocation</DialogTitle>
+          <DialogTitle>{initialAllocation ? 'Edit' : 'Add'} Team Member Allocation</DialogTitle>
           <DialogDescription>
-            Add allocation for a single month or a period
+            {initialAllocation ? 'Update allocation for this month' : 'Add allocation for a single month or a period'}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="period"
-                checked={isPeriod}
-                onCheckedChange={(checked) => setIsPeriod(checked === true)}
-              />
-              <label
-                htmlFor="period"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                Period
-              </label>
-            </div>
+            {!initialAllocation && (
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="period"
+                  checked={isPeriod}
+                  onCheckedChange={(checked) => setIsPeriod(checked === true)}
+                />
+                <label
+                  htmlFor="period"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Period
+                </label>
+              </div>
+            )}
 
             <FormField
               control={form.control}
@@ -156,7 +183,11 @@ export function ProjectAllocationDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Team Member</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select 
+                    onValueChange={field.onChange} 
+                    value={field.value}
+                    disabled={!!initialAllocation}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a team member" />
@@ -190,6 +221,7 @@ export function ProjectAllocationDialog({
                       }}
                       value={field.value ? format(field.value, "yyyy-MM") : ""}
                       className="w-full"
+                      disabled={!!initialAllocation}
                     />
                   </FormControl>
                   <FormMessage />
@@ -197,7 +229,7 @@ export function ProjectAllocationDialog({
               )}
             />
 
-            {isPeriod && (
+            {isPeriod && !initialAllocation && (
               <FormField
                 control={form.control}
                 name="endMonth"
@@ -243,7 +275,7 @@ export function ProjectAllocationDialog({
               )}
             />
             <div className="flex justify-end">
-              <Button type="submit">Add Allocation</Button>
+              <Button type="submit">{initialAllocation ? 'Update' : 'Add'} Allocation</Button>
             </div>
           </form>
         </Form>

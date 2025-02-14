@@ -1,3 +1,4 @@
+
 import { useState } from "react"
 import { addMonths, format, startOfMonth, setMonth } from "date-fns"
 import { Plus, ChevronLeft, ChevronRight } from "lucide-react"
@@ -12,8 +13,22 @@ interface ProjectAllocationsProps {
   projectId: string
 }
 
+interface AllocationData {
+  id: string
+  month: string
+  allocation_percentage: number
+  project_assignments: {
+    id: string
+    team_members: {
+      id: string
+      name: string
+    }
+  }
+}
+
 export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [selectedAllocation, setSelectedAllocation] = useState<AllocationData | null>(null)
   const { toast } = useToast()
   const [startDate, setStartDate] = useState(() => {
     const now = new Date()
@@ -148,6 +163,7 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
 
       await refetchAllocations()
       setDialogOpen(false)
+      setSelectedAllocation(null)
     } catch (error: any) {
       console.error("Error managing allocation:", error)
       toast({
@@ -158,8 +174,6 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
     }
   }
 
-  const months = Array.from({ length: 12 }, (_, i) => addMonths(startDate, i))
-
   const handlePreviousYear = () => {
     setStartDate(prev => addMonths(prev, -12))
   }
@@ -167,6 +181,13 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
   const handleNextYear = () => {
     setStartDate(prev => addMonths(prev, 12))
   }
+
+  const handleAllocationClick = (allocation: AllocationData) => {
+    setSelectedAllocation(allocation)
+    setDialogOpen(true)
+  }
+
+  const months = Array.from({ length: 12 }, (_, i) => addMonths(startDate, i))
 
   return (
     <Card>
@@ -181,7 +202,10 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
-          <Button onClick={() => setDialogOpen(true)}>
+          <Button onClick={() => {
+            setSelectedAllocation(null)
+            setDialogOpen(true)
+          }}>
             <Plus className="h-4 w-4 mr-2" />
             Add Allocation
           </Button>
@@ -205,6 +229,7 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
                     {monthAllocations.map((allocation) => (
                       <div
                         key={allocation.id}
+                        onClick={() => handleAllocationClick(allocation)}
                         className="p-2 bg-blue-50 border border-blue-100 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors"
                       >
                         <div className="text-sm font-medium">
@@ -229,6 +254,11 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
         onOpenChange={setDialogOpen}
         onSubmit={handleAddAllocation}
         teamMembers={teamMembers || []}
+        initialAllocation={selectedAllocation ? {
+          teamMemberId: selectedAllocation.project_assignments.team_members.id,
+          month: new Date(selectedAllocation.month),
+          allocation: selectedAllocation.allocation_percentage.toString(),
+        } : undefined}
       />
     </Card>
   )
