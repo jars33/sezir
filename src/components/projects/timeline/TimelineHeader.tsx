@@ -59,16 +59,7 @@ export function TimelineHeader({
               onClick={onAddVariableCost}
             >
               <PlusCircle className="h-4 w-4 mr-2" />
-              Variable Cost
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="hover:bg-orange-50 hover:text-orange-600"
-              onClick={onAddOverheadCost}
-            >
-              <PlusCircle className="h-4 w-4 mr-2" />
-              Overhead Cost
+              Cost
             </Button>
           </div>
           <div className="flex gap-2">
