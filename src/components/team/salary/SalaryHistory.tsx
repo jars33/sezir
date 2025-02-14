@@ -31,6 +31,7 @@ export function SalaryHistory({ id, salaryHistory, handleAddSalary }: SalaryHist
   }
 
   const onSubmit = async (values: { amount: string, start_date: string, end_date: string }) => {
+    console.log('Submitting salary with values:', values);
     await handleAddSalary(values);
     salaryForm.reset();
   }

@@ -147,6 +147,8 @@ export default function TeamMemberDetails() {
   const handleAddSalary = async (values: { amount: string, start_date: string, end_date: string }) => {
     if (!id || !session?.user.id) return;
 
+    console.log('Adding salary with values:', values);
+
     // Validate the dates
     if (values.end_date && new Date(values.end_date) < new Date(values.start_date)) {
       toast({
@@ -168,6 +170,13 @@ export default function TeamMemberDetails() {
     }
 
     try {
+      console.log('Calling add_salary_and_update_previous with:', {
+        p_team_member_id: id,
+        p_amount: parseFloat(values.amount),
+        p_start_date: values.start_date,
+        p_end_date: values.end_date || null,
+      });
+
       const { error } = await supabase.rpc('add_salary_and_update_previous', {
         p_team_member_id: id,
         p_amount: parseFloat(values.amount),
@@ -180,6 +189,8 @@ export default function TeamMemberDetails() {
         throw error;
       }
 
+      console.log('Successfully added salary');
+      
       toast({
         title: "Success",
         description: "New salary added successfully",
@@ -194,6 +205,7 @@ export default function TeamMemberDetails() {
         salarySection.style.display = 'none';
       }
     } catch (error: any) {
+      console.error('Error in handleAddSalary:', error);
       toast({
         variant: "destructive",
         title: "Error",
