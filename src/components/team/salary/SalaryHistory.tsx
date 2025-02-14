@@ -127,17 +127,17 @@ export function SalaryHistory({ id, salaryHistory, handleAddSalary }: SalaryHist
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Amount</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Start Date</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">End Date</th>
+              <th className="px-4 py-3 text-center text-sm font-medium text-gray-500">Amount</th>
+              <th className="px-4 py-3 text-center text-sm font-medium text-gray-500">Start Date</th>
+              <th className="px-4 py-3 text-center text-sm font-medium text-gray-500">End Date</th>
             </tr>
           </thead>
           <tbody className="divide-y">
             {salaryHistory?.map((salary) => (
               <tr key={salary.id}>
-                <td className="px-4 py-3 text-sm">{salary.amount}</td>
-                <td className="px-4 py-3 text-sm">{salary.start_date}</td>
-                <td className="px-4 py-3 text-sm">{salary.end_date || '-'}</td>
+                <td className="px-4 py-3 text-sm text-center">€{salary.amount}</td>
+                <td className="px-4 py-3 text-sm text-center">{salary.start_date}</td>
+                <td className="px-4 py-3 text-sm text-center">{salary.end_date || '-'}</td>
               </tr>
             ))}
             {!salaryHistory?.length && (
