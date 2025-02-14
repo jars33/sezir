@@ -58,13 +58,15 @@ export function TimelineMonth({
   const isCurrentMonth = isSameMonth(new Date(), month)
 
   return (
-    <div className={`bg-white p-2 flex flex-col ${
-      isCurrentMonth ? "ring-2 ring-blue-500 rounded-lg" : ""
-    }`}>
+    <div className={`${
+      isCurrentMonth 
+        ? "bg-blue-50 border-2 border-blue-200 shadow-lg rounded-lg" 
+        : "bg-white"
+    } p-2 flex flex-col`}>
       {/* Header */}
       <div className="text-center mb-2">
         <h3 className={`text-sm font-medium ${
-          isCurrentMonth ? "text-blue-600" : ""
+          isCurrentMonth ? "text-blue-700" : ""
         }`}>{format(month, "MMM yyyy")}</h3>
       </div>
 
