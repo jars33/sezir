@@ -1,3 +1,4 @@
+
 import { format, getYear, getQuarter, startOfYear, endOfYear } from "date-fns"
 import { Card } from "@/components/ui/card"
 
@@ -79,10 +80,10 @@ export function TimelineSummary({
   ]
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div className="space-y-4">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="md:col-span-2 space-y-4">
         <div className="grid grid-cols-2 gap-2">
-          {quarters.map((quarter) => (
+          {quarters.slice(0, 2).map((quarter) => (
             <Card key={quarter.label} className="p-3">
               <div className="text-sm font-medium text-muted-foreground">{quarter.label}</div>
               <div className={`text-lg font-semibold ${
@@ -95,10 +96,34 @@ export function TimelineSummary({
             </Card>
           ))}
         </div>
+        <div className="grid grid-cols-2 gap-2">
+          {quarters.slice(2, 4).map((quarter) => (
+            <Card key={quarter.label} className="p-3">
+              <div className="text-sm font-medium text-muted-foreground">{quarter.label}</div>
+              <div className={`text-lg font-semibold ${
+                calculateProfit(revenues, quarter.start, quarter.end) >= 0 
+                  ? "text-emerald-600 dark:text-emerald-400"
+                  : "text-red-600 dark:text-red-400"
+              }`}>
+                €{calculateProfit(revenues, quarter.start, quarter.end).toFixed(2)}
+              </div>
+            </Card>
+          ))}
+          <Card className="p-3">
+            <div className="text-sm font-medium text-muted-foreground">{year}</div>
+            <div className={`text-lg font-semibold ${
+              calculateProfit(revenues, yearStart, yearEnd) >= 0 
+                ? "text-emerald-600 dark:text-emerald-400"
+                : "text-red-600 dark:text-red-400"
+            }`}>
+              €{calculateProfit(revenues, yearStart, yearEnd).toFixed(2)}
+            </div>
+          </Card>
+        </div>
       </div>
 
-      <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-2">
+      <div>
+        <div className="grid grid-cols-1 gap-2">
           {semesters.map((semester) => (
             <Card key={semester.label} className="p-3">
               <div className="text-sm font-medium text-muted-foreground">{semester.label}</div>
@@ -111,19 +136,6 @@ export function TimelineSummary({
               </div>
             </Card>
           ))}
-        </div>
-
-        <div className="mt-4">
-          <Card className="p-3">
-            <div className="text-sm font-medium text-muted-foreground">{year}</div>
-            <div className={`text-lg font-semibold ${
-              calculateProfit(revenues, yearStart, yearEnd) >= 0 
-                ? "text-emerald-600 dark:text-emerald-400"
-                : "text-red-600 dark:text-red-400"
-            }`}>
-              €{calculateProfit(revenues, yearStart, yearEnd).toFixed(2)}
-            </div>
-          </Card>
         </div>
       </div>
     </div>
