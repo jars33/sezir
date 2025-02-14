@@ -120,17 +120,18 @@ export function ProjectCostDialog({
     })
   }
 
-  const costType = form.watch("type")
+  // Check if we're in edit mode by verifying required fields exist
+  const isEditMode = Boolean(defaultValues?.month && defaultValues?.amount)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {defaultValues ? "Edit Cost" : "Add Cost"}
+            {isEditMode ? "Edit Cost" : "Add Cost"}
           </DialogTitle>
           <DialogDescription>
-            {defaultValues ? "Edit cost details" : "Add cost for a single month or a period"}
+            {isEditMode ? "Edit cost details" : "Add cost for a single month or a period"}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -168,7 +169,7 @@ export function ProjectCostDialog({
               )}
             />
 
-            {!defaultValues && (
+            {!isEditMode && (
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="period"
@@ -198,7 +199,7 @@ export function ProjectCostDialog({
               )}
             />
 
-            {isPeriod && (
+            {isPeriod && !isEditMode && (
               <FormField
                 control={form.control}
                 name="endMonth"
@@ -234,7 +235,7 @@ export function ProjectCostDialog({
               )}
             />
 
-            {costType === "variable" && (
+            {form.watch("type") === "variable" && (
               <FormField
                 control={form.control}
                 name="description"
@@ -262,7 +263,7 @@ export function ProjectCostDialog({
                 </Button>
               )}
               <Button type="submit">
-                {defaultValues ? "Update" : "Add"} Cost
+                {isEditMode ? 'Update' : 'Add'} Cost
               </Button>
             </DialogFooter>
           </form>
