@@ -2,7 +2,7 @@
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   Dialog,
   DialogContent,
@@ -53,11 +53,18 @@ export function ProjectRevenueDialog({
   const form = useForm<RevenueFormSchema>({
     resolver: zodResolver(revenueFormSchema),
     defaultValues: {
-      month: defaultValues?.month || "",
-      endMonth: defaultValues?.endMonth || "",
-      amount: defaultValues?.amount || "",
+      month: "",
+      endMonth: "",
+      amount: "",
     },
   })
+
+  // Reset form with default values when they change
+  useEffect(() => {
+    if (defaultValues) {
+      form.reset(defaultValues)
+    }
+  }, [defaultValues, form])
 
   const handleSubmit = (values: RevenueFormSchema) => {
     if (!isPeriod) {
