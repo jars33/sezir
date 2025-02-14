@@ -70,26 +70,22 @@ export default function MainLayout() {
             </nav>
           </SidebarContent>
         </Sidebar>
-
-        {/* Main content */}
-        <div className="flex-1 flex flex-col min-w-0">
-          <header className="h-12 flex items-center border-b border-[#e5e5e5] bg-white sticky top-0 z-10">
-            <SidebarTrigger />
-            <div className="flex-1" />
-            <div className="px-4">
-              <Button 
-                variant="ghost" 
-                onClick={handleSignOut}
-                className="text-[#6B6F76] hover:bg-[#f1f1f1] hover:text-black"
-              >
-                Sign Out
-              </Button>
-            </div>
-          </header>
-          <main className="flex-1 p-4">
-            <Outlet />
-          </main>
-        </div>
+        <header className="h-12 flex items-center border-b border-[#e5e5e5] bg-white sticky top-0 z-10">
+          <SidebarTrigger />
+          <div className="flex-1" />
+          <div className="px-4">
+            <Button 
+              variant="ghost" 
+              onClick={handleSignOut}
+              className="text-[#6B6F76] hover:bg-[#f1f1f1] hover:text-black"
+            >
+              Sign Out
+            </Button>
+          </div>
+        </header>
+        <main className="flex-1 p-4">
+          <Outlet />
+        </main>
       </div>
     </SidebarProvider>
   )
