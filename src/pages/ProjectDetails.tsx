@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { ProjectDialog } from "@/components/ProjectDialog"
 import { DeleteProjectDialog } from "@/components/projects/DeleteProjectDialog"
 import { ProjectTimelineView } from "@/components/projects/ProjectTimelineView"
+import { ProjectAllocations } from "@/components/projects/allocations/ProjectAllocations"
 import { useState } from "react"
 import { useIsMobile } from "@/hooks/use-mobile"
 import type { ProjectFormSchema } from "@/components/projects/project-schema"
@@ -129,7 +130,10 @@ export default function ProjectDetails() {
         </div>
       </div>
 
-      <ProjectTimelineView projectId={project.id} />
+      <div className="grid gap-6 md:grid-cols-2">
+        <ProjectTimelineView projectId={project.id} />
+        <ProjectAllocations projectId={project.id} />
+      </div>
 
       <ProjectDialog
         project={project}

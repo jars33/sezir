@@ -123,6 +123,41 @@ export type Database = {
           },
         ]
       }
+      project_member_allocations: {
+        Row: {
+          allocation_percentage: number
+          created_at: string
+          id: string
+          month: string
+          project_assignment_id: string
+          updated_at: string
+        }
+        Insert: {
+          allocation_percentage: number
+          created_at?: string
+          id?: string
+          month: string
+          project_assignment_id: string
+          updated_at?: string
+        }
+        Update: {
+          allocation_percentage?: number
+          created_at?: string
+          id?: string
+          month?: string
+          project_assignment_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_member_allocations_project_assignment_id_fkey"
+            columns: ["project_assignment_id"]
+            isOneToOne: false
+            referencedRelation: "project_assignments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_overhead_costs: {
         Row: {
           amount: number
