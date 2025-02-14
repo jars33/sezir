@@ -72,7 +72,7 @@ export default function MainLayout() {
         </Sidebar>
 
         {/* Main content */}
-        <div className="flex-1 flex flex-col ml-[150px] min-w-0">
+        <div className="flex-1 flex flex-col min-w-0">
           <header className="h-12 flex items-center border-b border-[#e5e5e5] bg-white sticky top-0 z-10">
             <SidebarTrigger />
             <div className="flex-1" />
