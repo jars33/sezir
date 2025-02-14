@@ -6,10 +6,12 @@ import { Card } from "@/components/ui/card"
 import { supabase } from "@/integrations/supabase/client"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
+import { useNavigate } from "react-router-dom"
 
 export default function CalendarPage() {
   const [startDate, setStartDate] = useState(startOfMonth(new Date()))
   const months = Array.from({ length: 12 }, (_, i) => addMonths(startDate, i))
+  const navigate = useNavigate()
 
   const { data: projects } = useQuery({
     queryKey: ["calendar-projects"],
@@ -70,7 +72,11 @@ export default function CalendarPage() {
 
             <div className="divide-y">
               {projects?.map((project) => (
-                <div key={project.id} className="h-12 px-4 flex flex-col justify-center">
+                <div 
+                  key={project.id} 
+                  className="h-12 px-4 flex flex-col justify-center cursor-pointer hover:bg-gray-50"
+                  onClick={() => navigate(`/projects/${project.id}`)}
+                >
                   <div className="font-medium leading-tight">{project.name}</div>
                   <div className="text-sm text-muted-foreground leading-tight">
                     #{project.number}
@@ -80,7 +86,11 @@ export default function CalendarPage() {
             </div>
             <div className="divide-y">
               {projects?.map((project) => (
-                <div key={project.id} className="relative h-12">
+                <div 
+                  key={project.id} 
+                  className="relative h-12 cursor-pointer hover:bg-gray-50"
+                  onClick={() => navigate(`/projects/${project.id}`)}
+                >
                   {project.start_date && (
                     <div
                       className={`absolute h-6 top-1/2 -translate-y-1/2 rounded ${
