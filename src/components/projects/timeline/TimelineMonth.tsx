@@ -63,15 +63,21 @@ export function TimelineMonth({
       <div className="flex-1 grid grid-rows-[auto_1fr] gap-4">
         {/* Revenues Section - Top Row */}
         <div className="space-y-1">
-          {revenues.map((revenue) => (
-            <div
-              key={revenue.id}
-              onClick={() => onSelectRevenue(revenue)}
-              className="p-2 min-h-[40px] flex items-center justify-center bg-green-50 border border-green-200 rounded text-sm cursor-pointer hover:bg-green-100 w-full text-center"
-            >
-              €{formatAmount(revenue.amount)}
+          {revenues.length > 0 ? (
+            revenues.map((revenue) => (
+              <div
+                key={revenue.id}
+                onClick={() => onSelectRevenue(revenue)}
+                className="p-2 min-h-[40px] flex items-center justify-center bg-green-50 border border-green-200 rounded text-sm cursor-pointer hover:bg-green-100 w-full text-center"
+              >
+                €{formatAmount(revenue.amount)}
+              </div>
+            ))
+          ) : (
+            <div className="p-2 min-h-[40px] flex items-center justify-center bg-gray-50 border border-gray-200 rounded text-sm text-gray-500 w-full text-center">
+              €0.00
             </div>
-          ))}
+          )}
         </div>
 
         {/* Costs Section - Bottom Row */}
