@@ -52,20 +52,27 @@ export function ProjectRevenueDialog({
 
   const form = useForm<RevenueFormSchema>({
     resolver: zodResolver(revenueFormSchema),
-    defaultValues: {
-      month: "",
-      endMonth: "",
-      amount: "",
-    },
   })
 
-  // Reset form with default values when they change
+  // Reset form with default values when dialog opens/closes or defaultValues change
   useEffect(() => {
-    if (defaultValues) {
-      form.reset(defaultValues)
-      setIsPeriod(false) // Reset period state when editing
+    if (open) {
+      if (defaultValues) {
+        form.reset({
+          month: defaultValues.month || "",
+          endMonth: "",
+          amount: defaultValues.amount || "",
+        })
+        setIsPeriod(false) // Reset period state when editing
+      } else {
+        form.reset({
+          month: "",
+          endMonth: "",
+          amount: "",
+        })
+      }
     }
-  }, [defaultValues, form])
+  }, [open, defaultValues, form])
 
   const handleSubmit = (values: RevenueFormSchema) => {
     if (!isPeriod) {
@@ -147,7 +154,7 @@ export function ProjectRevenueDialog({
               )}
             />
 
-            {isPeriod && (
+            {isPeriod && !defaultValues && (
               <FormField
                 control={form.control}
                 name="endMonth"
@@ -195,7 +202,7 @@ export function ProjectRevenueDialog({
                 </Button>
               )}
               <Button type="submit">
-                {defaultValues ? "Update" : "Add"} Revenue
+                {defaultValues ? 'Update' : 'Add'} Revenue
               </Button>
             </DialogFooter>
           </form>
