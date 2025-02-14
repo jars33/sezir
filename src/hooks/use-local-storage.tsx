@@ -1,5 +1,11 @@
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
+
+// Create a custom event for storage changes
+const createStorageEvent = (key: string, newValue: any) => 
+  new CustomEvent('local-storage', {
+    detail: { key, newValue }
+  })
 
 export function useLocalStorage<T>(
   key: string,
@@ -17,18 +23,44 @@ export function useLocalStorage<T>(
     }
   })
 
-  // Return a wrapped version of useState's setter function that ...
-  // ... persists the new value to localStorage.
-  const setValue = (value: T) => {
+  // Listen to storage events including our custom one
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent | CustomEvent) => {
+      if ('detail' in e) {
+        // Custom event
+        if (e.detail.key === key) {
+          setStoredValue(e.detail.newValue)
+        }
+      } else {
+        // Regular storage event
+        if (e.key === key) {
+          setStoredValue(e.newValue ? JSON.parse(e.newValue) : initialValue)
+        }
+      }
+    }
+
+    // Listen to both storage and our custom event
+    window.addEventListener('storage', handleStorageChange as EventListener)
+    window.addEventListener('local-storage', handleStorageChange as EventListener)
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange as EventListener)
+      window.removeEventListener('local-storage', handleStorageChange as EventListener)
+    }
+  }, [key, initialValue])
+
+  const setValue = useCallback((value: T) => {
     try {
       // Save state
       setStoredValue(value)
       // Save to local storage
       window.localStorage.setItem(key, JSON.stringify(value))
+      // Dispatch custom event to notify other components
+      window.dispatchEvent(createStorageEvent(key, value))
     } catch (error) {
       console.log(error)
     }
-  }
+  }, [key])
 
   return [storedValue, setValue]
 }
