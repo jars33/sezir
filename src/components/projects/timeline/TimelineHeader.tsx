@@ -37,8 +37,7 @@ export function TimelineHeader({
                 ? "text-green-600"
                 : "text-red-600"
             }`}>
-              €{Math.abs(totalProfit).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              {totalProfit < 0 && ' loss'}
+              {totalProfit < 0 ? '-' : ''}€{Math.abs(totalProfit).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>
         </div>
