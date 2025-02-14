@@ -1,6 +1,6 @@
 
 import { useState } from "react"
-import { format } from "date-fns"
+import { format, parseISO } from "date-fns"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
 import {
@@ -57,6 +57,16 @@ export function TeamMemberList({ members, onEdit, onSuccess }: TeamMemberListPro
     setDeleteDialogOpen(true)
   }
 
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "-"
+    try {
+      return format(parseISO(dateString), 'MM/dd/yyyy')
+    } catch (error) {
+      console.error("Error formatting date:", dateString, error)
+      return "Invalid date"
+    }
+  }
+
   return (
     <div>
       <Table>
@@ -77,10 +87,8 @@ export function TeamMemberList({ members, onEdit, onSuccess }: TeamMemberListPro
               <TableCell>{member.name}</TableCell>
               <TableCell className="capitalize">{member.type}</TableCell>
               <TableCell>{member.end_date ? "Inactive" : "Active"}</TableCell>
-              <TableCell>{format(new Date(member.start_date), 'MM/dd/yyyy')}</TableCell>
-              <TableCell>
-                {member.end_date ? format(new Date(member.end_date), 'MM/dd/yyyy') : "-"}
-              </TableCell>
+              <TableCell>{formatDate(member.start_date)}</TableCell>
+              <TableCell>{formatDate(member.end_date)}</TableCell>
               <TableCell>{member.company_email || "-"}</TableCell>
               <TableCell>
                 <div className="flex gap-2">
