@@ -101,7 +101,9 @@ export function TimelineMonth({
               className="p-2 min-h-[50px] bg-blue-50 border border-blue-200 rounded text-sm cursor-pointer hover:bg-blue-100 w-full"
             >
               <div className="text-center">-€{formatAmount(allocation.salary_cost)}</div>
-              <div className="text-xs text-gray-600 text-center">{allocation.team_member_name}</div>
+              <div className="text-xs text-gray-600 text-center">
+                {allocation.team_member_name} ({allocation.allocation_percentage}%)
+              </div>
             </div>
           ))}
 
