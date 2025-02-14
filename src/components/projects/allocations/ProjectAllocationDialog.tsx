@@ -29,6 +29,9 @@ import {
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
+import { toast } from "sonner"
+import { supabase } from "@/integrations/supabase/client"
+import { useQueryClient } from "@tanstack/react-query"
 
 const allocationFormSchema = z.object({
   teamMemberId: z.string().min(1, "Please select a team member"),
@@ -54,6 +57,7 @@ interface ProjectAllocationDialogProps {
   onSubmit: (values: { teamMemberId: string; month: Date; allocation: string }) => Promise<void>
   teamMembers: Array<{ id: string; name: string }>
   initialAllocation?: {
+    id?: string
     teamMemberId: string
     month: Date
     allocation: string
@@ -69,6 +73,8 @@ export function ProjectAllocationDialog({
   initialAllocation,
 }: ProjectAllocationDialogProps) {
   const [isPeriod, setIsPeriod] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const queryClient = useQueryClient()
   
   const form = useForm<AllocationFormValues>({
     resolver: zodResolver(allocationFormSchema),
@@ -150,6 +156,29 @@ export function ProjectAllocationDialog({
     }
   }
 
+  const handleDelete = async () => {
+    if (!initialAllocation?.id) return
+
+    try {
+      setIsDeleting(true)
+      const { error } = await supabase
+        .from("project_member_allocations")
+        .delete()
+        .eq("id", initialAllocation.id)
+
+      if (error) throw error
+
+      toast.success("Allocation deleted successfully")
+      queryClient.invalidateQueries({ queryKey: ["project-allocations"] })
+      onOpenChange(false)
+    } catch (error: any) {
+      toast.error("Failed to delete allocation")
+      console.error("Error deleting allocation:", error)
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
@@ -186,7 +215,6 @@ export function ProjectAllocationDialog({
                   <Select 
                     onValueChange={field.onChange} 
                     value={field.value}
-                    disabled={!!initialAllocation}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -274,8 +302,20 @@ export function ProjectAllocationDialog({
                 </FormItem>
               )}
             />
-            <div className="flex justify-end">
-              <Button type="submit">{initialAllocation ? 'Update' : 'Add'} Allocation</Button>
+            <div className="flex justify-between items-center">
+              {initialAllocation && (
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                >
+                  Delete Allocation
+                </Button>
+              )}
+              <Button type="submit" className={initialAllocation ? "ml-auto" : ""}>
+                {initialAllocation ? 'Update' : 'Add'} Allocation
+              </Button>
             </div>
           </form>
         </Form>

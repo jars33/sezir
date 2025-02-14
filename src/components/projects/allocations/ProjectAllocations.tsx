@@ -255,6 +255,7 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
         onSubmit={handleAddAllocation}
         teamMembers={teamMembers || []}
         initialAllocation={selectedAllocation ? {
+          id: selectedAllocation.id,
           teamMemberId: selectedAllocation.project_assignments.team_members.id,
           month: new Date(selectedAllocation.month),
           allocation: selectedAllocation.allocation_percentage.toString(),
