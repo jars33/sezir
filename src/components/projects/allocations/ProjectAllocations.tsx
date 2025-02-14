@@ -1,6 +1,5 @@
-
 import { useState } from "react"
-import { addMonths, format, startOfMonth, setMonth } from "date-fns"
+import { addMonths, format, startOfMonth, setMonth, getYear } from "date-fns"
 import { Plus, ChevronLeft, ChevronRight } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
@@ -32,7 +31,7 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
   const { toast } = useToast()
   const [startDate, setStartDate] = useState(() => {
     const now = new Date()
-    return startOfMonth(setMonth(now, 0)) // Set to January of current year
+    return new Date(getYear(now), 0, 1)
   })
 
   const { data: teamMembers } = useQuery({
@@ -50,10 +49,12 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
   })
 
   const { data: allocations, refetch: refetchAllocations } = useQuery({
-    queryKey: ["project-allocations", projectId, "with-salaries"],
+    queryKey: ["project-allocations", projectId, "with-salaries", format(startDate, 'yyyy')],
     queryFn: async () => {
-      const yearStart = format(startDate, 'yyyy-01-01');
-      const yearEnd = format(startDate, 'yyyy-12-31');
+      const yearStart = format(startDate, 'yyyy-01-01')
+      const yearEnd = format(startDate, 'yyyy-12-31')
+
+      console.log('Fetching allocations for period:', yearStart, 'to', yearEnd)
 
       const { data, error } = await supabase
         .from("project_member_allocations")
@@ -74,7 +75,12 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
         .lte("month", yearEnd)
         .order("month")
 
-      if (error) throw error
+      if (error) {
+        console.error('Error fetching allocations:', error)
+        throw error
+      }
+
+      console.log('Fetched allocations:', data)
       return data
     },
   })
@@ -85,7 +91,6 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
     allocation: string
   }) => {
     try {
-      // First, ensure we have a project assignment
       const { data: existingAssignment, error: assignmentError } = await supabase
         .from("project_assignments")
         .select("id")
@@ -96,7 +101,6 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
       let assignmentId: string;
 
       if (!existingAssignment) {
-        // Create new assignment if it doesn't exist
         const { data: newAssignment, error: createError } = await supabase
           .from("project_assignments")
           .insert({
@@ -115,10 +119,8 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
         assignmentId = existingAssignment.id
       }
 
-      // Format the month as a string in YYYY-MM-DD format
       const monthStr = format(startOfMonth(values.month), "yyyy-MM-dd")
 
-      // Check if an allocation already exists for this assignment and month
       const { data: existingAllocation, error: checkError } = await supabase
         .from("project_member_allocations")
         .select("id")
@@ -129,7 +131,6 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
       if (checkError) throw checkError
 
       if (existingAllocation) {
-        // Update existing allocation
         const { error: updateError } = await supabase
           .from("project_member_allocations")
           .update({
@@ -144,7 +145,6 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
           description: "Team member allocation updated successfully",
         })
       } else {
-        // Add new allocation
         const { error: insertError } = await supabase
           .from("project_member_allocations")
           .insert({
@@ -175,11 +175,13 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
   }
 
   const handlePreviousYear = () => {
-    setStartDate(prev => addMonths(prev, -12))
+    const newDate = new Date(getYear(startDate) - 1, 0, 1)
+    setStartDate(newDate)
   }
 
   const handleNextYear = () => {
-    setStartDate(prev => addMonths(prev, 12))
+    const newDate = new Date(getYear(startDate) + 1, 0, 1)
+    setStartDate(newDate)
   }
 
   const handleAllocationClick = (allocation: AllocationData) => {
@@ -187,7 +189,9 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
     setDialogOpen(true)
   }
 
-  const months = Array.from({ length: 12 }, (_, i) => addMonths(startDate, i))
+  const months = Array.from({ length: 12 }, (_, i) => {
+    return new Date(getYear(startDate), i, 1)
+  })
 
   return (
     <Card>
@@ -198,6 +202,9 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
             <Button variant="outline" size="icon" onClick={handlePreviousYear}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
+            <div className="px-2 py-1 font-medium">
+              {format(startDate, 'yyyy')}
+            </div>
             <Button variant="outline" size="icon" onClick={handleNextYear}>
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -217,7 +224,6 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
             {months.map((month) => {
               const monthStr = format(month, "yyyy-MM")
               const monthAllocations = allocations?.filter(allocation => {
-                // Add null checks for the nested objects
                 if (!allocation?.project_assignments?.team_members) return false
                 return format(new Date(allocation.month), "yyyy-MM") === monthStr
               }) || []
