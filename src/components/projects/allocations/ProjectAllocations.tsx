@@ -238,9 +238,9 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
                       <div
                         key={allocation.id}
                         onClick={() => handleAllocationClick(allocation)}
-                        className="p-2 bg-blue-50 border border-blue-100 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors"
+                        className="p-2 min-h-[50px] bg-blue-50 border border-blue-100 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors"
                       >
-                        <div className="text-sm font-medium">
+                        <div className="text-sm font-medium text-center">
                           {allocation.project_assignments.team_members.name}
                         </div>
                         <div className="text-xs text-gray-600 text-center">

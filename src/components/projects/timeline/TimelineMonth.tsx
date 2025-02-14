@@ -70,7 +70,7 @@ export function TimelineMonth({
             <div
               key={revenue.id}
               onClick={() => onSelectRevenue(revenue)}
-              className="p-2 bg-green-50 border border-green-200 rounded text-sm cursor-pointer hover:bg-green-100 w-full text-center"
+              className="p-2 min-h-[40px] flex items-center justify-center bg-green-50 border border-green-200 rounded text-sm cursor-pointer hover:bg-green-100 w-full text-center"
             >
               €{formatAmount(revenue.amount)}
             </div>
@@ -88,10 +88,10 @@ export function TimelineMonth({
             <div
               key={allocation.id}
               onClick={() => onSelectAllocation?.(allocation)}
-              className="p-2 bg-blue-50 border border-blue-200 rounded text-sm cursor-pointer hover:bg-blue-100 w-full text-center"
+              className="p-2 min-h-[50px] bg-blue-50 border border-blue-200 rounded text-sm cursor-pointer hover:bg-blue-100 w-full"
             >
-              <div>{allocation.team_member_name}</div>
-              <div className="text-xs text-gray-600">-€{formatAmount(allocation.salary_cost)}</div>
+              <div className="text-center">{allocation.team_member_name}</div>
+              <div className="text-xs text-gray-600 text-center">-€{formatAmount(allocation.salary_cost)}</div>
             </div>
           ))}
         </div>
@@ -102,11 +102,11 @@ export function TimelineMonth({
             <div
               key={cost.id}
               onClick={() => onSelectVariableCost(cost)}
-              className="p-2 bg-red-50 border border-red-200 rounded text-sm cursor-pointer hover:bg-red-100 w-full text-center"
+              className="p-2 min-h-[40px] bg-red-50 border border-red-200 rounded text-sm cursor-pointer hover:bg-red-100 w-full"
             >
-              <div>-€{formatAmount(cost.amount)}</div>
+              <div className="text-center">-€{formatAmount(cost.amount)}</div>
               {cost.description && (
-                <div className="text-xs text-gray-600">{cost.description}</div>
+                <div className="text-xs text-gray-600 text-center">{cost.description}</div>
               )}
             </div>
           ))}
@@ -118,7 +118,7 @@ export function TimelineMonth({
             <div
               key={cost.id}
               onClick={() => onSelectOverheadCost(cost)}
-              className="p-2 bg-orange-50 border border-orange-200 rounded text-sm cursor-pointer hover:bg-orange-100 w-full text-center"
+              className="p-2 min-h-[40px] flex items-center justify-center bg-orange-50 border border-orange-200 rounded text-sm cursor-pointer hover:bg-orange-100 w-full text-center"
             >
               -€{formatAmount(cost.amount)}
             </div>
