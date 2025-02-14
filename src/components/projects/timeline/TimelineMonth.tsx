@@ -60,7 +60,7 @@ export function TimelineMonth({
   return (
     <div className={`${
       isCurrentMonth 
-        ? "bg-gray-100 border-2 border-blue-200 rounded-lg" 
+        ? "bg-gray-100 rounded-lg" 
         : "bg-white"
     } p-2 flex flex-col`}>
       {/* Header */}
