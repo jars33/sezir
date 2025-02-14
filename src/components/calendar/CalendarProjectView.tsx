@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card"
 import { useQuery } from "@tanstack/react-query"
 import { isSameDay } from "date-fns"
 import { supabase } from "@/integrations/supabase/client"
+import { useNavigate } from "react-router-dom"
 
 type Project = {
   id: string
@@ -31,6 +32,8 @@ interface CalendarProjectViewProps {
 }
 
 export function CalendarProjectView({ date, projects }: CalendarProjectViewProps) {
+  const navigate = useNavigate()
+  
   const statusColors = {
     planned: "bg-yellow-100 text-yellow-800",
     in_progress: "bg-blue-100 text-blue-800",
@@ -81,7 +84,11 @@ export function CalendarProjectView({ date, projects }: CalendarProjectViewProps
         )
 
         return (
-          <Card key={project.id} className="p-4">
+          <Card 
+            key={project.id} 
+            className="p-4 cursor-pointer hover:shadow-md transition-shadow"
+            onClick={() => navigate(`/projects/${project.id}`)}
+          >
             <div className="flex justify-between items-start">
               <div>
                 <p className="font-medium">{project.name}</p>
