@@ -3,7 +3,7 @@ import { Outlet, useNavigate, Link, useLocation } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { supabase } from "@/integrations/supabase/client"
 import { useAuth } from "./AuthProvider"
-import { Calendar, Users, LayoutDashboard, Inbox, FolderOpen } from "lucide-react"
+import { Calendar, Users, LayoutDashboard, Inbox, FolderOpen, Moon, Sun } from "lucide-react"
 import { cn } from "@/lib/utils"
 import {
   Sidebar,
@@ -11,11 +11,13 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
+import { useTheme } from "next-themes"
 
 export default function MainLayout() {
   const navigate = useNavigate()
   const location = useLocation()
   const { session, loading } = useAuth()
+  const { theme, setTheme } = useTheme()
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
@@ -56,8 +58,8 @@ export default function MainLayout() {
                         className={cn(
                           "flex items-center gap-2 px-2 py-1.5 rounded-md text-sm font-medium transition-colors",
                           isActive
-                            ? "bg-[#f1f1f1] text-black"
-                            : "text-[#6B6F76] hover:bg-[#f1f1f1] hover:text-black"
+                            ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                            : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                         )}
                       >
                         <item.icon className="w-4 h-4" />
@@ -73,14 +75,26 @@ export default function MainLayout() {
 
         {/* Main content */}
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="h-12 flex items-center border-b border-[#e5e5e5] bg-white sticky top-0 z-10">
+          <header className="h-12 flex items-center border-b border-border bg-background sticky top-0 z-10">
             <SidebarTrigger />
             <div className="flex-1" />
-            <div className="px-4">
+            <div className="px-4 flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className="text-foreground"
+              >
+                {theme === "dark" ? (
+                  <Sun className="h-4 w-4" />
+                ) : (
+                  <Moon className="h-4 w-4" />
+                )}
+              </Button>
               <Button 
                 variant="ghost" 
                 onClick={handleSignOut}
-                className="text-[#6B6F76] hover:bg-[#f1f1f1] hover:text-black"
+                className="text-foreground hover:bg-accent hover:text-accent-foreground"
               >
                 Sign Out
               </Button>
