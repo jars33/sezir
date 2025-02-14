@@ -95,25 +95,55 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
       // Format the month as a string in YYYY-MM-DD format
       const monthStr = format(startOfMonth(values.month), "yyyy-MM-dd")
 
-      // Add allocation using the assignment ID
-      const { error: allocationError } = await supabase
+      // Check if an allocation already exists for this assignment and month
+      const { data: existingAllocation, error: checkError } = await supabase
         .from("project_member_allocations")
-        .insert({
-          project_assignment_id: assignmentId,
-          month: monthStr,
-          allocation_percentage: parseInt(values.allocation),
-        })
+        .select("id")
+        .eq("project_assignment_id", assignmentId)
+        .eq("month", monthStr)
+        .single()
 
-      if (allocationError) throw allocationError
+      if (checkError && checkError.code !== "PGRST116") { // PGRST116 is "not found" error
+        throw checkError
+      }
+
+      if (existingAllocation) {
+        // Update existing allocation
+        const { error: updateError } = await supabase
+          .from("project_member_allocations")
+          .update({
+            allocation_percentage: parseInt(values.allocation),
+          })
+          .eq("id", existingAllocation.id)
+
+        if (updateError) throw updateError
+
+        toast({
+          title: "Success",
+          description: "Team member allocation updated successfully",
+        })
+      } else {
+        // Add new allocation
+        const { error: insertError } = await supabase
+          .from("project_member_allocations")
+          .insert({
+            project_assignment_id: assignmentId,
+            month: monthStr,
+            allocation_percentage: parseInt(values.allocation),
+          })
+
+        if (insertError) throw insertError
+
+        toast({
+          title: "Success",
+          description: "Team member allocation added successfully",
+        })
+      }
 
       await refetchAllocations()
       setDialogOpen(false)
-      toast({
-        title: "Success",
-        description: "Team member allocation added successfully",
-      })
     } catch (error: any) {
-      console.error("Error adding allocation:", error)
+      console.error("Error managing allocation:", error)
       toast({
         variant: "destructive",
         title: "Error",
