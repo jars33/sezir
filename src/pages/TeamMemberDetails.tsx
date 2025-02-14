@@ -130,7 +130,17 @@ export default function TeamMemberDetails() {
       const salaryStart = new Date(salary.start_date).getTime();
       const salaryEnd = salary.end_date ? new Date(salary.end_date).getTime() : Infinity;
       
-      return (newStart <= salaryEnd && newEnd >= salaryStart);
+      // Don't count it as overlap if the new start date is after the current salary's end date
+      if (salaryEnd !== Infinity && newStart > salaryEnd) {
+        return false;
+      }
+      
+      // Don't count it as overlap if the new end date is before the current salary's start date
+      if (newEnd !== Infinity && newEnd < salaryStart) {
+        return false;
+      }
+      
+      return true;
     });
   };
 
@@ -165,7 +175,10 @@ export default function TeamMemberDetails() {
         p_end_date: values.end_date || null,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error adding salary:', error);
+        throw error;
+      }
 
       toast({
         title: "Success",
