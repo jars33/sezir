@@ -55,6 +55,16 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
   const { toast } = useToast()
 
   const { revenues, variableCosts, overheadCosts, allocations } = useTimelineData(projectId)
+
+  const totalProfit = useMemo(() => {
+    const totalRevenues = revenues?.reduce((sum, r) => sum + Number(r.amount), 0) || 0
+    const totalVariableCosts = variableCosts?.reduce((sum, c) => sum + Number(c.amount), 0) || 0
+    const totalOverheadCosts = overheadCosts?.reduce((sum, c) => sum + Number(c.amount), 0) || 0
+    const totalSalaryCosts = allocations?.reduce((sum, a) => sum + Number(a.salary_cost), 0) || 0
+
+    return totalRevenues - totalVariableCosts - totalOverheadCosts - totalSalaryCosts
+  }, [revenues, variableCosts, overheadCosts, allocations])
+
   const months = Array.from({ length: 12 }, (_, i) => addMonths(startDate, i))
 
   const { data: teamMembers } = useQuery({
@@ -71,7 +81,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
     },
   })
 
-  const { totalProfit } = useTimelineCalculations(
+  const { totalProfit: totalProfitCalc } = useTimelineCalculations(
     revenues,
     variableCosts,
     overheadCosts,

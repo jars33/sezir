@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, PlusCircle } from "lucide-react"
 import { CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { format } from "date-fns"
+import { useLocalStorage } from "@/hooks/use-local-storage"
 
 interface TimelineHeaderProps {
   onAddRevenue: () => void
@@ -23,6 +24,12 @@ export function TimelineHeader({
   totalProfit,
   startDate,
 }: TimelineHeaderProps) {
+  const [showDecimals] = useLocalStorage<boolean>("showDecimals", true)
+
+  const formatAmount = (amount: number) => {
+    return showDecimals ? amount.toFixed(2) : Math.round(amount).toString()
+  }
+
   return (
     <CardHeader className="pb-2">
       <div className="flex items-center justify-between">
@@ -30,14 +37,17 @@ export function TimelineHeader({
           <CardTitle>Financials</CardTitle>
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-500">
-              Total for {format(startDate, "yyyy")}:
+              Total:
             </span>
             <div className={`text-lg font-semibold min-w-[150px] ${
               totalProfit >= 0 
-                ? "text-green-600"
-                : "text-red-600"
+                ? "text-emerald-600 dark:text-emerald-400"
+                : "text-red-600 dark:text-red-400"
             }`}>
-              {totalProfit < 0 ? '-' : ''}€{Math.abs(totalProfit).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {totalProfit < 0 ? '-' : ''}€{Math.abs(totalProfit).toLocaleString('en-US', { 
+                minimumFractionDigits: showDecimals ? 2 : 0, 
+                maximumFractionDigits: showDecimals ? 2 : 0 
+              })}
             </div>
           </div>
         </div>
