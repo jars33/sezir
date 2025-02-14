@@ -46,11 +46,6 @@ export function TimelineMonth({
   const totalOverheadCosts = overheadCosts.reduce((sum, c) => sum + (Number(c.amount) || 0), 0)
   const totalSalaryCosts = allocations.reduce((sum, a) => sum + (Number(a.salary_cost) || 0), 0)
   const profit = totalRevenue - totalVariableCosts - totalOverheadCosts - totalSalaryCosts
-  
-  const hasCosts = variableCosts.length > 0 || overheadCosts.length > 0
-  const hasRevenues = revenues.length > 0
-  const hasAllocations = allocations.length > 0
-  const hasAnyCosts = hasCosts || hasAllocations
 
   const formatAmount = (amount: number | null | undefined) => {
     if (amount === null || amount === undefined) return "0.00"
@@ -58,14 +53,16 @@ export function TimelineMonth({
   }
 
   return (
-    <div className="bg-white p-2 min-h-[250px] flex flex-col">
-      <div className="flex items-center justify-center gap-1 mb-1">
+    <div className="bg-white p-2 flex flex-col">
+      {/* Header */}
+      <div className="text-center mb-2">
         <h3 className="text-sm font-medium">{format(month, "MMM yyyy")}</h3>
       </div>
 
-      <div className="flex-1 flex flex-col items-center gap-1">
-        {/* Revenues section */}
-        <div className={`space-y-1 w-full flex flex-col items-center ${!hasAnyCosts ? 'flex-1' : ''}`}>
+      {/* Timeline Grid */}
+      <div className="flex-1 grid grid-rows-[auto_1fr] gap-4">
+        {/* Revenues Section - Top Row */}
+        <div className="space-y-1">
           {revenues.map((revenue) => (
             <div
               key={revenue.id}
@@ -77,13 +74,9 @@ export function TimelineMonth({
           ))}
         </div>
 
-        {/* Separator line between revenues and costs */}
-        {hasRevenues && hasAnyCosts && (
-          <div className="border-t border-gray-200 w-full my-1" />
-        )}
-
-        {/* Allocations section */}
-        <div className={`space-y-1 w-full flex flex-col items-center ${!hasRevenues && !hasCosts ? 'flex-1' : ''}`}>
+        {/* Costs Section - Bottom Row */}
+        <div className="space-y-1">
+          {/* Allocations */}
           {allocations.map((allocation) => (
             <div
               key={allocation.id}
@@ -94,10 +87,8 @@ export function TimelineMonth({
               <div className="text-xs text-gray-600 text-center">{allocation.team_member_name}</div>
             </div>
           ))}
-        </div>
 
-        {/* Variable Costs section */}
-        <div className={`space-y-1 w-full flex flex-col items-center ${!hasRevenues && !hasAllocations ? 'flex-1' : ''}`}>
+          {/* Variable Costs */}
           {variableCosts.map((cost) => (
             <div
               key={cost.id}
@@ -110,10 +101,8 @@ export function TimelineMonth({
               )}
             </div>
           ))}
-        </div>
 
-        {/* Overhead Costs section */}
-        <div className={`space-y-1 w-full flex flex-col items-center ${!hasRevenues && !hasAllocations ? 'flex-1' : ''}`}>
+          {/* Overhead Costs */}
           {overheadCosts.map((cost) => (
             <div
               key={cost.id}
@@ -126,7 +115,8 @@ export function TimelineMonth({
         </div>
       </div>
 
-      <div className={`mt-1 text-sm font-medium text-center ${
+      {/* Footer with Profit */}
+      <div className={`mt-2 text-sm font-medium text-center ${
         profit >= 0 
           ? "text-green-600"
           : "text-red-600"
