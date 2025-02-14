@@ -130,7 +130,7 @@ export default function ProjectDetails() {
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="space-y-6">
         <ProjectTimelineView projectId={project.id} />
         <ProjectAllocations projectId={project.id} />
       </div>
