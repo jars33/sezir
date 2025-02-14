@@ -1,4 +1,3 @@
-
 import { format, getYear, getQuarter, startOfYear, endOfYear } from "date-fns"
 import { Card } from "@/components/ui/card"
 
@@ -82,7 +81,6 @@ export function TimelineSummary({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div className="space-y-4">
-        <h3 className="text-sm font-medium mb-2">Quarterly Profit</h3>
         <div className="grid grid-cols-2 gap-2">
           {quarters.map((quarter) => (
             <Card key={quarter.label} className="p-3">
@@ -100,7 +98,6 @@ export function TimelineSummary({
       </div>
 
       <div className="space-y-4">
-        <h3 className="text-sm font-medium mb-2">Semester Profit</h3>
         <div className="grid grid-cols-2 gap-2">
           {semesters.map((semester) => (
             <Card key={semester.label} className="p-3">
@@ -117,7 +114,6 @@ export function TimelineSummary({
         </div>
 
         <div className="mt-4">
-          <h3 className="text-sm font-medium mb-2">Yearly Profit</h3>
           <Card className="p-3">
             <div className="text-sm font-medium text-muted-foreground">{year}</div>
             <div className={`text-lg font-semibold ${
