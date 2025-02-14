@@ -53,7 +53,7 @@ export function TimelineMonth({
   }
 
   return (
-    <div className="p-2 flex flex-col">
+    <div className="bg-card p-2 flex flex-col rounded-lg border border-border">
       {/* Header */}
       <div className="text-center mb-2">
         <h3 className="text-sm font-medium text-foreground">{format(month, "MMM yyyy")}</h3>
