@@ -190,7 +190,7 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Project Allocations</CardTitle>
+        <CardTitle>Allocations</CardTitle>
         <div className="flex items-center gap-1">
           <Button 
             variant="outline"
