@@ -32,7 +32,7 @@ export function TimelineHeader({
             <span className="text-sm text-gray-500">
               Total for {format(startDate, "yyyy")}:
             </span>
-            <div className={`text-lg font-semibold ${
+            <div className={`text-lg font-semibold min-w-[150px] ${
               totalProfit >= 0 
                 ? "text-green-600"
                 : "text-red-600"
