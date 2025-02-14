@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { format, startOfMonth, setMonth, getYear } from "date-fns"
 import { PlusCircle } from "lucide-react"
@@ -191,20 +190,6 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Allocations</CardTitle>
-        <div className="flex items-center gap-1">
-          <Button 
-            variant="outline"
-            size="sm"
-            className="hover:bg-blue-50 hover:text-blue-600"
-            onClick={() => {
-              setSelectedAllocation(null)
-              setDialogOpen(true)
-            }}
-          >
-            <PlusCircle className="h-4 w-4 mr-1" />
-            Add Allocation
-          </Button>
-        </div>
       </CardHeader>
       <CardContent className="overflow-x-auto">
         <div className="min-w-[1200px]">

@@ -61,6 +61,15 @@ export function TimelineHeader({
               <PlusCircle className="h-4 w-4 mr-2" />
               Cost
             </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="hover:bg-blue-50 hover:text-blue-600"
+              onClick={onAddVariableCost}
+            >
+              <PlusCircle className="h-4 w-4 mr-2" />
+              Allocation
+            </Button>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" size="icon" onClick={onPreviousYear}>
