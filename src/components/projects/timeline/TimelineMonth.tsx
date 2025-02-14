@@ -90,7 +90,7 @@ export function TimelineMonth({
               className="p-2 bg-blue-50 border border-blue-200 rounded text-sm cursor-pointer hover:bg-blue-100 w-full text-center"
             >
               <div>{allocation.team_member_name}</div>
-              <div className="text-xs text-gray-600">€{formatAmount(allocation.salary_cost)}</div>
+              <div className="text-xs text-gray-600">-€{formatAmount(allocation.salary_cost)}</div>
             </div>
           ))}
         </div>
