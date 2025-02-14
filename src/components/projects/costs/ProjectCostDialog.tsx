@@ -198,7 +198,7 @@ export function ProjectCostDialog({
               )}
             />
 
-            {isPeriod && (
+            {isPeriod && !defaultValues && (
               <FormField
                 control={form.control}
                 name="endMonth"

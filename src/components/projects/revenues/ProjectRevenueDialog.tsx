@@ -147,7 +147,7 @@ export function ProjectRevenueDialog({
               )}
             />
 
-            {isPeriod && (
+            {isPeriod && !defaultValues && (
               <FormField
                 control={form.control}
                 name="endMonth"
