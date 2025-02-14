@@ -62,8 +62,8 @@ const Dashboard = () => {
                 <XAxis dataKey="month" />
                 <YAxis />
                 <Tooltip />
-                <Bar dataKey="revenue" fill="#4CAF50" />
-                <Bar dataKey="cost" fill="#FF9800" />
+                <Bar dataKey="revenue" fill="#86efac" />
+                <Bar dataKey="cost" fill="#f87171" />
               </BarChart>
             </ResponsiveContainer>
           </div>
