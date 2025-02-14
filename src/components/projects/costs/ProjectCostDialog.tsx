@@ -140,7 +140,7 @@ export function ProjectCostDialog({
                         onPressedChange={(pressed) => {
                           field.onChange(pressed ? "variable" : "overhead")
                         }}
-                        className="data-[state=on]:bg-blue-50 data-[state=on]:text-blue-600"
+                        className="data-[state=on]:bg-red-50 data-[state=on]:text-red-600"
                       >
                         Variable
                       </Toggle>
@@ -149,7 +149,7 @@ export function ProjectCostDialog({
                         onPressedChange={(pressed) => {
                           field.onChange(pressed ? "overhead" : "variable")
                         }}
-                        className="data-[state=on]:bg-blue-50 data-[state=on]:text-blue-600"
+                        className="data-[state=on]:bg-orange-50 data-[state=on]:text-orange-600"
                       >
                         Overhead
                       </Toggle>
