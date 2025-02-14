@@ -73,18 +73,20 @@ export default function MainLayout() {
 
         {/* Main content */}
         <div className="flex-1 flex flex-col pl-[150px] min-w-0">
-          <header className="h-12 flex items-center px-4 gap-2 border-b border-[#e5e5e5] bg-white sticky top-0 z-10">
-            <div className="absolute left-4">
+          <header className="h-12 flex items-center border-b border-[#e5e5e5] bg-white sticky top-0 z-10">
+            <div className="pl-4">
               <SidebarTrigger />
             </div>
             <div className="flex-1" />
-            <Button 
-              variant="ghost" 
-              onClick={handleSignOut}
-              className="text-[#6B6F76] hover:bg-[#f1f1f1] hover:text-black"
-            >
-              Sign Out
-            </Button>
+            <div className="px-4">
+              <Button 
+                variant="ghost" 
+                onClick={handleSignOut}
+                className="text-[#6B6F76] hover:bg-[#f1f1f1] hover:text-black"
+              >
+                Sign Out
+              </Button>
+            </div>
           </header>
           <main className="flex-1 p-4">
             <Outlet />
