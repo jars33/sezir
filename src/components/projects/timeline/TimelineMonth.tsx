@@ -144,8 +144,8 @@ export function TimelineMonth({
               </div>
             </div>
 
-            {/* Monthly Profit */}
-            <div className="mt-2">
+            {/* Monthly Profit - Added mt-4 instead of mt-2 to increase margin */}
+            <div className="mt-4">
               <div className={`text-sm font-medium text-center ${
                 profit >= 0 
                   ? "text-emerald-600"
