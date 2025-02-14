@@ -50,6 +50,9 @@ export function TimelineMonth({
   const totalOverheadCosts = overheadCosts.reduce((sum, c) => sum + (Number(c.amount) || 0), 0)
   const totalSalaryCosts = allocations.reduce((sum, a) => sum + (Number(a.salary_cost) || 0), 0)
   const profit = totalRevenue - totalVariableCosts - totalOverheadCosts - totalSalaryCosts
+  
+  // Calculate profit rentability (as a percentage)
+  const profitRentability = totalRevenue > 0 ? (profit / totalRevenue) * 100 : 0
 
   const formatAmount = (amount: number | null | undefined) => {
     if (amount === null || amount === undefined) return "0.00"
@@ -151,12 +154,21 @@ export function TimelineMonth({
           </div>
         </TooltipTrigger>
         <TooltipContent>
-          <div className={`text-sm font-medium ${
-            accumulatedProfit >= 0 
-              ? "text-emerald-600"
-              : "text-red-600"
-          }`}>
-            Total: €{formatAmount(accumulatedProfit)}
+          <div className="space-y-1">
+            <div className={`text-sm font-medium ${
+              accumulatedProfit >= 0 
+                ? "text-emerald-600"
+                : "text-red-600"
+            }`}>
+              Accumulated: €{formatAmount(accumulatedProfit)}
+            </div>
+            <div className={`text-sm font-medium ${
+              profitRentability >= 0 
+                ? "text-emerald-600"
+                : "text-red-600"
+            }`}>
+              Rentability: {formatAmount(profitRentability)}%
+            </div>
           </div>
         </TooltipContent>
       </Tooltip>
