@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useNavigate, useLocation } from "react-router-dom"
 import { CalendarDays, LayoutDashboard, Users, Folders, Mail } from "lucide-react"
-import { useTheme } from "next-themes"
 import { Switch } from "@/components/ui/switch"
 import { useLocalStorage } from "@/hooks/use-local-storage"
 import { Label } from "@/components/ui/label"
@@ -16,7 +15,6 @@ interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
 export function Sidebar({ className }: SidebarProps) {
   const navigate = useNavigate()
   const location = useLocation()
-  const { theme, setTheme } = useTheme()
   const [showDecimals, setShowDecimals] = useLocalStorage<boolean>("showDecimals", true)
 
   return (
@@ -68,14 +66,6 @@ export function Sidebar({ className }: SidebarProps) {
         </div>
         <div className="px-3 py-2">
           <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="dark-mode"
-                checked={theme === "dark"}
-                onCheckedChange={() => setTheme(theme === "dark" ? "light" : "dark")}
-              />
-              <Label htmlFor="dark-mode">Dark mode</Label>
-            </div>
             <div className="flex items-center space-x-2">
               <Switch
                 id="show-decimals"

@@ -9,6 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { useLocalStorage } from "@/hooks/use-local-storage"
 
 interface ProjectRevenue {
   id: string
@@ -30,6 +31,12 @@ export function ProjectRevenueTable({
   onEdit,
   onDelete
 }: ProjectRevenueTableProps) {
+  const [showDecimals] = useLocalStorage<boolean>("showDecimals", true)
+
+  const formatAmount = (amount: number) => {
+    return showDecimals ? amount.toFixed(2) : Math.round(amount).toString()
+  }
+
   return (
     <Table>
       <TableHeader>
@@ -48,7 +55,7 @@ export function ProjectRevenueTable({
                 month: "long",
               })}
             </TableCell>
-            <TableCell>€{revenue.amount.toFixed(2)}</TableCell>
+            <TableCell>€{formatAmount(revenue.amount)}</TableCell>
             <TableCell>
               <div className="flex space-x-2">
                 <Button
