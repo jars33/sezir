@@ -103,17 +103,9 @@ export function useTimelineData(projectId: string) {
             .lte("start_date", allocation.month)
             .or(`end_date.is.null,end_date.gte.${allocation.month}`)
             .order("start_date", { ascending: false })
-            .limit(1)
-            .single()
+            .maybeSingle() // Changed from single() to maybeSingle()
 
-          if (salaryError && salaryError.code !== "PGRST116") {
-            console.error("Error fetching salary:", salaryError)
-            return {
-              ...allocation,
-              salary_cost: 0
-            }
-          }
-
+          // If no salary data is found or there's an error, use 0 as the salary
           const monthlySalary = salaryData?.amount || 0
           const salary_cost = (monthlySalary * allocation.allocation_percentage) / 100
 
