@@ -63,6 +63,24 @@ export function TimelineMonth({
       </div>
 
       <div className="flex-1 flex flex-col items-center">
+        {/* Revenues section */}
+        <div className={`space-y-2 w-full flex flex-col items-center ${!hasCosts && !hasAllocations ? 'flex-1' : ''}`}>
+          {revenues.map((revenue) => (
+            <div
+              key={revenue.id}
+              onClick={() => onSelectRevenue(revenue)}
+              className="p-2 bg-green-50 border border-green-200 rounded text-sm cursor-pointer hover:bg-green-100 w-full text-center"
+            >
+              €{formatAmount(revenue.amount)}
+            </div>
+          ))}
+        </div>
+
+        {/* Separator line if there are revenues and (allocations or costs) */}
+        {hasRevenues && (hasAllocations || hasCosts) && (
+          <div className="border-t border-gray-200 my-2 w-full" />
+        )}
+
         {/* Allocations section */}
         <div className={`space-y-2 w-full flex flex-col items-center ${!hasRevenues && !hasCosts ? 'flex-1' : ''}`}>
           {allocations.map((allocation) => (
@@ -77,31 +95,13 @@ export function TimelineMonth({
           ))}
         </div>
 
-        {/* Separator line if there are allocations and (revenues or costs) */}
-        {hasAllocations && (hasRevenues || hasCosts) && (
+        {/* Separator line if there are allocations and costs */}
+        {hasAllocations && hasCosts && (
           <div className="border-t border-gray-200 my-2 w-full" />
         )}
 
-        {/* Revenues section */}
-        <div className={`space-y-2 w-full flex flex-col items-center ${!hasCosts ? 'flex-1' : ''}`}>
-          {revenues.map((revenue) => (
-            <div
-              key={revenue.id}
-              onClick={() => onSelectRevenue(revenue)}
-              className="p-2 bg-green-50 border border-green-200 rounded text-sm cursor-pointer hover:bg-green-100 w-full text-center"
-            >
-              €{formatAmount(revenue.amount)}
-            </div>
-          ))}
-        </div>
-
-        {/* Separator line only if there are either revenues or costs */}
-        {(hasRevenues || hasCosts) && (
-          <div className="border-t border-gray-200 my-2 w-full" />
-        )}
-
-        {/* Costs section */}
-        <div className={`space-y-2 w-full flex flex-col items-center ${!hasRevenues ? 'flex-1' : ''}`}>
+        {/* Variable Costs section */}
+        <div className={`space-y-2 w-full flex flex-col items-center ${!hasRevenues && !hasAllocations ? 'flex-1' : ''}`}>
           {variableCosts.map((cost) => (
             <div
               key={cost.id}
@@ -114,7 +114,15 @@ export function TimelineMonth({
               )}
             </div>
           ))}
+        </div>
 
+        {/* Separator line between variable and overhead costs if both exist */}
+        {variableCosts.length > 0 && overheadCosts.length > 0 && (
+          <div className="border-t border-gray-200 my-2 w-full" />
+        )}
+
+        {/* Overhead Costs section */}
+        <div className={`space-y-2 w-full flex flex-col items-center ${!hasRevenues && !hasAllocations ? 'flex-1' : ''}`}>
           {overheadCosts.map((cost) => (
             <div
               key={cost.id}
