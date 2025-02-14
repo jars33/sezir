@@ -1,12 +1,12 @@
 
-import { format, startOfMonth } from "date-fns"
-import { Plus } from "lucide-react"
+import { useState } from "react"
+import { addMonths, format, startOfMonth, setMonth } from "date-fns"
+import { Plus, ChevronLeft, ChevronRight } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ProjectAllocationDialog } from "./ProjectAllocationDialog"
-import { useState } from "react"
 import { useToast } from "@/hooks/use-toast"
 
 interface ProjectAllocationsProps {
@@ -16,6 +16,10 @@ interface ProjectAllocationsProps {
 export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
   const [dialogOpen, setDialogOpen] = useState(false)
   const { toast } = useToast()
+  const [startDate, setStartDate] = useState(() => {
+    const now = new Date()
+    return startOfMonth(setMonth(now, 0)) // Set to January of current year
+  })
 
   const { data: teamMembers } = useQuery({
     queryKey: ["team-members"],
@@ -152,49 +156,73 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
     }
   }
 
+  const months = Array.from({ length: 12 }, (_, i) => addMonths(startDate, i))
+
+  const handlePreviousYear = () => {
+    setStartDate(prev => addMonths(prev, -12))
+  }
+
+  const handleNextYear = () => {
+    setStartDate(prev => addMonths(prev, 12))
+  }
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Team Allocations</CardTitle>
-        <Button onClick={() => setDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Allocation
-        </Button>
+        <div className="flex items-center gap-4">
+          <div className="flex gap-2">
+            <Button variant="outline" size="icon" onClick={handlePreviousYear}>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button variant="outline" size="icon" onClick={handleNextYear}>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+          <Button onClick={() => setDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Allocation
+          </Button>
+        </div>
       </CardHeader>
-      <CardContent>
-        {allocations && allocations.length > 0 ? (
-          <div className="space-y-4">
-            {allocations.map((allocation) => {
-              // Ensure we have the required nested data
-              if (!allocation.project_assignments?.team_members) {
-                return null
-              }
-              
+      <CardContent className="overflow-x-auto">
+        <div className="min-w-[1200px]">
+          <div className="grid grid-cols-12 gap-px bg-gray-200 rounded-lg overflow-hidden">
+            {months.map((month) => {
+              const monthStr = format(month, "yyyy-MM")
+              const monthAllocations = allocations?.filter(
+                (a) => format(new Date(a.month), "yyyy-MM") === monthStr
+              ) || []
+
               return (
-                <div
-                  key={allocation.id}
-                  className="flex items-center justify-between p-4 border rounded-lg"
-                >
-                  <div>
-                    <p className="font-medium">
-                      {allocation.project_assignments.team_members.name}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {format(new Date(allocation.month), "MMMM yyyy")}
-                    </p>
+                <div key={month.getTime()} className="bg-white p-4 min-h-[250px] flex flex-col">
+                  <div className="text-sm font-medium mb-4">
+                    {format(month, "MMM yyyy")}
                   </div>
-                  <div>
-                    <span className="text-lg font-semibold">
-                      {allocation.allocation_percentage}%
-                    </span>
+                  <div className="flex-1 space-y-2">
+                    {monthAllocations.map((allocation) => {
+                      if (!allocation.project_assignments?.team_members) return null;
+                      
+                      return (
+                        <div
+                          key={allocation.id}
+                          className="p-2 bg-blue-50 border border-blue-100 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors"
+                        >
+                          <div className="text-sm font-medium">
+                            {allocation.project_assignments.team_members.name}
+                          </div>
+                          <div className="text-xs text-gray-600 text-center">
+                            {allocation.allocation_percentage}%
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
                 </div>
               )
             })}
           </div>
-        ) : (
-          <p className="text-muted-foreground">No allocations yet</p>
-        )}
+        </div>
       </CardContent>
 
       <ProjectAllocationDialog
