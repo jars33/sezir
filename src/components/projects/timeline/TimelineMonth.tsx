@@ -48,7 +48,7 @@ export function TimelineMonth({
             <div
               key={revenue.id}
               onClick={() => onSelectRevenue(revenue)}
-              className="p-2 bg-green-50 border border-green-200 rounded text-sm cursor-pointer hover:bg-green-100 w-[99%] text-center"
+              className="p-2 bg-green-50 border border-green-200 rounded text-sm cursor-pointer hover:bg-green-100 w-full text-center"
             >
               €{revenue.amount.toFixed(2)}
             </div>
@@ -66,7 +66,7 @@ export function TimelineMonth({
             <div
               key={cost.id}
               onClick={() => onSelectVariableCost(cost)}
-              className="p-2 bg-red-50 border border-red-200 rounded text-sm cursor-pointer hover:bg-red-100 w-[99%] text-center"
+              className="p-2 bg-red-50 border border-red-200 rounded text-sm cursor-pointer hover:bg-red-100 w-full text-center"
             >
               <div>-€{cost.amount.toFixed(2)}</div>
               {cost.description && (
@@ -79,7 +79,7 @@ export function TimelineMonth({
             <div
               key={cost.id}
               onClick={() => onSelectOverheadCost(cost)}
-              className="p-2 bg-orange-50 border border-orange-200 rounded text-sm cursor-pointer hover:bg-orange-100 w-[99%] text-center"
+              className="p-2 bg-orange-50 border border-orange-200 rounded text-sm cursor-pointer hover:bg-orange-100 w-full text-center"
             >
               -€{cost.amount.toFixed(2)}
             </div>
