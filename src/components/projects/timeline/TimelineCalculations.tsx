@@ -8,10 +8,19 @@ interface TimelineItem {
   description?: string
 }
 
+interface AllocationItem {
+  id: string
+  month: string
+  allocation_percentage: number
+  team_member_name: string
+  salary_cost: number
+}
+
 interface TimelineCalculationsResult {
   totalRevenues: number
   totalVariableCosts: number
   totalOverheadCosts: number
+  totalSalaryCosts: number
   totalProfit: number
 }
 
@@ -19,6 +28,7 @@ export function useTimelineCalculations(
   revenues: TimelineItem[],
   variableCosts: TimelineItem[],
   overheadCosts: TimelineItem[],
+  allocations: AllocationItem[],
   currentYear: number
 ): TimelineCalculationsResult {
   const totalRevenues = revenues?.reduce((sum, r) => {
@@ -36,12 +46,18 @@ export function useTimelineCalculations(
     return year === currentYear ? sum + Number(c.amount) : sum
   }, 0) || 0
 
-  const totalProfit = totalRevenues - totalVariableCosts - totalOverheadCosts
+  const totalSalaryCosts = allocations?.reduce((sum, a) => {
+    const year = getYear(new Date(a.month))
+    return year === currentYear ? sum + Number(a.salary_cost) : sum
+  }, 0) || 0
+
+  const totalProfit = totalRevenues - totalVariableCosts - totalOverheadCosts - totalSalaryCosts
 
   return {
     totalRevenues,
     totalVariableCosts,
     totalOverheadCosts,
+    totalSalaryCosts,
     totalProfit,
   }
 }

@@ -37,7 +37,8 @@ export function TimelineHeader({
                 ? "text-green-600"
                 : "text-red-600"
             }`}>
-              ${totalProfit.toFixed(2)}
+              €{Math.abs(totalProfit).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {totalProfit < 0 && ' loss'}
             </div>
           </div>
         </div>
@@ -75,6 +76,9 @@ export function TimelineHeader({
             <Button variant="outline" size="icon" onClick={onPreviousYear}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
+            <div className="px-2 py-1 font-medium">
+              {format(startDate, "yyyy")}
+            </div>
             <Button variant="outline" size="icon" onClick={onNextYear}>
               <ChevronRight className="h-4 w-4" />
             </Button>

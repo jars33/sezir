@@ -22,7 +22,7 @@ interface ProjectTimelineViewProps {
 export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
   const [startDate, setStartDate] = useState(() => {
     const now = new Date()
-    return startOfMonth(setMonth(now, 0)) // Set to January of current year
+    return startOfMonth(setMonth(new Date(getYear(now), 0), 0)) // Set to January of current year
   })
 
   const [addRevenueDate, setAddRevenueDate] = useState<Date | null>(null)
@@ -43,15 +43,24 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
     revenues,
     variableCosts,
     overheadCosts,
+    allocations,
     currentYear
   )
 
   const handlePreviousYear = () => {
-    setStartDate(prev => addMonths(prev, -12))
+    setStartDate(prev => {
+      const newDate = new Date(prev)
+      newDate.setFullYear(prev.getFullYear() - 1)
+      return newDate
+    })
   }
 
   const handleNextYear = () => {
-    setStartDate(prev => addMonths(prev, 12))
+    setStartDate(prev => {
+      const newDate = new Date(prev)
+      newDate.setFullYear(prev.getFullYear() + 1)
+      return newDate
+    })
   }
 
   return (
