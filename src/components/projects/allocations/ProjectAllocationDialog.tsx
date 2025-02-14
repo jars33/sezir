@@ -1,12 +1,12 @@
 
 import { useState } from "react"
-import { CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog"
 import {
   Form,
@@ -17,6 +17,8 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   Select,
   SelectContent,
@@ -24,20 +26,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Input } from "@/components/ui/input"
-import { cn } from "@/lib/utils"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 
 const allocationFormSchema = z.object({
   teamMemberId: z.string().min(1, "Please select a team member"),
-  month: z.date(),
+  startMonth: z.date(),
+  endMonth: z.date().optional(),
   allocation: z.string().refine(
     (val) => {
       const num = parseInt(val)
@@ -55,7 +51,7 @@ interface ProjectAllocationDialogProps {
   projectId: string
   open: boolean
   onOpenChange: (open: boolean) => void
-  onSubmit: (values: AllocationFormValues) => Promise<void>
+  onSubmit: (values: { teamMemberId: string; month: Date; allocation: string }) => Promise<void>
   teamMembers: Array<{ id: string; name: string }>
 }
 
@@ -66,10 +62,13 @@ export function ProjectAllocationDialog({
   onSubmit,
   teamMembers,
 }: ProjectAllocationDialogProps) {
+  const [isPeriod, setIsPeriod] = useState(false)
+  
   const form = useForm<AllocationFormValues>({
     resolver: zodResolver(allocationFormSchema),
     defaultValues: {
       allocation: "100",
+      startMonth: new Date(),
     },
   })
 
@@ -91,14 +90,69 @@ export function ProjectAllocationDialog({
     field.onChange(clampedValue.toString())
   }
 
+  const handleSubmit = async (values: AllocationFormValues) => {
+    const startDate = new Date(values.startMonth)
+    const endDate = isPeriod ? new Date(values.endMonth || values.startMonth) : startDate
+
+    if (isPeriod && endDate < startDate) {
+      form.setError("endMonth", {
+        type: "manual",
+        message: "End month must be after start month",
+      })
+      return
+    }
+
+    // Set dates to first of month for accurate month calculations
+    startDate.setDate(1)
+    endDate.setDate(1)
+    
+    // Add one month to end date to include the end month itself
+    if (isPeriod) {
+      endDate.setMonth(endDate.getMonth() + 1)
+    }
+
+    const months: Date[] = []
+    let currentDate = new Date(startDate)
+    while (currentDate <= endDate) {
+      months.push(new Date(currentDate))
+      currentDate.setMonth(currentDate.getMonth() + 1)
+    }
+
+    // Submit allocations for each month in the period
+    for (const month of months) {
+      await onSubmit({
+        teamMemberId: values.teamMemberId,
+        month,
+        allocation: values.allocation,
+      })
+    }
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Add Team Member Allocation</DialogTitle>
+          <DialogDescription>
+            Add allocation for a single month or a period
+          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="period"
+                checked={isPeriod}
+                onCheckedChange={(checked) => setIsPeriod(checked === true)}
+              />
+              <label
+                htmlFor="period"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Period
+              </label>
+            </div>
+
             <FormField
               control={form.control}
               name="teamMemberId"
@@ -123,12 +177,13 @@ export function ProjectAllocationDialog({
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
-              name="month"
+              name="startMonth"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Month</FormLabel>
+                  <FormLabel>{isPeriod ? "Start Month" : "Month"}</FormLabel>
                   <FormControl>
                     <Input 
                       type="month" 
@@ -144,6 +199,31 @@ export function ProjectAllocationDialog({
                 </FormItem>
               )}
             />
+
+            {isPeriod && (
+              <FormField
+                control={form.control}
+                name="endMonth"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>End Month</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="month" 
+                        onChange={(e) => {
+                          const date = new Date(e.target.value + "-01")
+                          field.onChange(date)
+                        }}
+                        value={field.value ? format(field.value, "yyyy-MM") : ""}
+                        className="w-full"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
             <FormField
               control={form.control}
               name="allocation"
