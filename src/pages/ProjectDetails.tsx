@@ -106,7 +106,7 @@ export default function ProjectDetails() {
         <Button
           variant="ghost"
           onClick={() => navigate(-1)}
-          className="self-start md:col-start-1"
+          className="self-start md:col-start-1 w-24"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back
