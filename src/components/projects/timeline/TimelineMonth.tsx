@@ -14,6 +14,8 @@ interface AllocationItem {
   allocation_percentage: number
   team_member_name: string
   salary_cost: number
+  team_member_id: string
+  project_assignment_id: string
 }
 
 interface TimelineMonthProps {
