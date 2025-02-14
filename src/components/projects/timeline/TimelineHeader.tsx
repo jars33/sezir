@@ -27,16 +27,7 @@ export function TimelineHeader({
     <CardHeader className="pb-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-8">
-          <div className="flex items-center gap-4">
-            <CardTitle>Project Timeline</CardTitle>
-            <div className={`text-lg font-semibold ${
-              totalProfit >= 0 
-                ? "text-green-600"
-                : "text-red-600"
-            }`}>
-              {totalProfit < 0 ? '-' : ''}€{Math.abs(totalProfit).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </div>
-          </div>
+          <CardTitle>Project Timeline</CardTitle>
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-500">
               Total for {format(startDate, "yyyy")}:
