@@ -1,3 +1,4 @@
+
 import { useParams, useNavigate } from "react-router-dom"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -22,22 +23,6 @@ export default function TeamMemberDetails() {
   const { session } = useAuth()
   const { toast } = useToast()
 
-  const { data: member, isLoading } = useQuery({
-    queryKey: ["team-member", id],
-    queryFn: async () => {
-      if (!id) return null
-      const { data, error } = await supabase
-        .from("team_members")
-        .select("*")
-        .eq("id", id)
-        .single()
-
-      if (error) throw error
-      return data as TeamMember
-    },
-    enabled: !!id,
-  })
-
   const form = useForm<TeamMemberFormSchema>({
     resolver: zodResolver(teamMemberFormSchema),
     defaultValues: {
@@ -57,6 +42,44 @@ export default function TeamMemberDetails() {
       left_company: false,
       user_id: "",
     },
+  })
+
+  const { data: member, isLoading } = useQuery({
+    queryKey: ["team-member", id],
+    queryFn: async () => {
+      if (!id) return null
+      const { data, error } = await supabase
+        .from("team_members")
+        .select("*")
+        .eq("id", id)
+        .single()
+
+      if (error) throw error
+
+      // Set the form values when we get the member data
+      if (data) {
+        form.reset({
+          name: data.name,
+          start_date: data.start_date,
+          end_date: data.end_date,
+          personal_phone: data.personal_phone,
+          personal_email: data.personal_email,
+          company_phone: data.company_phone,
+          company_email: data.company_email,
+          type: data.type,
+          left_company: data.left_company,
+          user_id: data.user_id,
+          salary: {
+            amount: "",
+            start_date: format(new Date(), 'yyyy-MM-dd'),
+            end_date: null,
+          }
+        })
+      }
+      
+      return data as TeamMember
+    },
+    enabled: !!id,
   })
 
   const { data: initialSalary, refetch: refetchInitialSalary } = useQuery({
@@ -159,8 +182,7 @@ export default function TeamMemberDetails() {
         description: "New salary added successfully",
       });
       
-      // Reset form and refresh both salary queries
-      salaryForm.reset();
+      // Reset form and refresh queries
       await Promise.all([refetchSalary(), refetchInitialSalary()]);
       
       // Hide the salary form
@@ -178,7 +200,7 @@ export default function TeamMemberDetails() {
   }
 
   const handleShowAddSalary = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent form submission
+    e.preventDefault();
     const salarySection = document.getElementById('add-salary-section');
     if (salarySection) {
       salarySection.style.display = 'block';
@@ -258,7 +280,7 @@ export default function TeamMemberDetails() {
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold">Salary History</h2>
                 <Button 
-                  type="button" // Add this to prevent form submission
+                  type="button"
                   variant="ghost" 
                   size="icon"
                   onClick={handleShowAddSalary}
