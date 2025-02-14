@@ -16,6 +16,8 @@ interface AllocationItem {
   allocation_percentage: number
   team_member_name: string
   salary_cost: number
+  team_member_id: string
+  project_assignment_id: string
 }
 
 export function useTimelineData(projectId: string) {
@@ -79,7 +81,9 @@ export function useTimelineData(projectId: string) {
           id,
           month,
           allocation_percentage,
+          project_assignment_id,
           project_assignments!inner (
+            id,
             team_members!inner (
               id,
               name
@@ -114,6 +118,8 @@ export function useTimelineData(projectId: string) {
             month: allocation.month,
             allocation_percentage: allocation.allocation_percentage,
             team_member_name: allocation.project_assignments.team_members.name,
+            team_member_id: allocation.project_assignments.team_members.id,
+            project_assignment_id: allocation.project_assignment_id,
             salary_cost
           }
         })
