@@ -105,11 +105,11 @@ export default function ProjectDetails() {
       <div className="flex flex-col md:grid md:grid-cols-3 items-center gap-4">
         <Button
           variant="ghost"
-          onClick={() => navigate("/projects")}
+          onClick={() => navigate(-1)}
           className="self-start md:col-start-1"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Projects
+          Back
         </Button>
         <div className="w-full text-center md:col-start-2">
           <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 truncate max-w-[500px] mx-auto">
