@@ -9,7 +9,6 @@ import { Sidebar } from "@/components/ui/sidebar"
 import { useTheme } from "next-themes"
 import { useLocalStorage } from "@/hooks/use-local-storage"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { useQueryClient } from "@tanstack/react-query"
 
 export default function MainLayout() {
   const navigate = useNavigate()
@@ -17,7 +16,6 @@ export default function MainLayout() {
   const { session, loading } = useAuth()
   const { theme, setTheme } = useTheme()
   const [showDecimals, setShowDecimals] = useLocalStorage<boolean>("showDecimals", true)
-  const queryClient = useQueryClient()
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
@@ -26,8 +24,6 @@ export default function MainLayout() {
 
   const handleToggleDecimals = () => {
     setShowDecimals(!showDecimals)
-    // Invalidate all queries to trigger a refetch
-    queryClient.invalidateQueries()
   }
 
   if (loading) {
