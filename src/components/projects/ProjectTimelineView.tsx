@@ -7,6 +7,7 @@ import { TimelineMonth } from "./timeline/TimelineMonth"
 import { TimelineActions } from "./timeline/TimelineActions"
 import { useTimelineData } from "./timeline/useTimelineData"
 import { useTimelineCalculations } from "./timeline/TimelineCalculations"
+import { useProjectYear } from "@/hooks/use-project-year"
 
 interface TimelineItem {
   id: string
@@ -20,9 +21,9 @@ interface ProjectTimelineViewProps {
 }
 
 export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
+  const { year, setYear } = useProjectYear()
   const [startDate, setStartDate] = useState(() => {
-    const now = new Date()
-    return startOfMonth(setMonth(new Date(getYear(now), 0), 0)) // Set to January of current year
+    return startOfMonth(setMonth(new Date(year, 0), 0)) // Set to January of current year
   })
 
   const [addRevenueDate, setAddRevenueDate] = useState<Date | null>(null)
@@ -37,30 +38,25 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
 
   const { revenues, variableCosts, overheadCosts, allocations } = useTimelineData(projectId)
   const months = Array.from({ length: 12 }, (_, i) => addMonths(startDate, i))
-  const currentYear = getYear(startDate)
 
   const { totalProfit } = useTimelineCalculations(
     revenues,
     variableCosts,
     overheadCosts,
     allocations,
-    currentYear
+    year
   )
 
   const handlePreviousYear = () => {
-    setStartDate(prev => {
-      const newDate = new Date(prev)
-      newDate.setFullYear(prev.getFullYear() - 1)
-      return newDate
-    })
+    const newYear = year - 1
+    setYear(newYear)
+    setStartDate(startOfMonth(setMonth(new Date(newYear, 0), 0)))
   }
 
   const handleNextYear = () => {
-    setStartDate(prev => {
-      const newDate = new Date(prev)
-      newDate.setFullYear(prev.getFullYear() + 1)
-      return newDate
-    })
+    const newYear = year + 1
+    setYear(newYear)
+    setStartDate(startOfMonth(setMonth(new Date(newYear, 0), 0)))
   }
 
   return (

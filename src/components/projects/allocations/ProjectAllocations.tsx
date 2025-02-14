@@ -1,13 +1,14 @@
 
 import { useState } from "react"
-import { addMonths, format, startOfMonth, setMonth, getYear } from "date-fns"
-import { PlusCircle, ChevronLeft, ChevronRight } from "lucide-react"
+import { format, startOfMonth, setMonth, getYear } from "date-fns"
+import { PlusCircle } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ProjectAllocationDialog } from "./ProjectAllocationDialog"
 import { useToast } from "@/hooks/use-toast"
+import { useProjectYear } from "@/hooks/use-project-year"
 
 interface ProjectAllocationsProps {
   projectId: string
@@ -30,10 +31,8 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selectedAllocation, setSelectedAllocation] = useState<AllocationData | null>(null)
   const { toast } = useToast()
-  const [startDate, setStartDate] = useState(() => {
-    const now = new Date()
-    return new Date(getYear(now), 0, 1)
-  })
+  const { year, setYear } = useProjectYear()
+  const [startDate, setStartDate] = useState(() => new Date(year, 0, 1))
 
   const { data: teamMembers } = useQuery({
     queryKey: ["team-members"],
@@ -176,13 +175,15 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
   }
 
   const handlePreviousYear = () => {
-    const newDate = new Date(getYear(startDate) - 1, 0, 1)
-    setStartDate(newDate)
+    const newYear = year - 1
+    setYear(newYear)
+    setStartDate(new Date(newYear, 0, 1))
   }
 
   const handleNextYear = () => {
-    const newDate = new Date(getYear(startDate) + 1, 0, 1)
-    setStartDate(newDate)
+    const newYear = year + 1
+    setYear(newYear)
+    setStartDate(new Date(newYear, 0, 1))
   }
 
   const handleAllocationClick = (allocation: AllocationData) => {
@@ -191,7 +192,7 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
   }
 
   const months = Array.from({ length: 12 }, (_, i) => {
-    return new Date(getYear(startDate), i, 1)
+    return new Date(year, i, 1)
   })
 
   return (
@@ -199,17 +200,6 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Project Allocations</CardTitle>
         <div className="flex items-center gap-4">
-          <div className="flex gap-2">
-            <Button variant="outline" size="icon" onClick={handlePreviousYear}>
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <div className="px-2 py-1 font-medium">
-              {format(startDate, 'yyyy')}
-            </div>
-            <Button variant="outline" size="icon" onClick={handleNextYear}>
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
           <Button 
             variant="outline"
             size="sm"
