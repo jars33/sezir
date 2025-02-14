@@ -93,15 +93,15 @@ export default function ProjectDetails() {
   }
 
   if (isLoading) {
-    return <div className="p-6">Loading...</div>
+    return <div className="p-4">Loading...</div>
   }
 
   if (!project) {
-    return <div className="p-6">Project not found</div>
+    return <div className="p-4">Project not found</div>
   }
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="p-4">
       <div className="flex flex-col md:grid md:grid-cols-3 items-center gap-4">
         <Button
           variant="ghost"
@@ -130,7 +130,7 @@ export default function ProjectDetails() {
         </div>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-6 mt-6">
         <ProjectTimelineView projectId={project.id} />
         <ProjectAllocations projectId={project.id} />
       </div>
