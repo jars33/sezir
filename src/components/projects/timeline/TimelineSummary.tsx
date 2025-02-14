@@ -1,5 +1,7 @@
+
 import { format, getYear, getQuarter, startOfYear, endOfYear } from "date-fns"
 import { Card } from "@/components/ui/card"
+import { useLocalStorage } from "@/hooks/use-local-storage"
 
 interface TimelineItem {
   id: string
@@ -31,6 +33,8 @@ export function TimelineSummary({
   overheadCosts,
   allocations,
 }: TimelineSummaryProps) {
+  const [showDecimals] = useLocalStorage<boolean>("showDecimals", true)
+
   const calculateProfit = (items: any[], startDate: Date, endDate: Date) => {
     const filteredRevenues = revenues.filter(
       r => {
@@ -63,6 +67,10 @@ export function TimelineSummary({
     return filteredRevenues - filteredVariableCosts - filteredOverheadCosts - filteredSalaryCosts
   }
 
+  const formatAmount = (amount: number) => {
+    return showDecimals ? amount.toFixed(2) : Math.round(amount).toString()
+  }
+
   const yearStart = startOfYear(new Date(year, 0, 1))
   const yearEnd = endOfYear(new Date(year, 0, 1))
 
@@ -90,7 +98,7 @@ export function TimelineSummary({
                   ? "text-emerald-600 dark:text-emerald-400"
                   : "text-red-600 dark:text-red-400"
               }`}>
-                €{calculateProfit(revenues, quarter.start, quarter.end).toFixed(2)}
+                €{formatAmount(calculateProfit(revenues, quarter.start, quarter.end))}
               </div>
             </Card>
           ))}
@@ -107,7 +115,7 @@ export function TimelineSummary({
                   ? "text-emerald-600 dark:text-emerald-400"
                   : "text-red-600 dark:text-red-400"
               }`}>
-                €{calculateProfit(revenues, semester.start, semester.end).toFixed(2)}
+                €{formatAmount(calculateProfit(revenues, semester.start, semester.end))}
               </div>
             </Card>
           ))}
@@ -120,7 +128,7 @@ export function TimelineSummary({
               ? "text-emerald-600 dark:text-emerald-400"
               : "text-red-600 dark:text-red-400"
           }`}>
-            €{calculateProfit(revenues, yearStart, yearEnd).toFixed(2)}
+            €{formatAmount(calculateProfit(revenues, yearStart, yearEnd))}
           </div>
         </Card>
       </div>
