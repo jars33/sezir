@@ -60,7 +60,12 @@ function App() {
   const router = createBrowserRouter(routesWithAuth)
 
   return (
-    <ThemeProvider defaultTheme="system" enableSystem>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
       </QueryClientProvider>
