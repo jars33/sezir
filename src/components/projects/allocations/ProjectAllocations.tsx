@@ -230,8 +230,10 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
 
               return (
                 <div key={month.getTime()} className="bg-white p-2 min-h-[250px] flex flex-col">
-                  <div className="text-sm font-medium mb-1">
-                    {format(month, "MMM yyyy")}
+                  <div className="flex items-center justify-center gap-1 mb-1">
+                    <div className="text-sm font-medium">
+                      {format(month, "MMM yyyy")}
+                    </div>
                   </div>
                   <div className="flex-1 space-y-1">
                     {monthAllocations.map((allocation) => (
