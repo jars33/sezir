@@ -8,14 +8,23 @@ interface TimelineItem {
   description?: string
 }
 
+interface AllocationItem {
+  id: string
+  month: string
+  allocation_percentage: number
+  team_member_name: string
+}
+
 interface TimelineMonthProps {
   month: Date
   revenues: TimelineItem[]
   variableCosts: TimelineItem[]
   overheadCosts: TimelineItem[]
+  allocations: AllocationItem[]
   onSelectRevenue: (revenue: TimelineItem) => void
   onSelectVariableCost: (cost: TimelineItem) => void
   onSelectOverheadCost: (cost: TimelineItem) => void
+  onSelectAllocation?: (allocation: AllocationItem) => void
 }
 
 export function TimelineMonth({
@@ -23,9 +32,11 @@ export function TimelineMonth({
   revenues,
   variableCosts,
   overheadCosts,
+  allocations,
   onSelectRevenue,
   onSelectVariableCost,
   onSelectOverheadCost,
+  onSelectAllocation,
 }: TimelineMonthProps) {
   const totalRevenue = revenues.reduce((sum, r) => sum + Number(r.amount), 0)
   const totalVariableCosts = variableCosts.reduce((sum, c) => sum + Number(c.amount), 0)
@@ -34,6 +45,7 @@ export function TimelineMonth({
   
   const hasCosts = variableCosts.length > 0 || overheadCosts.length > 0
   const hasRevenues = revenues.length > 0
+  const hasAllocations = allocations.length > 0
 
   return (
     <div className="bg-white p-2 min-h-[250px] flex flex-col">
@@ -42,6 +54,25 @@ export function TimelineMonth({
       </div>
 
       <div className="flex-1 flex flex-col items-center">
+        {/* Allocations section */}
+        <div className={`space-y-2 w-full flex flex-col items-center ${!hasRevenues && !hasCosts ? 'flex-1' : ''}`}>
+          {allocations.map((allocation) => (
+            <div
+              key={allocation.id}
+              onClick={() => onSelectAllocation?.(allocation)}
+              className="p-2 bg-blue-50 border border-blue-200 rounded text-sm cursor-pointer hover:bg-blue-100 w-full text-center"
+            >
+              <div>{allocation.team_member_name}</div>
+              <div className="text-xs text-gray-600">{allocation.allocation_percentage}%</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Separator line if there are allocations and (revenues or costs) */}
+        {hasAllocations && (hasRevenues || hasCosts) && (
+          <div className="border-t border-gray-200 my-2 w-full" />
+        )}
+
         {/* Revenues section */}
         <div className={`space-y-2 w-full flex flex-col items-center ${!hasCosts ? 'flex-1' : ''}`}>
           {revenues.map((revenue) => (

@@ -35,7 +35,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
   const [deleteVariableCost, setDeleteVariableCost] = useState<TimelineItem | null>(null)
   const [deleteOverheadCost, setDeleteOverheadCost] = useState<TimelineItem | null>(null)
 
-  const { revenues, variableCosts, overheadCosts } = useTimelineData(projectId)
+  const { revenues, variableCosts, overheadCosts, allocations } = useTimelineData(projectId)
   const months = Array.from({ length: 12 }, (_, i) => addMonths(startDate, i))
   const currentYear = getYear(startDate)
 
@@ -79,6 +79,9 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
               const monthOverheadCosts = overheadCosts?.filter(
                 (c) => c.month.startsWith(monthStr)
               ) || []
+              const monthAllocations = allocations?.filter(
+                (a) => a.month.startsWith(monthStr)
+              ) || []
 
               return (
                 <TimelineMonth
@@ -87,6 +90,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
                   revenues={monthRevenues}
                   variableCosts={monthVariableCosts}
                   overheadCosts={monthOverheadCosts}
+                  allocations={monthAllocations}
                   onSelectRevenue={setSelectedRevenue}
                   onSelectVariableCost={setSelectedVariableCost}
                   onSelectOverheadCost={setSelectedOverheadCost}

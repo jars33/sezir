@@ -10,6 +10,13 @@ interface TimelineItem {
   description?: string
 }
 
+interface AllocationItem {
+  id: string
+  month: string
+  allocation_percentage: number
+  team_member_name: string
+}
+
 export function useTimelineData(projectId: string) {
   const { data: revenues } = useQuery({
     queryKey: ["project-revenues", projectId],
@@ -62,9 +69,41 @@ export function useTimelineData(projectId: string) {
     },
   })
 
+  const { data: allocations } = useQuery({
+    queryKey: ["project-allocations", projectId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("project_member_allocations")
+        .select(`
+          id,
+          month,
+          allocation_percentage,
+          project_assignments (
+            team_members (
+              name
+            )
+          )
+        `)
+        .eq("project_assignments.project_id", projectId)
+
+      if (error) {
+        toast.error("Failed to load allocations")
+        throw error
+      }
+
+      return (data || []).map(allocation => ({
+        id: allocation.id,
+        month: allocation.month,
+        allocation_percentage: allocation.allocation_percentage,
+        team_member_name: allocation.project_assignments.team_members.name
+      })) as AllocationItem[]
+    },
+  })
+
   return {
     revenues: revenues || [],
     variableCosts: variableCosts || [],
     overheadCosts: overheadCosts || [],
+    allocations: allocations || [],
   }
 }
