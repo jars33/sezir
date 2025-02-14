@@ -113,18 +113,16 @@ export function TimelineSummary({
           ))}
         </div>
 
-        <div className="mt-4">
-          <Card className="p-3">
-            <div className="text-sm font-medium text-muted-foreground">{year}</div>
-            <div className={`text-lg font-semibold ${
-              calculateProfit(revenues, yearStart, yearEnd) >= 0 
-                ? "text-emerald-600 dark:text-emerald-400"
-                : "text-red-600 dark:text-red-400"
-            }`}>
-              €{calculateProfit(revenues, yearStart, yearEnd).toFixed(2)}
-            </div>
-          </Card>
-        </div>
+        <Card className="p-3">
+          <div className="text-sm font-medium text-muted-foreground">{year}</div>
+          <div className={`text-lg font-semibold ${
+            calculateProfit(revenues, yearStart, yearEnd) >= 0 
+              ? "text-emerald-600 dark:text-emerald-400"
+              : "text-red-600 dark:text-red-400"
+          }`}>
+            €{calculateProfit(revenues, yearStart, yearEnd).toFixed(2)}
+          </div>
+        </Card>
       </div>
     </div>
   )
