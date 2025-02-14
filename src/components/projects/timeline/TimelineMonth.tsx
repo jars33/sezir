@@ -1,5 +1,6 @@
 
 import { format } from "date-fns"
+import { isToday, isSameMonth } from "date-fns"
 
 interface TimelineItem {
   id: string
@@ -28,6 +29,7 @@ interface TimelineMonthProps {
   onSelectVariableCost: (cost: TimelineItem) => void
   onSelectOverheadCost: (cost: TimelineItem) => void
   onSelectAllocation?: (allocation: AllocationItem) => void
+  accumulatedProfit: number
 }
 
 export function TimelineMonth({
@@ -40,6 +42,7 @@ export function TimelineMonth({
   onSelectVariableCost,
   onSelectOverheadCost,
   onSelectAllocation,
+  accumulatedProfit,
 }: TimelineMonthProps) {
   const totalRevenue = revenues.reduce((sum, r) => sum + (Number(r.amount) || 0), 0)
   const totalVariableCosts = variableCosts.reduce((sum, c) => sum + (Number(c.amount) || 0), 0)
@@ -52,11 +55,17 @@ export function TimelineMonth({
     return amount.toFixed(2)
   }
 
+  const isCurrentMonth = isSameMonth(new Date(), month)
+
   return (
-    <div className="bg-white p-2 flex flex-col">
+    <div className={`bg-white p-2 flex flex-col ${
+      isCurrentMonth ? "ring-2 ring-blue-500 rounded-lg" : ""
+    }`}>
       {/* Header */}
       <div className="text-center mb-2">
-        <h3 className="text-sm font-medium">{format(month, "MMM yyyy")}</h3>
+        <h3 className={`text-sm font-medium ${
+          isCurrentMonth ? "text-blue-600" : ""
+        }`}>{format(month, "MMM yyyy")}</h3>
       </div>
 
       {/* Timeline Grid */}
@@ -121,13 +130,22 @@ export function TimelineMonth({
         </div>
       </div>
 
-      {/* Footer with Profit */}
-      <div className={`mt-2 text-sm font-medium text-center ${
-        profit >= 0 
-          ? "text-green-600"
-          : "text-red-600"
-      }`}>
-        €{formatAmount(profit)}
+      {/* Footer with Monthly and Accumulated Profit */}
+      <div className="mt-2 space-y-1">
+        <div className={`text-sm font-medium text-center ${
+          profit >= 0 
+            ? "text-emerald-600"
+            : "text-red-600"
+        }`}>
+          €{formatAmount(profit)}
+        </div>
+        <div className={`text-xs font-medium text-center ${
+          accumulatedProfit >= 0 
+            ? "text-emerald-600"
+            : "text-red-600"
+        }`}>
+          YTD: €{formatAmount(accumulatedProfit)}
+        </div>
       </div>
     </div>
   )

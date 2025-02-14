@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { addMonths, format, startOfMonth, setMonth } from "date-fns"
 import { Card, CardContent } from "@/components/ui/card"
@@ -180,6 +179,28 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
     }
   }
 
+  const calculateAccumulatedProfitUpToMonth = (targetMonth: Date) => {
+    const targetMonthStr = format(targetMonth, "yyyy-MM")
+    
+    const accumulatedRevenues = revenues
+      ?.filter(r => r.month <= targetMonthStr)
+      .reduce((sum, r) => sum + Number(r.amount), 0) || 0
+
+    const accumulatedVariableCosts = variableCosts
+      ?.filter(c => c.month <= targetMonthStr)
+      .reduce((sum, c) => sum + Number(c.amount), 0) || 0
+
+    const accumulatedOverheadCosts = overheadCosts
+      ?.filter(c => c.month <= targetMonthStr)
+      .reduce((sum, c) => sum + Number(c.amount), 0) || 0
+
+    const accumulatedSalaryCosts = allocations
+      ?.filter(a => a.month <= targetMonthStr)
+      .reduce((sum, a) => sum + Number(a.salary_cost), 0) || 0
+
+    return accumulatedRevenues - accumulatedVariableCosts - accumulatedOverheadCosts - accumulatedSalaryCosts
+  }
+
   return (
     <Card>
       <TimelineHeader
@@ -233,6 +254,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
                       setSelectedAllocation(allocation)
                       setAllocationDialogOpen(true)
                     }}
+                    accumulatedProfit={calculateAccumulatedProfitUpToMonth(month)}
                   />
                 )
               })}
