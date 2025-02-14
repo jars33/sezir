@@ -63,7 +63,7 @@ export function TimelineMonth({
         <h3 className="text-sm font-medium">{format(month, "MMM yyyy")}</h3>
       </div>
 
-      <div className="flex-1 flex flex-col items-center">
+      <div className="flex-1 flex flex-col items-center gap-3">
         {/* Revenues section */}
         <div className={`space-y-2 w-full flex flex-col items-center ${!hasAnyCosts ? 'flex-1' : ''}`}>
           {revenues.map((revenue) => (
