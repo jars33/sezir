@@ -68,6 +68,8 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
         .eq("team_member_id", values.teamMemberId)
         .single()
 
+      let assignmentId: string;
+
       if (assignmentError) {
         // Create new assignment if it doesn't exist
         const { data: newAssignment, error: createError } = await supabase
@@ -81,29 +83,27 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
           .single()
 
         if (createError) throw createError
-
-        // Add allocation
-        const { error: allocationError } = await supabase
-          .from("project_member_allocations")
-          .insert({
-            project_assignment_id: newAssignment.id,
-            month: startOfMonth(values.month),
-            allocation_percentage: parseInt(values.allocation),
-          })
-
-        if (allocationError) throw allocationError
+        if (!newAssignment) throw new Error("Failed to create assignment")
+        
+        assignmentId = newAssignment.id
       } else {
-        // Add allocation to existing assignment
-        const { error: allocationError } = await supabase
-          .from("project_member_allocations")
-          .insert({
-            project_assignment_id: existingAssignment.id,
-            month: startOfMonth(values.month),
-            allocation_percentage: parseInt(values.allocation),
-          })
-
-        if (allocationError) throw allocationError
+        if (!existingAssignment) throw new Error("Failed to get existing assignment")
+        assignmentId = existingAssignment.id
       }
+
+      // Format the month as a string in YYYY-MM-DD format
+      const monthStr = format(startOfMonth(values.month), "yyyy-MM-dd")
+
+      // Add allocation using the assignment ID
+      const { error: allocationError } = await supabase
+        .from("project_member_allocations")
+        .insert({
+          project_assignment_id: assignmentId,
+          month: monthStr,
+          allocation_percentage: parseInt(values.allocation),
+        })
+
+      if (allocationError) throw allocationError
 
       await refetchAllocations()
       setDialogOpen(false)
