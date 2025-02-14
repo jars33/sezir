@@ -36,8 +36,11 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
   })
 
   const { data: allocations, refetch: refetchAllocations } = useQuery({
-    queryKey: ["project-allocations", projectId],
+    queryKey: ["project-allocations", projectId, format(startDate, 'yyyy')],
     queryFn: async () => {
+      const yearStart = format(startDate, 'yyyy-01-01');
+      const yearEnd = format(startDate, 'yyyy-12-31');
+
       const { data, error } = await supabase
         .from("project_member_allocations")
         .select(`
@@ -45,6 +48,7 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
           month,
           allocation_percentage,
           project_assignments!inner (
+            id,
             team_members!inner (
               id,
               name
@@ -52,6 +56,8 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
           )
         `)
         .eq("project_assignments.project_id", projectId)
+        .gte("month", yearStart)
+        .lte("month", yearEnd)
         .order("month")
 
       if (error) throw error
@@ -200,23 +206,19 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
                     {format(month, "MMM yyyy")}
                   </div>
                   <div className="flex-1 space-y-2">
-                    {monthAllocations.map((allocation) => {
-                      if (!allocation.project_assignments?.team_members) return null;
-                      
-                      return (
-                        <div
-                          key={allocation.id}
-                          className="p-2 bg-blue-50 border border-blue-100 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors"
-                        >
-                          <div className="text-sm font-medium">
-                            {allocation.project_assignments.team_members.name}
-                          </div>
-                          <div className="text-xs text-gray-600 text-center">
-                            {allocation.allocation_percentage}%
-                          </div>
+                    {monthAllocations.map((allocation) => (
+                      <div
+                        key={allocation.id}
+                        className="p-2 bg-blue-50 border border-blue-100 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors"
+                      >
+                        <div className="text-sm font-medium">
+                          {allocation.project_assignments.team_members.name}
                         </div>
-                      )
-                    })}
+                        <div className="text-xs text-gray-600 text-center">
+                          {allocation.allocation_percentage}%
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )
