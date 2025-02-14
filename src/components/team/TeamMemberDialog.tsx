@@ -58,6 +58,8 @@ export function TeamMemberDialog({
 
   useEffect(() => {
     const loadMemberData = async () => {
+      if (!open) return // Don't load data if dialog is closed
+
       if (member) {
         // Fetch the latest salary for this member
         const { data: salaryData, error: salaryError } = await supabase
@@ -116,7 +118,7 @@ export function TeamMemberDialog({
     }
 
     loadMemberData()
-  }, [member, form, session, toast])
+  }, [member, form, session, toast, open]) // Added 'open' to the dependency array
 
   async function onSubmit(values: TeamMemberFormSchema) {
     if (!session?.user.id) return
@@ -179,6 +181,11 @@ export function TeamMemberDialog({
       }
 
       onSuccess()
+      onOpenChange(false) // Close the dialog after successful submission
+      toast({
+        title: "Success",
+        description: `Team member successfully ${member ? "updated" : "added"}`,
+      })
     } catch (error: any) {
       toast({
         variant: "destructive",
