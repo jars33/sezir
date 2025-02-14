@@ -41,40 +41,38 @@ export default function MainLayout() {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-white">
-        <div className="fixed left-0 top-0 h-full">
-          <Sidebar className="h-full w-[150px]">
-            <SidebarContent>
-              <nav className="flex-1 p-2">
-                <ul className="space-y-1">
-                  {navigationItems.map((item) => {
-                    const isActive = location.pathname === item.path || 
-                      (item.path !== "/" && location.pathname.startsWith(item.path))
-                    return (
-                      <li key={item.path}>
-                        <Link
-                          to={item.path}
-                          className={cn(
-                            "flex items-center gap-2 px-2 py-1.5 rounded-md text-sm font-medium transition-colors",
-                            isActive
-                              ? "bg-[#f1f1f1] text-black"
-                              : "text-[#6B6F76] hover:bg-[#f1f1f1] hover:text-black"
-                          )}
-                        >
-                          <item.icon className="w-4 h-4" />
-                          <span>{item.label}</span>
-                        </Link>
-                      </li>
-                    )
-                  })}
-                </ul>
-              </nav>
-            </SidebarContent>
-          </Sidebar>
-        </div>
+      <div className="min-h-screen flex w-full">
+        <Sidebar className="h-screen fixed left-0 top-0 w-[150px]">
+          <SidebarContent>
+            <nav className="flex-1 p-2">
+              <ul className="space-y-1">
+                {navigationItems.map((item) => {
+                  const isActive = location.pathname === item.path || 
+                    (item.path !== "/" && location.pathname.startsWith(item.path))
+                  return (
+                    <li key={item.path}>
+                      <Link
+                        to={item.path}
+                        className={cn(
+                          "flex items-center gap-2 px-2 py-1.5 rounded-md text-sm font-medium transition-colors",
+                          isActive
+                            ? "bg-[#f1f1f1] text-black"
+                            : "text-[#6B6F76] hover:bg-[#f1f1f1] hover:text-black"
+                        )}
+                      >
+                        <item.icon className="w-4 h-4" />
+                        <span>{item.label}</span>
+                      </Link>
+                    </li>
+                  )
+                })}
+              </ul>
+            </nav>
+          </SidebarContent>
+        </Sidebar>
 
         {/* Main content */}
-        <div className="flex-1 flex flex-col ml-[150px] transition-[margin] duration-300 ease-in-out data-[collapsed=true]:ml-[64px] w-[calc(100%-150px)]">
+        <div className="flex-1 flex flex-col pl-[150px] min-w-0">
           <header className="h-12 flex items-center px-4 gap-2 border-b border-[#e5e5e5] bg-white sticky top-0 z-10">
             <SidebarTrigger />
             <div className="flex-1" />
@@ -86,9 +84,9 @@ export default function MainLayout() {
               Sign Out
             </Button>
           </header>
-          <div className="flex-1 p-4 max-w-none w-full">
+          <main className="flex-1 p-4">
             <Outlet />
-          </div>
+          </main>
         </div>
       </div>
     </SidebarProvider>
