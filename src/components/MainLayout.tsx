@@ -7,7 +7,6 @@ import { Calendar, Users, LayoutDashboard, Inbox, FolderOpen, Moon, Sun, Hash } 
 import { cn } from "@/lib/utils"
 import { Sidebar } from "@/components/ui/sidebar"
 import { useTheme } from "next-themes"
-import { Switch } from "@/components/ui/switch"
 import { useLocalStorage } from "@/hooks/use-local-storage"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
@@ -44,16 +43,17 @@ export default function MainLayout() {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setShowDecimals(!showDecimals)}
+                    className="text-foreground"
+                  >
                     <Hash className="h-4 w-4" />
-                    <Switch
-                      checked={showDecimals}
-                      onCheckedChange={setShowDecimals}
-                    />
-                  </div>
+                  </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Show decimals</p>
+                  <p>Show decimals: {showDecimals ? "On" : "Off"}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
