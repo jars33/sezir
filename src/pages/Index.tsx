@@ -68,7 +68,7 @@ const Dashboard = () => {
                 <Tooltip 
                   formatter={(value: number, name: string) => [
                     `€${value.toFixed(2)}`,
-                    name === 'revenue' ? 'Revenue' : 'Cost'
+                    name
                   ]}
                   labelFormatter={(label) => `${label}`}
                 />
