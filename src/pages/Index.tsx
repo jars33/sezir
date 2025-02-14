@@ -5,7 +5,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 const data = [
   { month: 'Jan', revenue: 4000, cost: 2400 },
   { month: 'Feb', revenue: 3000, cost: 1398 },
-  { month: 'Mar', revenue: 2000, cost: 9800 },
+  { month: 'Mar', revenue: 9800, cost: 2000 },
   { month: 'Apr', revenue: 2780, cost: 3908 },
   { month: 'May', revenue: 1890, cost: 4800 },
   { month: 'Jun', revenue: 2390, cost: 3800 },
