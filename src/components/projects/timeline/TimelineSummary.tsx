@@ -1,4 +1,3 @@
-
 import { format, getYear, getQuarter, startOfYear, endOfYear } from "date-fns"
 import { Card } from "@/components/ui/card"
 
@@ -113,8 +112,8 @@ export function TimelineSummary({
             </Card>
           ))}
         </div>
-        
-        <div className="grid grid-cols-2 gap-2">
+
+        <div className="mt-4">
           <Card className="p-3">
             <div className="text-sm font-medium text-muted-foreground">{year}</div>
             <div className={`text-lg font-semibold ${
@@ -125,7 +124,6 @@ export function TimelineSummary({
               €{calculateProfit(revenues, yearStart, yearEnd).toFixed(2)}
             </div>
           </Card>
-          <div /> {/* Empty div to maintain grid alignment */}
         </div>
       </div>
     </div>
