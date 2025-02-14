@@ -1,7 +1,7 @@
 
 import { useState } from "react"
 import { addMonths, format, startOfMonth, setMonth, getYear } from "date-fns"
-import { Plus, ChevronLeft, ChevronRight } from "lucide-react"
+import { PlusCircle, ChevronLeft, ChevronRight } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
 import { Button } from "@/components/ui/button"
@@ -219,7 +219,7 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
               setDialogOpen(true)
             }}
           >
-            <Plus className="h-4 w-4 mr-2" />
+            <PlusCircle className="h-4 w-4 mr-2" />
             Add Allocation
           </Button>
         </div>
