@@ -39,15 +39,20 @@ export function TimelineMonth({
   onSelectOverheadCost,
   onSelectAllocation,
 }: TimelineMonthProps) {
-  const totalRevenue = revenues.reduce((sum, r) => sum + Number(r.amount), 0)
-  const totalVariableCosts = variableCosts.reduce((sum, c) => sum + Number(c.amount), 0)
-  const totalOverheadCosts = overheadCosts.reduce((sum, c) => sum + Number(c.amount), 0)
-  const totalSalaryCosts = allocations.reduce((sum, a) => sum + Number(a.salary_cost), 0)
+  const totalRevenue = revenues.reduce((sum, r) => sum + (Number(r.amount) || 0), 0)
+  const totalVariableCosts = variableCosts.reduce((sum, c) => sum + (Number(c.amount) || 0), 0)
+  const totalOverheadCosts = overheadCosts.reduce((sum, c) => sum + (Number(c.amount) || 0), 0)
+  const totalSalaryCosts = allocations.reduce((sum, a) => sum + (Number(a.salary_cost) || 0), 0)
   const profit = totalRevenue - totalVariableCosts - totalOverheadCosts - totalSalaryCosts
   
   const hasCosts = variableCosts.length > 0 || overheadCosts.length > 0
   const hasRevenues = revenues.length > 0
   const hasAllocations = allocations.length > 0
+
+  const formatAmount = (amount: number | null | undefined) => {
+    if (amount === null || amount === undefined) return "0.00"
+    return amount.toFixed(2)
+  }
 
   return (
     <div className="bg-white p-2 min-h-[250px] flex flex-col">
@@ -65,7 +70,7 @@ export function TimelineMonth({
               className="p-2 bg-blue-50 border border-blue-200 rounded text-sm cursor-pointer hover:bg-blue-100 w-full text-center"
             >
               <div>{allocation.team_member_name}</div>
-              <div className="text-xs text-gray-600">€{allocation.salary_cost.toFixed(2)}</div>
+              <div className="text-xs text-gray-600">€{formatAmount(allocation.salary_cost)}</div>
             </div>
           ))}
         </div>
@@ -83,7 +88,7 @@ export function TimelineMonth({
               onClick={() => onSelectRevenue(revenue)}
               className="p-2 bg-green-50 border border-green-200 rounded text-sm cursor-pointer hover:bg-green-100 w-full text-center"
             >
-              €{revenue.amount.toFixed(2)}
+              €{formatAmount(revenue.amount)}
             </div>
           ))}
         </div>
@@ -101,7 +106,7 @@ export function TimelineMonth({
               onClick={() => onSelectVariableCost(cost)}
               className="p-2 bg-red-50 border border-red-200 rounded text-sm cursor-pointer hover:bg-red-100 w-full text-center"
             >
-              <div>-€{cost.amount.toFixed(2)}</div>
+              <div>-€{formatAmount(cost.amount)}</div>
               {cost.description && (
                 <div className="text-xs text-gray-600">{cost.description}</div>
               )}
@@ -114,7 +119,7 @@ export function TimelineMonth({
               onClick={() => onSelectOverheadCost(cost)}
               className="p-2 bg-orange-50 border border-orange-200 rounded text-sm cursor-pointer hover:bg-orange-100 w-full text-center"
             >
-              -€{cost.amount.toFixed(2)}
+              -€{formatAmount(cost.amount)}
             </div>
           ))}
         </div>
@@ -125,7 +130,7 @@ export function TimelineMonth({
           ? "text-green-600"
           : "text-red-600"
       }`}>
-        €{profit.toFixed(2)}
+        €{formatAmount(profit)}
       </div>
     </div>
   )
