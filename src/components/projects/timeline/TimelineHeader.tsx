@@ -65,7 +65,7 @@ export function TimelineHeader({
               variant="outline"
               size="sm"
               className="hover:bg-blue-50 hover:text-blue-600"
-              onClick={onAddVariableCost}
+              onClick={onAddOverheadCost}
             >
               <PlusCircle className="h-4 w-4 mr-2" />
               Allocation

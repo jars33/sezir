@@ -206,7 +206,10 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
       <TimelineHeader
         onAddRevenue={() => setAddRevenueDate(new Date())}
         onAddVariableCost={() => setAddVariableCostDate(new Date())}
-        onAddOverheadCost={() => setAddOverheadCostDate(new Date())}
+        onAddOverheadCost={() => {
+          setSelectedAllocation(null)
+          setAllocationDialogOpen(true)
+        }}
         onPreviousYear={handlePreviousYear}
         onNextYear={handleNextYear}
         totalProfit={totalProfit}
