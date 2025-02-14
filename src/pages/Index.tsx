@@ -18,10 +18,6 @@ const stats = [
   { name: 'Resource Utilization', value: '87%' },
 ];
 
-const formatEuro = (value: number) => {
-  return `€${value.toFixed(2)}`;
-};
-
 const Dashboard = () => {
   return (
     <div className="w-full">
@@ -80,14 +76,12 @@ const Dashboard = () => {
                 <Bar 
                   dataKey="revenue" 
                   name="Revenue" 
-                  fill="hsl(var(--primary))"
-                  className="dark:fill-emerald-400"
+                  className="fill-emerald-500 dark:fill-emerald-400"
                 />
                 <Bar 
                   dataKey="cost" 
                   name="Cost" 
-                  fill="hsl(var(--destructive))"
-                  className="dark:fill-red-400"
+                  className="fill-red-500 dark:fill-red-400"
                 />
               </BarChart>
             </ResponsiveContainer>
