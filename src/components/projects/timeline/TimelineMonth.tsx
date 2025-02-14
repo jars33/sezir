@@ -50,6 +50,7 @@ export function TimelineMonth({
   const hasCosts = variableCosts.length > 0 || overheadCosts.length > 0
   const hasRevenues = revenues.length > 0
   const hasAllocations = allocations.length > 0
+  const hasAnyCosts = hasCosts || hasAllocations
 
   const formatAmount = (amount: number | null | undefined) => {
     if (amount === null || amount === undefined) return "0.00"
@@ -64,7 +65,7 @@ export function TimelineMonth({
 
       <div className="flex-1 flex flex-col items-center">
         {/* Revenues section */}
-        <div className={`space-y-2 w-full flex flex-col items-center ${!hasCosts && !hasAllocations ? 'flex-1' : ''}`}>
+        <div className={`space-y-2 w-full flex flex-col items-center ${!hasAnyCosts ? 'flex-1' : ''}`}>
           {revenues.map((revenue) => (
             <div
               key={revenue.id}
@@ -76,8 +77,8 @@ export function TimelineMonth({
           ))}
         </div>
 
-        {/* Separator line when there are no revenues */}
-        {!hasRevenues && hasAllocations && (
+        {/* Separator line when there are no revenues but there are costs */}
+        {!hasRevenues && hasAnyCosts && (
           <div className="border-t border-gray-200 my-2 w-full" />
         )}
 
@@ -95,7 +96,7 @@ export function TimelineMonth({
           ))}
         </div>
 
-        {/* Separator line if there are allocations and costs */}
+        {/* Separator line between allocations and other costs if both exist */}
         {hasAllocations && hasCosts && (
           <div className="border-t border-gray-200 my-2 w-full" />
         )}
