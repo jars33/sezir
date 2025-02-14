@@ -93,11 +93,11 @@ export default function ProjectDetails() {
   }
 
   if (isLoading) {
-    return <div className="p-4 text-foreground">Loading...</div>
+    return <div className="p-4">Loading...</div>
   }
 
   if (!project) {
-    return <div className="p-4 text-foreground">Project not found</div>
+    return <div className="p-4">Project not found</div>
   }
 
   return (
@@ -112,10 +112,10 @@ export default function ProjectDetails() {
           Back
         </Button>
         <div className="w-full text-center md:col-start-2">
-          <h1 className="text-xl sm:text-2xl font-semibold text-foreground truncate max-w-[500px] mx-auto">
+          <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 truncate max-w-[500px] mx-auto">
             {project.number} - {project.name}
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-gray-500">
             Status: {project.status.replace("_", " ")}
           </p>
         </div>

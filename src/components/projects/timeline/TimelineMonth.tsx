@@ -53,10 +53,10 @@ export function TimelineMonth({
   }
 
   return (
-    <div className="bg-card p-2 flex flex-col rounded-lg border border-border">
+    <div className="bg-white p-2 flex flex-col">
       {/* Header */}
       <div className="text-center mb-2">
-        <h3 className="text-sm font-medium text-foreground">{format(month, "MMM yyyy")}</h3>
+        <h3 className="text-sm font-medium">{format(month, "MMM yyyy")}</h3>
       </div>
 
       {/* Timeline Grid */}
@@ -68,13 +68,13 @@ export function TimelineMonth({
               <div
                 key={revenue.id}
                 onClick={() => onSelectRevenue(revenue)}
-                className="p-2 min-h-[40px] flex items-center justify-center bg-emerald-950/30 border border-emerald-500/20 rounded text-sm cursor-pointer hover:bg-emerald-950/40 w-full text-center text-emerald-400"
+                className="p-2 min-h-[40px] flex items-center justify-center bg-green-50 border border-green-200 rounded text-sm cursor-pointer hover:bg-green-100 w-full text-center"
               >
                 €{formatAmount(revenue.amount)}
               </div>
             ))
           ) : (
-            <div className="p-2 min-h-[40px] flex items-center justify-center bg-muted/30 border border-border rounded text-sm text-muted-foreground w-full text-center">
+            <div className="p-2 min-h-[40px] flex items-center justify-center bg-gray-50 border border-gray-200 rounded text-sm text-gray-500 w-full text-center">
               €0.00
             </div>
           )}
@@ -87,10 +87,10 @@ export function TimelineMonth({
             <div
               key={allocation.id}
               onClick={() => onSelectAllocation?.(allocation)}
-              className="p-2 min-h-[50px] bg-blue-950/30 border border-blue-500/20 rounded text-sm cursor-pointer hover:bg-blue-950/40 w-full"
+              className="p-2 min-h-[50px] bg-blue-50 border border-blue-200 rounded text-sm cursor-pointer hover:bg-blue-100 w-full"
             >
-              <div className="text-center text-blue-400">-€{formatAmount(allocation.salary_cost)}</div>
-              <div className="text-xs text-muted-foreground text-center">{allocation.team_member_name}</div>
+              <div className="text-center">-€{formatAmount(allocation.salary_cost)}</div>
+              <div className="text-xs text-gray-600 text-center">{allocation.team_member_name}</div>
             </div>
           ))}
 
@@ -99,11 +99,11 @@ export function TimelineMonth({
             <div
               key={cost.id}
               onClick={() => onSelectVariableCost(cost)}
-              className="p-2 min-h-[40px] bg-red-950/30 border border-red-500/20 rounded text-sm cursor-pointer hover:bg-red-950/40 w-full"
+              className="p-2 min-h-[40px] bg-red-50 border border-red-200 rounded text-sm cursor-pointer hover:bg-red-100 w-full"
             >
-              <div className="text-center text-red-400">-€{formatAmount(cost.amount)}</div>
+              <div className="text-center">-€{formatAmount(cost.amount)}</div>
               {cost.description && (
-                <div className="text-xs text-muted-foreground text-center">{cost.description}</div>
+                <div className="text-xs text-gray-600 text-center">{cost.description}</div>
               )}
             </div>
           ))}
@@ -113,7 +113,7 @@ export function TimelineMonth({
             <div
               key={cost.id}
               onClick={() => onSelectOverheadCost(cost)}
-              className="p-2 min-h-[40px] flex items-center justify-center bg-amber-950/30 border border-amber-500/20 rounded text-sm cursor-pointer hover:bg-amber-950/40 w-full text-center text-amber-400"
+              className="p-2 min-h-[40px] flex items-center justify-center bg-orange-50 border border-orange-200 rounded text-sm cursor-pointer hover:bg-orange-100 w-full text-center"
             >
               -€{formatAmount(cost.amount)}
             </div>
@@ -124,8 +124,8 @@ export function TimelineMonth({
       {/* Footer with Profit */}
       <div className={`mt-2 text-sm font-medium text-center ${
         profit >= 0 
-          ? "text-emerald-400"
-          : "text-red-400"
+          ? "text-green-600"
+          : "text-red-600"
       }`}>
         €{formatAmount(profit)}
       </div>
