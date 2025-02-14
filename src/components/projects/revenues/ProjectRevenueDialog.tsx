@@ -57,11 +57,11 @@ export function ProjectRevenueDialog({
   // Reset form with default values when dialog opens/closes or defaultValues change
   useEffect(() => {
     if (open) {
-      if (defaultValues) {
+      if (defaultValues?.month && defaultValues?.amount) {
         form.reset({
-          month: defaultValues.month || "",
+          month: defaultValues.month,
           endMonth: "",
-          amount: defaultValues.amount || "",
+          amount: defaultValues.amount,
         })
         setIsPeriod(false) // Reset period state when editing
       } else {
@@ -111,20 +111,23 @@ export function ProjectRevenueDialog({
     })
   }
 
+  // Check if we're in edit mode by verifying both required fields exist
+  const isEditMode = Boolean(defaultValues?.month && defaultValues?.amount)
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {defaultValues ? "Edit Revenue" : "Add Revenue"}
+            {isEditMode ? "Edit Revenue" : "Add Revenue"}
           </DialogTitle>
           <DialogDescription>
-            {defaultValues ? "Edit revenue details" : "Add revenue for a single month or a period"}
+            {isEditMode ? "Edit revenue details" : "Add revenue for a single month or a period"}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-            {!defaultValues && (
+            {!isEditMode && (
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="period"
@@ -154,7 +157,7 @@ export function ProjectRevenueDialog({
               )}
             />
 
-            {isPeriod && !defaultValues && (
+            {isPeriod && !isEditMode && (
               <FormField
                 control={form.control}
                 name="endMonth"
@@ -202,7 +205,7 @@ export function ProjectRevenueDialog({
                 </Button>
               )}
               <Button type="submit">
-                {defaultValues ? 'Update' : 'Add'} Revenue
+                {isEditMode ? 'Update' : 'Add'} Revenue
               </Button>
             </DialogFooter>
           </form>
