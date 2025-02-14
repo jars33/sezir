@@ -26,19 +26,19 @@ const Dashboard = () => {
   return (
     <div className="w-full">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
+        <h1 className="text-2xl font-semibold text-foreground">Dashboard</h1>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {stats.map((stat) => (
           <Card key={stat.name} className="p-4">
             <div>
-              <div className="text-sm font-medium text-gray-500 truncate">
+              <div className="text-sm font-medium text-muted-foreground truncate">
                 {stat.name}
               </div>
             </div>
             <div className="mt-1">
-              <div className="text-3xl font-semibold text-gray-900">
+              <div className="text-3xl font-semibold text-foreground">
                 {stat.value}
               </div>
             </div>
@@ -48,7 +48,7 @@ const Dashboard = () => {
 
       <Card className="w-full">
         <div className="p-6">
-          <h2 className="text-lg font-medium text-gray-900 mb-4">
+          <h2 className="text-lg font-medium text-foreground mb-4">
             Revenue vs Cost
           </h2>
           <div className="h-80 w-full">
@@ -62,18 +62,33 @@ const Dashboard = () => {
                   bottom: 5,
                 }}
               >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis tickFormatter={(value) => `€${value}`} />
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis dataKey="month" className="text-muted-foreground" />
+                <YAxis tickFormatter={(value) => `€${value}`} className="text-muted-foreground" />
                 <Tooltip 
                   formatter={(value: number, name: string) => [
                     `€${value.toFixed(2)}`,
                     name
                   ]}
                   labelFormatter={(label) => `${label}`}
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--background))',
+                    border: '1px solid hsl(var(--border))',
+                    color: 'hsl(var(--foreground))'
+                  }}
                 />
-                <Bar dataKey="revenue" fill="#86efac" name="Revenue" />
-                <Bar dataKey="cost" fill="#f87171" name="Cost" />
+                <Bar 
+                  dataKey="revenue" 
+                  name="Revenue" 
+                  fill="hsl(var(--primary))"
+                  className="dark:fill-emerald-400"
+                />
+                <Bar 
+                  dataKey="cost" 
+                  name="Cost" 
+                  fill="hsl(var(--destructive))"
+                  className="dark:fill-red-400"
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
