@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { addMonths, format, startOfMonth, setMonth } from "date-fns"
 import { Plus, ChevronLeft, ChevronRight } from "lucide-react"
@@ -77,11 +76,11 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
         .select("id")
         .eq("project_id", projectId)
         .eq("team_member_id", values.teamMemberId)
-        .single()
+        .maybeSingle()
 
       let assignmentId: string;
 
-      if (assignmentError) {
+      if (!existingAssignment) {
         // Create new assignment if it doesn't exist
         const { data: newAssignment, error: createError } = await supabase
           .from("project_assignments")
@@ -98,7 +97,6 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
         
         assignmentId = newAssignment.id
       } else {
-        if (!existingAssignment) throw new Error("Failed to get existing assignment")
         assignmentId = existingAssignment.id
       }
 
@@ -111,11 +109,9 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
         .select("id")
         .eq("project_assignment_id", assignmentId)
         .eq("month", monthStr)
-        .single()
+        .maybeSingle()
 
-      if (checkError && checkError.code !== "PGRST116") { // PGRST116 is "not found" error
-        throw checkError
-      }
+      if (checkError) throw checkError
 
       if (existingAllocation) {
         // Update existing allocation
