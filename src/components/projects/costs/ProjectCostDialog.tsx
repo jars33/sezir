@@ -69,6 +69,7 @@ export function ProjectCostDialog({
   useEffect(() => {
     if (defaultValues) {
       form.reset(defaultValues)
+      setIsPeriod(false) // Reset period state when editing
     }
   }, [defaultValues, form])
 
@@ -129,7 +130,7 @@ export function ProjectCostDialog({
             {defaultValues ? "Edit Cost" : "Add Cost"}
           </DialogTitle>
           <DialogDescription>
-            Add cost for a single month or a period
+            {defaultValues ? "Edit cost details" : "Add cost for a single month or a period"}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -167,19 +168,21 @@ export function ProjectCostDialog({
               )}
             />
 
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="period"
-                checked={isPeriod}
-                onCheckedChange={(checked) => setIsPeriod(checked === true)}
-              />
-              <label
-                htmlFor="period"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                Period
-              </label>
-            </div>
+            {!defaultValues && (
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="period"
+                  checked={isPeriod}
+                  onCheckedChange={(checked) => setIsPeriod(checked === true)}
+                />
+                <label
+                  htmlFor="period"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Period
+                </label>
+              </div>
+            )}
 
             <FormField
               control={form.control}

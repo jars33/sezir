@@ -63,6 +63,7 @@ export function ProjectRevenueDialog({
   useEffect(() => {
     if (defaultValues) {
       form.reset(defaultValues)
+      setIsPeriod(false) // Reset period state when editing
     }
   }, [defaultValues, form])
 
@@ -111,24 +112,26 @@ export function ProjectRevenueDialog({
             {defaultValues ? "Edit Revenue" : "Add Revenue"}
           </DialogTitle>
           <DialogDescription>
-            Add revenue for a single month or a period
+            {defaultValues ? "Edit revenue details" : "Add revenue for a single month or a period"}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="period"
-                checked={isPeriod}
-                onCheckedChange={(checked) => setIsPeriod(checked === true)}
-              />
-              <label
-                htmlFor="period"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                Period
-              </label>
-            </div>
+            {!defaultValues && (
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="period"
+                  checked={isPeriod}
+                  onCheckedChange={(checked) => setIsPeriod(checked === true)}
+                />
+                <label
+                  htmlFor="period"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Period
+                </label>
+              </div>
+            )}
 
             <FormField
               control={form.control}
