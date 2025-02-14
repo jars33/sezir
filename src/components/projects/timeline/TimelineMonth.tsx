@@ -77,11 +77,6 @@ export function TimelineMonth({
           ))}
         </div>
 
-        {/* Separator line when there are no revenues but there are costs */}
-        {!hasRevenues && hasAnyCosts && (
-          <div className="border-t border-gray-200 my-2 w-full" />
-        )}
-
         {/* Allocations section */}
         <div className={`space-y-2 w-full flex flex-col items-center ${!hasRevenues && !hasCosts ? 'flex-1' : ''}`}>
           {allocations.map((allocation) => (
@@ -95,11 +90,6 @@ export function TimelineMonth({
             </div>
           ))}
         </div>
-
-        {/* Separator line between allocations and other costs if both exist */}
-        {hasAllocations && hasCosts && (
-          <div className="border-t border-gray-200 my-2 w-full" />
-        )}
 
         {/* Variable Costs section */}
         <div className={`space-y-2 w-full flex flex-col items-center ${!hasRevenues && !hasAllocations ? 'flex-1' : ''}`}>
@@ -116,11 +106,6 @@ export function TimelineMonth({
             </div>
           ))}
         </div>
-
-        {/* Separator line between variable and overhead costs if both exist */}
-        {variableCosts.length > 0 && overheadCosts.length > 0 && (
-          <div className="border-t border-gray-200 my-2 w-full" />
-        )}
 
         {/* Overhead Costs section */}
         <div className={`space-y-2 w-full flex flex-col items-center ${!hasRevenues && !hasAllocations ? 'flex-1' : ''}`}>
