@@ -106,13 +106,10 @@ export function ProjectAllocationDialog({
     startDate.setDate(1)
     endDate.setDate(1)
     
-    // Add one month to end date to include the end month itself
-    if (isPeriod) {
-      endDate.setMonth(endDate.getMonth() + 1)
-    }
-
     const months: Date[] = []
     let currentDate = new Date(startDate)
+    
+    // Include all months up to and including the end month
     while (currentDate <= endDate) {
       months.push(new Date(currentDate))
       currentDate.setMonth(currentDate.getMonth() + 1)
