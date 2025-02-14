@@ -40,13 +40,14 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
           id,
           month,
           allocation_percentage,
-          project_assignments (
-            team_members (
+          project_assignments!inner (
+            team_members!inner (
               id,
               name
             )
           )
         `)
+        .eq("project_assignments.project_id", projectId)
         .order("month")
 
       if (error) throw error
@@ -133,26 +134,33 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
       <CardContent>
         {allocations && allocations.length > 0 ? (
           <div className="space-y-4">
-            {allocations.map((allocation) => (
-              <div
-                key={allocation.id}
-                className="flex items-center justify-between p-4 border rounded-lg"
-              >
-                <div>
-                  <p className="font-medium">
-                    {allocation.project_assignments.team_members.name}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {format(new Date(allocation.month), "MMMM yyyy")}
-                  </p>
+            {allocations.map((allocation) => {
+              // Ensure we have the required nested data
+              if (!allocation.project_assignments?.team_members) {
+                return null
+              }
+              
+              return (
+                <div
+                  key={allocation.id}
+                  className="flex items-center justify-between p-4 border rounded-lg"
+                >
+                  <div>
+                    <p className="font-medium">
+                      {allocation.project_assignments.team_members.name}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {format(new Date(allocation.month), "MMMM yyyy")}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-lg font-semibold">
+                      {allocation.allocation_percentage}%
+                    </span>
+                  </div>
                 </div>
-                <div>
-                  <span className="text-lg font-semibold">
-                    {allocation.allocation_percentage}%
-                  </span>
-                </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         ) : (
           <p className="text-muted-foreground">No allocations yet</p>
