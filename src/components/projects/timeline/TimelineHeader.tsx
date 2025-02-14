@@ -30,7 +30,7 @@ export function TimelineHeader({
           <CardTitle>Project Timeline</CardTitle>
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-500">
-              Total for {format(startDate, "yyyy")}:
+              Total profit:
             </span>
             <div className={`text-lg font-semibold min-w-[150px] ${
               totalProfit >= 0 
