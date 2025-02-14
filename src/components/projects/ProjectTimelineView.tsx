@@ -1,6 +1,6 @@
 
 import { useState } from "react"
-import { addMonths, format, startOfMonth, setMonth, getYear } from "date-fns"
+import { addMonths, format, startOfMonth, setMonth } from "date-fns"
 import { Card, CardContent } from "@/components/ui/card"
 import { TimelineHeader } from "./timeline/TimelineHeader"
 import { TimelineMonth } from "./timeline/TimelineMonth"
@@ -8,12 +8,26 @@ import { TimelineActions } from "./timeline/TimelineActions"
 import { useTimelineData } from "./timeline/useTimelineData"
 import { useTimelineCalculations } from "./timeline/TimelineCalculations"
 import { useProjectYear } from "@/hooks/use-project-year"
+import { ProjectAllocationDialog } from "./allocations/ProjectAllocationDialog"
+import { useToast } from "@/hooks/use-toast"
+import { useQuery } from "@tanstack/react-query"
+import { supabase } from "@/integrations/supabase/client"
 
 interface TimelineItem {
   id: string
   month: string
   amount: number
   description?: string
+}
+
+interface AllocationItem {
+  id: string
+  month: string
+  allocation_percentage: number
+  team_member_name: string
+  salary_cost: number
+  team_member_id: string
+  project_assignment_id: string
 }
 
 interface ProjectTimelineViewProps {
@@ -23,7 +37,7 @@ interface ProjectTimelineViewProps {
 export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
   const { year, setYear } = useProjectYear()
   const [startDate, setStartDate] = useState(() => {
-    return startOfMonth(setMonth(new Date(year, 0), 0)) // Set to January of current year
+    return startOfMonth(setMonth(new Date(year, 0), 0))
   })
 
   const [addRevenueDate, setAddRevenueDate] = useState<Date | null>(null)
@@ -35,9 +49,27 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
   const [deleteRevenue, setDeleteRevenue] = useState<TimelineItem | null>(null)
   const [deleteVariableCost, setDeleteVariableCost] = useState<TimelineItem | null>(null)
   const [deleteOverheadCost, setDeleteOverheadCost] = useState<TimelineItem | null>(null)
+  const [selectedAllocation, setSelectedAllocation] = useState<AllocationItem | null>(null)
+  const [allocationDialogOpen, setAllocationDialogOpen] = useState(false)
+
+  const { toast } = useToast()
 
   const { revenues, variableCosts, overheadCosts, allocations } = useTimelineData(projectId)
   const months = Array.from({ length: 12 }, (_, i) => addMonths(startDate, i))
+
+  const { data: teamMembers } = useQuery({
+    queryKey: ["team-members"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("team_members")
+        .select("id, name")
+        .eq("left_company", false)
+        .order("name")
+
+      if (error) throw error
+      return data
+    },
+  })
 
   const { totalProfit } = useTimelineCalculations(
     revenues,
@@ -57,6 +89,94 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
     const newYear = year + 1
     setYear(newYear)
     setStartDate(startOfMonth(setMonth(new Date(newYear, 0), 0)))
+  }
+
+  const handleAllocationSubmit = async (values: {
+    teamMemberId: string
+    month: Date
+    allocation: string
+  }) => {
+    try {
+      const { data: existingAssignment, error: assignmentError } = await supabase
+        .from("project_assignments")
+        .select("id")
+        .eq("project_id", projectId)
+        .eq("team_member_id", values.teamMemberId)
+        .maybeSingle()
+
+      let assignmentId: string
+
+      if (!existingAssignment) {
+        const { data: newAssignment, error: createError } = await supabase
+          .from("project_assignments")
+          .insert({
+            project_id: projectId,
+            team_member_id: values.teamMemberId,
+            start_date: format(values.month, "yyyy-MM-dd"),
+          })
+          .select("id")
+          .single()
+
+        if (createError) throw createError
+        if (!newAssignment) throw new Error("Failed to create assignment")
+        
+        assignmentId = newAssignment.id
+      } else {
+        assignmentId = existingAssignment.id
+      }
+
+      const monthStr = format(startOfMonth(values.month), "yyyy-MM-dd")
+
+      const { data: existingAllocation, error: checkError } = await supabase
+        .from("project_member_allocations")
+        .select("id")
+        .eq("project_assignment_id", assignmentId)
+        .eq("month", monthStr)
+        .maybeSingle()
+
+      if (checkError) throw checkError
+
+      if (existingAllocation) {
+        const { error: updateError } = await supabase
+          .from("project_member_allocations")
+          .update({
+            allocation_percentage: parseInt(values.allocation),
+          })
+          .eq("id", existingAllocation.id)
+
+        if (updateError) throw updateError
+
+        toast({
+          title: "Success",
+          description: "Team member allocation updated successfully",
+        })
+      } else {
+        const { error: insertError } = await supabase
+          .from("project_member_allocations")
+          .insert({
+            project_assignment_id: assignmentId,
+            month: monthStr,
+            allocation_percentage: parseInt(values.allocation),
+          })
+
+        if (insertError) throw insertError
+
+        toast({
+          title: "Success",
+          description: "Team member allocation added successfully",
+        })
+      }
+
+      setAllocationDialogOpen(false)
+      setSelectedAllocation(null)
+    } catch (error: any) {
+      console.error("Error managing allocation:", error)
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      })
+    }
   }
 
   return (
@@ -99,6 +219,10 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
                   onSelectRevenue={setSelectedRevenue}
                   onSelectVariableCost={setSelectedVariableCost}
                   onSelectOverheadCost={setSelectedOverheadCost}
+                  onSelectAllocation={(allocation) => {
+                    setSelectedAllocation(allocation)
+                    setAllocationDialogOpen(true)
+                  }}
                 />
               )
             })}
@@ -125,6 +249,20 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
           setDeleteRevenue={setDeleteRevenue}
           setDeleteVariableCost={setDeleteVariableCost}
           setDeleteOverheadCost={setDeleteOverheadCost}
+        />
+
+        <ProjectAllocationDialog
+          projectId={projectId}
+          open={allocationDialogOpen}
+          onOpenChange={setAllocationDialogOpen}
+          onSubmit={handleAllocationSubmit}
+          teamMembers={teamMembers || []}
+          initialAllocation={selectedAllocation ? {
+            id: selectedAllocation.id,
+            teamMemberId: selectedAllocation.team_member_id,
+            month: new Date(selectedAllocation.month),
+            allocation: selectedAllocation.allocation_percentage.toString(),
+          } : undefined}
         />
       </CardContent>
     </Card>
