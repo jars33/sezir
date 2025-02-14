@@ -64,6 +64,15 @@ export function TimelineSummary({
     return filteredRevenues - filteredVariableCosts - filteredOverheadCosts - filteredSalaryCosts
   }
 
+  const calculateTotalProjectProfit = () => {
+    const totalRevenues = revenues.reduce((sum, r) => sum + Number(r.amount), 0)
+    const totalVariableCosts = variableCosts.reduce((sum, c) => sum + Number(c.amount), 0)
+    const totalOverheadCosts = overheadCosts.reduce((sum, c) => sum + Number(c.amount), 0)
+    const totalSalaryCosts = allocations.reduce((sum, a) => sum + Number(a.salary_cost), 0)
+    
+    return totalRevenues - totalVariableCosts - totalOverheadCosts - totalSalaryCosts
+  }
+
   const yearStart = startOfYear(new Date(year, 0, 1))
   const yearEnd = endOfYear(new Date(year, 0, 1))
 
@@ -117,11 +126,11 @@ export function TimelineSummary({
         <Card className="p-3 mt-2">
           <div className="text-sm font-medium text-muted-foreground">Total</div>
           <div className={`text-lg font-semibold ${
-            calculateProfit(revenues, new Date(0), new Date()) >= 0 
+            calculateTotalProjectProfit() >= 0 
               ? "text-emerald-600 dark:text-emerald-400"
               : "text-red-600 dark:text-red-400"
           }`}>
-            €{calculateProfit(revenues, new Date(0), new Date()).toFixed(2)}
+            €{calculateTotalProjectProfit().toFixed(2)}
           </div>
         </Card>
       </div>
