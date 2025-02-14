@@ -77,6 +77,11 @@ export function TimelineMonth({
           ))}
         </div>
 
+        {/* Separator line between revenues and costs */}
+        {hasRevenues && hasAnyCosts && (
+          <div className="border-t border-gray-200 w-full" />
+        )}
+
         {/* Allocations section */}
         <div className={`space-y-2 w-full flex flex-col items-center ${!hasRevenues && !hasCosts ? 'flex-1' : ''}`}>
           {allocations.map((allocation) => (
