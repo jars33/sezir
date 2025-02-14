@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { format, startOfMonth, setMonth, getYear } from "date-fns"
 import { PlusCircle } from "lucide-react"
@@ -9,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ProjectAllocationDialog } from "./ProjectAllocationDialog"
 import { useToast } from "@/hooks/use-toast"
 import { useProjectYear } from "@/hooks/use-project-year"
+import { useQueryClient } from "@tanstack/react-query"
 
 interface ProjectAllocationsProps {
   projectId: string
@@ -33,6 +33,7 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
   const { toast } = useToast()
   const { year, setYear } = useProjectYear()
   const [startDate, setStartDate] = useState(() => new Date(year, 0, 1))
+  const queryClient = useQueryClient()
 
   const { data: teamMembers } = useQuery({
     queryKey: ["team-members"],
@@ -161,7 +162,9 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
         })
       }
 
-      await refetchAllocations()
+      await queryClient.invalidateQueries({ queryKey: ["project-allocations"] })
+      await queryClient.invalidateQueries({ queryKey: ["project-allocations", projectId, "with-salaries"] })
+      await queryClient.invalidateQueries({ queryKey: ["project-allocations", projectId, "with-salaries", format(startDate, 'yyyy')] })
       setDialogOpen(false)
       setSelectedAllocation(null)
     } catch (error: any) {
