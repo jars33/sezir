@@ -2,7 +2,7 @@
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   Dialog,
   DialogContent,
@@ -57,13 +57,20 @@ export function ProjectCostDialog({
   const form = useForm<CostFormSchema>({
     resolver: zodResolver(costFormSchema),
     defaultValues: {
-      type: defaultValues?.type || "variable",
-      month: defaultValues?.month || "",
-      endMonth: defaultValues?.endMonth || "",
-      amount: defaultValues?.amount || "",
-      description: defaultValues?.description || "",
+      type: "variable",
+      month: "",
+      endMonth: "",
+      amount: "",
+      description: "",
     },
   })
+
+  // Reset form with default values when they change
+  useEffect(() => {
+    if (defaultValues) {
+      form.reset(defaultValues)
+    }
+  }, [defaultValues, form])
 
   const handleSubmit = (values: CostFormSchema) => {
     if (!isPeriod) {
@@ -232,7 +239,7 @@ export function ProjectCostDialog({
                   <FormItem>
                     <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <Textarea placeholder="Enter cost description" {...field} />
+                      <Textarea placeholder="Enter cost description" {...field} value={field.value || ''} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
