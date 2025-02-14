@@ -80,7 +80,7 @@ export function TimelineSummary({
   ]
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div className="space-y-4">
         <h3 className="text-sm font-medium mb-2">Quarterly Profit</h3>
         <div className="grid grid-cols-2 gap-2">
@@ -115,20 +115,20 @@ export function TimelineSummary({
             </Card>
           ))}
         </div>
-      </div>
 
-      <div className="space-y-4">
-        <h3 className="text-sm font-medium mb-2">Yearly Profit</h3>
-        <Card className="p-3">
-          <div className="text-sm font-medium text-muted-foreground">{year}</div>
-          <div className={`text-lg font-semibold ${
-            calculateProfit(revenues, yearStart, yearEnd) >= 0 
-              ? "text-emerald-600 dark:text-emerald-400"
-              : "text-red-600 dark:text-red-400"
-          }`}>
-            €{calculateProfit(revenues, yearStart, yearEnd).toFixed(2)}
-          </div>
-        </Card>
+        <div className="mt-4">
+          <h3 className="text-sm font-medium mb-2">Yearly Profit</h3>
+          <Card className="p-3">
+            <div className="text-sm font-medium text-muted-foreground">{year}</div>
+            <div className={`text-lg font-semibold ${
+              calculateProfit(revenues, yearStart, yearEnd) >= 0 
+                ? "text-emerald-600 dark:text-emerald-400"
+                : "text-red-600 dark:text-red-400"
+            }`}>
+              €{calculateProfit(revenues, yearStart, yearEnd).toFixed(2)}
+            </div>
+          </Card>
+        </div>
       </div>
     </div>
   )
