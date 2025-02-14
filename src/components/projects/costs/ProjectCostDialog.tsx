@@ -144,24 +144,32 @@ export function ProjectCostDialog({
                   <FormLabel>Cost Type</FormLabel>
                   <FormControl>
                     <div className="flex items-center gap-2">
-                      <Toggle
-                        pressed={field.value === "variable"}
-                        onPressedChange={(pressed) => {
-                          field.onChange(pressed ? "variable" : "overhead")
-                        }}
-                        className="hover:bg-red-50 hover:text-red-600 data-[state=on]:bg-red-50 data-[state=on]:text-red-600"
-                      >
-                        Variable
-                      </Toggle>
-                      <Toggle
-                        pressed={field.value === "overhead"}
-                        onPressedChange={(pressed) => {
-                          field.onChange(pressed ? "overhead" : "variable")
-                        }}
-                        className="hover:bg-orange-50 hover:text-orange-600 data-[state=on]:bg-orange-50 data-[state=on]:text-orange-600"
-                      >
-                        Overhead
-                      </Toggle>
+                      {isEditMode ? (
+                        <div className={`px-3 py-2 rounded-md ${field.value === "variable" ? "bg-red-50 text-red-600" : "bg-orange-50 text-orange-600"}`}>
+                          {field.value === "variable" ? "Variable" : "Overhead"}
+                        </div>
+                      ) : (
+                        <>
+                          <Toggle
+                            pressed={field.value === "variable"}
+                            onPressedChange={(pressed) => {
+                              field.onChange(pressed ? "variable" : "overhead")
+                            }}
+                            className="hover:bg-red-50 hover:text-red-600 data-[state=on]:bg-red-50 data-[state=on]:text-red-600"
+                          >
+                            Variable
+                          </Toggle>
+                          <Toggle
+                            pressed={field.value === "overhead"}
+                            onPressedChange={(pressed) => {
+                              field.onChange(pressed ? "overhead" : "variable")
+                            }}
+                            className="hover:bg-orange-50 hover:text-orange-600 data-[state=on]:bg-orange-50 data-[state=on]:text-orange-600"
+                          >
+                            Overhead
+                          </Toggle>
+                        </>
+                      )}
                     </div>
                   </FormControl>
                   <FormMessage />
