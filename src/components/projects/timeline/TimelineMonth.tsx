@@ -2,6 +2,7 @@
 import { format } from "date-fns"
 import { isToday, isSameMonth } from "date-fns"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { useLocalStorage } from "@/hooks/use-local-storage"
 
 interface TimelineItem {
   id: string
@@ -45,6 +46,8 @@ export function TimelineMonth({
   onSelectAllocation,
   accumulatedProfit,
 }: TimelineMonthProps) {
+  const [showDecimals] = useLocalStorage<boolean>("showDecimals", true)
+  
   const totalRevenue = revenues.reduce((sum, r) => sum + (Number(r.amount) || 0), 0)
   const totalVariableCosts = variableCosts.reduce((sum, c) => sum + (Number(c.amount) || 0), 0)
   const totalOverheadCosts = overheadCosts.reduce((sum, c) => sum + (Number(c.amount) || 0), 0)
@@ -55,8 +58,8 @@ export function TimelineMonth({
   const profitRentability = totalRevenue > 0 ? (profit / totalRevenue) * 100 : 0
 
   const formatAmount = (amount: number | null | undefined) => {
-    if (amount === null || amount === undefined) return "0.00"
-    return amount.toFixed(2)
+    if (amount === null || amount === undefined) return showDecimals ? "0.00" : "0"
+    return showDecimals ? amount.toFixed(2) : Math.round(amount).toString()
   }
 
   const isCurrentMonth = isSameMonth(new Date(), month)
@@ -93,7 +96,7 @@ export function TimelineMonth({
                   ))
                 ) : (
                   <div className="p-2 min-h-[40px] flex items-center justify-center bg-gray-50 border border-gray-200 rounded text-sm text-gray-500 w-full text-center">
-                    €0.00
+                    €{formatAmount(0)}
                   </div>
                 )}
               </div>
