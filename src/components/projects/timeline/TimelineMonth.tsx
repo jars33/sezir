@@ -58,7 +58,7 @@ export function TimelineMonth({
   }
 
   return (
-    <div className="bg-white p-1 min-h-[250px] flex flex-col">
+    <div className="bg-white p-2 min-h-[250px] flex flex-col">
       <div className="flex items-center justify-center gap-1 mb-1">
         <h3 className="text-sm font-medium">{format(month, "MMM yyyy")}</h3>
       </div>
@@ -70,7 +70,7 @@ export function TimelineMonth({
             <div
               key={revenue.id}
               onClick={() => onSelectRevenue(revenue)}
-              className="p-1 bg-green-50 border border-green-200 rounded text-sm cursor-pointer hover:bg-green-100 w-full text-center"
+              className="p-2 bg-green-50 border border-green-200 rounded text-sm cursor-pointer hover:bg-green-100 w-full text-center"
             >
               €{formatAmount(revenue.amount)}
             </div>
@@ -88,7 +88,7 @@ export function TimelineMonth({
             <div
               key={allocation.id}
               onClick={() => onSelectAllocation?.(allocation)}
-              className="p-1 bg-blue-50 border border-blue-200 rounded text-sm cursor-pointer hover:bg-blue-100 w-full text-center"
+              className="p-2 bg-blue-50 border border-blue-200 rounded text-sm cursor-pointer hover:bg-blue-100 w-full text-center"
             >
               <div>{allocation.team_member_name}</div>
               <div className="text-xs text-gray-600">-€{formatAmount(allocation.salary_cost)}</div>
@@ -102,7 +102,7 @@ export function TimelineMonth({
             <div
               key={cost.id}
               onClick={() => onSelectVariableCost(cost)}
-              className="p-1 bg-red-50 border border-red-200 rounded text-sm cursor-pointer hover:bg-red-100 w-full text-center"
+              className="p-2 bg-red-50 border border-red-200 rounded text-sm cursor-pointer hover:bg-red-100 w-full text-center"
             >
               <div>-€{formatAmount(cost.amount)}</div>
               {cost.description && (
@@ -118,7 +118,7 @@ export function TimelineMonth({
             <div
               key={cost.id}
               onClick={() => onSelectOverheadCost(cost)}
-              className="p-1 bg-orange-50 border border-orange-200 rounded text-sm cursor-pointer hover:bg-orange-100 w-full text-center"
+              className="p-2 bg-orange-50 border border-orange-200 rounded text-sm cursor-pointer hover:bg-orange-100 w-full text-center"
             >
               -€{formatAmount(cost.amount)}
             </div>

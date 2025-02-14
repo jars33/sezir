@@ -229,7 +229,7 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
               }) || []
 
               return (
-                <div key={month.getTime()} className="bg-white p-1 min-h-[250px] flex flex-col">
+                <div key={month.getTime()} className="bg-white p-2 min-h-[250px] flex flex-col">
                   <div className="text-sm font-medium mb-1">
                     {format(month, "MMM yyyy")}
                   </div>
@@ -238,7 +238,7 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
                       <div
                         key={allocation.id}
                         onClick={() => handleAllocationClick(allocation)}
-                        className="p-1 bg-blue-50 border border-blue-100 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors"
+                        className="p-2 bg-blue-50 border border-blue-100 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors"
                       >
                         <div className="text-sm font-medium">
                           {allocation.project_assignments.team_members.name}
