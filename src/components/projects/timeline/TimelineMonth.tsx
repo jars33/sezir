@@ -58,19 +58,19 @@ export function TimelineMonth({
   }
 
   return (
-    <div className="bg-white p-2 min-h-[250px] flex flex-col">
-      <div className="flex items-center justify-center gap-1 mb-2">
+    <div className="bg-white p-4 min-h-[250px] flex flex-col">
+      <div className="flex items-center justify-center gap-1 mb-4">
         <h3 className="text-sm font-medium">{format(month, "MMM yyyy")}</h3>
       </div>
 
-      <div className="flex-1 flex flex-col items-center gap-3">
+      <div className="flex-1 flex flex-col items-center gap-4">
         {/* Revenues section */}
-        <div className={`space-y-2 w-full flex flex-col items-center ${!hasAnyCosts ? 'flex-1' : ''}`}>
+        <div className={`space-y-4 w-full flex flex-col items-center ${!hasAnyCosts ? 'flex-1' : ''}`}>
           {revenues.map((revenue) => (
             <div
               key={revenue.id}
               onClick={() => onSelectRevenue(revenue)}
-              className="p-2 bg-green-50 border border-green-200 rounded text-sm cursor-pointer hover:bg-green-100 w-full text-center"
+              className="p-4 bg-green-50 border border-green-200 rounded text-sm cursor-pointer hover:bg-green-100 w-full text-center"
             >
               €{formatAmount(revenue.amount)}
             </div>
@@ -79,16 +79,16 @@ export function TimelineMonth({
 
         {/* Separator line between revenues and costs */}
         {hasRevenues && hasAnyCosts && (
-          <div className="border-t border-gray-200 w-full" />
+          <div className="border-t border-gray-200 w-full my-4" />
         )}
 
         {/* Allocations section */}
-        <div className={`space-y-2 w-full flex flex-col items-center ${!hasRevenues && !hasCosts ? 'flex-1' : ''}`}>
+        <div className={`space-y-4 w-full flex flex-col items-center ${!hasRevenues && !hasCosts ? 'flex-1' : ''}`}>
           {allocations.map((allocation) => (
             <div
               key={allocation.id}
               onClick={() => onSelectAllocation?.(allocation)}
-              className="p-2 bg-blue-50 border border-blue-200 rounded text-sm cursor-pointer hover:bg-blue-100 w-full text-center"
+              className="p-4 bg-blue-50 border border-blue-200 rounded text-sm cursor-pointer hover:bg-blue-100 w-full text-center"
             >
               <div>{allocation.team_member_name}</div>
               <div className="text-xs text-gray-600">-€{formatAmount(allocation.salary_cost)}</div>
@@ -97,12 +97,12 @@ export function TimelineMonth({
         </div>
 
         {/* Variable Costs section */}
-        <div className={`space-y-2 w-full flex flex-col items-center ${!hasRevenues && !hasAllocations ? 'flex-1' : ''}`}>
+        <div className={`space-y-4 w-full flex flex-col items-center ${!hasRevenues && !hasAllocations ? 'flex-1' : ''}`}>
           {variableCosts.map((cost) => (
             <div
               key={cost.id}
               onClick={() => onSelectVariableCost(cost)}
-              className="p-2 bg-red-50 border border-red-200 rounded text-sm cursor-pointer hover:bg-red-100 w-full text-center"
+              className="p-4 bg-red-50 border border-red-200 rounded text-sm cursor-pointer hover:bg-red-100 w-full text-center"
             >
               <div>-€{formatAmount(cost.amount)}</div>
               {cost.description && (
@@ -113,12 +113,12 @@ export function TimelineMonth({
         </div>
 
         {/* Overhead Costs section */}
-        <div className={`space-y-2 w-full flex flex-col items-center ${!hasRevenues && !hasAllocations ? 'flex-1' : ''}`}>
+        <div className={`space-y-4 w-full flex flex-col items-center ${!hasRevenues && !hasAllocations ? 'flex-1' : ''}`}>
           {overheadCosts.map((cost) => (
             <div
               key={cost.id}
               onClick={() => onSelectOverheadCost(cost)}
-              className="p-2 bg-orange-50 border border-orange-200 rounded text-sm cursor-pointer hover:bg-orange-100 w-full text-center"
+              className="p-4 bg-orange-50 border border-orange-200 rounded text-sm cursor-pointer hover:bg-orange-100 w-full text-center"
             >
               -€{formatAmount(cost.amount)}
             </div>
@@ -126,7 +126,7 @@ export function TimelineMonth({
         </div>
       </div>
 
-      <div className={`mt-2 text-sm font-medium text-center ${
+      <div className={`mt-4 text-sm font-medium text-center ${
         profit >= 0 
           ? "text-green-600"
           : "text-red-600"
