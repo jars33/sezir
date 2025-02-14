@@ -66,11 +66,14 @@ const Dashboard = () => {
                 <XAxis dataKey="month" />
                 <YAxis tickFormatter={(value) => `€${value}`} />
                 <Tooltip 
-                  formatter={(value: number) => [`€${value.toFixed(2)}`, undefined]}
+                  formatter={(value: number, name: string) => [
+                    `€${value.toFixed(2)}`,
+                    name === 'revenue' ? 'Revenue' : 'Cost'
+                  ]}
                   labelFormatter={(label) => `${label}`}
                 />
-                <Bar dataKey="revenue" fill="#86efac" />
-                <Bar dataKey="cost" fill="#f87171" />
+                <Bar dataKey="revenue" fill="#86efac" name="Revenue" />
+                <Bar dataKey="cost" fill="#f87171" name="Cost" />
               </BarChart>
             </ResponsiveContainer>
           </div>
