@@ -35,15 +35,37 @@ export function useProjectRevenues(projectId: string) {
 
   const createRevenueMutation = useMutation({
     mutationFn: async (values: { month: string; amount: string }) => {
-      const { error } = await supabase.from("project_revenues").insert([
-        {
-          project_id: projectId,
-          month: values.month + "-01",
-          amount: parseFloat(values.amount),
-        },
-      ])
+      // First check if there's an existing revenue for this month
+      const { data: existingRevenue, error: checkError } = await supabase
+        .from("project_revenues")
+        .select("*")
+        .eq("project_id", projectId)
+        .eq("month", values.month + "-01")
+        .maybeSingle()
 
-      if (error) throw error
+      if (checkError) throw checkError
+
+      if (existingRevenue) {
+        // If there's an existing revenue, update it by adding the new amount
+        const newAmount = parseFloat(existingRevenue.amount.toString()) + parseFloat(values.amount)
+        const { error } = await supabase
+          .from("project_revenues")
+          .update({ amount: newAmount })
+          .eq("id", existingRevenue.id)
+
+        if (error) throw error
+      } else {
+        // If there's no existing revenue, create a new one
+        const { error } = await supabase
+          .from("project_revenues")
+          .insert([{
+            project_id: projectId,
+            month: values.month + "-01",
+            amount: parseFloat(values.amount),
+          }])
+
+        if (error) throw error
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["project-revenues"] })
