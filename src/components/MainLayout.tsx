@@ -74,7 +74,9 @@ export default function MainLayout() {
         {/* Main content */}
         <div className="flex-1 flex flex-col pl-[150px] min-w-0">
           <header className="h-12 flex items-center px-4 gap-2 border-b border-[#e5e5e5] bg-white sticky top-0 z-10">
-            <SidebarTrigger />
+            <div className="absolute left-4">
+              <SidebarTrigger />
+            </div>
             <div className="flex-1" />
             <Button 
               variant="ghost" 
