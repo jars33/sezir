@@ -18,6 +18,10 @@ const stats = [
   { name: 'Resource Utilization', value: '87%' },
 ];
 
+const formatEuro = (value: number) => {
+  return `€${value.toFixed(2)}`;
+};
+
 const Dashboard = () => {
   return (
     <div className="w-full">
@@ -60,8 +64,11 @@ const Dashboard = () => {
               >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
+                <YAxis tickFormatter={(value) => `€${value}`} />
+                <Tooltip 
+                  formatter={(value: number) => [`€${value.toFixed(2)}`, undefined]}
+                  labelFormatter={(label) => `${label}`}
+                />
                 <Bar dataKey="revenue" fill="#86efac" />
                 <Bar dataKey="cost" fill="#f87171" />
               </BarChart>
