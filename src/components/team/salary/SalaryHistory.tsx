@@ -33,7 +33,12 @@ export function SalaryHistory({ id, salaryHistory, handleAddSalary }: SalaryHist
   const onSubmit = async (values: { amount: string, start_date: string, end_date: string }) => {
     console.log('Submitting salary with values:', values);
     await handleAddSalary(values);
-    salaryForm.reset();
+    // Reset form values after successful submission
+    salaryForm.reset({
+      amount: "",
+      start_date: format(new Date(), 'yyyy-MM-dd'),
+      end_date: "",
+    });
   }
 
   return (
@@ -50,7 +55,7 @@ export function SalaryHistory({ id, salaryHistory, handleAddSalary }: SalaryHist
         </Button>
       </div>
       
-      <div id="add-salary-section" style={{ display: 'none' }} className="mb-8">
+      <div id="add-salary-section" style={{ display: 'none' }} className="mb-8 border rounded-lg p-4">
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <FormField
@@ -100,7 +105,19 @@ export function SalaryHistory({ id, salaryHistory, handleAddSalary }: SalaryHist
             />
           </div>
           
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-4">
+            <Button 
+              type="button" 
+              variant="outline"
+              onClick={() => {
+                const salarySection = document.getElementById('add-salary-section');
+                if (salarySection) {
+                  salarySection.style.display = 'none';
+                }
+              }}
+            >
+              Cancel
+            </Button>
             <Button type="button" onClick={salaryForm.handleSubmit(onSubmit)}>Add Salary</Button>
           </div>
         </div>
