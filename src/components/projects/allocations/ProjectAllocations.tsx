@@ -50,13 +50,14 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
     },
   })
 
-  const { data: allocations, refetch: refetchAllocations } = useQuery({
-    queryKey: ["project-allocations", projectId, "with-salaries", format(startDate, 'yyyy')],
+  const { data: allocations } = useQuery({
+    queryKey: ["project-allocations", projectId, year],
     queryFn: async () => {
       const yearStart = format(startDate, 'yyyy-01-01')
       const yearEnd = format(startDate, 'yyyy-12-31')
 
       console.log('Fetching allocations for period:', yearStart, 'to', yearEnd)
+      console.log('Project ID:', projectId)
 
       const { data, error } = await supabase
         .from("project_member_allocations")
@@ -66,6 +67,7 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
           allocation_percentage,
           project_assignments!inner (
             id,
+            project_id,
             team_members!inner (
               id,
               name
@@ -83,7 +85,7 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
       }
 
       console.log('Fetched allocations:', data)
-      return data
+      return data as AllocationData[]
     },
   })
 
@@ -100,7 +102,7 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
         .eq("team_member_id", values.teamMemberId)
         .maybeSingle()
 
-      let assignmentId: string;
+      let assignmentId: string
 
       if (!existingAssignment) {
         const { data: newAssignment, error: createError } = await supabase
@@ -163,9 +165,7 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
         })
       }
 
-      await queryClient.invalidateQueries({ queryKey: ["project-allocations"] })
-      await queryClient.invalidateQueries({ queryKey: ["project-allocations", projectId, "with-salaries"] })
-      await queryClient.invalidateQueries({ queryKey: ["project-allocations", projectId, "with-salaries", format(startDate, 'yyyy')] })
+      queryClient.invalidateQueries({ queryKey: ["project-allocations"] })
       setDialogOpen(false)
       setSelectedAllocation(null)
     } catch (error: any) {
@@ -176,18 +176,6 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
         description: error.message,
       })
     }
-  }
-
-  const handlePreviousYear = () => {
-    const newYear = year - 1
-    setYear(newYear)
-    setStartDate(new Date(newYear, 0, 1))
-  }
-
-  const handleNextYear = () => {
-    const newYear = year + 1
-    setYear(newYear)
-    setStartDate(new Date(newYear, 0, 1))
   }
 
   const handleAllocationClick = (allocation: AllocationData) => {
@@ -223,10 +211,9 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
           <div className="grid grid-cols-12 gap-px bg-gray-200 rounded-lg overflow-hidden">
             {months.map((month) => {
               const monthStr = format(month, "yyyy-MM")
-              const monthAllocations = allocations?.filter(allocation => {
-                if (!allocation?.project_assignments?.team_members) return false
-                return format(new Date(allocation.month), "yyyy-MM") === monthStr
-              }) || []
+              const monthAllocations = allocations?.filter(allocation => 
+                format(new Date(allocation.month), "yyyy-MM") === monthStr
+              ) || []
 
               return (
                 <div key={month.getTime()} className="bg-white p-2 min-h-[250px] flex flex-col">
