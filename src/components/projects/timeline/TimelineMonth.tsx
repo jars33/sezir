@@ -58,7 +58,7 @@ export function TimelineMonth({
   }
 
   return (
-    <div className="bg-white p-2 min-h-[250px] flex flex-col relative">
+    <div className="bg-white p-2 min-h-[250px] flex flex-col">
       <div className="flex items-center justify-center gap-1 mb-2">
         <h3 className="text-sm font-medium">{format(month, "MMM yyyy")}</h3>
       </div>
@@ -77,9 +77,9 @@ export function TimelineMonth({
           ))}
         </div>
 
-        {/* Using absolute positioning for the separator line */}
+        {/* Separator line between revenues and costs */}
         {hasRevenues && hasAnyCosts && (
-          <div className="absolute left-0 right-0 border-t border-gray-200" style={{ top: '33%' }} />
+          <div className="border-t border-gray-200 w-full" />
         )}
 
         {/* Allocations section */}
