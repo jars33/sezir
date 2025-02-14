@@ -23,7 +23,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Textarea } from "@/components/ui/textarea"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Toggle } from "@/components/ui/toggle"
 
 const costFormSchema = z.object({
   type: z.enum(["variable", "overhead"]),
@@ -134,28 +134,26 @@ export function ProjectCostDialog({
                 <FormItem className="space-y-3">
                   <FormLabel>Cost Type</FormLabel>
                   <FormControl>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      className="flex flex-col space-y-1"
-                    >
-                      <FormItem className="flex items-center space-x-3 space-y-0">
-                        <FormControl>
-                          <RadioGroupItem value="variable" />
-                        </FormControl>
-                        <FormLabel className="font-normal">
-                          Variable Cost
-                        </FormLabel>
-                      </FormItem>
-                      <FormItem className="flex items-center space-x-3 space-y-0">
-                        <FormControl>
-                          <RadioGroupItem value="overhead" />
-                        </FormControl>
-                        <FormLabel className="font-normal">
-                          Overhead Cost
-                        </FormLabel>
-                      </FormItem>
-                    </RadioGroup>
+                    <div className="flex items-center gap-2">
+                      <Toggle
+                        pressed={field.value === "variable"}
+                        onPressedChange={(pressed) => {
+                          field.onChange(pressed ? "variable" : "overhead")
+                        }}
+                        className="data-[state=on]:bg-blue-50 data-[state=on]:text-blue-600"
+                      >
+                        Variable
+                      </Toggle>
+                      <Toggle
+                        pressed={field.value === "overhead"}
+                        onPressedChange={(pressed) => {
+                          field.onChange(pressed ? "overhead" : "variable")
+                        }}
+                        className="data-[state=on]:bg-blue-50 data-[state=on]:text-blue-600"
+                      >
+                        Overhead
+                      </Toggle>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
