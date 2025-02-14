@@ -26,7 +26,7 @@ export function TimelineHeader({
   return (
     <CardHeader className="pb-2">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-8">
           <CardTitle>Project Timeline</CardTitle>
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-500">
