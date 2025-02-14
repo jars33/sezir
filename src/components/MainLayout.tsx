@@ -3,16 +3,20 @@ import { Outlet, useNavigate, Link, useLocation } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { supabase } from "@/integrations/supabase/client"
 import { useAuth } from "./AuthProvider"
-import { Calendar, Users, LayoutDashboard, Inbox, FolderOpen, Moon, Sun } from "lucide-react"
+import { Calendar, Users, LayoutDashboard, Inbox, FolderOpen, Moon, Sun, Hash } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Sidebar } from "@/components/ui/sidebar"
 import { useTheme } from "next-themes"
+import { Switch } from "@/components/ui/switch"
+import { useLocalStorage } from "@/hooks/use-local-storage"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 export default function MainLayout() {
   const navigate = useNavigate()
   const location = useLocation()
   const { session, loading } = useAuth()
   const { theme, setTheme } = useTheme()
+  const [showDecimals, setShowDecimals] = useLocalStorage<boolean>("showDecimals", true)
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
@@ -37,6 +41,22 @@ export default function MainLayout() {
         <header className="h-12 flex items-center border-b border-border bg-background sticky top-0 z-10">
           <div className="flex-1" />
           <div className="px-4 flex items-center gap-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center gap-2">
+                    <Hash className="h-4 w-4" />
+                    <Switch
+                      checked={showDecimals}
+                      onCheckedChange={setShowDecimals}
+                    />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Show decimals</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <Button
               variant="ghost"
               size="icon"
