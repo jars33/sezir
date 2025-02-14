@@ -1,3 +1,4 @@
+
 import { useState } from "react"
 import { addMonths, format, startOfMonth, setMonth, getYear } from "date-fns"
 import { Plus, ChevronLeft, ChevronRight } from "lucide-react"
@@ -209,10 +210,15 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
-          <Button onClick={() => {
-            setSelectedAllocation(null)
-            setDialogOpen(true)
-          }}>
+          <Button 
+            variant="outline"
+            size="sm"
+            className="hover:bg-blue-50 hover:text-blue-600"
+            onClick={() => {
+              setSelectedAllocation(null)
+              setDialogOpen(true)
+            }}
+          >
             <Plus className="h-4 w-4 mr-2" />
             Add Allocation
           </Button>
