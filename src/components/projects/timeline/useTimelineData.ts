@@ -15,6 +15,7 @@ interface AllocationItem {
   month: string
   allocation_percentage: number
   team_member_name: string
+  salary_cost: number
 }
 
 export function useTimelineData(projectId: string) {
@@ -78,8 +79,9 @@ export function useTimelineData(projectId: string) {
           id,
           month,
           allocation_percentage,
-          project_assignments (
-            team_members (
+          project_assignments!inner (
+            team_members!inner (
+              id,
               name
             )
           )
@@ -91,12 +93,41 @@ export function useTimelineData(projectId: string) {
         throw error
       }
 
-      return (data || []).map(allocation => ({
-        id: allocation.id,
-        month: allocation.month,
-        allocation_percentage: allocation.allocation_percentage,
-        team_member_name: allocation.project_assignments.team_members.name
-      })) as AllocationItem[]
+      // For each allocation, get the valid salary for that month
+      const allocationsWithSalaries = await Promise.all(
+        (data || []).map(async (allocation) => {
+          const { data: salaryData, error: salaryError } = await supabase
+            .from("salary_history")
+            .select("amount")
+            .eq("team_member_id", allocation.project_assignments.team_members.id)
+            .lte("start_date", allocation.month)
+            .or(`end_date.is.null,end_date.gte.${allocation.month}`)
+            .order("start_date", { ascending: false })
+            .limit(1)
+            .single()
+
+          if (salaryError && salaryError.code !== "PGRST116") {
+            console.error("Error fetching salary:", salaryError)
+            return {
+              ...allocation,
+              salary_cost: 0
+            }
+          }
+
+          const monthlySalary = salaryData?.amount || 0
+          const salary_cost = (monthlySalary * allocation.allocation_percentage) / 100
+
+          return {
+            id: allocation.id,
+            month: allocation.month,
+            allocation_percentage: allocation.allocation_percentage,
+            team_member_name: allocation.project_assignments.team_members.name,
+            salary_cost
+          }
+        })
+      )
+
+      return allocationsWithSalaries as AllocationItem[]
     },
   })
 

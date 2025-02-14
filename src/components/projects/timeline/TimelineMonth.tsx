@@ -13,6 +13,7 @@ interface AllocationItem {
   month: string
   allocation_percentage: number
   team_member_name: string
+  salary_cost: number
 }
 
 interface TimelineMonthProps {
@@ -41,7 +42,8 @@ export function TimelineMonth({
   const totalRevenue = revenues.reduce((sum, r) => sum + Number(r.amount), 0)
   const totalVariableCosts = variableCosts.reduce((sum, c) => sum + Number(c.amount), 0)
   const totalOverheadCosts = overheadCosts.reduce((sum, c) => sum + Number(c.amount), 0)
-  const profit = totalRevenue - totalVariableCosts - totalOverheadCosts
+  const totalSalaryCosts = allocations.reduce((sum, a) => sum + Number(a.salary_cost), 0)
+  const profit = totalRevenue - totalVariableCosts - totalOverheadCosts - totalSalaryCosts
   
   const hasCosts = variableCosts.length > 0 || overheadCosts.length > 0
   const hasRevenues = revenues.length > 0
@@ -63,7 +65,7 @@ export function TimelineMonth({
               className="p-2 bg-blue-50 border border-blue-200 rounded text-sm cursor-pointer hover:bg-blue-100 w-full text-center"
             >
               <div>{allocation.team_member_name}</div>
-              <div className="text-xs text-gray-600">{allocation.allocation_percentage}%</div>
+              <div className="text-xs text-gray-600">€{allocation.salary_cost.toFixed(2)}</div>
             </div>
           ))}
         </div>
