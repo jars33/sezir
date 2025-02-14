@@ -50,7 +50,7 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
   })
 
   const { data: allocations, refetch: refetchAllocations } = useQuery({
-    queryKey: ["project-allocations", projectId, format(startDate, 'yyyy')],
+    queryKey: ["project-allocations", projectId, "with-salaries"],
     queryFn: async () => {
       const yearStart = format(startDate, 'yyyy-01-01');
       const yearEnd = format(startDate, 'yyyy-12-31');
@@ -192,7 +192,7 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Team Allocations</CardTitle>
+        <CardTitle>Project Allocations</CardTitle>
         <div className="flex items-center gap-4">
           <div className="flex gap-2">
             <Button variant="outline" size="icon" onClick={handlePreviousYear}>

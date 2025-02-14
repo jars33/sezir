@@ -71,7 +71,7 @@ export function useTimelineData(projectId: string) {
   })
 
   const { data: allocations } = useQuery({
-    queryKey: ["project-allocations", projectId],
+    queryKey: ["project-allocations", projectId, "with-salaries"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("project_member_allocations")
@@ -96,14 +96,14 @@ export function useTimelineData(projectId: string) {
       // For each allocation, get the valid salary for that month
       const allocationsWithSalaries = await Promise.all(
         (data || []).map(async (allocation) => {
-          const { data: salaryData, error: salaryError } = await supabase
+          const { data: salaryData } = await supabase
             .from("salary_history")
             .select("amount")
             .eq("team_member_id", allocation.project_assignments.team_members.id)
             .lte("start_date", allocation.month)
             .or(`end_date.is.null,end_date.gte.${allocation.month}`)
             .order("start_date", { ascending: false })
-            .maybeSingle() // Changed from single() to maybeSingle()
+            .maybeSingle()
 
           // If no salary data is found or there's an error, use 0 as the salary
           const monthlySalary = salaryData?.amount || 0
