@@ -144,7 +144,7 @@ export function TimelineMonth({
             ? "text-emerald-600"
             : "text-red-600"
         }`}>
-          YTD: €{formatAmount(accumulatedProfit)}
+          Total: €{formatAmount(accumulatedProfit)}
         </div>
       </div>
     </div>
