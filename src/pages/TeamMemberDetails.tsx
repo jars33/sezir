@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -105,7 +104,7 @@ export default function TeamMemberDetails() {
     enabled: !!id && !!member,
   })
 
-  const { data: salaryHistory } = useQuery({
+  const { data: salaryHistory, refetch: refetchSalaryHistory } = useQuery({
     queryKey: ["team-member-salaries", id],
     queryFn: async () => {
       if (!id) return []
@@ -157,23 +156,7 @@ export default function TeamMemberDetails() {
       return;
     }
 
-    if (checkDateOverlap(values.start_date, values.end_date || null)) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "The salary period overlaps with an existing period. Please adjust the dates.",
-      });
-      return;
-    }
-
     try {
-      console.log('Calling add_salary_and_update_previous with:', {
-        p_team_member_id: id,
-        p_amount: parseFloat(values.amount),
-        p_start_date: values.start_date,
-        p_end_date: values.end_date || null,
-      });
-
       const { error } = await supabase.rpc('add_salary_and_update_previous', {
         p_team_member_id: id,
         p_amount: parseFloat(values.amount),
@@ -188,9 +171,8 @@ export default function TeamMemberDetails() {
 
       console.log('Successfully added salary');
       
-      // Invalidate and refetch both queries
-      await queryClient.invalidateQueries({ queryKey: ["team-member-salaries", id] });
-      await queryClient.invalidateQueries({ queryKey: ["team-member-salary", id] });
+      // Immediately refetch the salary history
+      await refetchSalaryHistory();
       
       toast({
         title: "Success",
