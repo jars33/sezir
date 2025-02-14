@@ -1,4 +1,5 @@
-import { useState } from "react"
+
+import { useState, useMemo } from "react"
 import { addMonths, format, startOfMonth, setMonth } from "date-fns"
 import { Card, CardContent } from "@/components/ui/card"
 import { TimelineHeader } from "./timeline/TimelineHeader"
