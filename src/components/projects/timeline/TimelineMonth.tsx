@@ -70,8 +70,8 @@ export function TimelineMonth({
         <TooltipTrigger asChild>
           <div className={`${
             isCurrentMonth 
-              ? "bg-gray-50/50 dark:bg-gray-900/50" 
-              : "bg-transparent"
+              ? "bg-gray-50" 
+              : "bg-white"
           } p-2 flex flex-col`}>
             {/* Header */}
             <div className="text-center mb-2">
