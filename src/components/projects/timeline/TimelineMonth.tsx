@@ -54,7 +54,6 @@ export function TimelineMonth({
   const totalSalaryCosts = allocations.reduce((sum, a) => sum + (Number(a.salary_cost) || 0), 0)
   const profit = totalRevenue - totalVariableCosts - totalOverheadCosts - totalSalaryCosts
   
-  // Calculate profit rentability (as a percentage)
   const profitRentability = totalRevenue > 0 ? (profit / totalRevenue) * 100 : 0
 
   const formatAmount = (amount: number | null | undefined) => {
@@ -70,13 +69,13 @@ export function TimelineMonth({
         <TooltipTrigger asChild>
           <div className={`${
             isCurrentMonth 
-              ? "bg-gray-50" 
-              : "bg-white"
+              ? "bg-gray-50/50 dark:bg-gray-900/50" 
+              : "bg-transparent"
           } p-2 flex flex-col`}>
             {/* Header */}
             <div className="text-center mb-2">
               <h3 className={`text-sm font-medium ${
-                isCurrentMonth ? "text-blue-700" : ""
+                isCurrentMonth ? "text-blue-700 dark:text-blue-400" : ""
               }`}>{format(month, "MMM yyyy")}</h3>
             </div>
 
@@ -144,7 +143,7 @@ export function TimelineMonth({
               </div>
             </div>
 
-            {/* Monthly Profit - Added mt-4 instead of mt-2 to increase margin */}
+            {/* Monthly Profit */}
             <div className="mt-4">
               <div className={`text-sm font-medium text-center ${
                 profit >= 0 
