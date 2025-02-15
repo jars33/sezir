@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
 import { format } from "date-fns"
@@ -58,7 +57,7 @@ export default function TeamMemberDetails() {
     },
   })
 
-  const { data: salaryHistory, isLoading: isSalaryLoading } = useQuery({
+  const { data: salaryHistory, isLoading: isSalaryLoading, refetch: refetchSalaryHistory } = useQuery({
     queryKey: ["team-member-salary-history", id],
     queryFn: async () => {
       if (!id || id === 'new') return []
@@ -116,8 +115,8 @@ export default function TeamMemberDetails() {
 
       if (error) throw error
 
-      // Refetch salary history
-      await salaryHistory?.refetch?.()
+      // Refetch salary history using the query's refetch function
+      await refetchSalaryHistory()
 
       toast({
         title: "Success",
