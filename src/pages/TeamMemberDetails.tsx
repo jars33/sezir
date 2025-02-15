@@ -12,7 +12,6 @@ import { supabase } from "@/integrations/supabase/client"
 import { TeamMemberBasicFields } from "@/components/team/TeamMemberBasicFields"
 import { TeamMemberContactFields } from "@/components/team/TeamMemberContactFields"
 import { teamMemberFormSchema, type TeamMemberFormSchema } from "@/components/team/team-member-schema"
-import { TeamMemberTable } from "@/components/team/TeamMemberTable"
 import { SalaryHistory } from "@/components/team/salary/SalaryHistory"
 import { useAuth } from "@/components/AuthProvider"
 import type { TeamMember, SalaryHistory as SalaryHistoryType } from "@/types/team-member"
@@ -96,34 +95,6 @@ export default function TeamMemberDetails() {
     },
   })
 
-  // Create a preview TeamMember object from form values
-  const previewMember: TeamMember = {
-    id: member?.id || 'preview',
-    name: form.watch('name') || 'New Team Member',
-    type: form.watch('type'),
-    start_date: form.watch('start_date'),
-    end_date: form.watch('end_date'),
-    personal_phone: form.watch('personal_phone'),
-    personal_email: form.watch('personal_email'),
-    company_phone: form.watch('company_phone'),
-    company_email: form.watch('company_email'),
-    left_company: form.watch('left_company'),
-    user_id: session?.user.id || '',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  }
-
-  // Create a preview salary history array from form values
-  const previewSalaryHistory: SalaryHistoryType[] = [{
-    id: 'preview',
-    team_member_id: previewMember.id,
-    amount: parseFloat(form.watch('salary.amount') || '0'),
-    start_date: form.watch('salary.start_date'),
-    end_date: form.watch('salary.end_date'),
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  }]
-
   const handleAddSalary = async (values: { amount: string, start_date: string, end_date: string }) => {
     if (!id || id === 'new' || !session?.user.id) return;
 
@@ -139,7 +110,6 @@ export default function TeamMemberDetails() {
 
       if (error) throw error
 
-      // Refetch salary history using the query's refetch function
       await refetchSalaryHistory()
 
       toast({
@@ -252,36 +222,27 @@ export default function TeamMemberDetails() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-6">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <TeamMemberBasicFields form={form} />
-              <TeamMemberContactFields form={form} />
-              
-              <div className="flex justify-end">
-                <Button type="submit">
-                  {id === 'new' ? "Add" : "Update"} Team Member
-                </Button>
-              </div>
-            </form>
-          </Form>
+      <div className="max-w-2xl mx-auto">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <TeamMemberBasicFields form={form} />
+            <TeamMemberContactFields form={form} />
+            
+            <div className="flex justify-end">
+              <Button type="submit">
+                {id === 'new' ? "Add" : "Update"} Team Member
+              </Button>
+            </div>
+          </form>
+        </Form>
 
-          {id !== 'new' && (
-            <SalaryHistory 
-              id={id} 
-              salaryHistory={salaryHistory} 
-              handleAddSalary={handleAddSalary} 
-            />
-          )}
-        </div>
-
-        <div className="border-l pl-6">
-          <TeamMemberTable 
-            member={previewMember} 
-            salaryHistory={id === 'new' ? previewSalaryHistory : salaryHistory} 
+        {id !== 'new' && (
+          <SalaryHistory 
+            id={id} 
+            salaryHistory={salaryHistory} 
+            handleAddSalary={handleAddSalary} 
           />
-        </div>
+        )}
       </div>
     </div>
   )
