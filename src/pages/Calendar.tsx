@@ -95,12 +95,12 @@ export default function CalendarPage() {
                     <div
                       className={`absolute h-6 top-1/2 -translate-y-1/2 rounded ${
                         project.status === "completed"
-                          ? "bg-green-100 dark:bg-green-800/20"
+                          ? "bg-green-100 dark:bg-green-400/10"
                           : project.status === "in_progress"
-                          ? "bg-blue-100 dark:bg-blue-800/20"
+                          ? "bg-blue-100 dark:bg-blue-400/10"
                           : project.status === "planned"
-                          ? "bg-yellow-100 dark:bg-yellow-800/20"
-                          : "bg-red-100 dark:bg-red-800/20"
+                          ? "bg-yellow-100 dark:bg-yellow-400/10"
+                          : "bg-red-100 dark:bg-red-400/10"
                       }`}
                       style={{
                         left: `${getProjectStartPosition(
