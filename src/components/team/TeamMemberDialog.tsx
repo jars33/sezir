@@ -68,9 +68,10 @@ export function TeamMemberDialog({
           .eq('team_member_id', member.id)
           .order('start_date', { ascending: false })
           .limit(1)
-          .single()
+          .maybeSingle()
 
-        if (salaryError && salaryError.code !== 'PGRST116') {
+        if (salaryError) {
+          console.error('Error fetching salary history:', salaryError)
           toast({
             variant: "destructive",
             title: "Error",
