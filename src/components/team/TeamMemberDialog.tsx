@@ -17,6 +17,7 @@ import { useToast } from "@/hooks/use-toast"
 import { TeamMemberBasicFields } from "./TeamMemberBasicFields"
 import { TeamMemberContactFields } from "./TeamMemberContactFields"
 import { teamMemberFormSchema, type TeamMemberFormSchema } from "./team-member-schema"
+import { TeamMemberTable } from "./TeamMemberTable"
 import type { TeamMember, TeamMemberFormValues, SalaryHistory } from "@/types/team-member"
 
 interface TeamMemberDialogProps {
@@ -55,6 +56,34 @@ export function TeamMemberDialog({
       user_id: session?.user.id || "",
     },
   })
+
+  // Create a preview TeamMember object from form values
+  const previewMember: TeamMember = {
+    id: member?.id || 'preview',
+    name: form.watch('name') || 'New Team Member',
+    type: form.watch('type'),
+    start_date: form.watch('start_date'),
+    end_date: form.watch('end_date'),
+    personal_phone: form.watch('personal_phone'),
+    personal_email: form.watch('personal_email'),
+    company_phone: form.watch('company_phone'),
+    company_email: form.watch('company_email'),
+    left_company: form.watch('left_company'),
+    user_id: session?.user.id || '',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  }
+
+  // Create a preview salary history array from form values
+  const previewSalaryHistory: SalaryHistory[] = [{
+    id: 'preview',
+    team_member_id: previewMember.id,
+    amount: parseFloat(form.watch('salary.amount') || '0'),
+    start_date: form.watch('salary.start_date'),
+    end_date: form.watch('salary.end_date'),
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  }]
 
   useEffect(() => {
     const loadMemberData = async () => {
@@ -212,22 +241,31 @@ export function TeamMemberDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-w-4xl">
         <DialogHeader>
           <DialogTitle>{member ? "Edit" : "Add"} Team Member</DialogTitle>
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <TeamMemberBasicFields form={form} />
-            <TeamMemberContactFields form={form} />
-            
-            <div className="flex justify-end">
-              <Button type="submit">
-                {member ? "Update" : "Add"} Team Member
-              </Button>
-            </div>
-          </form>
-        </Form>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <TeamMemberBasicFields form={form} />
+              <TeamMemberContactFields form={form} />
+              
+              <div className="flex justify-end">
+                <Button type="submit">
+                  {member ? "Update" : "Add"} Team Member
+                </Button>
+              </div>
+            </form>
+          </Form>
+
+          <div className="border-l pl-6">
+            <TeamMemberTable 
+              member={previewMember} 
+              salaryHistory={member ? undefined : previewSalaryHistory} 
+            />
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   )
