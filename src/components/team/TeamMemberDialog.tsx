@@ -52,7 +52,7 @@ export function TeamMemberDialog({
       company_email: null,
       type: "contract" as const,
       left_company: false,
-      user_id: "",
+      user_id: session?.user.id || "",
     },
   })
 
@@ -96,10 +96,24 @@ export function TeamMemberDialog({
           left_company: member.left_company,
           user_id: member.user_id,
         })
-      } else if (session?.user.id) {
+      } else {
+        // Reset form for new team member
         form.reset({
-          ...form.getValues(),
-          user_id: session.user.id,
+          name: "",
+          salary: {
+            amount: "",
+            start_date: format(new Date(), 'yyyy-MM-dd'),
+            end_date: null,
+          },
+          start_date: format(new Date(), 'yyyy-MM-dd'),
+          end_date: null,
+          personal_phone: null,
+          personal_email: null,
+          company_phone: null,
+          company_email: null,
+          type: "contract" as const,
+          left_company: false,
+          user_id: session?.user.id || "",
         })
       }
     }
@@ -131,6 +145,9 @@ export function TeamMemberDialog({
         user_id: session.user.id,
       }
 
+      console.log('Submitting team member data:', teamMemberData);
+      console.log('Salary data:', values.salary);
+
       if (member) {
         // Update existing team member
         const { error: teamMemberError } = await supabase
@@ -160,6 +177,8 @@ export function TeamMemberDialog({
           .single()
 
         if (teamMemberError) throw teamMemberError
+
+        console.log('New team member created:', newMember);
 
         // Insert salary history for new member
         const { error: salaryError } = await supabase
