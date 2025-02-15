@@ -71,7 +71,7 @@ export function TimelineMonth({
           <div className={`${
             isCurrentMonth 
               ? "bg-gray-50" 
-              : "bg-transparent"
+              : "bg-white"
           } p-2 flex flex-col`}>
             {/* Header */}
             <div className="text-center mb-2">
