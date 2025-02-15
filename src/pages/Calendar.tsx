@@ -1,3 +1,4 @@
+
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { format, addMonths, startOfMonth, endOfMonth, differenceInDays } from "date-fns"
@@ -94,12 +95,12 @@ export default function CalendarPage() {
                     <div
                       className={`absolute h-6 top-1/2 -translate-y-1/2 rounded ${
                         project.status === "completed"
-                          ? "bg-green-100 dark:bg-green-900/30"
+                          ? "bg-green-100 dark:bg-green-800/20"
                           : project.status === "in_progress"
-                          ? "bg-blue-100 dark:bg-blue-900/30"
+                          ? "bg-blue-100 dark:bg-blue-800/20"
                           : project.status === "planned"
-                          ? "bg-yellow-100 dark:bg-yellow-900/30"
-                          : "bg-red-100 dark:bg-red-900/30"
+                          ? "bg-yellow-100 dark:bg-yellow-800/20"
+                          : "bg-red-100 dark:bg-red-800/20"
                       }`}
                       style={{
                         left: `${getProjectStartPosition(
