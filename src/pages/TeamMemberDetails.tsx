@@ -12,8 +12,9 @@ import { TeamMemberBasicFields } from "@/components/team/TeamMemberBasicFields"
 import { TeamMemberContactFields } from "@/components/team/TeamMemberContactFields"
 import { teamMemberFormSchema, type TeamMemberFormSchema } from "@/components/team/team-member-schema"
 import { TeamMemberTable } from "@/components/team/TeamMemberTable"
+import { SalaryHistory } from "@/components/team/salary/SalaryHistory"
 import { useAuth } from "@/components/AuthProvider"
-import type { TeamMember, SalaryHistory } from "@/types/team-member"
+import type { TeamMember, SalaryHistory as SalaryHistoryType } from "@/types/team-member"
 
 export default function TeamMemberDetails() {
   const { id } = useParams()
@@ -68,7 +69,7 @@ export default function TeamMemberDetails() {
         .order("start_date", { ascending: false })
 
       if (error) throw error
-      return data as SalaryHistory[]
+      return data as SalaryHistoryType[]
     },
   })
 
@@ -90,7 +91,7 @@ export default function TeamMemberDetails() {
   }
 
   // Create a preview salary history array from form values
-  const previewSalaryHistory: SalaryHistory[] = [{
+  const previewSalaryHistory: SalaryHistoryType[] = [{
     id: 'preview',
     team_member_id: previewMember.id,
     amount: parseFloat(form.watch('salary.amount') || '0'),
@@ -99,6 +100,37 @@ export default function TeamMemberDetails() {
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   }]
+
+  const handleAddSalary = async (values: { amount: string, start_date: string, end_date: string }) => {
+    if (!id || id === 'new' || !session?.user.id) return;
+
+    try {
+      const { error } = await supabase
+        .from("salary_history")
+        .insert({
+          team_member_id: id,
+          amount: parseFloat(values.amount),
+          start_date: values.start_date,
+          end_date: values.end_date,
+        })
+
+      if (error) throw error
+
+      // Refetch salary history
+      await salaryHistory?.refetch?.()
+
+      toast({
+        title: "Success",
+        description: "Salary history updated successfully",
+      })
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      })
+    }
+  }
 
   if (isMemberLoading || isSalaryLoading) {
     return <div className="p-8">Loading...</div>
@@ -198,18 +230,28 @@ export default function TeamMemberDetails() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <TeamMemberBasicFields form={form} />
-            <TeamMemberContactFields form={form} />
-            
-            <div className="flex justify-end">
-              <Button type="submit">
-                {id === 'new' ? "Add" : "Update"} Team Member
-              </Button>
-            </div>
-          </form>
-        </Form>
+        <div className="space-y-6">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <TeamMemberBasicFields form={form} />
+              <TeamMemberContactFields form={form} />
+              
+              <div className="flex justify-end">
+                <Button type="submit">
+                  {id === 'new' ? "Add" : "Update"} Team Member
+                </Button>
+              </div>
+            </form>
+          </Form>
+
+          {id !== 'new' && (
+            <SalaryHistory 
+              id={id} 
+              salaryHistory={salaryHistory} 
+              handleAddSalary={handleAddSalary} 
+            />
+          )}
+        </div>
 
         <div className="border-l pl-6">
           <TeamMemberTable 
