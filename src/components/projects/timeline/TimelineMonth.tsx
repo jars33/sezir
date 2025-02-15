@@ -70,9 +70,9 @@ export function TimelineMonth({
         <TooltipTrigger asChild>
           <div className={`${
             isCurrentMonth 
-              ? "bg-blue-50 dark:bg-blue-900/30 border-2 border-blue-200 dark:border-blue-500" 
-              : "bg-white dark:bg-background border border-gray-200 dark:border-gray-800"
-          } p-2 flex flex-col rounded-md`}>
+              ? "bg-gray-50 dark:bg-gray-800/50" 
+              : "bg-white dark:bg-background"
+          } p-2 flex flex-col`}>
             {/* Header */}
             <div className="text-center mb-2">
               <h3 className={`text-sm font-medium ${
@@ -146,7 +146,7 @@ export function TimelineMonth({
               </div>
             </div>
 
-            {/* Monthly Profit */}
+            {/* Monthly Profit - Added mt-4 instead of mt-2 to increase margin */}
             <div className="mt-4">
               <div className={`text-sm font-medium text-center ${
                 profit >= 0 
