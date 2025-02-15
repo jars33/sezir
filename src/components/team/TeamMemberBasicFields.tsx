@@ -26,36 +26,6 @@ export function TeamMemberBasicFields({ form }: TeamMemberBasicFieldsProps) {
         )}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <FormField
-          control={form.control}
-          name="salary.amount"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Salary Amount</FormLabel>
-              <FormControl>
-                <Input type="number" step="0.01" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="salary.start_date"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Salary Start Date</FormLabel>
-              <FormControl>
-                <Input type="date" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
-
       <FormField
         control={form.control}
         name="type"
