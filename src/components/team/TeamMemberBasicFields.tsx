@@ -26,41 +26,35 @@ export function TeamMemberBasicFields({ form }: TeamMemberBasicFieldsProps) {
         )}
       />
 
-      <FormField
-        control={form.control}
-        name="start_date"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Start Date</FormLabel>
-            <FormControl>
-              <Input type="date" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <FormField
+          control={form.control}
+          name="salary.amount"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Salary Amount</FormLabel>
+              <FormControl>
+                <Input type="number" step="0.01" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-      <FormField
-        control={form.control}
-        name="end_date"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>End Date (optional)</FormLabel>
-            <FormControl>
-              <Input 
-                type="date" 
-                {...field} 
-                value={field.value || ''} 
-                onChange={(e) => {
-                  const value = e.target.value || null;
-                  field.onChange(value);
-                }}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+        <FormField
+          control={form.control}
+          name="salary.start_date"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Salary Start Date</FormLabel>
+              <FormControl>
+                <Input type="date" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
 
       <FormField
         control={form.control}
@@ -86,6 +80,44 @@ export function TeamMemberBasicFields({ form }: TeamMemberBasicFieldsProps) {
           </FormItem>
         )}
       />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <FormField
+          control={form.control}
+          name="start_date"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Start Date</FormLabel>
+              <FormControl>
+                <Input type="date" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="end_date"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>End Date (optional)</FormLabel>
+              <FormControl>
+                <Input 
+                  type="date" 
+                  {...field} 
+                  value={field.value || ''} 
+                  onChange={(e) => {
+                    const value = e.target.value || null;
+                    field.onChange(value);
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
     </>
   )
 }
