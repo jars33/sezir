@@ -98,30 +98,24 @@ export function TeamMemberDialog({
         })
       } else if (session?.user.id) {
         form.reset({
-          name: "",
-          salary: {
-            amount: "",
-            start_date: format(new Date(), 'yyyy-MM-dd'),
-            end_date: null,
-          },
-          start_date: format(new Date(), 'yyyy-MM-dd'),
-          end_date: null,
-          personal_phone: null,
-          personal_email: null,
-          company_phone: null,
-          company_email: null,
-          type: "contract" as const,
-          left_company: false,
+          ...form.getValues(),
           user_id: session.user.id,
         })
       }
     }
 
     loadMemberData()
-  }, [member, form, session, toast, open]) // Added 'open' to the dependency array
+  }, [member, form, session, toast, open])
 
   async function onSubmit(values: TeamMemberFormSchema) {
-    if (!session?.user.id) return
+    if (!session?.user.id) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "You must be logged in to perform this action",
+      })
+      return
+    }
 
     try {
       const teamMemberData: Omit<TeamMemberFormValues, "salary"> = {
@@ -187,6 +181,7 @@ export function TeamMemberDialog({
         description: `Team member successfully ${member ? "updated" : "added"}`,
       })
     } catch (error: any) {
+      console.error("Error in onSubmit:", error)
       toast({
         variant: "destructive",
         title: "Error",
