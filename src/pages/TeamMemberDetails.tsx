@@ -222,17 +222,11 @@ export default function TeamMemberDetails() {
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-2xl mx-auto space-y-8">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <TeamMemberBasicFields form={form} />
             <TeamMemberContactFields form={form} />
-            
-            <div className="flex justify-end">
-              <Button type="submit">
-                {id === 'new' ? "Add" : "Update"} Team Member
-              </Button>
-            </div>
           </form>
         </Form>
 
@@ -243,6 +237,12 @@ export default function TeamMemberDetails() {
             handleAddSalary={handleAddSalary} 
           />
         )}
+
+        <div className="flex justify-end pt-4">
+          <Button onClick={form.handleSubmit(onSubmit)}>
+            {id === 'new' ? "Add" : "Update"} Team Member
+          </Button>
+        </div>
       </div>
     </div>
   )
