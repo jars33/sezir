@@ -1,8 +1,7 @@
-
 import { useQuery } from "@tanstack/react-query"
-import { format, startOfMonth, addYears, subYears } from "date-fns"
+import { format, startOfMonth, startOfYear, endOfYear } from "date-fns"
 import { useNavigate } from "react-router-dom"
-import { Plus } from "lucide-react"
+import { Plus, ChevronLeft, ChevronRight } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { supabase } from "@/integrations/supabase/client"
@@ -28,14 +27,14 @@ interface AllocationData {
 export function TeamMemberTimeline({ member }: TeamMemberTimelineProps) {
   const navigate = useNavigate()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
   const currentDate = new Date()
 
   const { data: allocations, refetch } = useQuery({
-    queryKey: ["team-member-allocations", member.id],
+    queryKey: ["team-member-allocations", member.id, selectedYear],
     queryFn: async () => {
-      // Fetch data for current year plus one year before and after
-      const startDate = format(subYears(startOfMonth(currentDate), 1), 'yyyy-01-01')
-      const endDate = format(addYears(startOfMonth(currentDate), 1), 'yyyy-12-31')
+      const startDate = format(startOfYear(new Date(selectedYear, 0)), 'yyyy-MM-dd')
+      const endDate = format(endOfYear(new Date(selectedYear, 0)), 'yyyy-MM-dd')
 
       const { data, error } = await supabase
         .from("project_member_allocations")
@@ -67,10 +66,8 @@ export function TeamMemberTimeline({ member }: TeamMemberTimelineProps) {
     },
   })
 
-  // Generate array of months for 3 years (previous, current, next)
-  const months = Array.from({ length: 36 }, (_, i) => {
-    const baseDate = subYears(startOfMonth(currentDate), 1)
-    return new Date(baseDate.getFullYear(), baseDate.getMonth() + i, 1)
+  const months = Array.from({ length: 12 }, (_, i) => {
+    return new Date(selectedYear, i, 1)
   })
 
   const getMonthColor = (totalAllocation: number) => {
@@ -151,8 +148,28 @@ export function TeamMemberTimeline({ member }: TeamMemberTimelineProps) {
           Allocation
         </Button>
       </CardHeader>
-      <CardContent className="overflow-x-auto">
-        <div className="grid grid-cols-[repeat(36,_minmax(120px,_1fr))] gap-px bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden min-w-full">
+      <CardContent>
+        <div className="flex items-center justify-center gap-4 mb-4">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setSelectedYear(prev => prev - 1)}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <div className="text-xl font-semibold min-w-[100px] text-center">
+            {selectedYear}
+          </div>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setSelectedYear(prev => prev + 1)}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+
+        <div className="grid grid-cols-[repeat(12,_minmax(120px,_1fr))] gap-px bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
           {months.map((month) => {
             const monthStr = format(month, "yyyy-MM")
             const monthAllocations = allocations?.filter(allocation => 
@@ -172,7 +189,7 @@ export function TeamMemberTimeline({ member }: TeamMemberTimelineProps) {
                 }`}
               >
                 <div className="text-xs font-medium mb-1 text-center">
-                  {format(month, "MMM yyyy")}
+                  {format(month, "MMM")}
                 </div>
                 <div className="space-y-1">
                   {monthAllocations.map((allocation) => (
