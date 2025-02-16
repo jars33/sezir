@@ -1,9 +1,12 @@
-
 import { useQuery } from "@tanstack/react-query"
 import { format, startOfMonth } from "date-fns"
 import { useNavigate } from "react-router-dom"
+import { Plus } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { supabase } from "@/integrations/supabase/client"
+import { TeamMemberAllocationDialog } from "./TeamMemberAllocationDialog"
+import { useState } from "react"
 import type { TeamMember } from "@/types/team-member"
 
 interface TeamMemberTimelineProps {
@@ -23,8 +26,9 @@ interface AllocationData {
 
 export function TeamMemberTimeline({ member }: TeamMemberTimelineProps) {
   const navigate = useNavigate()
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-  const { data: allocations } = useQuery({
+  const { data: allocations, refetch } = useQuery({
     queryKey: ["team-member-allocations", member.id],
     queryFn: async () => {
       const yearStart = format(startOfMonth(new Date()), 'yyyy-01-01')
@@ -51,7 +55,6 @@ export function TeamMemberTimeline({ member }: TeamMemberTimelineProps) {
 
       if (error) throw error
 
-      // Transform the data to make it easier to work with
       return data.map(allocation => ({
         id: allocation.id,
         month: allocation.month,
@@ -72,14 +75,62 @@ export function TeamMemberTimeline({ member }: TeamMemberTimelineProps) {
     return 'bg-white'
   }
 
-  const handleAllocationClick = (projectId: string) => {
-    navigate(`/projects/${projectId}`)
+  const handleAllocationSubmit = async (values: { projectId: string; month: Date; allocation: string }) => {
+    try {
+      const { data: existingAssignment, error: assignmentError } = await supabase
+        .from("project_assignments")
+        .select("id")
+        .eq("team_member_id", member.id)
+        .eq("project_id", values.projectId)
+        .maybeSingle()
+
+      if (assignmentError) throw assignmentError
+
+      let assignmentId: string
+
+      if (existingAssignment) {
+        assignmentId = existingAssignment.id
+      } else {
+        const { data: newAssignment, error: createError } = await supabase
+          .from("project_assignments")
+          .insert({
+            team_member_id: member.id,
+            project_id: values.projectId,
+            start_date: format(values.month, 'yyyy-MM-dd'),
+          })
+          .select()
+          .single()
+
+        if (createError) throw createError
+        assignmentId = newAssignment.id
+      }
+
+      const { error: allocationError } = await supabase
+        .from("project_member_allocations")
+        .insert({
+          project_assignment_id: assignmentId,
+          month: format(values.month, 'yyyy-MM-dd'),
+          allocation_percentage: parseInt(values.allocation),
+        })
+
+      if (allocationError) throw allocationError
+
+      await refetch()
+      setIsDialogOpen(false)
+    } catch (error: any) {
+      console.error("Error submitting allocation:", error)
+      throw error
+    }
   }
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-lg">{member.name}</CardTitle>
+        <Button variant="outline" size="sm" onClick={() => setIsDialogOpen(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Allocation
+        </Button>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-12 gap-px bg-gray-200 rounded-lg overflow-hidden">
@@ -127,6 +178,13 @@ export function TeamMemberTimeline({ member }: TeamMemberTimelineProps) {
           })}
         </div>
       </CardContent>
+
+      <TeamMemberAllocationDialog
+        teamMemberId={member.id}
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        onSubmit={handleAllocationSubmit}
+      />
     </Card>
   )
 }
