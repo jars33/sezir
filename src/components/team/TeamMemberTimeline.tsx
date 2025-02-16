@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query"
 import { format, startOfMonth } from "date-fns"
 import { useNavigate } from "react-router-dom"
@@ -73,6 +74,10 @@ export function TeamMemberTimeline({ member }: TeamMemberTimelineProps) {
     if (totalAllocation === 100) return 'bg-green-50'
     if (totalAllocation > 0) return 'bg-yellow-50'
     return 'bg-white'
+  }
+
+  const handleAllocationClick = (projectId: string) => {
+    navigate(`/projects/${projectId}`)
   }
 
   const handleAllocationSubmit = async (values: { projectId: string; month: Date; allocation: string }) => {
