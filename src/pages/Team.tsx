@@ -4,7 +4,9 @@ import { useNavigate } from "react-router-dom"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
 import { TeamMemberList } from "@/components/team/TeamMemberList"
+import { TeamMemberTimeline } from "@/components/team/TeamMemberTimeline"
 import { Button } from "@/components/ui/button"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useAuth } from "@/components/AuthProvider"
 import type { TeamMember } from "@/types/team-member"
 
@@ -39,7 +41,22 @@ export default function Team() {
         <Button onClick={() => navigate("/team/new")}>Add Team Member</Button>
       </div>
       
-      <TeamMemberList members={members || []} onEdit={handleEdit} onSuccess={() => refetch()} />
+      <Tabs defaultValue="list">
+        <TabsList className="mb-4">
+          <TabsTrigger value="list">List View</TabsTrigger>
+          <TabsTrigger value="timeline">Timeline View</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="list">
+          <TeamMemberList members={members || []} onEdit={handleEdit} onSuccess={() => refetch()} />
+        </TabsContent>
+
+        <TabsContent value="timeline" className="space-y-6">
+          {members?.map((member) => (
+            <TeamMemberTimeline key={member.id} member={member} />
+          ))}
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }
