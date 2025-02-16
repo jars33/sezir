@@ -1,6 +1,7 @@
 
 import { useQuery } from "@tanstack/react-query"
 import { format, startOfMonth } from "date-fns"
+import { useNavigate } from "react-router-dom"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { supabase } from "@/integrations/supabase/client"
 import type { TeamMember } from "@/types/team-member"
@@ -21,6 +22,8 @@ interface AllocationData {
 }
 
 export function TeamMemberTimeline({ member }: TeamMemberTimelineProps) {
+  const navigate = useNavigate()
+
   const { data: allocations } = useQuery({
     queryKey: ["team-member-allocations", member.id],
     queryFn: async () => {
@@ -62,6 +65,17 @@ export function TeamMemberTimeline({ member }: TeamMemberTimelineProps) {
     return new Date(new Date().getFullYear(), i, 1)
   })
 
+  const getMonthColor = (totalAllocation: number) => {
+    if (totalAllocation > 100) return 'bg-red-50'
+    if (totalAllocation === 100) return 'bg-green-50'
+    if (totalAllocation > 0) return 'bg-yellow-50'
+    return 'bg-white'
+  }
+
+  const handleAllocationClick = (projectId: string) => {
+    navigate(`/projects/${projectId}`)
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -83,11 +97,7 @@ export function TeamMemberTimeline({ member }: TeamMemberTimelineProps) {
             return (
               <div 
                 key={month.getTime()} 
-                className={`bg-white p-2 min-h-[80px] ${
-                  totalAllocation > 100 ? 'bg-red-50' : 
-                  totalAllocation === 100 ? 'bg-green-50' : 
-                  totalAllocation > 0 ? 'bg-yellow-50' : ''
-                }`}
+                className={`p-2 min-h-[80px] ${getMonthColor(totalAllocation)}`}
               >
                 <div className="text-xs font-medium mb-1 text-center">
                   {format(month, "MMM")}
@@ -96,10 +106,19 @@ export function TeamMemberTimeline({ member }: TeamMemberTimelineProps) {
                   {monthAllocations.map((allocation) => (
                     <div
                       key={allocation.id}
-                      className="text-xs p-1 bg-white border rounded"
+                      onClick={() => handleAllocationClick(allocation.project.id)}
+                      className="text-xs p-1.5 bg-white border rounded cursor-pointer hover:bg-gray-50 transition-colors"
                       title={`${allocation.project.name} (${allocation.project.number})`}
                     >
-                      {allocation.allocation_percentage}%
+                      <div className="font-medium truncate">
+                        {allocation.project.number}
+                      </div>
+                      <div className="truncate text-gray-600">
+                        {allocation.project.name}
+                      </div>
+                      <div className="font-medium text-primary">
+                        {allocation.allocation_percentage}%
+                      </div>
                     </div>
                   ))}
                 </div>
