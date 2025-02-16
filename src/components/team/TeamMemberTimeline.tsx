@@ -1,5 +1,6 @@
+
 import { useQuery } from "@tanstack/react-query"
-import { format, startOfMonth } from "date-fns"
+import { format, startOfMonth, addYears, subYears } from "date-fns"
 import { useNavigate } from "react-router-dom"
 import { Plus } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -27,12 +28,14 @@ interface AllocationData {
 export function TeamMemberTimeline({ member }: TeamMemberTimelineProps) {
   const navigate = useNavigate()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const currentDate = new Date()
 
   const { data: allocations, refetch } = useQuery({
     queryKey: ["team-member-allocations", member.id],
     queryFn: async () => {
-      const yearStart = format(startOfMonth(new Date()), 'yyyy-01-01')
-      const yearEnd = format(startOfMonth(new Date()), 'yyyy-12-31')
+      // Fetch data for current year plus one year before and after
+      const startDate = format(subYears(startOfMonth(currentDate), 1), 'yyyy-01-01')
+      const endDate = format(addYears(startOfMonth(currentDate), 1), 'yyyy-12-31')
 
       const { data, error } = await supabase
         .from("project_member_allocations")
@@ -49,8 +52,8 @@ export function TeamMemberTimeline({ member }: TeamMemberTimelineProps) {
           )
         `)
         .eq("project_assignments.team_member_id", member.id)
-        .gte("month", yearStart)
-        .lte("month", yearEnd)
+        .gte("month", startDate)
+        .lte("month", endDate)
         .order("month")
 
       if (error) throw error
@@ -64,15 +67,21 @@ export function TeamMemberTimeline({ member }: TeamMemberTimelineProps) {
     },
   })
 
-  const months = Array.from({ length: 12 }, (_, i) => {
-    return new Date(new Date().getFullYear(), i, 1)
+  // Generate array of months for 3 years (previous, current, next)
+  const months = Array.from({ length: 36 }, (_, i) => {
+    const baseDate = subYears(startOfMonth(currentDate), 1)
+    return new Date(baseDate.getFullYear(), baseDate.getMonth() + i, 1)
   })
 
   const getMonthColor = (totalAllocation: number) => {
-    if (totalAllocation > 100) return 'bg-red-50'
-    if (totalAllocation === 100) return 'bg-green-50'
-    if (totalAllocation > 0) return 'bg-yellow-50'
-    return 'bg-white'
+    if (totalAllocation > 100) return 'dark:bg-red-900/50 bg-red-50'
+    if (totalAllocation === 100) return 'dark:bg-green-900/50 bg-green-50'
+    if (totalAllocation > 0) return 'dark:bg-yellow-900/50 bg-yellow-50'
+    return 'dark:bg-gray-800 bg-white'
+  }
+
+  const handleAllocationClick = (projectId: string) => {
+    navigate(`/projects/${projectId}`)
   }
 
   const handleAllocationSubmit = async (values: { projectId: string; month: Date; allocation: string }) => {
@@ -123,17 +132,27 @@ export function TeamMemberTimeline({ member }: TeamMemberTimelineProps) {
     }
   }
 
+  const isCurrentMonth = (month: Date) => {
+    return month.getMonth() === currentDate.getMonth() && 
+           month.getFullYear() === currentDate.getFullYear()
+  }
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-lg">{member.name}</CardTitle>
-        <Button variant="outline" size="sm" onClick={() => setIsDialogOpen(true)}>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={() => setIsDialogOpen(true)}
+          className="hover:bg-primary hover:text-primary-foreground"
+        >
           <Plus className="h-4 w-4 mr-2" />
           Allocation
         </Button>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-12 gap-px bg-gray-200 rounded-lg overflow-hidden">
+      <CardContent className="overflow-x-auto">
+        <div className="grid grid-cols-[repeat(36,_minmax(120px,_1fr))] gap-px bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden min-w-full">
           {months.map((month) => {
             const monthStr = format(month, "yyyy-MM")
             const monthAllocations = allocations?.filter(allocation => 
@@ -148,23 +167,25 @@ export function TeamMemberTimeline({ member }: TeamMemberTimelineProps) {
             return (
               <div 
                 key={month.getTime()} 
-                className={`p-2 min-h-[80px] ${getMonthColor(totalAllocation)}`}
+                className={`p-2 min-h-[80px] ${getMonthColor(totalAllocation)} ${
+                  isCurrentMonth(month) ? 'ring-2 ring-primary ring-inset' : ''
+                }`}
               >
                 <div className="text-xs font-medium mb-1 text-center">
-                  {format(month, "MMM")}
+                  {format(month, "MMM yyyy")}
                 </div>
                 <div className="space-y-1">
                   {monthAllocations.map((allocation) => (
                     <div
                       key={allocation.id}
                       onClick={() => handleAllocationClick(allocation.project.id)}
-                      className="text-xs p-1.5 bg-white border rounded cursor-pointer hover:bg-gray-50 transition-colors"
+                      className="text-xs p-1.5 bg-white dark:bg-gray-800 border dark:border-gray-700 rounded cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                       title={`${allocation.project.name} (${allocation.project.number})`}
                     >
                       <div className="font-medium truncate">
                         {allocation.project.number}
                       </div>
-                      <div className="truncate text-gray-600">
+                      <div className="truncate text-gray-600 dark:text-gray-400">
                         {allocation.project.name}
                       </div>
                       <div className="font-medium text-primary">
