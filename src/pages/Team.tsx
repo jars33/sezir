@@ -40,13 +40,13 @@ export default function Team() {
         <h1 className="text-3xl font-bold">Team Members</h1>
         <Button onClick={() => navigate("/team/new")}>Add Team Member</Button>
       </div>
-      
-      <Tabs defaultValue="list">
+
+      <Tabs defaultValue="timeline">
         <TabsList className="mb-4">
-          <TabsTrigger value="list">List View</TabsTrigger>
           <TabsTrigger value="timeline">Timeline View</TabsTrigger>
+          <TabsTrigger value="list">List View</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="list">
           <TeamMemberList members={members || []} onEdit={handleEdit} onSuccess={() => refetch()} />
         </TabsContent>

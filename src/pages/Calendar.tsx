@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { format, addMonths, startOfMonth, endOfMonth, differenceInDays } from "date-fns"
@@ -93,7 +92,7 @@ export default function CalendarPage() {
                 >
                   {project.start_date && (
                     <div
-                      className={`absolute h-6 top-1/2 -translate-y-1/2 rounded ${
+                      className={`absolute h-6 top-1/2 -translate-y-1/2 rounded project-timeline-bar ${
                         project.status === "completed"
                           ? "bg-green-100 dark:bg-green-400/10"
                           : project.status === "in_progress"
@@ -103,20 +102,20 @@ export default function CalendarPage() {
                           : "bg-red-100 dark:bg-red-400/10"
                       }`}
                       style={{
-                        left: `${getProjectStartPosition(
+                        "--start-position": `${getProjectStartPosition(
                           new Date(project.start_date),
                           months[0],
                           months[months.length - 1]
                         )}%`,
-                        width: `${getProjectWidth(
+                        "--width": `${getProjectWidth(
                           new Date(project.start_date),
                           project.end_date
                             ? new Date(project.end_date)
                             : addMonths(new Date(project.start_date), 1),
                           months[0],
                           months[months.length - 1]
-                        )}%`,
-                      }}
+                        )}%`
+                      } as React.CSSProperties}
                     />
                   )}
                   <div className="grid grid-cols-12 h-full">

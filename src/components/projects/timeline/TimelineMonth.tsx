@@ -95,7 +95,13 @@ export function TimelineMonth({
                     </div>
                   ))
                 ) : (
-                  <div className="p-2 min-h-[40px] flex items-center justify-center bg-gray-50 border border-gray-200 rounded text-sm text-gray-500 w-full text-center dark:text-black">
+                  <div 
+                    onClick={() => onSelectRevenue({
+                      month: format(month, 'yyyy-MM'),
+                      amount: 0
+                    } as TimelineItem)}
+                    className="p-2 min-h-[40px] flex items-center justify-center bg-gray-50 border border-gray-200 rounded text-sm text-gray-500 w-full text-center cursor-pointer hover:bg-gray-100 dark:text-black"
+                  >
                     €{formatAmount(0)}
                   </div>
                 )}
