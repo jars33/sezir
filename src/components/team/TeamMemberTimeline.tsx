@@ -165,13 +165,23 @@ export function TeamMemberTimeline({ member, selectedYear }: TeamMemberTimelineP
               <div 
                 key={month.getTime()} 
                 className={`p-2 min-h-[80px] ${getMonthColor(totalAllocation)} ${
-                  isCurrentMonth(month) ? 'ring-2 ring-primary ring-inset' : ''
+                  isCurrentMonth(month) ? 'ring-2 ring-blue-500 ring-inset dark:ring-blue-300' : ''
                 }`}
               >
-                <div className="text-xs font-medium mb-1 text-center">
-                  {format(month, "MMM")}
+                <div className="text-center mb-2">
+                  <div className={'text-xs font-medium ' + (isCurrentMonth(month) ? 'text-blue-800 dark:text-blue-300' : '')}>
+                    {format(month, "MMM yyyy")}
+                  </div>
+                  <div className={'text-xs font-medium ' + (
+                    totalAllocation > 100 ? 'text-red-700 dark:text-red-400' :
+                    totalAllocation === 100 ? 'text-green-700 dark:text-green-400' :
+                    totalAllocation > 0 ? 'text-yellow-700 dark:text-yellow-400' :
+                    isCurrentMonth(month) ? 'text-blue-800 dark:text-blue-300' : ''
+                  )}>
+                    {totalAllocation}%
+                  </div>
                 </div>
-                <div className="space-y-1">
+                <div className="text-center space-y-1">
                   {monthAllocations.map((allocation) => (
                     <div
                       key={allocation.id}
@@ -179,13 +189,10 @@ export function TeamMemberTimeline({ member, selectedYear }: TeamMemberTimelineP
                       className="text-xs p-1.5 bg-white dark:bg-gray-800 border dark:border-gray-700 rounded cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                       title={`${allocation.project.name} (${allocation.project.number})`}
                     >
-                      <div className="font-medium truncate">
-                        {allocation.project.number}
-                      </div>
                       <div className="truncate text-gray-600 dark:text-gray-400">
                         {allocation.project.name}
                       </div>
-                      <div className="font-medium text-primary">
+                      <div className="font-medium">
                         {allocation.allocation_percentage}%
                       </div>
                     </div>

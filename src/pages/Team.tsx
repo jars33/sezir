@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query"
 import { useNavigate } from "react-router-dom"
 import { ChevronLeft, ChevronRight } from "lucide-react"
@@ -17,6 +16,7 @@ export default function Team() {
   const { session } = useAuth()
   const { toast } = useToast()
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
+  const [activeTab, setActiveTab] = useState("timeline")
 
   const { data: members, refetch } = useQuery({
     queryKey: ["team-members"],
@@ -44,36 +44,41 @@ export default function Team() {
         <Button onClick={() => navigate("/team/new")}>Add Team Member</Button>
       </div>
 
-      <Tabs defaultValue="timeline">
-        <TabsList className="mb-4">
-          <TabsTrigger value="timeline">Timeline View</TabsTrigger>
-          <TabsTrigger value="list">List View</TabsTrigger>
-        </TabsList>
+      <Tabs defaultValue="timeline" onValueChange={setActiveTab}>
+        <div className="flex justify-between items-center mb-8">
+          <TabsList>
+            <TabsTrigger value="timeline">Timeline View</TabsTrigger>
+            <TabsTrigger value="list">List View</TabsTrigger>
+          </TabsList>
+
+          {activeTab === "timeline" && (
+            <div className="flex items-center gap-4">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setSelectedYear(prev => prev - 1)}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <div className="text-xl font-semibold min-w-[100px] text-center">
+                {selectedYear}
+              </div>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setSelectedYear(prev => prev + 1)}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+        </div>
 
         <TabsContent value="list">
           <TeamMemberList members={members || []} onEdit={handleEdit} onSuccess={() => refetch()} />
         </TabsContent>
 
         <TabsContent value="timeline" className="space-y-6">
-          <div className="flex items-center justify-center gap-4 mb-8">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setSelectedYear(prev => prev - 1)}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <div className="text-xl font-semibold min-w-[100px] text-center">
-              {selectedYear}
-            </div>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setSelectedYear(prev => prev + 1)}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
           {members?.map((member) => (
             <TeamMemberTimeline key={member.id} member={member} selectedYear={selectedYear} />
           ))}

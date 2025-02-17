@@ -1,4 +1,3 @@
-
 import { Edit2Icon, Trash2Icon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -73,7 +72,7 @@ export function ProjectList({
               <TableCell>{project.name}</TableCell>
               <TableCell>
                 <Badge variant="secondary" className={statusColors[project.status]}>
-                  {project.status.replace("_", " ")}
+                  {project.status?.replace("_", " ") || project.status}
                 </Badge>
               </TableCell>
               <TableCell>
