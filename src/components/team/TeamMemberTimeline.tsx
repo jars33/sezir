@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query"
-import { format, startOfMonth, startOfYear, endOfYear } from "date-fns"
+import { format, startOfYear, endOfYear } from "date-fns"
 import { useNavigate } from "react-router-dom"
-import { Plus, ChevronLeft, ChevronRight } from "lucide-react"
+import { Plus } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { supabase } from "@/integrations/supabase/client"
@@ -11,6 +11,7 @@ import type { TeamMember } from "@/types/team-member"
 
 interface TeamMemberTimelineProps {
   member: TeamMember
+  selectedYear: number
 }
 
 interface AllocationData {
@@ -24,10 +25,9 @@ interface AllocationData {
   }
 }
 
-export function TeamMemberTimeline({ member }: TeamMemberTimelineProps) {
+export function TeamMemberTimeline({ member, selectedYear }: TeamMemberTimelineProps) {
   const navigate = useNavigate()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
   const currentDate = new Date()
 
   const { data: allocations, refetch } = useQuery({
@@ -148,28 +148,8 @@ export function TeamMemberTimeline({ member }: TeamMemberTimelineProps) {
           Allocation
         </Button>
       </CardHeader>
-      <CardContent>
-        <div className="flex items-center justify-center gap-4 mb-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setSelectedYear(prev => prev - 1)}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <div className="text-xl font-semibold min-w-[100px] text-center">
-            {selectedYear}
-          </div>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setSelectedYear(prev => prev + 1)}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-
-        <div className="grid grid-cols-[repeat(12,_minmax(120px,_1fr))] gap-px bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
+      <CardContent className="overflow-x-auto">
+        <div className="grid grid-cols-[repeat(12,_minmax(120px,_1fr))] gap-px bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden min-w-[1440px]">
           {months.map((month) => {
             const monthStr = format(month, "yyyy-MM")
             const monthAllocations = allocations?.filter(allocation => 
