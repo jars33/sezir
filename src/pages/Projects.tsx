@@ -9,7 +9,9 @@ import { Button } from "@/components/ui/button"
 import { ProjectDialog } from "@/components/ProjectDialog"
 import { type ProjectFormSchema } from "@/components/projects/project-schema"
 import { ProjectList } from "@/components/projects/ProjectList"
+import { ProjectTimelineView } from "@/components/projects/ProjectTimelineView"
 import { useAuth } from "@/components/AuthProvider"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 type Project = {
   id: string
@@ -27,6 +29,7 @@ export default function Projects() {
   const { session } = useAuth()
   const navigate = useNavigate()
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
 
   const { data: projects, isLoading } = useQuery({
     queryKey: ["projects"],
@@ -90,13 +93,35 @@ export default function Projects() {
         </Button>
       </div>
 
-      <ProjectList
-        projects={projects ?? []}
-        onEdit={(project) => navigate(`/projects/${project.id}`)}
-        onDelete={(project) => navigate(`/projects/${project.id}`)}
-        onSelect={(project) => navigate(`/projects/${project.id}`)}
-        selectedProject={null}
-      />
+      <Tabs defaultValue="list">
+        <TabsList>
+          <TabsTrigger value="list">List View</TabsTrigger>
+          <TabsTrigger value="timeline">Timeline View</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="list">
+          <ProjectList
+            projects={projects ?? []}
+            onEdit={(project) => navigate(`/projects/${project.id}`)}
+            onDelete={(project) => navigate(`/projects/${project.id}`)}
+            onSelect={(project) => {
+              setSelectedProject(project)
+              navigate(`/projects/${project.id}`)
+            }}
+            selectedProject={selectedProject}
+          />
+        </TabsContent>
+
+        <TabsContent value="timeline">
+          {selectedProject ? (
+            <ProjectTimelineView projectId={selectedProject.id} />
+          ) : (
+            <div className="text-center p-6 text-gray-500">
+              Select a project to view its timeline
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
 
       <ProjectDialog
         open={createDialogOpen}

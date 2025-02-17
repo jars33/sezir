@@ -7,7 +7,6 @@ import Projects from "@/pages/Projects"
 import ProjectDetails from "@/pages/ProjectDetails"
 import Team from "@/pages/Team"
 import TeamMemberDetails from "@/pages/TeamMemberDetails"
-import Calendar from "@/pages/Calendar"
 import Inbox from "@/pages/Inbox"
 import NotFound from "@/pages/NotFound"
 
@@ -43,10 +42,6 @@ export const routes: RouteObject[] = [
       {
         path: "team/:id",
         element: <TeamMemberDetails />,
-      },
-      {
-        path: "calendar",
-        element: <Calendar />,
       },
       {
         path: "inbox",
