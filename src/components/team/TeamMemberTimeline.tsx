@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query"
 import { format, startOfYear, endOfYear } from "date-fns"
 import { useNavigate } from "react-router-dom"
@@ -71,10 +70,11 @@ export function TeamMemberTimeline({ member, selectedYear }: TeamMemberTimelineP
     return new Date(selectedYear, i, 1)
   })
 
-  const getAllocationColor = (percentage: number) => {
-    if (percentage > 100) return 'text-red-500 dark:text-red-400'
-    if (percentage === 100) return 'text-green-500 dark:text-green-400'
-    return 'text-yellow-500 dark:text-yellow-400'
+  const getMonthColor = (totalAllocation: number) => {
+    if (totalAllocation > 100) return 'dark:bg-red-900/50 bg-red-50'
+    if (totalAllocation === 100) return 'dark:bg-green-900/50 bg-green-50'
+    if (totalAllocation > 0) return 'dark:bg-yellow-900/50 bg-yellow-50'
+    return 'dark:bg-gray-800 bg-white'
   }
 
   const handleAllocationClick = (projectId: string) => {
@@ -164,8 +164,8 @@ export function TeamMemberTimeline({ member, selectedYear }: TeamMemberTimelineP
             return (
               <div 
                 key={month.getTime()} 
-                className={`p-2 min-h-[80px] bg-white dark:bg-gray-800 ${
-                  isCurrentMonth(month) ? 'ring-2 ring-primary ring-inset bg-primary/5 dark:bg-primary/5' : ''
+                className={`p-2 min-h-[80px] ${getMonthColor(totalAllocation)} ${
+                  isCurrentMonth(month) ? 'ring-2 ring-primary ring-inset' : ''
                 }`}
               >
                 <div className="text-xs font-medium mb-1 text-center">
@@ -185,7 +185,7 @@ export function TeamMemberTimeline({ member, selectedYear }: TeamMemberTimelineP
                       <div className="truncate text-gray-600 dark:text-gray-400">
                         {allocation.project.name}
                       </div>
-                      <div className={`font-medium ${getAllocationColor(allocation.allocation_percentage)}`}>
+                      <div className="font-medium text-primary">
                         {allocation.allocation_percentage}%
                       </div>
                     </div>
