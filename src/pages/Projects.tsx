@@ -112,25 +112,14 @@ export default function Projects() {
           />
         </TabsContent>
 
-        <TabsContent value="timeline" className="space-y-4">
-          {(projects ?? []).map((project) => (
-            <div key={project.id} className="group">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-medium">
-                  {project.number} - {project.name}
-                </h3>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => navigate(`/projects/${project.id}`)}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  View Details
-                </Button>
-              </div>
-              <ProjectTimelineView projectId={project.id} />
+        <TabsContent value="timeline">
+          {selectedProject ? (
+            <ProjectTimelineView projectId={selectedProject.id} />
+          ) : (
+            <div className="text-center p-6 text-gray-500">
+              Select a project to view its timeline
             </div>
-          ))}
+          )}
         </TabsContent>
       </Tabs>
 
