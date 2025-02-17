@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { ProjectDialog } from "@/components/ProjectDialog"
 import { type ProjectFormSchema } from "@/components/projects/project-schema"
 import { ProjectList } from "@/components/projects/ProjectList"
-import { ProjectTimelineView } from "@/components/projects/ProjectTimelineView"
+import { CalendarProjectView } from "@/components/projects/CalendarProjectView"
 import { useAuth } from "@/components/AuthProvider"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
@@ -96,7 +96,7 @@ export default function Projects() {
       <Tabs defaultValue="list">
         <TabsList>
           <TabsTrigger value="list">List View</TabsTrigger>
-          <TabsTrigger value="timeline">Timeline View</TabsTrigger>
+          <TabsTrigger value="calendar">Calendar View</TabsTrigger>
         </TabsList>
 
         <TabsContent value="list">
@@ -112,14 +112,11 @@ export default function Projects() {
           />
         </TabsContent>
 
-        <TabsContent value="timeline">
-          {selectedProject ? (
-            <ProjectTimelineView projectId={selectedProject.id} />
-          ) : (
-            <div className="text-center p-6 text-gray-500">
-              Select a project to view its timeline
-            </div>
-          )}
+        <TabsContent value="calendar">
+          <CalendarProjectView
+            projects={projects ?? []}
+            onProjectClick={(project) => navigate(`/projects/${project.id}`)}
+          />
         </TabsContent>
       </Tabs>
 
