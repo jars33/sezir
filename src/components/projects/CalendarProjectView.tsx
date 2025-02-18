@@ -53,15 +53,15 @@ export function CalendarProjectView({ projects, onProjectClick }: CalendarProjec
   const getStatusColor = (status: Project["status"]) => {
     switch (status) {
       case "planned":
-        return "border-yellow-500"
+        return "border-l-yellow-500"
       case "in_progress":
-        return "border-blue-500"
+        return "border-l-blue-500"
       case "completed":
-        return "border-green-500"
+        return "border-l-green-500"
       case "cancelled":
-        return "border-gray-500"
+        return "border-l-gray-500"
       default:
-        return "border-gray-300"
+        return "border-l-gray-300"
     }
   }
 
@@ -81,9 +81,9 @@ export function CalendarProjectView({ projects, onProjectClick }: CalendarProjec
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-4">
+      <div className="flex gap-4 overflow-x-auto pb-4">
         {months.map(month => (
-          <div key={month.getTime()} className="min-h-[200px]">
+          <div key={month.getTime()} className="min-w-[200px] flex-shrink-0">
             <div className="text-sm font-medium mb-2">
               {format(month, "MMMM yyyy")}
             </div>
