@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from "react"
 import { addMonths, format, startOfMonth, setMonth } from "date-fns"
 import { Card, CardContent } from "@/components/ui/card"
@@ -62,8 +61,14 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
     const totalVariableCosts = variableCosts?.reduce((sum, c) => sum + Number(c.amount), 0) || 0
     const totalOverheadCosts = overheadCosts?.reduce((sum, c) => sum + Number(c.amount), 0) || 0
     const totalSalaryCosts = allocations?.reduce((sum, a) => sum + Number(a.salary_cost), 0) || 0
+    const totalCosts = totalVariableCosts + totalOverheadCosts + totalSalaryCosts
+    const profit = totalRevenues - totalCosts
 
-    return totalRevenues - totalVariableCosts - totalOverheadCosts - totalSalaryCosts
+    const rentability = totalCosts > 0 ? (profit / totalCosts) * 100 : 0
+    return {
+      amount: profit,
+      rentability
+    }
   }, [revenues, variableCosts, overheadCosts, allocations])
 
   const months = Array.from({ length: 12 }, (_, i) => addMonths(startDate, i))
@@ -223,7 +228,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
         }}
         onPreviousYear={handlePreviousYear}
         onNextYear={handleNextYear}
-        totalProfit={totalProfit}
+        totalProfit={totalProfit.amount}
         startDate={startDate}
       />
       <CardContent className="space-y-6">
