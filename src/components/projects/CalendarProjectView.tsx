@@ -27,6 +27,8 @@ export function CalendarProjectView({ projects, onProjectClick }: CalendarProjec
 
   // Generate array of months for display (full year - 12 months)
   const months = Array.from({ length: 12 }, (_, i) => new Date(currentDate.getFullYear(), i, 1))
+  const firstHalf = months.slice(0, 6)
+  const secondHalf = months.slice(6)
 
   const handlePreviousYear = () => {
     setCurrentDate(prevDate => new Date(prevDate.getFullYear() - 1, 0, 1))
@@ -65,6 +67,36 @@ export function CalendarProjectView({ projects, onProjectClick }: CalendarProjec
     }
   }
 
+  const MonthRow = ({ months }: { months: Date[] }) => (
+    <div className="flex gap-4 pb-4">
+      {months.map(month => (
+        <div key={month.getTime()} className="min-w-[200px] flex-shrink-0 flex-1">
+          <div className="text-sm font-medium mb-2">
+            {format(month, "MMMM yyyy")}
+          </div>
+          <div className="space-y-2">
+            {getProjectsForMonth(month).map(project => (
+              <div
+                key={project.id}
+                onClick={() => onProjectClick(project)}
+                className={`
+                  p-2 rounded border-l-4 bg-white dark:bg-gray-800 
+                  shadow-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700
+                  ${getStatusColor(project.status)}
+                `}
+              >
+                <div className="text-sm font-medium">{project.number}</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                  {project.name}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+
   return (
     <Card className="p-4">
       <div className="flex items-center justify-between mb-4">
@@ -81,32 +113,9 @@ export function CalendarProjectView({ projects, onProjectClick }: CalendarProjec
         </div>
       </div>
 
-      <div className="flex gap-4 overflow-x-auto pb-4">
-        {months.map(month => (
-          <div key={month.getTime()} className="min-w-[200px] flex-shrink-0">
-            <div className="text-sm font-medium mb-2">
-              {format(month, "MMMM yyyy")}
-            </div>
-            <div className="space-y-2">
-              {getProjectsForMonth(month).map(project => (
-                <div
-                  key={project.id}
-                  onClick={() => onProjectClick(project)}
-                  className={`
-                    p-2 rounded border-l-4 bg-white dark:bg-gray-800 
-                    shadow-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700
-                    ${getStatusColor(project.status)}
-                  `}
-                >
-                  <div className="text-sm font-medium">{project.number}</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                    {project.name}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
+      <div className="space-y-4">
+        <MonthRow months={firstHalf} />
+        <MonthRow months={secondHalf} />
       </div>
     </Card>
   )
