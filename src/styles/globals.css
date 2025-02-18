@@ -1,4 +1,12 @@
 .project-timeline-bar {
   left: var(--start-position);
   width: var(--width);
-} 
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  width: 100%;
+  overflow-x: auto;
+}

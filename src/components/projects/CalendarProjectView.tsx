@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { addMonths, format, startOfMonth, subMonths } from "date-fns"
 import { ChevronLeft, ChevronRight } from "lucide-react"
@@ -20,17 +19,20 @@ interface CalendarProjectViewProps {
 }
 
 export function CalendarProjectView({ projects, onProjectClick }: CalendarProjectViewProps) {
-  const [currentDate, setCurrentDate] = useState(() => startOfMonth(new Date()))
+  const [currentDate, setCurrentDate] = useState(() => {
+    const now = new Date()
+    return new Date(now.getFullYear(), 0, 1) // Start from January 1st of current year
+  })
 
-  // Generate array of months for display (current month + 5 months)
-  const months = Array.from({ length: 6 }, (_, i) => addMonths(currentDate, i))
+  // Generate array of months for display (full year - 12 months)
+  const months = Array.from({ length: 12 }, (_, i) => new Date(currentDate.getFullYear(), i, 1))
 
-  const handlePreviousMonth = () => {
-    setCurrentDate(prevDate => subMonths(prevDate, 1))
+  const handlePreviousYear = () => {
+    setCurrentDate(prevDate => new Date(prevDate.getFullYear() - 1, 0, 1))
   }
 
-  const handleNextMonth = () => {
-    setCurrentDate(prevDate => addMonths(prevDate, 1))
+  const handleNextYear = () => {
+    setCurrentDate(prevDate => new Date(prevDate.getFullYear() + 1, 0, 1))
   }
 
   const getProjectsForMonth = (month: Date) => {
@@ -66,19 +68,19 @@ export function CalendarProjectView({ projects, onProjectClick }: CalendarProjec
     <Card className="p-4">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold">
-          {format(currentDate, "MMMM yyyy")} - {format(addMonths(currentDate, 5), "MMMM yyyy")}
+          {format(currentDate, "yyyy")}
         </h2>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={handlePreviousMonth}>
+          <Button variant="outline" size="sm" onClick={handlePreviousYear}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="sm" onClick={handleNextMonth}>
+          <Button variant="outline" size="sm" onClick={handleNextYear}>
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-6 gap-4">
+      <div className="grid grid-cols-4 gap-4">
         {months.map(month => (
           <div key={month.getTime()} className="min-h-[200px]">
             <div className="text-sm font-medium mb-2">
