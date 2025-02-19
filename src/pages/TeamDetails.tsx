@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
@@ -24,6 +23,15 @@ import {
 } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
+import { TeamMembershipDialog } from "@/components/team/TeamMembershipDialog"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 
 const teamFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -64,18 +72,25 @@ export default function TeamDetails() {
     },
   })
 
-  const { data: teamMembers } = useQuery({
-    queryKey: ["team-members"],
+  const { data: teamMembers, isLoading: isTeamMembersLoading } = useQuery({
+    queryKey: ["team-members", id],
     queryFn: async () => {
+      if (!id || id === "new") return []
       const { data, error } = await supabase
-        .from("team_members")
-        .select("*")
-        .eq("left_company", false)
-        .order("name")
+        .from("team_memberships")
+        .select(`
+          *,
+          team_members (
+            id,
+            name
+          )
+        `)
+        .eq("team_id", id)
 
       if (error) throw error
       return data
     },
+    enabled: !!id && id !== "new",
   })
 
   const { data: teams } = useQuery({
@@ -145,12 +160,17 @@ export default function TeamDetails() {
     <div className="container py-8">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold">{id === "new" ? "New" : "Edit"} Team</h1>
-        <Button variant="outline" onClick={() => navigate("/teams")}>
-          Back to Teams
-        </Button>
+        <div className="flex gap-4">
+          <Button variant="outline" onClick={() => navigate("/teams")}>
+            Back to Teams
+          </Button>
+          {id !== "new" && (
+            <TeamMembershipDialog teamId={id} />
+          )}
+        </div>
       </div>
 
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-2xl mx-auto space-y-8">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
@@ -236,14 +256,43 @@ export default function TeamDetails() {
                 </FormItem>
               )}
             />
-
-            <div className="flex justify-end">
-              <Button type="submit">
-                {id === "new" ? "Create" : "Update"} Team
-              </Button>
-            </div>
           </form>
         </Form>
+
+        {id !== "new" && (
+          <div className="mt-8">
+            <h2 className="text-xl font-semibold mb-4">Team Members</h2>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Role</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {teamMembers?.map((membership) => (
+                  <TableRow key={membership.id}>
+                    <TableCell>{membership.team_members.name}</TableCell>
+                    <TableCell className="capitalize">{membership.role}</TableCell>
+                  </TableRow>
+                ))}
+                {!isTeamMembersLoading && (!teamMembers || teamMembers.length === 0) && (
+                  <TableRow>
+                    <TableCell colSpan={2} className="text-center text-muted-foreground">
+                      No team members yet
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+
+        <div className="flex justify-end pt-4">
+          <Button onClick={form.handleSubmit(onSubmit)}>
+            {id === "new" ? "Create" : "Update"} Team
+          </Button>
+        </div>
       </div>
     </div>
   )
