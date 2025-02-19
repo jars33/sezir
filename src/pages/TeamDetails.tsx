@@ -1,3 +1,4 @@
+
 import { useParams, useNavigate } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
@@ -42,6 +43,19 @@ const teamFormSchema = z.object({
 
 type TeamFormValues = z.infer<typeof teamFormSchema>
 
+interface TeamMembership {
+  id: string
+  team_id: string
+  team_member_id: string
+  role: string
+  created_at: string
+  updated_at: string
+  team_members: {
+    id: string
+    name: string
+  }
+}
+
 export default function TeamDetails() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -72,7 +86,7 @@ export default function TeamDetails() {
     },
   })
 
-  const { data: teamMembers, isLoading: isTeamMembersLoading } = useQuery({
+  const { data: teamMembers, isLoading: isTeamMembersLoading } = useQuery<TeamMembership[]>({
     queryKey: ["team-members", id],
     queryFn: async () => {
       if (!id || id === "new") return []
@@ -219,7 +233,7 @@ export default function TeamDetails() {
                     <SelectContent>
                       {teamMembers?.map((member) => (
                         <SelectItem key={member.id} value={member.id}>
-                          {member.name}
+                          {member.team_members.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
