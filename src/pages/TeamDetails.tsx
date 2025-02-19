@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
@@ -85,6 +84,17 @@ export default function TeamDetails() {
       return data
     },
   })
+
+  React.useEffect(() => {
+    if (team) {
+      form.reset({
+        name: team.name,
+        description: team.description || "",
+        manager_id: team.manager_id || undefined,
+        parent_team_id: team.parent_team_id || undefined,
+      })
+    }
+  }, [team, form])
 
   const { data: teamMembers, isLoading: isTeamMembersLoading } = useQuery<TeamMembership[]>({
     queryKey: ["team-members", id],
