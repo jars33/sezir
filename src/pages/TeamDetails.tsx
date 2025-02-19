@@ -106,6 +106,10 @@ export default function TeamDetails() {
 
         if (error) throw error
       } else {
+        const { data: { user } } = await supabase.auth.getUser()
+        
+        if (!user) throw new Error("User not authenticated")
+
         const { error } = await supabase
           .from("teams")
           .insert({
@@ -113,6 +117,7 @@ export default function TeamDetails() {
             description: values.description || null,
             manager_id: values.manager_id || null,
             parent_team_id: values.parent_team_id || null,
+            user_id: user.id,
           })
 
         if (error) throw error
