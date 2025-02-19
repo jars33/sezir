@@ -6,6 +6,7 @@ import Index from "@/pages/Index"
 import Projects from "@/pages/Projects"
 import ProjectDetails from "@/pages/ProjectDetails"
 import Team from "@/pages/Team"
+import Teams from "@/pages/Teams"
 import TeamMemberDetails from "@/pages/TeamMemberDetails"
 import Inbox from "@/pages/Inbox"
 import NotFound from "@/pages/NotFound"
@@ -34,6 +35,10 @@ export const routes: RouteObject[] = [
       {
         path: "team",
         element: <Team />,
+      },
+      {
+        path: "teams",
+        element: <Teams />,
       },
       {
         path: "team/new",
