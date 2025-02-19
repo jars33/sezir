@@ -96,14 +96,24 @@ export default function TeamDetails() {
       if (team) {
         const { error } = await supabase
           .from("teams")
-          .update(values)
+          .update({
+            name: values.name,
+            description: values.description || null,
+            manager_id: values.manager_id || null,
+            parent_team_id: values.parent_team_id || null,
+          })
           .eq("id", team.id)
 
         if (error) throw error
       } else {
         const { error } = await supabase
           .from("teams")
-          .insert([values])
+          .insert({
+            name: values.name,
+            description: values.description || null,
+            manager_id: values.manager_id || null,
+            parent_team_id: values.parent_team_id || null,
+          })
 
         if (error) throw error
       }
