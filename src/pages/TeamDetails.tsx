@@ -244,7 +244,7 @@ export default function TeamDetails() {
                     </FormControl>
                     <SelectContent>
                       {teamMembers?.map((member) => (
-                        <SelectItem key={member.id} value={member.id}>
+                        <SelectItem key={member.id} value={member.team_member_id}>
                           {member.team_members.name}
                         </SelectItem>
                       ))}
@@ -282,6 +282,12 @@ export default function TeamDetails() {
                 </FormItem>
               )}
             />
+
+            <div className="flex justify-end">
+              <Button type="submit">
+                {id === "new" ? "Create" : "Update"} Team
+              </Button>
+            </div>
           </form>
         </Form>
 
@@ -313,12 +319,6 @@ export default function TeamDetails() {
             </Table>
           </div>
         )}
-
-        <div className="flex justify-end pt-4">
-          <Button onClick={form.handleSubmit(onSubmit)}>
-            {id === "new" ? "Create" : "Update"} Team
-          </Button>
-        </div>
       </div>
     </div>
   )
