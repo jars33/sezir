@@ -10,12 +10,12 @@ export function useTeamMember(id: string | undefined) {
       if (!id || id === 'new') return null
       const { data, error } = await supabase
         .from("team_members")
-        .select("*")
+        .select()
         .eq("id", id)
-        .single()
+        .maybeSingle()
 
       if (error) throw error
-      return data as TeamMember
+      return data as TeamMember | null
     },
   })
 
@@ -25,7 +25,7 @@ export function useTeamMember(id: string | undefined) {
       if (!id || id === 'new') return []
       const { data, error } = await supabase
         .from("salary_history")
-        .select("*")
+        .select()
         .eq("team_member_id", id)
         .order("start_date", { ascending: false })
 

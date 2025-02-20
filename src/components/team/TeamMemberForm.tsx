@@ -21,45 +21,46 @@ export function TeamMemberForm({ member, userId, onSubmit, mode }: TeamMemberFor
   const form = useForm<TeamMemberFormSchema>({
     resolver: zodResolver(teamMemberFormSchema),
     defaultValues: {
-      name: member?.name || "",
+      name: "",
       salary: {
         amount: "",
         start_date: format(new Date(), 'yyyy-MM-dd'),
         end_date: null,
       },
-      start_date: member?.start_date || format(new Date(), 'yyyy-MM-dd'),
-      end_date: member?.end_date || null,
-      personal_phone: member?.personal_phone || null,
-      personal_email: member?.personal_email || null,
-      company_phone: member?.company_phone || null,
-      company_email: member?.company_email || null,
-      type: member?.type || "contract",
-      left_company: member?.left_company || false,
+      start_date: format(new Date(), 'yyyy-MM-dd'),
+      end_date: null,
+      personal_phone: null,
+      personal_email: null,
+      company_phone: null,
+      company_email: null,
+      type: "contract",
+      left_company: false,
       user_id: userId,
     },
   })
 
   React.useEffect(() => {
     if (member) {
+      console.log("Resetting form with member data:", member)
       form.reset({
-        name: member.name,
+        name: member.name || "",
         salary: {
           amount: "",
           start_date: format(new Date(), 'yyyy-MM-dd'),
           end_date: null,
         },
-        start_date: member.start_date,
+        start_date: member.start_date || format(new Date(), 'yyyy-MM-dd'),
         end_date: member.end_date,
         personal_phone: member.personal_phone,
         personal_email: member.personal_email,
         company_phone: member.company_phone,
         company_email: member.company_email,
-        type: member.type,
-        left_company: member.left_company,
-        user_id: member.user_id,
+        type: member.type || "contract",
+        left_company: member.left_company || false,
+        user_id: userId,
       })
     }
-  }, [member, form])
+  }, [member, userId, form])
 
   return (
     <Form {...form}>
