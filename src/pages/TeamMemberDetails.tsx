@@ -62,30 +62,35 @@ export default function TeamMemberDetails() {
         name: values.name,
         start_date: values.start_date,
         end_date: values.end_date,
-        personal_phone: values.personal_phone,
-        personal_email: values.personal_email,
-        company_phone: values.company_phone,
-        company_email: values.company_email,
+        personal_phone: values.personal_phone || null,
+        personal_email: values.personal_email || null,
+        company_phone: values.company_phone || null,
+        company_email: values.company_email || null,
         type: values.type,
         left_company: values.left_company,
         user_id: session.user.id,
       }
 
-      if (member) {
+      console.log("Submitting data:", teamMemberData)
+
+      if (id && id !== 'new') {
         // Update existing team member
         const { error: teamMemberError } = await supabase
           .from("team_members")
           .update(teamMemberData)
-          .eq("id", member.id)
+          .eq("id", id)
 
-        if (teamMemberError) throw teamMemberError
+        if (teamMemberError) {
+          console.error("Update error:", teamMemberError)
+          throw teamMemberError
+        }
 
         // Only add salary if amount is provided
         if (values.salary.amount) {
           const { error: salaryError } = await supabase
             .from("salary_history")
             .insert({
-              team_member_id: member.id,
+              team_member_id: id,
               amount: parseFloat(values.salary.amount),
               start_date: values.salary.start_date,
               end_date: values.salary.end_date,
@@ -101,10 +106,13 @@ export default function TeamMemberDetails() {
           .select()
           .single()
 
-        if (teamMemberError) throw teamMemberError
+        if (teamMemberError) {
+          console.error("Insert error:", teamMemberError)
+          throw teamMemberError
+        }
 
         // Only add salary if amount is provided
-        if (values.salary.amount) {
+        if (values.salary.amount && newMember) {
           const { error: salaryError } = await supabase
             .from("salary_history")
             .insert({
@@ -121,7 +129,7 @@ export default function TeamMemberDetails() {
       navigate("/team")
       toast({
         title: "Success",
-        description: `Team member successfully ${member ? "updated" : "added"}`,
+        description: `Team member successfully ${id && id !== 'new' ? "updated" : "added"}`,
       })
     } catch (error: any) {
       console.error("Error in onSubmit:", error)
