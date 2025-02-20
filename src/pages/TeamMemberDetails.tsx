@@ -1,99 +1,21 @@
 
 import React from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { useQuery } from "@tanstack/react-query"
-import { format } from "date-fns"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button"
-import { Form } from "@/components/ui/form"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
-import { TeamMemberBasicFields } from "@/components/team/TeamMemberBasicFields"
-import { TeamMemberContactFields } from "@/components/team/TeamMemberContactFields"
-import { teamMemberFormSchema, type TeamMemberFormSchema } from "@/components/team/team-member-schema"
+import { TeamMemberForm } from "@/components/team/TeamMemberForm"
 import { SalaryHistory } from "@/components/team/salary/SalaryHistory"
 import { useAuth } from "@/components/AuthProvider"
-import type { TeamMember, SalaryHistory as SalaryHistoryType } from "@/types/team-member"
+import { useTeamMember } from "@/hooks/use-team-member"
+import type { TeamMemberFormSchema } from "@/components/team/team-member-schema"
 
 export default function TeamMemberDetails() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { session } = useAuth()
   const { toast } = useToast()
-
-  const { data: member, isLoading: isMemberLoading } = useQuery({
-    queryKey: ["team-member", id],
-    queryFn: async () => {
-      if (!id || id === 'new') return null
-      const { data, error } = await supabase
-        .from("team_members")
-        .select("*")
-        .eq("id", id)
-        .single()
-
-      if (error) throw error
-      return data as TeamMember
-    },
-  })
-
-  const form = useForm<TeamMemberFormSchema>({
-    resolver: zodResolver(teamMemberFormSchema),
-    defaultValues: {
-      name: member?.name || "",
-      salary: {
-        amount: "",
-        start_date: format(new Date(), 'yyyy-MM-dd'),
-        end_date: null,
-      },
-      start_date: member?.start_date || format(new Date(), 'yyyy-MM-dd'),
-      end_date: member?.end_date || null,
-      personal_phone: member?.personal_phone || null,
-      personal_email: member?.personal_email || null,
-      company_phone: member?.company_phone || null,
-      company_email: member?.company_email || null,
-      type: member?.type || "contract",
-      left_company: member?.left_company || false,
-      user_id: session?.user.id || "",
-    },
-  })
-
-  React.useEffect(() => {
-    if (member) {
-      form.reset({
-        name: member.name,
-        salary: {
-          amount: "",  // This will be filled from salary history if needed
-          start_date: format(new Date(), 'yyyy-MM-dd'),
-          end_date: null,
-        },
-        start_date: member.start_date,
-        end_date: member.end_date,
-        personal_phone: member.personal_phone,
-        personal_email: member.personal_email,
-        company_phone: member.company_phone,
-        company_email: member.company_email,
-        type: member.type,
-        left_company: member.left_company,
-        user_id: member.user_id,
-      })
-    }
-  }, [member, form])
-
-  const { data: salaryHistory, isLoading: isSalaryLoading, refetch: refetchSalaryHistory } = useQuery({
-    queryKey: ["team-member-salary-history", id],
-    queryFn: async () => {
-      if (!id || id === 'new') return []
-      const { data, error } = await supabase
-        .from("salary_history")
-        .select("*")
-        .eq("team_member_id", id)
-        .order("start_date", { ascending: false })
-
-      if (error) throw error
-      return data as SalaryHistoryType[]
-    },
-  })
+  const { member, salaryHistory, isMemberLoading, isSalaryLoading, refetchSalaryHistory } = useTeamMember(id)
 
   const handleAddSalary = async (values: { amount: string, start_date: string, end_date: string }) => {
     if (!id || id === 'new' || !session?.user.id) return;
@@ -227,17 +149,12 @@ export default function TeamMemberDetails() {
       </div>
 
       <div className="max-w-2xl mx-auto space-y-8">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <TeamMemberBasicFields form={form} />
-            <TeamMemberContactFields form={form} />
-            <div className="flex justify-end">
-              <Button type="submit">
-                {id === 'new' ? "Add" : "Update"} Team Member
-              </Button>
-            </div>
-          </form>
-        </Form>
+        <TeamMemberForm
+          member={member}
+          userId={session?.user.id || ""}
+          onSubmit={onSubmit}
+          mode={id === 'new' ? 'new' : 'edit'}
+        />
 
         {id !== 'new' && (
           <SalaryHistory 
