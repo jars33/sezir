@@ -125,10 +125,6 @@ export default function TeamMemberDetails() {
     }
   }
 
-  if (isMemberLoading || isSalaryLoading) {
-    return <div className="p-8">Loading...</div>
-  }
-
   async function onSubmit(values: TeamMemberFormSchema) {
     if (!session?.user.id) {
       toast({
@@ -162,17 +158,19 @@ export default function TeamMemberDetails() {
 
         if (teamMemberError) throw teamMemberError
 
-        // Update or insert salary history
-        const { error: salaryError } = await supabase
-          .from("salary_history")
-          .insert({
-            team_member_id: member.id,
-            amount: parseFloat(values.salary.amount),
-            start_date: values.salary.start_date,
-            end_date: values.salary.end_date,
-          })
+        // Only add salary if amount is provided
+        if (values.salary.amount) {
+          const { error: salaryError } = await supabase
+            .from("salary_history")
+            .insert({
+              team_member_id: member.id,
+              amount: parseFloat(values.salary.amount),
+              start_date: values.salary.start_date,
+              end_date: values.salary.end_date,
+            })
 
-        if (salaryError) throw salaryError
+          if (salaryError) throw salaryError
+        }
       } else {
         // Insert new team member
         const { data: newMember, error: teamMemberError } = await supabase
@@ -183,17 +181,19 @@ export default function TeamMemberDetails() {
 
         if (teamMemberError) throw teamMemberError
 
-        // Insert salary history for new member
-        const { error: salaryError } = await supabase
-          .from("salary_history")
-          .insert({
-            team_member_id: newMember.id,
-            amount: parseFloat(values.salary.amount),
-            start_date: values.salary.start_date,
-            end_date: values.salary.end_date,
-          })
+        // Only add salary if amount is provided
+        if (values.salary.amount) {
+          const { error: salaryError } = await supabase
+            .from("salary_history")
+            .insert({
+              team_member_id: newMember.id,
+              amount: parseFloat(values.salary.amount),
+              start_date: values.salary.start_date,
+              end_date: values.salary.end_date,
+            })
 
-        if (salaryError) throw salaryError
+          if (salaryError) throw salaryError
+        }
       }
 
       navigate("/team")
@@ -209,6 +209,10 @@ export default function TeamMemberDetails() {
         description: error.message,
       })
     }
+  }
+
+  if (isMemberLoading || isSalaryLoading) {
+    return <div className="p-8">Loading...</div>
   }
 
   return (
@@ -227,6 +231,11 @@ export default function TeamMemberDetails() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <TeamMemberBasicFields form={form} />
             <TeamMemberContactFields form={form} />
+            <div className="flex justify-end">
+              <Button type="submit">
+                {id === 'new' ? "Add" : "Update"} Team Member
+              </Button>
+            </div>
           </form>
         </Form>
 
@@ -237,12 +246,6 @@ export default function TeamMemberDetails() {
             handleAddSalary={handleAddSalary} 
           />
         )}
-
-        <div className="flex justify-end pt-4">
-          <Button onClick={form.handleSubmit(onSubmit)}>
-            {id === 'new' ? "Add" : "Update"} Team Member
-          </Button>
-        </div>
       </div>
     </div>
   )
