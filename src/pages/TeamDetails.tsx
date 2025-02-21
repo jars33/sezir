@@ -34,6 +34,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import type { TeamMember } from "@/types/team-member"
 
 const teamFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -69,6 +70,21 @@ export default function TeamDetails() {
       description: "",
       manager_id: undefined,
       parent_team_id: undefined,
+    },
+  })
+
+  // Query to fetch all available team members for manager selection
+  const { data: availableManagers } = useQuery({
+    queryKey: ["team-members-available"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("team_members")
+        .select("*")
+        .eq("left_company", false)
+        .order("name")
+
+      if (error) throw error
+      return data as TeamMember[]
     },
   })
 
@@ -134,35 +150,26 @@ export default function TeamDetails() {
 
   async function onSubmit(values: TeamFormValues) {
     try {
-      if (team) {
-        const { error } = await supabase
-          .from("teams")
-          .update({
-            name: values.name,
-            description: values.description || null,
-            manager_id: values.manager_id || null,
-            parent_team_id: values.parent_team_id || null,
-          })
-          .eq("id", team.id)
+      const { error } = team 
+        ? await supabase
+            .from("teams")
+            .update({
+              name: values.name,
+              description: values.description || null,
+              manager_id: values.manager_id || null,
+              parent_team_id: values.parent_team_id || null,
+            })
+            .eq("id", team.id)
+        : await supabase
+            .from("teams")
+            .insert({
+              name: values.name,
+              description: values.description || null,
+              manager_id: values.manager_id || null,
+              parent_team_id: values.parent_team_id || null,
+            })
 
-        if (error) throw error
-      } else {
-        const { data: { user } } = await supabase.auth.getUser()
-        
-        if (!user) throw new Error("User not authenticated")
-
-        const { error } = await supabase
-          .from("teams")
-          .insert({
-            name: values.name,
-            description: values.description || null,
-            manager_id: values.manager_id || null,
-            parent_team_id: values.parent_team_id || null,
-            user_id: user.id,
-          })
-
-        if (error) throw error
-      }
+      if (error) throw error
 
       navigate("/teams")
       toast({
@@ -191,7 +198,7 @@ export default function TeamDetails() {
             Back to Teams
           </Button>
           {id !== "new" && (
-            <TeamMembershipDialog teamId={id} />
+            <TeamMembershipDialog teamId={id} trigger={<Button>Add Team Member</Button>} />
           )}
         </div>
       </div>
@@ -235,7 +242,7 @@ export default function TeamDetails() {
                   <FormLabel>Team Manager</FormLabel>
                   <Select
                     onValueChange={field.onChange}
-                    defaultValue={field.value}
+                    value={field.value}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -243,9 +250,9 @@ export default function TeamDetails() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {teamMembers?.map((member) => (
-                        <SelectItem key={member.id} value={member.team_member_id}>
-                          {member.team_members.name}
+                      {availableManagers?.map((member) => (
+                        <SelectItem key={member.id} value={member.id}>
+                          {member.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -263,7 +270,7 @@ export default function TeamDetails() {
                   <FormLabel>Parent Team</FormLabel>
                   <Select
                     onValueChange={field.onChange}
-                    defaultValue={field.value}
+                    value={field.value}
                   >
                     <FormControl>
                       <SelectTrigger>
