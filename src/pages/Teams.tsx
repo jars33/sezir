@@ -49,7 +49,7 @@ export default function Teams() {
         return teamList
           .filter(team => team.parent_team_id === parentId)
           .map(team => {
-            const teamMemberships = (memberships as any[]).filter(
+            const teamMemberships = (memberships || []).filter(
               m => m.team_id === team.id
             )
             
@@ -74,7 +74,7 @@ export default function Teams() {
           })
       }
 
-      return buildTeamTree(teams as Team[])
+      return buildTeamTree(teams || [])
     },
   })
 

@@ -11,6 +11,8 @@ export function OrganizationChart({ teams }: OrganizationChartProps) {
   const navigate = useNavigate()
 
   const renderTeamNode = (node: TeamNode) => {
+    if (!node) return null
+
     return (
       <div key={node.id} className="flex flex-col items-center">
         <Card 
@@ -24,11 +26,11 @@ export function OrganizationChart({ teams }: OrganizationChartProps) {
             </div>
           )}
           <div className="text-sm text-muted-foreground">
-            {node.members.length} members
+            {node.members?.length || 0} members
           </div>
         </Card>
         
-        {node.children.length > 0 && (
+        {node.children?.length > 0 && (
           <div className="mt-8 flex gap-8">
             {node.children.map(child => renderTeamNode(child))}
           </div>
@@ -40,7 +42,7 @@ export function OrganizationChart({ teams }: OrganizationChartProps) {
   return (
     <div className="p-8 overflow-auto">
       <div className="flex justify-center">
-        {teams.map(team => renderTeamNode(team))}
+        {teams?.map(team => renderTeamNode(team)) || null}
       </div>
     </div>
   )
