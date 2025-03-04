@@ -56,7 +56,7 @@ export function TeamMembershipDialog({ teamId, trigger }: TeamMembershipDialogPr
     },
   })
 
-  const { data: teamMembers } = useQuery({
+  const { data: teamMembers, isLoading } = useQuery({
     queryKey: ["team-members-available"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -65,13 +65,48 @@ export function TeamMembershipDialog({ teamId, trigger }: TeamMembershipDialogPr
         .eq("left_company", false)
         .order("name")
 
-      if (error) throw error
+      if (error) {
+        console.error("Error fetching team members:", error)
+        throw error
+      }
+      
       return data as TeamMember[]
     },
   })
 
+  // Query to get current team members to exclude them from the selection
+  const { data: existingMemberships } = useQuery({
+    queryKey: ["team-members", teamId],
+    queryFn: async () => {
+      if (!teamId) return []
+      
+      const { data, error } = await supabase
+        .from("team_memberships")
+        .select("team_member_id")
+        .eq("team_id", teamId)
+
+      if (error) {
+        console.error("Error fetching team memberships:", error)
+        throw error
+      }
+      
+      return data
+    },
+    enabled: !!teamId,
+  })
+
+  // Filter out team members who are already in the team
+  const availableTeamMembers = React.useMemo(() => {
+    if (!teamMembers || !existingMemberships) return []
+    
+    const existingMemberIds = new Set(existingMemberships.map(m => m.team_member_id))
+    return teamMembers.filter(member => !existingMemberIds.has(member.id))
+  }, [teamMembers, existingMemberships])
+
   async function onSubmit(values: TeamMembershipFormValues) {
     try {
+      console.log("Submitting form with values:", values)
+      
       const { error } = await supabase
         .from("team_memberships")
         .insert({
@@ -80,7 +115,10 @@ export function TeamMembershipDialog({ teamId, trigger }: TeamMembershipDialogPr
           role: values.role,
         })
 
-      if (error) throw error
+      if (error) {
+        console.error("Error adding team member:", error)
+        throw error
+      }
 
       toast({
         title: "Success",
@@ -89,6 +127,9 @@ export function TeamMembershipDialog({ teamId, trigger }: TeamMembershipDialogPr
 
       // Invalidate team members query to refresh the list
       queryClient.invalidateQueries({ queryKey: ["team-members", teamId] })
+      
+      // Also invalidate the teams query to refresh the organization chart
+      queryClient.invalidateQueries({ queryKey: ["teams"] })
       
       setOpen(false)
       form.reset()
@@ -118,18 +159,33 @@ export function TeamMembershipDialog({ teamId, trigger }: TeamMembershipDialogPr
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Team Member</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select 
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    disabled={isLoading || availableTeamMembers.length === 0}
+                  >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a team member" />
+                        <SelectValue placeholder={
+                          isLoading 
+                            ? "Loading..." 
+                            : availableTeamMembers.length === 0 
+                              ? "No available members" 
+                              : "Select a team member"
+                        } />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {teamMembers?.map((member) => (
+                      {availableTeamMembers.map((member) => (
                         <SelectItem key={member.id} value={member.id}>
                           {member.name}
                         </SelectItem>
                       ))}
+                      {availableTeamMembers.length === 0 && (
+                        <SelectItem value="no-members" disabled>
+                          No available members to add
+                        </SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -161,7 +217,12 @@ export function TeamMembershipDialog({ teamId, trigger }: TeamMembershipDialogPr
             />
 
             <div className="flex justify-end">
-              <Button type="submit">Add Member</Button>
+              <Button 
+                type="submit" 
+                disabled={isLoading || availableTeamMembers.length === 0}
+              >
+                Add Member
+              </Button>
             </div>
           </form>
         </Form>
