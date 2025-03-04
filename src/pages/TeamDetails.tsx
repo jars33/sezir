@@ -52,10 +52,10 @@ interface TeamMembership {
   role: string
   created_at: string
   updated_at: string
-  team_members: {
+  team_members?: {
     id: string
     name: string
-  }
+  } | null
 }
 
 export default function TeamDetails() {
@@ -130,7 +130,7 @@ export default function TeamDetails() {
         .eq("team_id", id)
 
       if (error) throw error
-      return data
+      return data || []
     },
     enabled: !!id && id !== "new",
   })
@@ -311,7 +311,9 @@ export default function TeamDetails() {
               <TableBody>
                 {teamMembers?.map((membership) => (
                   <TableRow key={membership.id}>
-                    <TableCell>{membership.team_members.name}</TableCell>
+                    <TableCell>
+                      {membership.team_members?.name || "Unknown member"}
+                    </TableCell>
                     <TableCell className="capitalize">{membership.role}</TableCell>
                   </TableRow>
                 ))}
