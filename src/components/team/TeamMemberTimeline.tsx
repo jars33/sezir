@@ -135,10 +135,19 @@ export function TeamMemberTimeline({ member, selectedYear }: TeamMemberTimelineP
            month.getFullYear() === currentDate.getFullYear()
   }
 
+  const handleMemberNameClick = () => {
+    navigate(`/team/${member.id}`)
+  }
+
   return (
     <Card className="mb-3">
       <CardHeader className="flex flex-row items-center justify-between py-3">
-        <CardTitle className="text-lg">{member.name}</CardTitle>
+        <CardTitle 
+          className="text-lg cursor-pointer hover:text-primary transition-colors" 
+          onClick={handleMemberNameClick}
+        >
+          {member.name}
+        </CardTitle>
         <Button 
           variant="outline" 
           size="sm" 
