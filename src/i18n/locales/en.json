@@ -1,0 +1,19 @@
+
+{
+  "common": {
+    "dashboard": "Dashboard",
+    "organization": "Organization",
+    "teamMembers": "Team Members",
+    "projects": "Projects",
+    "inbox": "Inbox",
+    "signOut": "Sign Out",
+    "loading": "Loading...",
+    "showDecimals": "Show decimals"
+  },
+  "team": {
+    "title": "Team Members",
+    "addTeamMember": "Add Team Member",
+    "timelineView": "Timeline View",
+    "listView": "List View"
+  }
+}

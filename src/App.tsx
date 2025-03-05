@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from "@/components/AuthProvider"
 import { routes } from "./routes.tsx"
 import "./App.css"
+import "./i18n/i18n.ts"
 
 const queryClient = new QueryClient()
 

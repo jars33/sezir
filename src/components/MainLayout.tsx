@@ -3,12 +3,20 @@ import { Outlet, useNavigate, Link, useLocation } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { supabase } from "@/integrations/supabase/client"
 import { useAuth } from "./AuthProvider"
-import { Calendar, Users, LayoutDashboard, Inbox, FolderOpen, Moon, Sun, Hash } from "lucide-react"
+import { Calendar, Users, LayoutDashboard, Inbox, FolderOpen, Moon, Sun, Hash, Languages } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Sidebar } from "@/components/ui/sidebar"
 import { useTheme } from "next-themes"
 import { useLocalStorage } from "@/hooks/use-local-storage"
+import { useLanguage } from "@/hooks/use-language"
+import { useTranslation } from "react-i18next"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export default function MainLayout() {
   const navigate = useNavigate()
@@ -16,6 +24,8 @@ export default function MainLayout() {
   const { session, loading } = useAuth()
   const { theme, setTheme } = useTheme()
   const [showDecimals, setShowDecimals] = useLocalStorage<boolean>("showDecimals", true)
+  const { currentLanguage, changeLanguage, languages } = useLanguage()
+  const { t } = useTranslation()
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
@@ -27,7 +37,7 @@ export default function MainLayout() {
   }
 
   if (loading) {
-    return <div>Loading...</div>
+    return <div>{t('common.loading')}</div>
   }
 
   if (!session) {
@@ -57,10 +67,40 @@ export default function MainLayout() {
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Show decimals: {showDecimals ? "On" : "Off"}</p>
+                  <p>{t('common.showDecimals')}: {showDecimals ? "On" : "Off"}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
+            
+            <DropdownMenu>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="text-foreground">
+                        <Languages className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Language: {currentLanguage === 'en' ? 'English' : 'Português'}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              
+              <DropdownMenuContent align="end">
+                {languages.map((lang) => (
+                  <DropdownMenuItem 
+                    key={lang.code}
+                    onClick={() => changeLanguage(lang.code)}
+                    className={currentLanguage === lang.code ? "bg-accent" : ""}
+                  >
+                    {lang.name}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             <Button
               variant="ghost"
               size="icon"
@@ -78,7 +118,7 @@ export default function MainLayout() {
               onClick={handleSignOut}
               className="text-foreground hover:bg-accent hover:text-accent-foreground"
             >
-              Sign Out
+              {t('common.signOut')}
             </Button>
           </div>
         </header>

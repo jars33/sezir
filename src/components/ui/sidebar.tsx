@@ -6,12 +6,14 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useNavigate, useLocation } from "react-router-dom"
 import { LayoutDashboard, Users, Folders, Mail, Network } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function Sidebar({ className }: SidebarProps) {
   const navigate = useNavigate()
   const location = useLocation()
+  const { t } = useTranslation()
 
   return (
     <div className={cn("pb-12", className)}>
@@ -24,7 +26,7 @@ export function Sidebar({ className }: SidebarProps) {
               onClick={() => navigate("/")}
             >
               <LayoutDashboard className="mr-2 h-4 w-4" />
-              Dashboard
+              {t('common.dashboard')}
             </Button>
             <Button
               variant={location.pathname === "/teams" ? "secondary" : "ghost"}
@@ -32,7 +34,7 @@ export function Sidebar({ className }: SidebarProps) {
               onClick={() => navigate("/teams")}
             >
               <Network className="mr-2 h-4 w-4" />
-              Organization
+              {t('common.organization')}
             </Button>
             <Button
               variant={location.pathname === "/team" ? "secondary" : "ghost"}
@@ -40,7 +42,7 @@ export function Sidebar({ className }: SidebarProps) {
               onClick={() => navigate("/team")}
             >
               <Users className="mr-2 h-4 w-4" />
-              Team Members
+              {t('common.teamMembers')}
             </Button>
             <Button
               variant={location.pathname.startsWith("/projects") ? "secondary" : "ghost"}
@@ -48,7 +50,7 @@ export function Sidebar({ className }: SidebarProps) {
               onClick={() => navigate("/projects")}
             >
               <Folders className="mr-2 h-4 w-4" />
-              Projects
+              {t('common.projects')}
             </Button>
             <Button
               variant={location.pathname === "/inbox" ? "secondary" : "ghost"}
@@ -56,7 +58,7 @@ export function Sidebar({ className }: SidebarProps) {
               onClick={() => navigate("/inbox")}
             >
               <Mail className="mr-2 h-4 w-4" />
-              Inbox
+              {t('common.inbox')}
             </Button>
           </div>
         </div>

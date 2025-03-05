@@ -1,0 +1,19 @@
+
+{
+  "common": {
+    "dashboard": "Painel",
+    "organization": "Organização",
+    "teamMembers": "Membros da Equipe",
+    "projects": "Projetos",
+    "inbox": "Caixa de Entrada",
+    "signOut": "Sair",
+    "loading": "Carregando...",
+    "showDecimals": "Mostrar decimais"
+  },
+  "team": {
+    "title": "Membros da Equipe",
+    "addTeamMember": "Adicionar Membro",
+    "timelineView": "Visualização em Linha do Tempo",
+    "listView": "Visualização em Lista"
+  }
+}

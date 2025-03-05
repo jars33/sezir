@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useAuth } from "@/components/AuthProvider"
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import type { TeamMember } from "@/types/team-member"
 
 export default function Team() {
@@ -18,6 +19,7 @@ export default function Team() {
   const { toast } = useToast()
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
   const [activeTab, setActiveTab] = useState("timeline")
+  const { t } = useTranslation()
 
   const { data: members, refetch } = useQuery({
     queryKey: ["team-members"],
@@ -41,15 +43,15 @@ export default function Team() {
   return (
     <div className="container py-4">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-3xl font-bold">Team Members</h1>
-        <Button onClick={() => navigate("/team/new")}>Add Team Member</Button>
+        <h1 className="text-3xl font-bold">{t('team.title')}</h1>
+        <Button onClick={() => navigate("/team/new")}>{t('team.addTeamMember')}</Button>
       </div>
 
       <Tabs defaultValue="timeline" onValueChange={setActiveTab}>
         <div className="flex justify-between items-center mb-4">
           <TabsList>
-            <TabsTrigger value="timeline">Timeline View</TabsTrigger>
-            <TabsTrigger value="list">List View</TabsTrigger>
+            <TabsTrigger value="timeline">{t('team.timelineView')}</TabsTrigger>
+            <TabsTrigger value="list">{t('team.listView')}</TabsTrigger>
           </TabsList>
 
           {activeTab === "timeline" && (
