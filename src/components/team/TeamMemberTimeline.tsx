@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query"
 import { format, startOfYear, endOfYear } from "date-fns"
 import { useNavigate } from "react-router-dom"
@@ -135,8 +136,8 @@ export function TeamMemberTimeline({ member, selectedYear }: TeamMemberTimelineP
   }
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
+    <Card className="mb-3">
+      <CardHeader className="flex flex-row items-center justify-between py-3">
         <CardTitle className="text-lg">{member.name}</CardTitle>
         <Button 
           variant="outline" 
@@ -148,7 +149,7 @@ export function TeamMemberTimeline({ member, selectedYear }: TeamMemberTimelineP
           Allocation
         </Button>
       </CardHeader>
-      <CardContent className="overflow-x-auto">
+      <CardContent className="overflow-x-auto pb-3 pt-0">
         <div className="grid grid-cols-[repeat(12,_minmax(120px,_1fr))] gap-px bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden min-w-[1440px]">
           {months.map((month) => {
             const monthStr = format(month, "yyyy-MM")
@@ -164,11 +165,11 @@ export function TeamMemberTimeline({ member, selectedYear }: TeamMemberTimelineP
             return (
               <div 
                 key={month.getTime()} 
-                className={`p-2 min-h-[80px] ${getMonthColor(totalAllocation)} ${
+                className={`p-2 min-h-[70px] ${getMonthColor(totalAllocation)} ${
                   isCurrentMonth(month) ? 'ring-2 ring-blue-500 ring-inset dark:ring-blue-300' : ''
                 }`}
               >
-                <div className="text-center mb-2">
+                <div className="text-center mb-1">
                   <div className={'text-xs font-medium ' + (isCurrentMonth(month) ? 'text-blue-800 dark:text-blue-300' : '')}>
                     {format(month, "MMM yyyy")}
                   </div>
@@ -186,7 +187,7 @@ export function TeamMemberTimeline({ member, selectedYear }: TeamMemberTimelineP
                     <div
                       key={allocation.id}
                       onClick={() => handleAllocationClick(allocation.project.id)}
-                      className="text-xs p-1.5 bg-white dark:bg-gray-800 border dark:border-gray-700 rounded cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                      className="text-xs p-1 bg-white dark:bg-gray-800 border dark:border-gray-700 rounded cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                       title={`${allocation.project.name} (${allocation.project.number})`}
                     >
                       <div className="truncate text-gray-600 dark:text-gray-400">

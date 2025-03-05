@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query"
 import { useNavigate } from "react-router-dom"
 import { ChevronLeft, ChevronRight } from "lucide-react"
@@ -38,14 +39,14 @@ export default function Team() {
   if (!session) return null
 
   return (
-    <div className="container py-8">
-      <div className="flex justify-between items-center mb-8">
+    <div className="container py-4">
+      <div className="flex justify-between items-center mb-4">
         <h1 className="text-3xl font-bold">Team Members</h1>
         <Button onClick={() => navigate("/team/new")}>Add Team Member</Button>
       </div>
 
       <Tabs defaultValue="timeline" onValueChange={setActiveTab}>
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex justify-between items-center mb-4">
           <TabsList>
             <TabsTrigger value="timeline">Timeline View</TabsTrigger>
             <TabsTrigger value="list">List View</TabsTrigger>
@@ -74,11 +75,11 @@ export default function Team() {
           )}
         </div>
 
-        <TabsContent value="list">
+        <TabsContent value="list" className="mt-2">
           <TeamMemberList members={members || []} onEdit={handleEdit} onSuccess={() => refetch()} />
         </TabsContent>
 
-        <TabsContent value="timeline" className="space-y-6">
+        <TabsContent value="timeline" className="mt-2">
           {members?.map((member) => (
             <TeamMemberTimeline key={member.id} member={member} selectedYear={selectedYear} />
           ))}
