@@ -37,10 +37,10 @@ export default function MainLayout() {
 
   return (
     <div className="min-h-screen flex w-full">
-      <Sidebar className="h-screen fixed left-0 top-0 w-[150px]" />
+      <Sidebar className="h-screen fixed left-0 top-0 w-[200px]" />
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col min-w-0 pl-[150px]">
+      <div className="flex-1 flex flex-col min-w-0 pl-[200px]">
         <header className="h-12 flex items-center border-b border-border bg-background sticky top-0 z-10">
           <div className="flex-1" />
           <div className="px-4 flex items-center gap-2">
