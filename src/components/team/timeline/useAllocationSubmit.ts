@@ -1,6 +1,8 @@
 
 import { format } from "date-fns"
 import { supabase } from "@/integrations/supabase/client"
+import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query"
+import type { AllocationData } from "./types"
 
 interface AllocationValues {
   projectId: string
@@ -8,7 +10,10 @@ interface AllocationValues {
   allocation: string
 }
 
-export function useAllocationSubmit(memberId: string, onSuccess: () => Promise<void>) {
+export function useAllocationSubmit(
+  memberId: string, 
+  onSuccess: (options?: RefetchOptions) => Promise<QueryObserverResult<AllocationData[], Error>>
+) {
   const handleAllocationSubmit = async (values: AllocationValues) => {
     try {
       const { data: existingAssignment, error: assignmentError } = await supabase
