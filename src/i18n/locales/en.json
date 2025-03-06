@@ -15,5 +15,23 @@
     "addTeamMember": "Add Team Member",
     "timelineView": "Timeline View",
     "listView": "List View"
+  },
+  "project": {
+    "projectNumber": "Project Number",
+    "name": "Name",
+    "status": "Status",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "actions": "Actions",
+    "planned": "Planned",
+    "inProgress": "In Progress",
+    "completed": "Completed",
+    "cancelled": "Cancelled"
+  },
+  "dialog": {
+    "areYouSure": "Are you sure?",
+    "deleteProjectWarning": "This action cannot be undone. This will permanently delete the project.",
+    "cancel": "Cancel",
+    "delete": "Delete"
   }
 }

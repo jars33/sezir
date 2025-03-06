@@ -9,6 +9,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { useTranslation } from "react-i18next"
 
 interface DeleteProjectDialogProps {
   open: boolean
@@ -21,18 +22,20 @@ export function DeleteProjectDialog({
   onOpenChange,
   onConfirm,
 }: DeleteProjectDialogProps) {
+  const { t } = useTranslation();
+  
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+          <AlertDialogTitle>{t('dialog.areYouSure')}</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete the project.
+            {t('dialog.deleteProjectWarning')}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm}>Delete</AlertDialogAction>
+          <AlertDialogCancel>{t('dialog.cancel')}</AlertDialogCancel>
+          <AlertDialogAction onClick={onConfirm}>{t('dialog.delete')}</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

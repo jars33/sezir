@@ -4,6 +4,7 @@ import { addMonths, format, startOfMonth, subMonths } from "date-fns"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { useTranslation } from "react-i18next"
 
 interface Project {
   id: string
@@ -20,6 +21,7 @@ interface CalendarProjectViewProps {
 }
 
 export function CalendarProjectView({ projects, onProjectClick }: CalendarProjectViewProps) {
+  const { t } = useTranslation();
   const [currentDate, setCurrentDate] = useState(() => {
     const now = new Date()
     return new Date(now.getFullYear(), 0, 1) // Start from January 1st of current year

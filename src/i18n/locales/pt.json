@@ -15,5 +15,23 @@
     "addTeamMember": "Adicionar Membro",
     "timelineView": "Vista de Cronologia",
     "listView": "Vista em Lista"
+  },
+  "project": {
+    "projectNumber": "Número do Projeto",
+    "name": "Nome",
+    "status": "Estado",
+    "startDate": "Data de Início",
+    "endDate": "Data de Fim",
+    "actions": "Ações",
+    "planned": "Planeado",
+    "inProgress": "Em Progresso",
+    "completed": "Concluído",
+    "cancelled": "Cancelado"
+  },
+  "dialog": {
+    "areYouSure": "Tem a certeza?",
+    "deleteProjectWarning": "Esta ação não pode ser desfeita. Isto irá eliminar permanentemente o projeto.",
+    "cancel": "Cancelar",
+    "delete": "Eliminar"
   }
 }

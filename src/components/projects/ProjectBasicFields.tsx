@@ -10,12 +10,15 @@ import {
 } from "@/components/ui/select"
 import type { UseFormReturn } from "react-hook-form"
 import type { ProjectFormSchema } from "./project-schema"
+import { useTranslation } from "react-i18next"
 
 interface ProjectBasicFieldsProps {
   form: UseFormReturn<ProjectFormSchema>
 }
 
 export function ProjectBasicFields({ form }: ProjectBasicFieldsProps) {
+  const { t } = useTranslation();
+
   return (
     <>
       <FormField
@@ -23,7 +26,7 @@ export function ProjectBasicFields({ form }: ProjectBasicFieldsProps) {
         name="number"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Project Number</FormLabel>
+            <FormLabel>{t('project.projectNumber')}</FormLabel>
             <FormControl>
               <Input {...field} />
             </FormControl>
@@ -36,7 +39,7 @@ export function ProjectBasicFields({ form }: ProjectBasicFieldsProps) {
         name="name"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Name</FormLabel>
+            <FormLabel>{t('project.name')}</FormLabel>
             <FormControl>
               <Input {...field} />
             </FormControl>
@@ -49,7 +52,7 @@ export function ProjectBasicFields({ form }: ProjectBasicFieldsProps) {
         name="status"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Status</FormLabel>
+            <FormLabel>{t('project.status')}</FormLabel>
             <Select
               onValueChange={field.onChange}
               defaultValue={field.value}
@@ -60,10 +63,10 @@ export function ProjectBasicFields({ form }: ProjectBasicFieldsProps) {
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                <SelectItem value="planned">Planned</SelectItem>
-                <SelectItem value="in_progress">In Progress</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
-                <SelectItem value="cancelled">Cancelled</SelectItem>
+                <SelectItem value="planned">{t('project.planned')}</SelectItem>
+                <SelectItem value="in_progress">{t('project.inProgress')}</SelectItem>
+                <SelectItem value="completed">{t('project.completed')}</SelectItem>
+                <SelectItem value="cancelled">{t('project.cancelled')}</SelectItem>
               </SelectContent>
             </Select>
             <FormMessage />
@@ -75,7 +78,7 @@ export function ProjectBasicFields({ form }: ProjectBasicFieldsProps) {
         name="start_date"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Start Date</FormLabel>
+            <FormLabel>{t('project.startDate')}</FormLabel>
             <FormControl>
               <Input 
                 type="date" 
@@ -92,7 +95,7 @@ export function ProjectBasicFields({ form }: ProjectBasicFieldsProps) {
         name="end_date"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>End Date (optional)</FormLabel>
+            <FormLabel>{t('project.endDate')} (optional)</FormLabel>
             <FormControl>
               <Input 
                 type="date" 

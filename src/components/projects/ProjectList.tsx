@@ -1,3 +1,4 @@
+
 import { Edit2Icon, Trash2Icon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -10,6 +11,7 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import { useTranslation } from "react-i18next"
 
 type Project = {
   id: string
@@ -45,17 +47,29 @@ export function ProjectList({
   onSelect,
   selectedProject,
 }: ProjectListProps) {
+  const { t } = useTranslation();
+
+  const getStatusTranslation = (status: string) => {
+    switch (status) {
+      case "planned": return t('project.planned');
+      case "in_progress": return t('project.inProgress');
+      case "completed": return t('project.completed');
+      case "cancelled": return t('project.cancelled');
+      default: return status;
+    }
+  };
+
   return (
     <div className="rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Project Number</TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Start Date</TableHead>
-            <TableHead>End Date</TableHead>
-            <TableHead className="w-[100px]">Actions</TableHead>
+            <TableHead>{t('project.projectNumber')}</TableHead>
+            <TableHead>{t('project.name')}</TableHead>
+            <TableHead>{t('project.status')}</TableHead>
+            <TableHead>{t('project.startDate')}</TableHead>
+            <TableHead>{t('project.endDate')}</TableHead>
+            <TableHead className="w-[100px]">{t('project.actions')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -72,7 +86,7 @@ export function ProjectList({
               <TableCell>{project.name}</TableCell>
               <TableCell>
                 <Badge variant="secondary" className={statusColors[project.status]}>
-                  {project.status?.replace("_", " ") || project.status}
+                  {getStatusTranslation(project.status)}
                 </Badge>
               </TableCell>
               <TableCell>
