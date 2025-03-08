@@ -288,11 +288,7 @@ export default function TeamDetails() {
               )}
             />
 
-            <div className="pt-4">
-              <Button type="submit">
-                {id === "new" ? "Create" : "Update"} Team
-              </Button>
-            </div>
+            {/* Remove the Update/Create Team button from here */}
           </form>
         </Form>
 
@@ -338,6 +334,13 @@ export default function TeamDetails() {
             </Table>
           </div>
         )}
+        
+        {/* Add the button at the bottom of the page */}
+        <div className="mt-8 flex justify-center">
+          <Button type="button" onClick={form.handleSubmit(onSubmit)}>
+            {id === "new" ? "Create" : "Update"} Team
+          </Button>
+        </div>
       </div>
     </div>
   )
