@@ -35,6 +35,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import type { TeamMember } from "@/types/team-member"
+import { Plus } from "lucide-react"
 
 const teamFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -197,9 +198,6 @@ export default function TeamDetails() {
           <Button variant="outline" onClick={() => navigate("/teams")}>
             Back to Teams
           </Button>
-          {id !== "new" && (
-            <TeamMembershipDialog teamId={id} trigger={<Button>Add Team Member</Button>} />
-          )}
         </div>
       </div>
 
@@ -290,7 +288,7 @@ export default function TeamDetails() {
               )}
             />
 
-            <div className="flex justify-end">
+            <div className="pt-4">
               <Button type="submit">
                 {id === "new" ? "Create" : "Update"} Team
               </Button>
@@ -300,7 +298,19 @@ export default function TeamDetails() {
 
         {id !== "new" && (
           <div className="mt-8">
-            <h2 className="text-xl font-semibold mb-4">Team Members</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold">Team Members</h2>
+              {id !== "new" && (
+                <TeamMembershipDialog 
+                  teamId={id} 
+                  trigger={
+                    <Button size="icon">
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  } 
+                />
+              )}
+            </div>
             <Table>
               <TableHeader>
                 <TableRow>
