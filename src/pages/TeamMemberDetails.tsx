@@ -1,5 +1,4 @@
-
-import React from "react"
+import React, { useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
@@ -8,6 +7,7 @@ import { TeamMemberForm } from "@/components/team/TeamMemberForm"
 import { SalaryHistory } from "@/components/team/salary/SalaryHistory"
 import { useAuth } from "@/components/AuthProvider"
 import { useTeamMember } from "@/hooks/use-team-member"
+import { useManagedTeamMembers } from "@/hooks/use-managed-team-members"
 import type { TeamMemberFormSchema } from "@/components/team/team-member-schema"
 
 export default function TeamMemberDetails() {
@@ -16,6 +16,25 @@ export default function TeamMemberDetails() {
   const { session } = useAuth()
   const { toast } = useToast()
   const { member, salaryHistory, isMemberLoading, isSalaryLoading, refetchSalaryHistory } = useTeamMember(id)
+  const { data: managedMembers, isLoading: isManagedMembersLoading } = useManagedTeamMembers()
+  
+  const canAccessMember = React.useMemo(() => {
+    if (id === 'new') return true
+    if (!id || !managedMembers) return false
+    
+    return managedMembers.some(managedMember => managedMember.id === id)
+  }, [id, managedMembers])
+
+  useEffect(() => {
+    if (!isManagedMembersLoading && !isMemberLoading && !canAccessMember) {
+      toast({
+        variant: "destructive",
+        title: "Access Denied",
+        description: "You don't have permission to view or edit this team member",
+      })
+      navigate("/team")
+    }
+  }, [canAccessMember, isManagedMembersLoading, isMemberLoading, navigate, toast])
 
   const handleAddSalary = async (values: { amount: string, start_date: string, end_date: string }) => {
     if (!id || id === 'new' || !session?.user.id) return;
@@ -74,7 +93,6 @@ export default function TeamMemberDetails() {
       console.log("Submitting data:", teamMemberData)
 
       if (id && id !== 'new') {
-        // Update existing team member
         const { error: teamMemberError } = await supabase
           .from("team_members")
           .update(teamMemberData)
@@ -85,7 +103,6 @@ export default function TeamMemberDetails() {
           throw teamMemberError
         }
 
-        // Only add salary if amount is provided
         if (values.salary.amount) {
           const { error: salaryError } = await supabase
             .from("salary_history")
@@ -99,7 +116,6 @@ export default function TeamMemberDetails() {
           if (salaryError) throw salaryError
         }
       } else {
-        // Insert new team member
         const { data: newMember, error: teamMemberError } = await supabase
           .from("team_members")
           .insert(teamMemberData)
@@ -111,7 +127,6 @@ export default function TeamMemberDetails() {
           throw teamMemberError
         }
 
-        // Only add salary if amount is provided
         if (values.salary.amount && newMember) {
           const { error: salaryError } = await supabase
             .from("salary_history")
@@ -141,8 +156,12 @@ export default function TeamMemberDetails() {
     }
   }
 
-  if (isMemberLoading || isSalaryLoading) {
+  if (isMemberLoading || isSalaryLoading || isManagedMembersLoading) {
     return <div className="p-8">Loading...</div>
+  }
+
+  if (!canAccessMember) {
+    return null
   }
 
   return (

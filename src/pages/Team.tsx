@@ -1,17 +1,15 @@
 
-import { useQuery } from "@tanstack/react-query"
+import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-import { supabase } from "@/integrations/supabase/client"
 import { TeamMemberList } from "@/components/team/TeamMemberList"
 import { TeamMemberTimeline } from "@/components/team/TeamMemberTimeline"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useAuth } from "@/components/AuthProvider"
-import { useState } from "react"
 import { useTranslation } from "react-i18next"
-import type { TeamMember } from "@/types/team-member"
+import { useManagedTeamMembers } from "@/hooks/use-managed-team-members"
 
 export default function Team() {
   const navigate = useNavigate()
@@ -21,20 +19,9 @@ export default function Team() {
   const [activeTab, setActiveTab] = useState("timeline")
   const { t } = useTranslation()
 
-  const { data: members, refetch } = useQuery({
-    queryKey: ["team-members"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("team_members")
-        .select("*")
-        .order("name", { ascending: true })
+  const { data: members, refetch } = useManagedTeamMembers()
 
-      if (error) throw error
-      return data as TeamMember[]
-    },
-  })
-
-  const handleEdit = (member: TeamMember) => {
+  const handleEdit = (member) => {
     navigate(`/team/${member.id}`)
   }
 
