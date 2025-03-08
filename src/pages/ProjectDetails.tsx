@@ -26,11 +26,11 @@ type Project = {
   team_id: string | null
 }
 
-type TeamManager = {
-  team_id: string
-  manager_id: string
-  parent_team_id: string | null
-  parent_manager_id: string | null
+interface TeamManager {
+  team_id: string;
+  manager_id: string | null;
+  parent_team_id: string | null;
+  parent_manager_id: string | null;
 }
 
 export default function ProjectDetails() {
@@ -66,25 +66,27 @@ export default function ProjectDetails() {
     queryFn: async () => {
       if (!project?.team_id) return true // If no team is assigned, assume permission (fallback)
       
-      // Get the current user's team memberships with manager role
-      const { data: teamManagers, error: managerError } = await supabase
+      // Get the team information including manager and parent team manager
+      const { data, error } = await supabase
         .from("teams")
         .select(`
-          id as team_id, 
+          id,
           manager_id,
           parent_team_id,
-          teams:parent_team_id(manager_id as parent_manager_id)
+          parent:parent_team_id (
+            manager_id
+          )
         `)
         .eq("id", project.team_id)
         .single()
 
-      if (managerError) {
-        console.error("Error checking permission:", managerError)
+      if (error) {
+        console.error("Error checking permission:", error)
         return false
       }
 
-      const isManager = teamManagers?.manager_id === session?.user.id
-      const isParentManager = teamManagers?.parent_manager_id === session?.user.id
+      const isManager = data?.manager_id === session?.user.id
+      const isParentManager = data?.parent?.manager_id === session?.user.id
       
       return isManager || isParentManager
     }
