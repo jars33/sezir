@@ -26,6 +26,13 @@ type Project = {
   team_id: string | null
 }
 
+interface TeamManager {
+  team_id: string;
+  manager_id: string | null;
+  parent_team_id: string | null;
+  parent_manager_id: string | null;
+}
+
 export default function ProjectDetails() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -52,32 +59,15 @@ export default function ProjectDetails() {
     },
   })
 
-  // Check if the current user is a team member of the project's team
+  // Check if the current user is a manager of the project's team or parent team
   const { data: hasPermission = false, isLoading: isLoadingPermission } = useQuery({
     queryKey: ["project-permission", id, session?.user.id, project?.team_id],
     enabled: !!session?.user.id && !!project?.team_id,
     queryFn: async () => {
       if (!project?.team_id) return true // If no team is assigned, assume permission (fallback)
       
-      // First check if current user is in the project's team
-      const { data: membership, error: membershipError } = await supabase
-        .from("team_memberships")
-        .select("id")
-        .eq("team_id", project.team_id)
-        .eq("team_member_id", session?.user.id)
-        .maybeSingle()
-      
-      if (membershipError) {
-        console.error("Error checking team membership:", membershipError)
-      }
-      
-      // If user is a team member of this project's team, they have permission
-      if (membership) {
-        return true
-      }
-      
-      // If not a direct team member, check if the user is a manager of the team or parent team
-      const { data: team, error: teamError } = await supabase
+      // Get the team information including manager and parent team manager
+      const { data, error } = await supabase
         .from("teams")
         .select(`
           id,
@@ -90,13 +80,13 @@ export default function ProjectDetails() {
         .eq("id", project.team_id)
         .single()
 
-      if (teamError) {
-        console.error("Error checking permission:", teamError)
+      if (error) {
+        console.error("Error checking permission:", error)
         return false
       }
 
-      const isManager = team?.manager_id === session?.user.id
-      const isParentManager = team?.parent?.manager_id === session?.user.id
+      const isManager = data?.manager_id === session?.user.id
+      const isParentManager = data?.parent?.manager_id === session?.user.id
       
       return isManager || isParentManager
     }
