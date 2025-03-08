@@ -26,13 +26,6 @@ type Project = {
   team_id: string | null
 }
 
-interface TeamManager {
-  team_id: string;
-  manager_id: string | null;
-  parent_team_id: string | null;
-  parent_manager_id: string | null;
-}
-
 export default function ProjectDetails() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -59,42 +52,54 @@ export default function ProjectDetails() {
     },
   })
 
-  // Check if the current user is a manager of the project's team or parent team
+  // Check if the current user is the creator, or a manager/member of the project's team
   const { data: hasPermission = false, isLoading: isLoadingPermission } = useQuery({
     queryKey: ["project-permission", id, session?.user.id, project?.team_id],
-    enabled: !!session?.user.id && !!project?.team_id,
+    enabled: !!session?.user.id && !!project,
     queryFn: async () => {
-      if (!project?.team_id) return true // If no team is assigned, assume permission (fallback)
+      // If project has no team_id, check if user is the creator
+      if (!project?.team_id) {
+        return project.user_id === session?.user.id
+      }
       
-      // Get the team information including manager and parent team manager
-      const { data, error } = await supabase
+      // Check if user is a team manager of the project's team
+      const { data: teamData, error: teamError } = await supabase
         .from("teams")
-        .select(`
-          id,
-          manager_id,
-          parent_team_id,
-          parent:parent_team_id (
-            manager_id
-          )
-        `)
+        .select("manager_id")
         .eq("id", project.team_id)
         .single()
 
-      if (error) {
-        console.error("Error checking permission:", error)
+      if (teamError) {
+        console.error("Error checking team manager:", teamError)
         return false
       }
 
-      const isManager = data?.manager_id === session?.user.id
-      const isParentManager = data?.parent?.manager_id === session?.user.id
-      
-      return isManager || isParentManager
+      // Check if user is the team manager
+      if (teamData?.manager_id === session?.user.id) {
+        return true
+      }
+
+      // Check if user is a member of the team
+      const { data: membershipData, error: membershipError } = await supabase
+        .from("team_memberships")
+        .select("id")
+        .eq("team_id", project.team_id)
+        .eq("team_member_id", session?.user.id)
+        .single()
+
+      if (membershipError && membershipError.code !== 'PGRST116') {
+        // PGRST116 is "no rows returned" error, which just means user is not a member
+        console.error("Error checking team membership:", membershipError)
+      }
+
+      // User has permission if they're a member of the team
+      return !!membershipData
     }
   })
 
   const handleEditProject = async (values: ProjectFormSchema) => {
     try {
-      if (project?.team_id && !hasPermission) {
+      if (!hasPermission) {
         toast.error("You don't have permission to edit this project")
         return
       }
@@ -105,7 +110,7 @@ export default function ProjectDetails() {
         start_date: values.start_date || null,
         end_date: values.end_date || null,
         status: values.status,
-        team_id: values.team_id || null,
+        team_id: values.team_id === "no-team" ? null : values.team_id,
       }
 
       const { error } = await supabase
@@ -125,7 +130,7 @@ export default function ProjectDetails() {
 
   const handleDeleteProject = async () => {
     try {
-      if (project?.team_id && !hasPermission) {
+      if (!hasPermission) {
         toast.error("You don't have permission to delete this project")
         return
       }
@@ -145,15 +150,13 @@ export default function ProjectDetails() {
     }
   }
 
-  if (isLoadingProject || (project?.team_id && isLoadingPermission)) {
+  if (isLoadingProject || isLoadingPermission) {
     return <div className="p-4">Loading...</div>
   }
 
   if (!project) {
     return <div className="p-4">Project not found</div>
   }
-
-  const canEdit = !project.team_id || hasPermission
 
   return (
     <div className="p-4">
@@ -175,7 +178,7 @@ export default function ProjectDetails() {
           </p>
         </div>
         <div className="flex space-x-2 self-end md:col-start-3 md:justify-end md:self-center">
-          {canEdit ? (
+          {hasPermission ? (
             <>
               <Button onClick={() => setEditDialogOpen(true)}>Edit Project</Button>
               <Button
