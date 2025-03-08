@@ -336,7 +336,7 @@ export default function TeamDetails() {
         )}
         
         {/* Add the button at the bottom of the page */}
-        <div className="mt-8 flex justify-center">
+        <div className="pt-4">
           <Button type="button" onClick={form.handleSubmit(onSubmit)}>
             {id === "new" ? "Create" : "Update"} Team
           </Button>
