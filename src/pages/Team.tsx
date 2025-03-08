@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { ChevronLeft, ChevronRight } from "lucide-react"
@@ -19,7 +18,7 @@ export default function Team() {
   const [activeTab, setActiveTab] = useState("timeline")
   const { t } = useTranslation()
 
-  const { data: members, refetch } = useManagedTeamMembers()
+  const { data: members, refetch, isLoading } = useManagedTeamMembers()
 
   const handleEdit = (member) => {
     navigate(`/team/${member.id}`)
@@ -65,13 +64,25 @@ export default function Team() {
         </div>
 
         <TabsContent value="list" className="mt-2">
-          <TeamMemberList members={members || []} onEdit={handleEdit} onSuccess={() => refetch()} />
+          {isLoading ? (
+            <div className="text-center p-8">Loading team members...</div>
+          ) : members && members.length > 0 ? (
+            <TeamMemberList members={members} onEdit={handleEdit} onSuccess={() => refetch()} />
+          ) : (
+            <div className="text-center p-8">No team members found.</div>
+          )}
         </TabsContent>
 
         <TabsContent value="timeline" className="mt-2">
-          {members?.map((member) => (
-            <TeamMemberTimeline key={member.id} member={member} selectedYear={selectedYear} />
-          ))}
+          {isLoading ? (
+            <div className="text-center p-8">Loading team members...</div>
+          ) : members && members.length > 0 ? (
+            members.map((member) => (
+              <TeamMemberTimeline key={member.id} member={member} selectedYear={selectedYear} />
+            ))
+          ) : (
+            <div className="text-center p-8">No team members found.</div>
+          )}
         </TabsContent>
       </Tabs>
     </div>
