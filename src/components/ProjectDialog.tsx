@@ -44,7 +44,7 @@ export function ProjectDialog({
       status: "planned",
       start_date: null,
       end_date: null,
-      team_id: null,
+      team_id: "no-team",
     },
   })
 
@@ -56,7 +56,7 @@ export function ProjectDialog({
         name: project.name,
         status: project.status,
         start_date: project.start_date,
-        team_id: project.team_id,
+        team_id: project.team_id || "no-team",
         end_date: project.end_date,
       })
     } else {
@@ -66,10 +66,20 @@ export function ProjectDialog({
         status: "planned",
         start_date: null,
         end_date: null,
-        team_id: null,
+        team_id: "no-team",
       })
     }
   }, [project, form])
+
+  const handleSubmit = async (values: ProjectFormSchema) => {
+    // Convert "no-team" to null for the team_id before submitting
+    const processedValues = {
+      ...values,
+      team_id: values.team_id === "no-team" ? null : values.team_id
+    };
+    
+    await onSubmit(processedValues);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -80,7 +90,7 @@ export function ProjectDialog({
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <ProjectBasicFields form={form} />
             <TeamSelectField form={form} />
             <DialogFooter>

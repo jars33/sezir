@@ -47,7 +47,7 @@ export function TeamSelectField({ form }: TeamSelectFieldProps) {
           <FormLabel>{t('project.team')}</FormLabel>
           <Select
             onValueChange={field.onChange}
-            value={field.value || ""}
+            value={field.value || "no-team"}
           >
             <FormControl>
               <SelectTrigger>
@@ -61,7 +61,7 @@ export function TeamSelectField({ form }: TeamSelectFieldProps) {
                 </SelectItem>
               ) : (
                 <>
-                  <SelectItem value="">
+                  <SelectItem value="no-team">
                     {t('project.noTeam')}
                   </SelectItem>
                   {teams?.map((team) => (

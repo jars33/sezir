@@ -58,7 +58,7 @@ export default function Projects() {
         start_date: values.start_date || null,
         end_date: values.end_date || null,
         status: values.status,
-        team_id: values.team_id || null,
+        team_id: values.team_id === "no-team" ? null : values.team_id,
       }
 
       const { data, error } = await supabase
