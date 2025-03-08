@@ -12,6 +12,8 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { useTranslation } from "react-i18next"
+import { useQuery } from "@tanstack/react-query"
+import { supabase } from "@/integrations/supabase/client"
 
 type Project = {
   id: string
@@ -23,6 +25,7 @@ type Project = {
   created_at: string
   updated_at: string
   user_id: string
+  team_id: string | null
 }
 
 const statusColors = {
@@ -47,17 +50,34 @@ export function ProjectList({
   onSelect,
   selectedProject,
 }: ProjectListProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
+
+  // Get team names for projects
+  const { data: teams } = useQuery({
+    queryKey: ["team-names"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("teams")
+        .select("id, name")
+
+      if (error) throw error
+
+      return data.reduce((acc, team) => {
+        acc[team.id] = team.name
+        return acc
+      }, {} as Record<string, string>)
+    },
+  })
 
   const getStatusTranslation = (status: string) => {
     switch (status) {
-      case "planned": return t('project.planned');
-      case "in_progress": return t('project.inProgress');
-      case "completed": return t('project.completed');
-      case "cancelled": return t('project.cancelled');
-      default: return status;
+      case "planned": return t('project.planned')
+      case "in_progress": return t('project.inProgress')
+      case "completed": return t('project.completed')
+      case "cancelled": return t('project.cancelled')
+      default: return status
     }
-  };
+  }
 
   return (
     <div className="rounded-md border">
@@ -67,6 +87,7 @@ export function ProjectList({
             <TableHead>{t('project.projectNumber')}</TableHead>
             <TableHead>{t('project.name')}</TableHead>
             <TableHead>{t('project.status')}</TableHead>
+            <TableHead>{t('project.team')}</TableHead>
             <TableHead>{t('project.startDate')}</TableHead>
             <TableHead>{t('project.endDate')}</TableHead>
             <TableHead className="w-[100px]">{t('project.actions')}</TableHead>
@@ -88,6 +109,9 @@ export function ProjectList({
                 <Badge variant="secondary" className={statusColors[project.status]}>
                   {getStatusTranslation(project.status)}
                 </Badge>
+              </TableCell>
+              <TableCell>
+                {project.team_id && teams ? teams[project.team_id] : "-"}
               </TableCell>
               <TableCell>
                 {project.start_date

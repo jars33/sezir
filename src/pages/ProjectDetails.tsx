@@ -11,6 +11,7 @@ import { ProjectTimelineView } from "@/components/projects/ProjectTimelineView"
 import { useState } from "react"
 import { useIsMobile } from "@/hooks/use-mobile"
 import type { ProjectFormSchema } from "@/components/projects/project-schema"
+import { useAuth } from "@/components/AuthProvider"
 
 type Project = {
   id: string
@@ -22,16 +23,25 @@ type Project = {
   created_at: string
   updated_at: string
   user_id: string
+  team_id: string | null
+}
+
+type TeamManager = {
+  team_id: string
+  manager_id: string
+  parent_team_id: string | null
+  parent_manager_id: string | null
 }
 
 export default function ProjectDetails() {
   const { id } = useParams()
   const navigate = useNavigate()
   const isMobile = useIsMobile()
+  const { session } = useAuth()
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
-  const { data: project, isLoading } = useQuery({
+  const { data: project, isLoading: isLoadingProject } = useQuery({
     queryKey: ["project", id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -49,14 +59,51 @@ export default function ProjectDetails() {
     },
   })
 
+  // Check if the current user is a manager of the project's team or parent team
+  const { data: hasPermission = false, isLoading: isLoadingPermission } = useQuery({
+    queryKey: ["project-permission", id, session?.user.id, project?.team_id],
+    enabled: !!session?.user.id && !!project?.team_id,
+    queryFn: async () => {
+      if (!project?.team_id) return true // If no team is assigned, assume permission (fallback)
+      
+      // Get the current user's team memberships with manager role
+      const { data: teamManagers, error: managerError } = await supabase
+        .from("teams")
+        .select(`
+          id as team_id, 
+          manager_id,
+          parent_team_id,
+          teams:parent_team_id(manager_id as parent_manager_id)
+        `)
+        .eq("id", project.team_id)
+        .single()
+
+      if (managerError) {
+        console.error("Error checking permission:", managerError)
+        return false
+      }
+
+      const isManager = teamManagers?.manager_id === session?.user.id
+      const isParentManager = teamManagers?.parent_manager_id === session?.user.id
+      
+      return isManager || isParentManager
+    }
+  })
+
   const handleEditProject = async (values: ProjectFormSchema) => {
     try {
+      if (project?.team_id && !hasPermission) {
+        toast.error("You don't have permission to edit this project")
+        return
+      }
+
       const projectData = {
         number: values.number,
         name: values.name,
         start_date: values.start_date || null,
         end_date: values.end_date || null,
         status: values.status,
+        team_id: values.team_id || null,
       }
 
       const { error } = await supabase
@@ -76,6 +123,11 @@ export default function ProjectDetails() {
 
   const handleDeleteProject = async () => {
     try {
+      if (project?.team_id && !hasPermission) {
+        toast.error("You don't have permission to delete this project")
+        return
+      }
+
       const { error } = await supabase
         .from("projects")
         .delete()
@@ -91,13 +143,15 @@ export default function ProjectDetails() {
     }
   }
 
-  if (isLoading) {
+  if (isLoadingProject || (project?.team_id && isLoadingPermission)) {
     return <div className="p-4">Loading...</div>
   }
 
   if (!project) {
     return <div className="p-4">Project not found</div>
   }
+
+  const canEdit = !project.team_id || hasPermission
 
   return (
     <div className="p-4">
@@ -119,13 +173,21 @@ export default function ProjectDetails() {
           </p>
         </div>
         <div className="flex space-x-2 self-end md:col-start-3 md:justify-end md:self-center">
-          <Button onClick={() => setEditDialogOpen(true)}>Edit Project</Button>
-          <Button
-            variant="destructive"
-            onClick={() => setDeleteDialogOpen(true)}
-          >
-            Delete Project
-          </Button>
+          {canEdit ? (
+            <>
+              <Button onClick={() => setEditDialogOpen(true)}>Edit Project</Button>
+              <Button
+                variant="destructive"
+                onClick={() => setDeleteDialogOpen(true)}
+              >
+                Delete Project
+              </Button>
+            </>
+          ) : (
+            <div className="text-sm text-amber-500">
+              You don't have permission to edit this project
+            </div>
+          )}
         </div>
       </div>
 

@@ -23,6 +23,7 @@ type Project = {
   created_at: string
   updated_at: string
   user_id: string
+  team_id: string | null
 }
 
 export default function Projects() {
@@ -57,6 +58,7 @@ export default function Projects() {
         start_date: values.start_date || null,
         end_date: values.end_date || null,
         status: values.status,
+        team_id: values.team_id || null,
       }
 
       const { data, error } = await supabase

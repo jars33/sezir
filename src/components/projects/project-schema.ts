@@ -7,6 +7,7 @@ export const projectFormSchema = z.object({
   status: z.enum(["planned", "in_progress", "completed", "cancelled"]),
   start_date: z.string().nullable(),
   end_date: z.string().nullable(),
+  team_id: z.string().nullable(),
 })
 
 export type ProjectFormSchema = z.infer<typeof projectFormSchema>

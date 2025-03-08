@@ -13,6 +13,7 @@ import { Form } from "@/components/ui/form"
 import { ProjectBasicFields } from "./projects/ProjectBasicFields"
 import { projectFormSchema, type ProjectFormSchema } from "./projects/project-schema"
 import { useEffect } from "react"
+import { TeamSelectField } from "./projects/TeamSelectField"
 
 interface ProjectDialogProps {
   project?: {
@@ -22,6 +23,7 @@ interface ProjectDialogProps {
     status: "planned" | "in_progress" | "completed" | "cancelled"
     start_date: string | null
     end_date: string | null
+    team_id: string | null
   }
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -42,6 +44,7 @@ export function ProjectDialog({
       status: "planned",
       start_date: null,
       end_date: null,
+      team_id: null,
     },
   })
 
@@ -53,6 +56,7 @@ export function ProjectDialog({
         name: project.name,
         status: project.status,
         start_date: project.start_date,
+        team_id: project.team_id,
         end_date: project.end_date,
       })
     } else {
@@ -62,6 +66,7 @@ export function ProjectDialog({
         status: "planned",
         start_date: null,
         end_date: null,
+        team_id: null,
       })
     }
   }, [project, form])
@@ -77,6 +82,7 @@ export function ProjectDialog({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <ProjectBasicFields form={form} />
+            <TeamSelectField form={form} />
             <DialogFooter>
               <Button type="submit">
                 {project ? "Update Project" : "Create Project"}
