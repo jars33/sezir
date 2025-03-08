@@ -1,3 +1,4 @@
+
 import React, { useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
@@ -22,7 +23,9 @@ export default function TeamMemberDetails() {
     if (id === 'new') return true
     if (!id || !managedMembers) return false
     
-    return managedMembers.some(managedMember => managedMember.id === id)
+    const memberId = id.toString()
+    // Check if the user has access to this team member
+    return managedMembers.some(managedMember => managedMember.id === memberId)
   }, [id, managedMembers])
 
   useEffect(() => {
