@@ -52,7 +52,7 @@ export default function ProjectDetails() {
     },
   })
 
-  // Check if the current user is the creator, or a manager/member of the project's team
+  // Check if the current user is the creator, a manager of the project's team, or a manager of the team's manager
   const { data: hasPermission = false, isLoading: isLoadingPermission } = useQuery({
     queryKey: ["project-permission", id, session?.user.id, project?.team_id],
     enabled: !!session?.user.id && !!project,
@@ -62,10 +62,15 @@ export default function ProjectDetails() {
         return project.user_id === session?.user.id
       }
       
-      // Check if user is a team manager of the project's team
+      // Check if user is the creator of the project
+      if (project.user_id === session?.user.id) {
+        return true;
+      }
+
+      // Get the team info with manager_id and parent_team_id
       const { data: teamData, error: teamError } = await supabase
         .from("teams")
-        .select("manager_id")
+        .select("manager_id, parent_team_id")
         .eq("id", project.team_id)
         .single()
 
@@ -74,9 +79,22 @@ export default function ProjectDetails() {
         return false
       }
 
-      // Check if user is the team manager
+      // Check if user is the direct team manager
       if (teamData?.manager_id === session?.user.id) {
         return true
+      }
+
+      // If there's a parent team, check if user is the manager of the parent team (manager of manager)
+      if (teamData?.parent_team_id) {
+        const { data: parentTeamData, error: parentTeamError } = await supabase
+          .from("teams")
+          .select("manager_id")
+          .eq("id", teamData.parent_team_id)
+          .single()
+
+        if (!parentTeamError && parentTeamData?.manager_id === session?.user.id) {
+          return true
+        }
       }
 
       // Check if user is a member of the team
