@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
+import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -193,19 +194,14 @@ export default function TeamDetails() {
     <div className="container py-8">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold">{id === "new" ? "New" : "Edit"} Team</h1>
-        <div className="flex gap-4">
-          <Button variant="outline" onClick={() => navigate("/teams")}>
-            Back to Teams
-          </Button>
-          {id !== "new" && (
-            <TeamMembershipDialog teamId={id} trigger={<Button>Add Team Member</Button>} />
-          )}
-        </div>
+        <Button variant="outline" onClick={() => navigate("/teams")}>
+          Back to Teams
+        </Button>
       </div>
 
-      <div className="max-w-2xl mx-auto space-y-8">
+      <div className="space-y-8">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-2xl mx-auto">
             <FormField
               control={form.control}
               name="name"
@@ -290,7 +286,7 @@ export default function TeamDetails() {
               )}
             />
 
-            <div className="flex justify-end">
+            <div className="flex justify-end pt-4">
               <Button type="submit">
                 {id === "new" ? "Create" : "Update"} Team
               </Button>
@@ -299,8 +295,18 @@ export default function TeamDetails() {
         </Form>
 
         {id !== "new" && (
-          <div className="mt-8">
-            <h2 className="text-xl font-semibold mb-4">Team Members</h2>
+          <div className="mt-12">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold">Team Members</h2>
+              <TeamMembershipDialog 
+                teamId={id} 
+                trigger={
+                  <Button size="icon" className="rounded-full">
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                } 
+              />
+            </div>
             <Table>
               <TableHeader>
                 <TableRow>
