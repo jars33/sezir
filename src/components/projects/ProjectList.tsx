@@ -1,5 +1,5 @@
 
-import { Edit2Icon, Trash2Icon } from "lucide-react"
+import { Pencil, Trash2Icon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Table,
@@ -14,6 +14,10 @@ import { cn } from "@/lib/utils"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
+import { useState } from "react"
+import { ProjectDialog } from "@/components/ProjectDialog"
+import { toast } from "sonner"
+import type { ProjectFormSchema } from "./project-schema"
 
 type Project = {
   id: string
@@ -51,6 +55,8 @@ export function ProjectList({
   selectedProject,
 }: ProjectListProps) {
   const { t } = useTranslation()
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [projectToEdit, setProjectToEdit] = useState<Project | null>(null)
 
   // Get team names for projects
   const { data: teams } = useQuery({
@@ -79,78 +85,124 @@ export function ProjectList({
     }
   }
 
+  const handleEditClick = (project: Project, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setProjectToEdit(project)
+    setEditDialogOpen(true)
+  }
+
+  const handleUpdateProject = async (values: ProjectFormSchema) => {
+    try {
+      if (!projectToEdit) return
+
+      const projectData = {
+        number: values.number,
+        name: values.name,
+        start_date: values.start_date || null,
+        end_date: values.end_date || null,
+        status: values.status,
+        team_id: values.team_id || null,
+      }
+
+      const { error } = await supabase
+        .from("projects")
+        .update(projectData)
+        .eq("id", projectToEdit.id)
+
+      if (error) throw error
+
+      // Close the dialog and show success message
+      setEditDialogOpen(false)
+      toast.success("Project updated successfully")
+      
+      // Refresh the page to show updated data
+      window.location.reload()
+    } catch (error) {
+      toast.error("Failed to update project")
+      console.error(error)
+    }
+  }
+
   return (
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>{t('project.projectNumber')}</TableHead>
-            <TableHead>{t('project.name')}</TableHead>
-            <TableHead>{t('project.status')}</TableHead>
-            <TableHead>{t('project.team')}</TableHead>
-            <TableHead>{t('project.startDate')}</TableHead>
-            <TableHead>{t('project.endDate')}</TableHead>
-            <TableHead className="w-[100px]">{t('project.actions')}</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {projects?.map((project) => (
-            <TableRow
-              key={project.id}
-              className={cn(
-                "cursor-pointer hover:bg-muted/50",
-                selectedProject?.id === project.id && "bg-muted"
-              )}
-              onClick={() => onSelect(project)}
-            >
-              <TableCell>{project.number}</TableCell>
-              <TableCell>{project.name}</TableCell>
-              <TableCell>
-                <Badge variant="secondary" className={statusColors[project.status]}>
-                  {getStatusTranslation(project.status)}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                {project.team_id && teams ? teams[project.team_id] : "-"}
-              </TableCell>
-              <TableCell>
-                {project.start_date
-                  ? new Date(project.start_date).toLocaleDateString()
-                  : "-"}
-              </TableCell>
-              <TableCell>
-                {project.end_date
-                  ? new Date(project.end_date).toLocaleDateString()
-                  : "-"}
-              </TableCell>
-              <TableCell>
-                <div className="flex space-x-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      onEdit(project)
-                    }}
-                  >
-                    <Edit2Icon className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      onDelete(project)
-                    }}
-                  >
-                    <Trash2Icon className="h-4 w-4" />
-                  </Button>
-                </div>
-              </TableCell>
+    <>
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>{t('project.projectNumber')}</TableHead>
+              <TableHead>{t('project.name')}</TableHead>
+              <TableHead>{t('project.status')}</TableHead>
+              <TableHead>{t('project.team')}</TableHead>
+              <TableHead>{t('project.startDate')}</TableHead>
+              <TableHead>{t('project.endDate')}</TableHead>
+              <TableHead className="w-[100px]">{t('project.actions')}</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+          </TableHeader>
+          <TableBody>
+            {projects?.map((project) => (
+              <TableRow
+                key={project.id}
+                className={cn(
+                  "cursor-pointer hover:bg-muted/50",
+                  selectedProject?.id === project.id && "bg-muted"
+                )}
+                onClick={() => onSelect(project)}
+              >
+                <TableCell>{project.number}</TableCell>
+                <TableCell>{project.name}</TableCell>
+                <TableCell>
+                  <Badge variant="secondary" className={statusColors[project.status]}>
+                    {getStatusTranslation(project.status)}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  {project.team_id && teams ? teams[project.team_id] : "-"}
+                </TableCell>
+                <TableCell>
+                  {project.start_date
+                    ? new Date(project.start_date).toLocaleDateString()
+                    : "-"}
+                </TableCell>
+                <TableCell>
+                  {project.end_date
+                    ? new Date(project.end_date).toLocaleDateString()
+                    : "-"}
+                </TableCell>
+                <TableCell>
+                  <div className="flex space-x-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={(e) => handleEditClick(project, e)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onDelete(project)
+                      }}
+                    >
+                      <Trash2Icon className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      {projectToEdit && (
+        <ProjectDialog
+          project={projectToEdit}
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          onSubmit={handleUpdateProject}
+        />
+      )}
+    </>
   )
 }

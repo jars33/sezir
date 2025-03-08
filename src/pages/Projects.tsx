@@ -104,7 +104,10 @@ export default function Projects() {
         <TabsContent value="list">
           <ProjectList
             projects={projects ?? []}
-            onEdit={(project) => navigate(`/projects/${project.id}`)}
+            onEdit={(project) => {
+              // This no longer redirects, now handled directly in ProjectList
+              // navigate(`/projects/${project.id}`)
+            }}
             onDelete={(project) => navigate(`/projects/${project.id}`)}
             onSelect={(project) => {
               setSelectedProject(project)
