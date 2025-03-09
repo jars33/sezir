@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -20,48 +20,50 @@ export function useProjectSettings() {
   const [loading, setLoading] = useState(true);
 
   // Fetch settings from the database
-  useEffect(() => {
-    const fetchSettings = async () => {
-      if (!session?.user) {
-        setLoading(false);
-        return;
-      }
+  const fetchSettings = useCallback(async () => {
+    if (!session?.user) {
+      setLoading(false);
+      return;
+    }
 
-      try {
-        const { data, error } = await supabase
-          .from("project_overhead_settings")
-          .select("year, percentage")
-          .eq("user_id", session.user.id);
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("project_overhead_settings")
+        .select("year, percentage")
+        .eq("user_id", session.user.id);
 
-        if (error) throw error;
+      if (error) throw error;
 
-        // Convert data to the format used by the application
-        const dbSettings = {
-          overheadPercentageByYear: {},
-        };
+      // Convert data to the format used by the application
+      const dbSettings = {
+        overheadPercentageByYear: {},
+      };
 
-        // Add db settings to our state
-        data.forEach((item) => {
-          dbSettings.overheadPercentageByYear[item.year] = Number(item.percentage);
-        });
+      // Add db settings to our state
+      data?.forEach((item) => {
+        dbSettings.overheadPercentageByYear[item.year] = Number(item.percentage);
+      });
 
-        // Merge with defaults for any missing years
-        setSettings({
-          overheadPercentageByYear: {
-            ...defaultSettings.overheadPercentageByYear,
-            ...dbSettings.overheadPercentageByYear,
-          },
-        });
-      } catch (error) {
-        console.error("Error fetching project settings:", error);
-        toast.error("Failed to load project settings");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSettings();
+      // Merge with defaults for any missing years
+      setSettings({
+        overheadPercentageByYear: {
+          ...defaultSettings.overheadPercentageByYear,
+          ...dbSettings.overheadPercentageByYear,
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching project settings:", error);
+      toast.error("Failed to load project settings");
+    } finally {
+      setLoading(false);
+    }
   }, [session]);
+
+  // Fetch settings when the component mounts or session changes
+  useEffect(() => {
+    fetchSettings();
+  }, [session, fetchSettings]);
 
   // Function to update the overhead percentage for a specific year
   const updateOverheadPercentage = async (year: number, percentage: number) => {
@@ -95,21 +97,22 @@ export function useProjectSettings() {
         );
 
       if (error) throw error;
+      
+      // Refresh settings after update to ensure we have the latest data
+      await fetchSettings();
     } catch (error) {
       console.error("Error updating project settings:", error);
       toast.error("Failed to update project settings");
       
       // Revert the local state change on error
-      setSettings({
-        ...settings,
-      });
+      await fetchSettings();
     }
   };
 
   // Function to get the overhead percentage for a specific year
-  const getOverheadPercentage = (year: number): number => {
+  const getOverheadPercentage = useCallback((year: number): number => {
     return settings.overheadPercentageByYear[year] || 15; // Default to 15% if not set
-  };
+  }, [settings]);
 
   return {
     settings,

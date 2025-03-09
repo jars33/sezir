@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Settings } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -55,17 +55,22 @@ export function ProjectSettingsDialog() {
   });
   
   // Update form when year changes or settings are loaded
-  useEffect(() => {
+  // Make this a useCallback to prevent infinite re-renders
+  const updateFormValues = useCallback(() => {
     if (!loading) {
-      form.setValue("overheadPercentage", getOverheadPercentage(selectedYear));
+      const currentValue = getOverheadPercentage(selectedYear);
+      form.setValue("overheadPercentage", currentValue);
     }
   }, [selectedYear, loading, form, getOverheadPercentage]);
   
+  // Use effect to update the form when the dialog opens or year changes
+  useEffect(() => {
+    updateFormValues();
+  }, [selectedYear, loading, updateFormValues, open]);
+  
   const handleYearChange = (year: number) => {
     setSelectedYear(year);
-    if (!loading) {
-      form.setValue("overheadPercentage", getOverheadPercentage(year));
-    }
+    updateFormValues();
   };
   
   const onSubmit = async (data: ProjectSettingsFormValues) => {
