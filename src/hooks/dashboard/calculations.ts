@@ -1,4 +1,3 @@
-
 import { calculateProjectProfitability } from './profitability'
 import { calculateResourceUtilization } from './utilization'
 import { generateChartData } from './chart-data'
@@ -8,6 +7,8 @@ import { generateForecastData } from './forecast-data'
 import { calculateCostBreakdown } from './cost-breakdown'
 import { generateCashFlowData } from './cash-flow'
 import { generateYearComparisonData } from './year-comparison'
+
+// Import the updated useProjectSettings hook
 import { useProjectSettings } from '../use-project-settings'
 
 export {

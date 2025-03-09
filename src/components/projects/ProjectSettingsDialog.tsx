@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Settings } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useProjectSettings } from "@/hooks/use-project-settings";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // Define form schema for project settings
 const projectSettingsSchema = z.object({
@@ -40,7 +41,7 @@ type ProjectSettingsFormValues = z.infer<typeof projectSettingsSchema>;
 export function ProjectSettingsDialog() {
   const [open, setOpen] = useState(false);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const { getOverheadPercentage, updateOverheadPercentage } = useProjectSettings();
+  const { getOverheadPercentage, updateOverheadPercentage, loading } = useProjectSettings();
   
   // Get available years (current year and 4 years in the future)
   const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() + i);
@@ -53,14 +54,22 @@ export function ProjectSettingsDialog() {
     },
   });
   
-  // Update form when year changes
+  // Update form when year changes or settings are loaded
+  useEffect(() => {
+    if (!loading) {
+      form.setValue("overheadPercentage", getOverheadPercentage(selectedYear));
+    }
+  }, [selectedYear, loading, form, getOverheadPercentage]);
+  
   const handleYearChange = (year: number) => {
     setSelectedYear(year);
-    form.setValue("overheadPercentage", getOverheadPercentage(year));
+    if (!loading) {
+      form.setValue("overheadPercentage", getOverheadPercentage(year));
+    }
   };
   
-  const onSubmit = (data: ProjectSettingsFormValues) => {
-    updateOverheadPercentage(selectedYear, data.overheadPercentage);
+  const onSubmit = async (data: ProjectSettingsFormValues) => {
+    await updateOverheadPercentage(selectedYear, data.overheadPercentage);
     toast.success(`Overhead percentage for ${selectedYear} updated to ${data.overheadPercentage}%`);
     setOpen(false);
   };
@@ -68,7 +77,7 @@ export function ProjectSettingsDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="icon">
+        <Button variant="outline" size="icon" title="Project Settings">
           <Settings className="h-4 w-4" />
         </Button>
       </DialogTrigger>
@@ -80,52 +89,62 @@ export function ProjectSettingsDialog() {
           </DialogDescription>
         </DialogHeader>
         
-        <div className="mb-4">
-          <FormLabel>Year</FormLabel>
-          <div className="flex flex-wrap gap-2 mt-2">
-            {years.map(year => (
-              <Button
-                key={year}
-                variant={selectedYear === year ? "default" : "outline"}
-                size="sm"
-                onClick={() => handleYearChange(year)}
-              >
-                {year}
-              </Button>
-            ))}
+        {loading ? (
+          <div className="space-y-4">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-4 w-3/4" />
           </div>
-        </div>
-        
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="overheadPercentage"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Overhead Percentage for {selectedYear}</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min={0}
-                      max={100}
-                      step={0.5}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    This percentage will be applied to all projects started in {selectedYear}.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        ) : (
+          <>
+            <div className="mb-4">
+              <FormLabel>Year</FormLabel>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {years.map(year => (
+                  <Button
+                    key={year}
+                    variant={selectedYear === year ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handleYearChange(year)}
+                  >
+                    {year}
+                  </Button>
+                ))}
+              </div>
+            </div>
             
-            <DialogFooter>
-              <Button type="submit">Save Settings</Button>
-            </DialogFooter>
-          </form>
-        </Form>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="overheadPercentage"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Overhead Percentage for {selectedYear}</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min={0}
+                          max={100}
+                          step={0.5}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        This percentage will be applied to all projects started in {selectedYear}.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <DialogFooter>
+                  <Button type="submit">Save Settings</Button>
+                </DialogFooter>
+              </form>
+            </Form>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   );

@@ -1,31 +1,109 @@
 
-import { useLocalStorage } from "@/hooks/use-local-storage";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/components/AuthProvider";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 // Default settings with overhead percentages by year
 const defaultSettings = {
   overheadPercentageByYear: {
     // Set some reasonable defaults
-    2023: 15, // 15%
-    2024: 15, // 15%
-    2025: 15, // 15%
+    [new Date().getFullYear()]: 15, // 15% for current year
+    [new Date().getFullYear() + 1]: 15, // 15% for next year
+    [new Date().getFullYear() + 2]: 15, // 15% for the year after next
   },
 };
 
 export function useProjectSettings() {
-  const [settings, setSettings] = useLocalStorage(
-    "project-settings",
-    defaultSettings
-  );
+  const { session } = useAuth();
+  const [settings, setSettings] = useState(defaultSettings);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch settings from the database
+  useEffect(() => {
+    const fetchSettings = async () => {
+      if (!session?.user) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from("project_overhead_settings")
+          .select("year, percentage")
+          .eq("user_id", session.user.id);
+
+        if (error) throw error;
+
+        // Convert data to the format used by the application
+        const dbSettings = {
+          overheadPercentageByYear: {},
+        };
+
+        // Add db settings to our state
+        data.forEach((item) => {
+          dbSettings.overheadPercentageByYear[item.year] = Number(item.percentage);
+        });
+
+        // Merge with defaults for any missing years
+        setSettings({
+          overheadPercentageByYear: {
+            ...defaultSettings.overheadPercentageByYear,
+            ...dbSettings.overheadPercentageByYear,
+          },
+        });
+      } catch (error) {
+        console.error("Error fetching project settings:", error);
+        toast.error("Failed to load project settings");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSettings();
+  }, [session]);
 
   // Function to update the overhead percentage for a specific year
-  const updateOverheadPercentage = (year: number, percentage: number) => {
-    setSettings({
-      ...settings,
-      overheadPercentageByYear: {
-        ...settings.overheadPercentageByYear,
-        [year]: percentage,
-      },
-    });
+  const updateOverheadPercentage = async (year: number, percentage: number) => {
+    if (!session?.user) {
+      toast.error("You must be logged in to update settings");
+      return;
+    }
+
+    try {
+      // Update local state immediately for a responsive UI
+      setSettings({
+        ...settings,
+        overheadPercentageByYear: {
+          ...settings.overheadPercentageByYear,
+          [year]: percentage,
+        },
+      });
+
+      // Upsert to the database (insert if not exists, update if exists)
+      const { error } = await supabase
+        .from("project_overhead_settings")
+        .upsert(
+          {
+            year,
+            percentage,
+            user_id: session.user.id,
+          },
+          {
+            onConflict: "year, user_id",
+          }
+        );
+
+      if (error) throw error;
+    } catch (error) {
+      console.error("Error updating project settings:", error);
+      toast.error("Failed to update project settings");
+      
+      // Revert the local state change on error
+      setSettings({
+        ...settings,
+      });
+    }
   };
 
   // Function to get the overhead percentage for a specific year
@@ -35,6 +113,7 @@ export function useProjectSettings() {
 
   return {
     settings,
+    loading,
     updateOverheadPercentage,
     getOverheadPercentage,
   };

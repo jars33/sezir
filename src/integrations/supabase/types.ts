@@ -193,6 +193,33 @@ export type Database = {
           },
         ]
       }
+      project_overhead_settings: {
+        Row: {
+          created_at: string
+          id: string
+          percentage: number
+          updated_at: string
+          user_id: string
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          percentage?: number
+          updated_at?: string
+          user_id: string
+          year: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          percentage?: number
+          updated_at?: string
+          user_id?: string
+          year?: number
+        }
+        Relationships: []
+      }
       project_revenues: {
         Row: {
           amount: number
