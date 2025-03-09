@@ -1,0 +1,78 @@
+
+import { getYear } from "date-fns"
+
+// Helper for calculating project profitability
+export function calculateProjectProfitability(
+  projects: any[],
+  projectRevenues: any[],
+  variableCosts: any[],
+  overheadCosts: any[],
+  selectedYear: number
+) {
+  const projectProfitabilityMap = new Map()
+    
+  // Initialize with all projects
+  projects?.forEach(project => {
+    projectProfitabilityMap.set(project.id, {
+      revenue: 0,
+      variableCosts: 0,
+      overheadCosts: 0
+    })
+  })
+  
+  // Add revenues
+  projectRevenues?.forEach(rev => {
+    const revYear = getYear(new Date(rev.month))
+    if (revYear === selectedYear && projectProfitabilityMap.has(rev.project_id)) {
+      const project = projectProfitabilityMap.get(rev.project_id)
+      project.revenue += Number(rev.amount)
+      projectProfitabilityMap.set(rev.project_id, project)
+    }
+  })
+  
+  // Add variable costs
+  variableCosts?.forEach(cost => {
+    const costYear = getYear(new Date(cost.month))
+    if (costYear === selectedYear && projectProfitabilityMap.has(cost.project_id)) {
+      const project = projectProfitabilityMap.get(cost.project_id)
+      project.variableCosts += Number(cost.amount)
+      projectProfitabilityMap.set(cost.project_id, project)
+    }
+  })
+  
+  // Add overhead costs
+  overheadCosts?.forEach(cost => {
+    const costYear = getYear(new Date(cost.month))
+    if (costYear === selectedYear && projectProfitabilityMap.has(cost.project_id)) {
+      const project = projectProfitabilityMap.get(cost.project_id)
+      project.overheadCosts += Number(cost.amount)
+      projectProfitabilityMap.set(cost.project_id, project)
+    }
+  })
+  
+  // Calculate average profitability
+  let totalProfitability = 0
+  let projectsWithFinancials = 0
+  
+  projectProfitabilityMap.forEach((data) => {
+    const totalCost = data.variableCosts + data.overheadCosts
+    // Only count if there's any financial data
+    if (data.revenue > 0 || totalCost > 0) {
+      // Avoid division by zero
+      if (totalCost === 0) {
+        totalProfitability += 100 // 100% profit if no costs
+      } else {
+        const profit = data.revenue - totalCost
+        const profitabilityPercent = (profit / totalCost) * 100
+        totalProfitability += profitabilityPercent
+      }
+      projectsWithFinancials++
+    }
+  })
+  
+  const avgProjectProfitability = projectsWithFinancials > 0 
+    ? Math.round(totalProfitability / projectsWithFinancials) 
+    : 0
+
+  return avgProjectProfitability
+}
