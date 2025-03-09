@@ -110,28 +110,40 @@ export function useManagedTeamMembers() {
         }
         
         // Get users who don't have a team (not in any team memberships)
-        // This query was incorrectly using a string instead of a subquery
-        const { data: nonTeamMembers, error: nonTeamError } = await supabase
+        // Fix the query by using a different approach - get all team members and then 
+        // filter out those who are in team memberships
+        const { data: allTeamMembers, error: allTeamMembersError } = await supabase
           .from("team_members")
           .select("*")
-          .not("id", "in", (
-            supabase
-              .from("team_memberships")
-              .select("team_member_id")
-          ))
           .order("name", { ascending: true })
         
-        if (nonTeamError) {
-          console.error("❌ Error fetching non-team members:", nonTeamError)
-          throw nonTeamError
+        if (allTeamMembersError) {
+          console.error("❌ Error fetching all team members:", allTeamMembersError)
+          throw allTeamMembersError
         }
+        
+        // Get all team memberships to find members who are part of a team
+        const { data: allTeamMemberships, error: allTeamMembershipsError } = await supabase
+          .from("team_memberships")
+          .select("team_member_id")
+        
+        if (allTeamMembershipsError) {
+          console.error("❌ Error fetching all team memberships:", allTeamMembershipsError)
+          throw allTeamMembershipsError
+        }
+        
+        // Get the set of team member IDs who are in team memberships
+        const teamMemberIdsInTeams = new Set(allTeamMemberships?.map(m => m.team_member_id) || [])
+        
+        // Filter to get team members who are not in any team
+        const nonTeamMembers = allTeamMembers?.filter(m => !teamMemberIdsInTeams.has(m.id)) || []
         
         console.log("🧍 Non-team members:", nonTeamMembers?.length || 0, nonTeamMembers)
         
         // Add the user's own team member record if it exists and isn't already included
         let combinedMembers = [
           ...allMembers,
-          ...(nonTeamMembers || [])
+          ...nonTeamMembers
         ]
         
         console.log("📊 Combined members before adding user:", combinedMembers.length, combinedMembers)
