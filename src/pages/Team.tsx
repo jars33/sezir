@@ -1,3 +1,4 @@
+
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { ChevronLeft, ChevronRight } from "lucide-react"
@@ -18,19 +19,39 @@ export default function Team() {
   const [activeTab, setActiveTab] = useState("timeline")
   const { t } = useTranslation()
 
-  const { data: members, refetch, isLoading } = useManagedTeamMembers()
+  const { data: members, refetch, isLoading, isError } = useManagedTeamMembers()
 
   const handleEdit = (member) => {
     navigate(`/team/${member.id}`)
   }
 
+  const handleAddNewMember = () => {
+    navigate("/team/new")
+  }
+
   if (!session) return null
+
+  if (isError) {
+    return (
+      <div className="container py-8 text-center">
+        <h1 className="text-3xl font-bold mb-4">{t('team.title')}</h1>
+        <div className="p-8 rounded-lg bg-red-50 dark:bg-red-900/20">
+          <p className="text-red-600 dark:text-red-400">
+            Error loading team members. Please try again later.
+          </p>
+          <Button onClick={() => refetch()} className="mt-4">
+            Try Again
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="container py-4">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-3xl font-bold">{t('team.title')}</h1>
-        <Button onClick={() => navigate("/team/new")}>{t('team.addTeamMember')}</Button>
+        <Button onClick={handleAddNewMember}>{t('team.addTeamMember')}</Button>
       </div>
 
       <Tabs defaultValue="timeline" onValueChange={setActiveTab}>
@@ -69,7 +90,10 @@ export default function Team() {
           ) : members && members.length > 0 ? (
             <TeamMemberList members={members} onEdit={handleEdit} onSuccess={() => refetch()} />
           ) : (
-            <div className="text-center p-8">No team members found.</div>
+            <div className="text-center p-8 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+              <p className="mb-4">No team members found.</p>
+              <Button onClick={handleAddNewMember}>Add Your First Team Member</Button>
+            </div>
           )}
         </TabsContent>
 
@@ -81,7 +105,10 @@ export default function Team() {
               <TeamMemberTimeline key={member.id} member={member} selectedYear={selectedYear} />
             ))
           ) : (
-            <div className="text-center p-8">No team members found.</div>
+            <div className="text-center p-8 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+              <p className="mb-4">No team members found.</p>
+              <Button onClick={handleAddNewMember}>Add Your First Team Member</Button>
+            </div>
           )}
         </TabsContent>
       </Tabs>

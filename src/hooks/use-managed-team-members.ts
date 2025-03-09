@@ -35,17 +35,17 @@ export function useManagedTeamMembers() {
         ...(ownMemberships || []).map(membership => membership.team_id)
       ]
       
-      // Get the user's own team member record
-      const { data: selfTeamMember, error: selfError } = await supabase
+      // First, check if the user has a team member record already
+      const { data: userTeamMember, error: userTeamMemberError } = await supabase
         .from("team_members")
         .select("*")
         .eq("user_id", userId)
         .single()
       
-      if (selfError && selfError.code !== 'PGRST116') throw selfError // Ignore "No rows returned" error
+      if (userTeamMemberError && userTeamMemberError.code !== 'PGRST116') throw userTeamMemberError
       
       // Get team member ids from team memberships for the teams the user is in or manages
-      let memberIds: string[] = []
+      let teamMemberIds: string[] = []
       
       if (teamIds.length > 0) {
         const { data: teamMemberships, error: teamMembershipsError } = await supabase
@@ -56,23 +56,18 @@ export function useManagedTeamMembers() {
         if (teamMembershipsError) throw teamMembershipsError
         
         if (teamMemberships) {
-          memberIds = teamMemberships.map(m => m.team_member_id)
+          teamMemberIds = teamMemberships.map(m => m.team_member_id)
         }
       }
       
-      // Add the user's own team member record to the list if it exists
-      if (selfTeamMember) {
-        memberIds.push(selfTeamMember.id)
-      }
-      
-      // Get all members from the collected IDs (from teams user manages or is part of, plus self)
+      // Get all members from the collected IDs (from teams user manages or is part of)
       let allMembers: TeamMember[] = []
       
-      if (memberIds.length > 0) {
+      if (teamMemberIds.length > 0) {
         const { data: members, error: membersError } = await supabase
           .from("team_members")
           .select("*")
-          .in("id", [...new Set(memberIds)]) // Deduplicate IDs
+          .in("id", [...new Set(teamMemberIds)]) // Deduplicate IDs
           .order("name", { ascending: true })
         
         if (membersError) throw membersError
@@ -91,11 +86,15 @@ export function useManagedTeamMembers() {
       
       if (nonTeamError) throw nonTeamError
       
-      // Combine all members, deduplicating by ID
-      const combinedMembers = [
+      // Add the user's own team member record if it exists and isn't already included
+      let combinedMembers = [
         ...allMembers,
         ...(nonTeamMembers || [])
       ]
+      
+      if (userTeamMember && !combinedMembers.some(member => member.id === userTeamMember.id)) {
+        combinedMembers.push(userTeamMember)
+      }
       
       // Remove duplicates by ID
       const uniqueMembers = Array.from(
