@@ -11,7 +11,13 @@ import {
 import {
   calculateProjectProfitability,
   calculateResourceUtilization,
-  generateChartData
+  generateChartData,
+  calculateProjectMargins,
+  calculateUtilizationProfitability,
+  generateForecastData,
+  calculateCostBreakdown,
+  generateCashFlowData,
+  generateYearComparisonData
 } from "./dashboard/calculations"
 import { DashboardFilters, DashboardMetrics } from "./dashboard/types"
 
@@ -54,7 +60,13 @@ export function useDashboardMetrics(filters: DashboardFilters = {}) {
         teamMembers: 0,
         avgProjectProfitability: 0,
         resourceUtilization: 0,
-        chartData: []
+        chartData: [],
+        projectMargins: [],
+        utilizationProfitabilityData: [],
+        forecastData: [],
+        costBreakdown: [],
+        cashFlowData: [],
+        yearComparisonData: []
       }
     }
 
@@ -86,8 +98,61 @@ export function useDashboardMetrics(filters: DashboardFilters = {}) {
       yearEnd
     )
     
-    // Generate chart data using extracted function
+    // 5. Generate chart data using extracted function
     const chartData = generateChartData(
+      selectedYear,
+      projectRevenues,
+      variableCosts,
+      overheadCosts
+    )
+    
+    // 6. Calculate project margins
+    const projectMargins = calculateProjectMargins(
+      projects,
+      projectRevenues,
+      variableCosts,
+      overheadCosts,
+      selectedYear
+    )
+    
+    // 7. Calculate utilization vs profitability
+    const utilizationProfitabilityData = calculateUtilizationProfitability(
+      projects,
+      allocations,
+      projectRevenues,
+      variableCosts,
+      overheadCosts,
+      yearStart,
+      yearEnd
+    )
+    
+    // 8. Generate forecast data
+    const forecastData = generateForecastData(
+      selectedYear,
+      projectRevenues,
+      variableCosts,
+      overheadCosts
+    )
+    
+    // 9. Calculate cost breakdown
+    const costBreakdown = calculateCostBreakdown(
+      variableCosts,
+      overheadCosts,
+      allocations,
+      selectedYear
+    )
+    
+    // 10. Generate cash flow data
+    const cashFlowData = generateCashFlowData(
+      selectedYear,
+      projectRevenues,
+      variableCosts,
+      overheadCosts,
+      allocations
+    )
+    
+    // 11. Generate year comparison data
+    const yearComparisonData = generateYearComparisonData(
       selectedYear,
       projectRevenues,
       variableCosts,
@@ -99,7 +164,13 @@ export function useDashboardMetrics(filters: DashboardFilters = {}) {
       teamMembers: activeTeamMembers,
       avgProjectProfitability,
       resourceUtilization,
-      chartData
+      chartData,
+      projectMargins,
+      utilizationProfitabilityData,
+      forecastData,
+      costBreakdown,
+      cashFlowData,
+      yearComparisonData
     }
   }
   
