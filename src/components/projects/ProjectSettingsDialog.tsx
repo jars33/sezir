@@ -98,7 +98,7 @@ export function ProjectSettingsDialog() {
         ) : (
           <>
             <div className="mb-4">
-              <FormLabel>Year</FormLabel>
+              <div className="text-sm font-medium">Year</div>
               <div className="flex flex-wrap gap-2 mt-2">
                 {years.map(year => (
                   <Button
