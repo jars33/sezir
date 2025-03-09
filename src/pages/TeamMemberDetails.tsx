@@ -31,7 +31,7 @@ export default function TeamMemberDetails() {
   }, [id, managedMembers, isNewMember])
 
   useEffect(() => {
-    // Skip this check entirely for the 'new' route
+    // Skip access check entirely for the 'new' route
     if (isNewMember) return;
     
     // Only redirect if we've loaded managed members, the member isn't loading, 
