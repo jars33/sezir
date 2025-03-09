@@ -88,6 +88,62 @@ export function TeamMemberBasicFields({ form }: TeamMemberBasicFieldsProps) {
           )}
         />
       </div>
+
+      <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-md space-y-4">
+        <h3 className="text-lg font-medium">Initial Salary Information</h3>
+        
+        <FormField
+          control={form.control}
+          name="salary.amount"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Salary Amount</FormLabel>
+              <FormControl>
+                <Input type="number" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="salary.start_date"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Salary Start Date</FormLabel>
+                <FormControl>
+                  <Input type="date" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="salary.end_date"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Salary End Date (optional)</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="date" 
+                    {...field} 
+                    value={field.value || ''} 
+                    onChange={(e) => {
+                      const value = e.target.value || null;
+                      field.onChange(value);
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+      </div>
     </>
   )
 }

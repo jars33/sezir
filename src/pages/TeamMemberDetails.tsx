@@ -138,7 +138,6 @@ export default function TeamMemberDetails() {
           .from("team_members")
           .insert(teamMemberData)
           .select()
-          .single()
 
         if (teamMemberError) {
           console.error("Insert error:", teamMemberError)
@@ -148,11 +147,13 @@ export default function TeamMemberDetails() {
         console.log("New team member created:", newMember);
 
         // Add salary if provided and team member was created successfully
-        if (values.salary.amount && newMember) {
+        if (values.salary.amount && newMember && newMember.length > 0) {
+          const newMemberId = newMember[0].id;
+          
           const { error: salaryError } = await supabase
             .from("salary_history")
             .insert({
-              team_member_id: newMember.id,
+              team_member_id: newMemberId,
               amount: parseFloat(values.salary.amount),
               start_date: values.salary.start_date,
               end_date: values.salary.end_date,
