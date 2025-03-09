@@ -30,11 +30,12 @@ export function calculateCostBreakdown(
   })
   
   // Sum salary costs from allocations
+  // The issue is that we need to check if the allocation has a salary_cost property
   allocations?.forEach(allocation => {
     const allocationYear = getYear(new Date(allocation.month))
     if (allocationYear === selectedYear) {
-      // Salary cost might be embedded in the allocation
-      if (allocation.salary_cost) {
+      // Check if there's a salary_cost property and it's a valid number
+      if (allocation.salary_cost !== undefined && allocation.salary_cost !== null) {
         totalSalaryCosts += Number(allocation.salary_cost)
       }
     }
