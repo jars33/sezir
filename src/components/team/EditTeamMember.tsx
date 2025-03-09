@@ -1,0 +1,66 @@
+
+import React from "react"
+import { useNavigate } from "react-router-dom"
+import { Button } from "@/components/ui/button"
+import { TeamMemberForm } from "@/components/team/TeamMemberForm"
+import { SalaryHistory } from "@/components/team/salary/SalaryHistory"
+import { useTeamMemberSubmit } from "./TeamMemberSubmitHandler"
+import { useAddSalary } from "./salary/AddSalaryHandler"
+import type { TeamMemberFormSchema } from "./team-member-schema"
+import type { TeamMember, SalaryHistory as SalaryHistoryType } from "@/types/team-member"
+
+interface EditTeamMemberProps {
+  id: string
+  member: TeamMember | null
+  salaryHistory: SalaryHistoryType[] | undefined
+  userId: string
+  refetchSalaryHistory: () => Promise<void>
+}
+
+export function EditTeamMember({ 
+  id, 
+  member, 
+  salaryHistory, 
+  userId,
+  refetchSalaryHistory 
+}: EditTeamMemberProps) {
+  const navigate = useNavigate()
+  const { handleSubmit } = useTeamMemberSubmit()
+  const { handleAddSalary } = useAddSalary(refetchSalaryHistory)
+
+  const onSubmit = async (values: TeamMemberFormSchema) => {
+    await handleSubmit(values, false, id, userId)
+  }
+
+  const onAddSalary = async (values: { amount: string, start_date: string, end_date: string }) => {
+    await handleAddSalary(id, values, false, userId)
+  }
+
+  return (
+    <div className="container py-8">
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-3xl font-bold">Edit Team Member</h1>
+        <div className="flex gap-4">
+          <Button variant="outline" onClick={() => navigate("/team")}>
+            Back to List
+          </Button>
+        </div>
+      </div>
+
+      <div className="max-w-2xl mx-auto space-y-8">
+        <TeamMemberForm
+          member={member}
+          userId={userId}
+          onSubmit={onSubmit}
+          mode="edit"
+        />
+
+        <SalaryHistory 
+          id={id} 
+          salaryHistory={salaryHistory} 
+          handleAddSalary={onAddSalary} 
+        />
+      </div>
+    </div>
+  )
+}
