@@ -24,8 +24,6 @@ export function useTeamMemberSubmit() {
         name: values.name,
         start_date: values.start_date,
         end_date: values.end_date,
-        personal_phone: values.personal_phone || null,
-        personal_email: values.personal_email || null,
         company_phone: values.company_phone || null,
         company_email: values.company_email || null,
         type: values.type,

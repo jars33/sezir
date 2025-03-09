@@ -13,34 +13,6 @@ export function TeamMemberContactFields({ form }: TeamMemberContactFieldsProps) 
     <>
       <FormField
         control={form.control}
-        name="personal_phone"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Personal Phone</FormLabel>
-            <FormControl>
-              <Input {...field} value={field.value || ''} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={form.control}
-        name="personal_email"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Personal Email</FormLabel>
-            <FormControl>
-              <Input type="email" {...field} value={field.value || ''} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={form.control}
         name="company_phone"
         render={({ field }) => (
           <FormItem>

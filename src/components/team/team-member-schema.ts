@@ -10,8 +10,6 @@ export const teamMemberFormSchema = z.object({
   }),
   start_date: z.string().min(1, "Start date is required"),
   end_date: z.string().nullable(),
-  personal_phone: z.string().nullable(),
-  personal_email: z.string().email().nullable(),
   company_phone: z.string().nullable(),
   company_email: z.string().email().nullable(),
   type: z.enum(["contract", "external"]),
