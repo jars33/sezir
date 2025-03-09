@@ -19,23 +19,27 @@ export default function TeamMemberDetails() {
   const { member, salaryHistory, isMemberLoading, isSalaryLoading, refetchSalaryHistory } = useTeamMember(id)
   const { data: managedMembers, isLoading: isManagedMembersLoading } = useManagedTeamMembers()
   
+  // Special case: Always allow access to the 'new' route
+  const isNewMember = id === 'new'
+  
   const canAccessMember = React.useMemo(() => {
     // Always allow access to the 'new' route
-    if (id === 'new') return true
+    if (isNewMember) return true
+    
     if (!id || !managedMembers) return false
     
     const memberId = id.toString()
     // Check if the user has access to this team member
     return managedMembers.some(managedMember => managedMember.id === memberId)
-  }, [id, managedMembers])
+  }, [id, managedMembers, isNewMember])
 
   useEffect(() => {
-    // Skip this check for the 'new' route
-    if (id === 'new') return;
+    // Skip this check entirely for the 'new' route
+    if (isNewMember) return;
     
     // Only redirect if we've loaded managed members, the member isn't loading, 
     // and the user doesn't have access to this specific member
-    if (!isManagedMembersLoading && !isMemberLoading && !canAccessMember && id !== 'new') {
+    if (!isManagedMembersLoading && !isMemberLoading && !canAccessMember) {
       toast({
         variant: "destructive",
         title: "Access Denied",
@@ -43,10 +47,10 @@ export default function TeamMemberDetails() {
       })
       navigate("/team")
     }
-  }, [canAccessMember, isManagedMembersLoading, isMemberLoading, navigate, toast, id])
+  }, [canAccessMember, isManagedMembersLoading, isMemberLoading, navigate, toast, id, isNewMember])
 
   const handleAddSalary = async (values: { amount: string, start_date: string, end_date: string }) => {
-    if (!id || id === 'new' || !session?.user.id) return;
+    if (!id || isNewMember || !session?.user.id) return;
 
     try {
       const { error } = await supabase
@@ -102,7 +106,7 @@ export default function TeamMemberDetails() {
 
       console.log("Submitting team member data:", teamMemberData)
 
-      if (id && id !== 'new') {
+      if (!isNewMember) {
         // Update existing team member
         const { error: teamMemberError } = await supabase
           .from("team_members")
@@ -171,7 +175,7 @@ export default function TeamMemberDetails() {
 
       toast({
         title: "Success",
-        description: `Team member successfully ${id && id !== 'new' ? "updated" : "added"}`,
+        description: `Team member successfully ${!isNewMember ? "updated" : "added"}`,
       })
       
       navigate("/team")
@@ -185,8 +189,8 @@ export default function TeamMemberDetails() {
     }
   }
 
-  // For the 'new' route, skip loading checks and show form immediately
-  if (id === 'new') {
+  // For the 'new' route, always render immediately
+  if (isNewMember) {
     return (
       <div className="container py-8">
         <div className="flex items-center justify-between mb-8">
@@ -240,7 +244,7 @@ export default function TeamMemberDetails() {
           mode="edit"
         />
 
-        {id !== 'new' && (
+        {!isNewMember && (
           <SalaryHistory 
             id={id} 
             salaryHistory={salaryHistory} 
