@@ -12,6 +12,7 @@ import { ProjectList } from "@/components/projects/ProjectList"
 import { CalendarProjectView } from "@/components/projects/CalendarProjectView"
 import { useAuth } from "@/components/AuthProvider"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ProjectSettingsDialog } from "@/components/projects/ProjectSettingsDialog"
 
 type Project = {
   id: string
@@ -89,10 +90,13 @@ export default function Projects() {
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-gray-900">Projects</h1>
-        <Button onClick={() => setCreateDialogOpen(true)}>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          New Project
-        </Button>
+        <div className="flex items-center gap-2">
+          <ProjectSettingsDialog />
+          <Button onClick={() => setCreateDialogOpen(true)}>
+            <PlusCircle className="mr-2 h-4 w-4" />
+            New Project
+          </Button>
+        </div>
       </div>
 
       <Tabs defaultValue="list">

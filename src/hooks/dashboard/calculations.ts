@@ -8,6 +8,7 @@ import { generateForecastData } from './forecast-data'
 import { calculateCostBreakdown } from './cost-breakdown'
 import { generateCashFlowData } from './cash-flow'
 import { generateYearComparisonData } from './year-comparison'
+import { useProjectSettings } from '../use-project-settings'
 
 export {
   calculateProjectProfitability,
@@ -18,5 +19,6 @@ export {
   generateForecastData,
   calculateCostBreakdown,
   generateCashFlowData,
-  generateYearComparisonData
+  generateYearComparisonData,
+  useProjectSettings
 }
