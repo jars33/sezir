@@ -19,7 +19,13 @@ export default function Team() {
   const [activeTab, setActiveTab] = useState("timeline")
   const { t } = useTranslation()
 
-  const { data: members, refetch, isLoading, isError } = useManagedTeamMembers()
+  const { data: members, refetch, isLoading, isError, error } = useManagedTeamMembers()
+
+  console.log("🔍 Team.tsx - Auth session:", session?.user.id)
+  console.log("🔍 Team.tsx - Members data:", members)
+  console.log("🔍 Team.tsx - isLoading:", isLoading)
+  console.log("🔍 Team.tsx - isError:", isError)
+  console.log("🔍 Team.tsx - error:", error)
 
   const handleEdit = (member) => {
     navigate(`/team/${member.id}`)
@@ -29,9 +35,13 @@ export default function Team() {
     navigate("/team/new")
   }
 
-  if (!session) return null
+  if (!session) {
+    console.log("⚠️ Team.tsx - No session available")
+    return null
+  }
 
   if (isError) {
+    console.error("❌ Team.tsx - Error loading team members:", error)
     return (
       <div className="container py-8 text-center">
         <h1 className="text-3xl font-bold mb-4">{t('team.title')}</h1>
@@ -45,6 +55,11 @@ export default function Team() {
         </div>
       </div>
     )
+  }
+
+  // Let's check for a specific empty state
+  if (!isLoading && (!members || members.length === 0)) {
+    console.log("⚠️ Team.tsx - No members found, showing empty state")
   }
 
   return (
@@ -88,7 +103,12 @@ export default function Team() {
           {isLoading ? (
             <div className="text-center p-8">Loading team members...</div>
           ) : members && members.length > 0 ? (
-            <TeamMemberList members={members} onEdit={handleEdit} onSuccess={() => refetch()} />
+            <>
+              <div className="p-2 mb-4 bg-blue-50 dark:bg-blue-900/20 rounded">
+                <p>Debug info: Found {members.length} team members</p>
+              </div>
+              <TeamMemberList members={members} onEdit={handleEdit} onSuccess={() => refetch()} />
+            </>
           ) : (
             <div className="text-center p-8 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
               <p className="mb-4">No team members found.</p>
@@ -101,9 +121,14 @@ export default function Team() {
           {isLoading ? (
             <div className="text-center p-8">Loading team members...</div>
           ) : members && members.length > 0 ? (
-            members.map((member) => (
-              <TeamMemberTimeline key={member.id} member={member} selectedYear={selectedYear} />
-            ))
+            <>
+              <div className="p-2 mb-4 bg-blue-50 dark:bg-blue-900/20 rounded">
+                <p>Debug info: Displaying timeline for {members.length} team members</p>
+              </div>
+              {members.map((member) => (
+                <TeamMemberTimeline key={member.id} member={member} selectedYear={selectedYear} />
+              ))}
+            </>
           ) : (
             <div className="text-center p-8 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
               <p className="mb-4">No team members found.</p>
