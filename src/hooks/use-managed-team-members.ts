@@ -110,10 +110,15 @@ export function useManagedTeamMembers() {
         }
         
         // Get users who don't have a team (not in any team memberships)
+        // This query was incorrectly using a string instead of a subquery
         const { data: nonTeamMembers, error: nonTeamError } = await supabase
           .from("team_members")
           .select("*")
-          .not("id", "in", `(SELECT team_member_id FROM team_memberships)`)
+          .not("id", "in", (
+            supabase
+              .from("team_memberships")
+              .select("team_member_id")
+          ))
           .order("name", { ascending: true })
         
         if (nonTeamError) {
