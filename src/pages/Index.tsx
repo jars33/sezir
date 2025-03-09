@@ -1,11 +1,19 @@
 
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useDashboardMetrics } from "@/hooks/use-dashboard-metrics";
 import { Skeleton } from "@/components/ui/skeleton";
+import YearTeamFilter from "@/components/dashboard/YearTeamFilter";
 
 const Dashboard = () => {
-  const { metrics, isLoading } = useDashboardMetrics();
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
+  
+  const { metrics, isLoading } = useDashboardMetrics({
+    year: selectedYear,
+    teamId: selectedTeam
+  });
 
   const stats = [
     { name: 'Active Projects', value: metrics.activeProjects.toString() },
@@ -25,6 +33,13 @@ const Dashboard = () => {
       <div className="mb-6">
         <h1 className="text-2xl font-semibold text-foreground">Dashboard</h1>
       </div>
+
+      <YearTeamFilter
+        selectedYear={selectedYear}
+        setSelectedYear={setSelectedYear}
+        selectedTeam={selectedTeam}
+        setSelectedTeam={setSelectedTeam}
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {stats.map((stat) => (

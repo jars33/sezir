@@ -1,21 +1,32 @@
-
 import { useQuery } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
 import { getYear, isWithinInterval, startOfYear, endOfYear } from "date-fns"
 
-export function useDashboardMetrics() {
-  // Current year for calculations
-  const currentYear = new Date().getFullYear()
-  const yearStart = startOfYear(new Date(currentYear, 0))
-  const yearEnd = endOfYear(new Date(currentYear, 0))
+interface DashboardFilters {
+  year?: number;
+  teamId?: string | null;
+}
+
+export function useDashboardMetrics(filters: DashboardFilters = {}) {
+  // Use provided year or default to current year
+  const selectedYear = filters.year || new Date().getFullYear()
+  const teamId = filters.teamId || null
+  const yearStart = startOfYear(new Date(selectedYear, 0))
+  const yearEnd = endOfYear(new Date(selectedYear, 0))
 
   // Fetch team members
   const { data: teamMembers, isLoading: isTeamMembersLoading } = useQuery({
-    queryKey: ["team-members-metrics"],
+    queryKey: ["team-members-metrics", teamId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("team_members")
-        .select("*")
+        .select("*, team_memberships!inner(team_id)")
+      
+      if (teamId) {
+        query = query.eq("team_memberships.team_id", teamId)
+      }
+
+      const { data, error } = await query
 
       if (error) throw error
       return data || []
@@ -24,11 +35,17 @@ export function useDashboardMetrics() {
 
   // Fetch projects
   const { data: projects, isLoading: isProjectsLoading } = useQuery({
-    queryKey: ["projects-metrics"],
+    queryKey: ["projects-metrics", selectedYear, teamId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("projects")
         .select("*")
+      
+      if (teamId) {
+        query = query.eq("team_id", teamId)
+      }
+
+      const { data, error } = await query
 
       if (error) throw error
       return data || []
@@ -37,11 +54,22 @@ export function useDashboardMetrics() {
 
   // Fetch project revenues for profitability calculation
   const { data: projectRevenues, isLoading: isRevenuesLoading } = useQuery({
-    queryKey: ["project-revenues-metrics"],
+    queryKey: ["project-revenues-metrics", selectedYear, teamId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const startDate = yearStart.toISOString().substring(0, 10)
+      const endDate = yearEnd.toISOString().substring(0, 10)
+      
+      let query = supabase
         .from("project_revenues")
-        .select("*")
+        .select("*, projects!inner(id, team_id)")
+        .gte("month", startDate)
+        .lte("month", endDate)
+      
+      if (teamId) {
+        query = query.eq("projects.team_id", teamId)
+      }
+
+      const { data, error } = await query
 
       if (error) throw error
       return data || []
@@ -50,11 +78,22 @@ export function useDashboardMetrics() {
 
   // Fetch project variable costs for profitability calculation
   const { data: variableCosts, isLoading: isVariableCostsLoading } = useQuery({
-    queryKey: ["project-variable-costs-metrics"],
+    queryKey: ["project-variable-costs-metrics", selectedYear, teamId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const startDate = yearStart.toISOString().substring(0, 10)
+      const endDate = yearEnd.toISOString().substring(0, 10)
+      
+      let query = supabase
         .from("project_variable_costs")
-        .select("*")
+        .select("*, projects!inner(id, team_id)")
+        .gte("month", startDate)
+        .lte("month", endDate)
+      
+      if (teamId) {
+        query = query.eq("projects.team_id", teamId)
+      }
+
+      const { data, error } = await query
 
       if (error) throw error
       return data || []
@@ -63,11 +102,22 @@ export function useDashboardMetrics() {
 
   // Fetch project overhead costs for profitability calculation
   const { data: overheadCosts, isLoading: isOverheadCostsLoading } = useQuery({
-    queryKey: ["project-overhead-costs-metrics"],
+    queryKey: ["project-overhead-costs-metrics", selectedYear, teamId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const startDate = yearStart.toISOString().substring(0, 10)
+      const endDate = yearEnd.toISOString().substring(0, 10)
+      
+      let query = supabase
         .from("project_overhead_costs")
-        .select("*")
+        .select("*, projects!inner(id, team_id)")
+        .gte("month", startDate)
+        .lte("month", endDate)
+      
+      if (teamId) {
+        query = query.eq("projects.team_id", teamId)
+      }
+
+      const { data, error } = await query
 
       if (error) throw error
       return data || []
@@ -76,18 +126,34 @@ export function useDashboardMetrics() {
 
   // Fetch allocations for utilization calculation
   const { data: allocations, isLoading: isAllocationsLoading } = useQuery({
-    queryKey: ["project-allocations-metrics"],
+    queryKey: ["project-allocations-metrics", selectedYear, teamId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const startDate = yearStart.toISOString().substring(0, 10)
+      const endDate = yearEnd.toISOString().substring(0, 10)
+      
+      let query = supabase
         .from("project_member_allocations")
         .select(`
           id,
           month,
           allocation_percentage,
           project_assignments!inner (
-            team_member_id
+            team_member_id,
+            project_id,
+            project:projects!inner(
+              id,
+              team_id
+            )
           )
         `)
+        .gte("month", startDate)
+        .lte("month", endDate)
+      
+      if (teamId) {
+        query = query.eq("project_assignments.project.team_id", teamId)
+      }
+
+      const { data, error } = await query
 
       if (error) throw error
       return data || []
@@ -111,8 +177,7 @@ export function useDashboardMetrics() {
         teamMembers: 0,
         avgProjectProfitability: 0,
         resourceUtilization: 0,
-        monthlyRevenue: [],
-        monthlyCost: []
+        chartData: []
       }
     }
 
@@ -143,7 +208,7 @@ export function useDashboardMetrics() {
     // Add revenues
     projectRevenues?.forEach(rev => {
       const revYear = getYear(new Date(rev.month))
-      if (revYear === currentYear && projectProfitabilityMap.has(rev.project_id)) {
+      if (revYear === selectedYear && projectProfitabilityMap.has(rev.project_id)) {
         const project = projectProfitabilityMap.get(rev.project_id)
         project.revenue += Number(rev.amount)
         projectProfitabilityMap.set(rev.project_id, project)
@@ -153,7 +218,7 @@ export function useDashboardMetrics() {
     // Add variable costs
     variableCosts?.forEach(cost => {
       const costYear = getYear(new Date(cost.month))
-      if (costYear === currentYear && projectProfitabilityMap.has(cost.project_id)) {
+      if (costYear === selectedYear && projectProfitabilityMap.has(cost.project_id)) {
         const project = projectProfitabilityMap.get(cost.project_id)
         project.variableCosts += Number(cost.amount)
         projectProfitabilityMap.set(cost.project_id, project)
@@ -163,7 +228,7 @@ export function useDashboardMetrics() {
     // Add overhead costs
     overheadCosts?.forEach(cost => {
       const costYear = getYear(new Date(cost.month))
-      if (costYear === currentYear && projectProfitabilityMap.has(cost.project_id)) {
+      if (costYear === selectedYear && projectProfitabilityMap.has(cost.project_id)) {
         const project = projectProfitabilityMap.get(cost.project_id)
         project.overheadCosts += Number(cost.amount)
         projectProfitabilityMap.set(cost.project_id, project)
@@ -229,15 +294,25 @@ export function useDashboardMetrics() {
       ? Math.round(totalUtilization / utilizationDataPoints) 
       : 0
     
-    // Calculate chart data for the last 6 months
+    // Calculate chart data for the selected year
     const chartData = []
     const today = new Date()
-    for (let i = 5; i >= 0; i--) {
-      const month = new Date(today.getFullYear(), today.getMonth() - i, 1)
+    const months = []
+    
+    // For the selected year, get all months up to the current month if current year
+    const monthsToInclude = selectedYear === today.getFullYear()
+      ? today.getMonth() + 1 // Current month + 1 (0-indexed)
+      : 12
+    
+    for (let i = 0; i < monthsToInclude; i++) {
+      const month = new Date(selectedYear, i, 1)
       const monthName = month.toLocaleString('default', { month: 'short' })
-      
-      // Calculate revenue and cost for this month
-      const monthStr = month.toISOString().substr(0, 7) // YYYY-MM
+      months.push({ date: month, name: monthName })
+    }
+    
+    // For each month, calculate the revenue and costs
+    months.forEach(({ date, name }) => {
+      const monthStr = date.toISOString().substr(0, 7) // YYYY-MM
       
       let monthlyRevenue = 0
       projectRevenues?.forEach(rev => {
@@ -260,11 +335,11 @@ export function useDashboardMetrics() {
       })
       
       chartData.push({
-        month: monthName,
+        month: name,
         revenue: monthlyRevenue,
         cost: monthlyCost
       })
-    }
+    })
     
     return {
       activeProjects,
