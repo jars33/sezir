@@ -20,6 +20,7 @@ export default function TeamMemberDetails() {
   const { data: managedMembers, isLoading: isManagedMembersLoading } = useManagedTeamMembers()
   
   const canAccessMember = React.useMemo(() => {
+    // Always allow access to the 'new' route
     if (id === 'new') return true
     if (!id || !managedMembers) return false
     
@@ -29,6 +30,9 @@ export default function TeamMemberDetails() {
   }, [id, managedMembers])
 
   useEffect(() => {
+    // Skip this check for the 'new' route
+    if (id === 'new') return;
+    
     if (!isManagedMembersLoading && !isMemberLoading && !canAccessMember) {
       toast({
         variant: "destructive",
@@ -37,7 +41,7 @@ export default function TeamMemberDetails() {
       })
       navigate("/team")
     }
-  }, [canAccessMember, isManagedMembersLoading, isMemberLoading, navigate, toast])
+  }, [canAccessMember, isManagedMembersLoading, isMemberLoading, navigate, toast, id])
 
   const handleAddSalary = async (values: { amount: string, start_date: string, end_date: string }) => {
     if (!id || id === 'new' || !session?.user.id) return;
@@ -70,6 +74,7 @@ export default function TeamMemberDetails() {
   }
 
   async function onSubmit(values: TeamMemberFormSchema) {
+    console.log("Starting team member submission with values:", values);
     if (!session?.user.id) {
       toast({
         variant: "destructive",
@@ -93,9 +98,10 @@ export default function TeamMemberDetails() {
         user_id: session.user.id,
       }
 
-      console.log("Submitting data:", teamMemberData)
+      console.log("Submitting team member data:", teamMemberData)
 
       if (id && id !== 'new') {
+        // Update existing team member
         const { error: teamMemberError } = await supabase
           .from("team_members")
           .update(teamMemberData)
@@ -106,6 +112,9 @@ export default function TeamMemberDetails() {
           throw teamMemberError
         }
 
+        console.log("Successfully updated team member");
+
+        // Add salary if provided
         if (values.salary.amount) {
           const { error: salaryError } = await supabase
             .from("salary_history")
@@ -116,9 +125,15 @@ export default function TeamMemberDetails() {
               end_date: values.salary.end_date,
             })
 
-          if (salaryError) throw salaryError
+          if (salaryError) {
+            console.error("Salary insert error:", salaryError);
+            throw salaryError;
+          }
+          console.log("Successfully added salary history");
         }
       } else {
+        // Create new team member
+        console.log("Creating new team member with data:", teamMemberData);
         const { data: newMember, error: teamMemberError } = await supabase
           .from("team_members")
           .insert(teamMemberData)
@@ -130,6 +145,9 @@ export default function TeamMemberDetails() {
           throw teamMemberError
         }
 
+        console.log("New team member created:", newMember);
+
+        // Add salary if provided and team member was created successfully
         if (values.salary.amount && newMember) {
           const { error: salaryError } = await supabase
             .from("salary_history")
@@ -140,15 +158,20 @@ export default function TeamMemberDetails() {
               end_date: values.salary.end_date,
             })
 
-          if (salaryError) throw salaryError
+          if (salaryError) {
+            console.error("Salary insert error:", salaryError);
+            throw salaryError;
+          }
+          console.log("Successfully added salary history for new member");
         }
       }
 
-      navigate("/team")
       toast({
         title: "Success",
         description: `Team member successfully ${id && id !== 'new' ? "updated" : "added"}`,
       })
+      
+      navigate("/team")
     } catch (error: any) {
       console.error("Error in onSubmit:", error)
       toast({
@@ -159,11 +182,11 @@ export default function TeamMemberDetails() {
     }
   }
 
-  if (isMemberLoading || isSalaryLoading || isManagedMembersLoading) {
+  if (isMemberLoading || isSalaryLoading || (isManagedMembersLoading && id !== 'new')) {
     return <div className="p-8">Loading...</div>
   }
 
-  if (!canAccessMember) {
+  if (!canAccessMember && id !== 'new') {
     return null
   }
 

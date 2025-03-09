@@ -109,9 +109,7 @@ export function useManagedTeamMembers() {
           console.log("ℹ️ No team member IDs found, skipping team members query")
         }
         
-        // Get users who don't have a team (not in any team memberships)
-        // Fix the query by using a different approach - get all team members and then 
-        // filter out those who are in team memberships
+        // Get all team members
         const { data: allTeamMembers, error: allTeamMembersError } = await supabase
           .from("team_members")
           .select("*")
@@ -140,14 +138,22 @@ export function useManagedTeamMembers() {
         
         console.log("🧍 Non-team members:", nonTeamMembers?.length || 0, nonTeamMembers)
         
-        // Add the user's own team member record if it exists and isn't already included
-        let combinedMembers = [
-          ...allMembers,
-          ...nonTeamMembers
-        ]
+        // If the current user doesn't have a team member record yet, include all team members
+        // This ensures new users can see all team members to manage them
+        let combinedMembers = allTeamMembers || []
+        
+        // If the user has a team member record, show managed members + non-team members
+        if (userTeamMember) {
+          // Just combine all members we've fetched
+          combinedMembers = [
+            ...allMembers,
+            ...nonTeamMembers
+          ]
+        }
         
         console.log("📊 Combined members before adding user:", combinedMembers.length, combinedMembers)
         
+        // Add the user's own team member record if it exists and isn't already included
         if (userTeamMember && !combinedMembers.some(member => member.id === userTeamMember.id)) {
           console.log("➕ Adding user's own team member record to results")
           combinedMembers.push(userTeamMember)

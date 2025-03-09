@@ -1,7 +1,7 @@
 
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight, UserPlus } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { TeamMemberList } from "@/components/team/TeamMemberList"
 import { TeamMemberTimeline } from "@/components/team/TeamMemberTimeline"
@@ -64,12 +64,18 @@ export default function Team() {
       <div className="container py-4">
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-3xl font-bold">{t('team.title')}</h1>
-          <Button onClick={handleAddNewMember}>{t('team.addTeamMember')}</Button>
+          <Button onClick={handleAddNewMember}>
+            <UserPlus className="mr-2 h-4 w-4" />
+            {t('team.addTeamMember')}
+          </Button>
         </div>
         
         <div className="p-8 mt-8 text-center bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-          <p className="mb-4">No team members found. Start by adding yourself as a team member.</p>
-          <Button onClick={handleAddNewMember}>Add Your First Team Member</Button>
+          <p className="mb-4">You don't have any team members yet. Start by adding yourself or your first team member.</p>
+          <Button onClick={handleAddNewMember}>
+            <UserPlus className="mr-2 h-4 w-4" />
+            Add Your First Team Member
+          </Button>
         </div>
       </div>
     )
@@ -79,7 +85,10 @@ export default function Team() {
     <div className="container py-4">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-3xl font-bold">{t('team.title')}</h1>
-        <Button onClick={handleAddNewMember}>{t('team.addTeamMember')}</Button>
+        <Button onClick={handleAddNewMember}>
+          <UserPlus className="mr-2 h-4 w-4" />
+          {t('team.addTeamMember')}
+        </Button>
       </div>
 
       <Tabs defaultValue="timeline" onValueChange={setActiveTab}>
@@ -120,7 +129,10 @@ export default function Team() {
           ) : (
             <div className="text-center p-8 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
               <p className="mb-4">No team members found.</p>
-              <Button onClick={handleAddNewMember}>Add Your First Team Member</Button>
+              <Button onClick={handleAddNewMember}>
+                <UserPlus className="mr-2 h-4 w-4" />
+                Add Your First Team Member
+              </Button>
             </div>
           )}
         </TabsContent>
@@ -137,7 +149,10 @@ export default function Team() {
           ) : (
             <div className="text-center p-8 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
               <p className="mb-4">No team members found.</p>
-              <Button onClick={handleAddNewMember}>Add Your First Team Member</Button>
+              <Button onClick={handleAddNewMember}>
+                <UserPlus className="mr-2 h-4 w-4" />
+                Add Your First Team Member
+              </Button>
             </div>
           )}
         </TabsContent>
