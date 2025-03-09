@@ -103,7 +103,7 @@ export function useManagedTeamMembers() {
             throw membersError
           }
           
-          allMembers = [...(members || [])]
+          allMembers = [...(members || [])] as TeamMember[]
           console.log("👥 Team members fetched:", allMembers.length, allMembers)
         } else {
           console.log("ℹ️ No team member IDs found, skipping team members query")
@@ -134,13 +134,13 @@ export function useManagedTeamMembers() {
         const teamMemberIdsInTeams = new Set(allTeamMemberships?.map(m => m.team_member_id) || [])
         
         // Filter to get team members who are not in any team
-        const nonTeamMembers = allTeamMembers?.filter(m => !teamMemberIdsInTeams.has(m.id)) || []
+        const nonTeamMembers = (allTeamMembers?.filter(m => !teamMemberIdsInTeams.has(m.id)) || []) as TeamMember[]
         
         console.log("🧍 Non-team members:", nonTeamMembers?.length || 0, nonTeamMembers)
         
         // If the current user doesn't have a team member record yet, include all team members
         // This ensures new users can see all team members to manage them
-        let combinedMembers = allTeamMembers || []
+        let combinedMembers = (allTeamMembers || []) as TeamMember[]
         
         // If the user has a team member record, show managed members + non-team members
         if (userTeamMember) {
@@ -156,7 +156,7 @@ export function useManagedTeamMembers() {
         // Add the user's own team member record if it exists and isn't already included
         if (userTeamMember && !combinedMembers.some(member => member.id === userTeamMember.id)) {
           console.log("➕ Adding user's own team member record to results")
-          combinedMembers.push(userTeamMember)
+          combinedMembers.push(userTeamMember as TeamMember)
         } else if (userTeamMember) {
           console.log("ℹ️ User's team member record already included in results")
         } else {

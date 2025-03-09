@@ -78,14 +78,6 @@ export function TeamMemberTable({ member, salaryHistory }: TeamMemberTableProps)
                 <TableCell className="font-medium">Company Phone</TableCell>
                 <TableCell>{member.company_phone || "-"}</TableCell>
               </TableRow>
-              <TableRow>
-                <TableCell className="font-medium">Personal Email</TableCell>
-                <TableCell>{member.personal_email || "-"}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell className="font-medium">Personal Phone</TableCell>
-                <TableCell>{member.personal_phone || "-"}</TableCell>
-              </TableRow>
             </TableBody>
           </Table>
         </CardContent>
