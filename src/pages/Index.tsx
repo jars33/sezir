@@ -1,6 +1,6 @@
 
 import { Card } from "@/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useDashboardMetrics } from "@/hooks/use-dashboard-metrics";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -13,6 +13,12 @@ const Dashboard = () => {
     { name: 'Avg. Project Profitability', value: `${metrics.avgProjectProfitability}%` },
     { name: 'Resource Utilization', value: `${metrics.resourceUtilization}%` },
   ];
+
+  // Calculate profit data for each month
+  const chartData = metrics.chartData?.map(item => ({
+    ...item,
+    profit: item.revenue - item.cost
+  }));
 
   return (
     <div className="w-full">
@@ -44,7 +50,7 @@ const Dashboard = () => {
       <Card className="w-full">
         <div className="p-6">
           <h2 className="text-lg font-medium text-foreground mb-4">
-            Revenue vs Cost
+            Revenue, Cost & Profit
           </h2>
           <div className="h-80 w-full">
             {isLoading ? (
@@ -53,8 +59,8 @@ const Dashboard = () => {
               </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={metrics.chartData}
+                <LineChart
+                  data={chartData}
                   margin={{
                     top: 20,
                     right: 30,
@@ -62,13 +68,16 @@ const Dashboard = () => {
                     bottom: 5,
                   }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted/50" />
                   <XAxis dataKey="month" className="text-muted-foreground" />
-                  <YAxis tickFormatter={(value) => `€${value}`} className="text-muted-foreground" />
+                  <YAxis 
+                    tickFormatter={(value) => `€${value}`} 
+                    className="text-muted-foreground" 
+                  />
                   <Tooltip 
                     formatter={(value: number, name: string) => [
                       `€${value.toFixed(2)}`,
-                      name
+                      name.charAt(0).toUpperCase() + name.slice(1)
                     ]}
                     labelFormatter={(label) => `${label}`}
                     contentStyle={{
@@ -77,17 +86,32 @@ const Dashboard = () => {
                       color: 'hsl(var(--foreground))'
                     }}
                   />
-                  <Bar 
+                  <Legend />
+                  <Line 
+                    type="monotone"
                     dataKey="revenue" 
                     name="Revenue" 
-                    className="fill-emerald-500 dark:fill-emerald-400"
+                    stroke="#0EA5E9" 
+                    strokeWidth={2}
+                    activeDot={{ r: 6 }}
                   />
-                  <Bar 
+                  <Line 
+                    type="monotone"
                     dataKey="cost" 
                     name="Cost" 
-                    className="fill-red-500 dark:fill-red-400"
+                    stroke="#F97316" 
+                    strokeWidth={2}
+                    activeDot={{ r: 6 }}
                   />
-                </BarChart>
+                  <Line 
+                    type="monotone"
+                    dataKey="profit" 
+                    name="Profit" 
+                    stroke="#8B5CF6" 
+                    strokeWidth={2}
+                    activeDot={{ r: 6 }}
+                  />
+                </LineChart>
               </ResponsiveContainer>
             )}
           </div>
