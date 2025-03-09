@@ -33,7 +33,9 @@ export default function TeamMemberDetails() {
     // Skip this check for the 'new' route
     if (id === 'new') return;
     
-    if (!isManagedMembersLoading && !isMemberLoading && !canAccessMember) {
+    // Only redirect if we've loaded managed members, the member isn't loading, 
+    // and the user doesn't have access to this specific member
+    if (!isManagedMembersLoading && !isMemberLoading && !canAccessMember && id !== 'new') {
       toast({
         variant: "destructive",
         title: "Access Denied",
@@ -183,18 +185,46 @@ export default function TeamMemberDetails() {
     }
   }
 
-  if (isMemberLoading || isSalaryLoading || (isManagedMembersLoading && id !== 'new')) {
+  // For the 'new' route, skip loading checks and show form immediately
+  if (id === 'new') {
+    return (
+      <div className="container py-8">
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-3xl font-bold">Add Team Member</h1>
+          <div className="flex gap-4">
+            <Button variant="outline" onClick={() => navigate("/team")}>
+              Back to List
+            </Button>
+          </div>
+        </div>
+
+        <div className="max-w-2xl mx-auto">
+          <TeamMemberForm
+            member={null}
+            userId={session?.user.id || ""}
+            onSubmit={onSubmit}
+            mode="new"
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // For existing member routes, show loading state or deny access
+  if (isMemberLoading || isSalaryLoading || isManagedMembersLoading) {
     return <div className="p-8">Loading...</div>
   }
 
-  if (!canAccessMember && id !== 'new') {
+  // If access is denied, this will be caught by the useEffect above
+  // but we add an additional check here just to be safe
+  if (!canAccessMember) {
     return null
   }
 
   return (
     <div className="container py-8">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold">{id === 'new' ? 'Add' : 'Edit'} Team Member</h1>
+        <h1 className="text-3xl font-bold">Edit Team Member</h1>
         <div className="flex gap-4">
           <Button variant="outline" onClick={() => navigate("/team")}>
             Back to List
@@ -207,7 +237,7 @@ export default function TeamMemberDetails() {
           member={member}
           userId={session?.user.id || ""}
           onSubmit={onSubmit}
-          mode={id === 'new' ? 'new' : 'edit'}
+          mode="edit"
         />
 
         {id !== 'new' && (
