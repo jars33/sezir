@@ -6,6 +6,7 @@ import { TeamMemberForm } from "@/components/team/TeamMemberForm"
 import { SalaryHistory } from "@/components/team/salary/SalaryHistory"
 import { useTeamMemberSubmit } from "./TeamMemberSubmitHandler"
 import { useAddSalary } from "./salary/AddSalaryHandler"
+import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query"
 import type { TeamMemberFormSchema } from "./team-member-schema"
 import type { TeamMember, SalaryHistory as SalaryHistoryType } from "@/types/team-member"
 
@@ -14,7 +15,7 @@ interface EditTeamMemberProps {
   member: TeamMember | null
   salaryHistory: SalaryHistoryType[] | undefined
   userId: string
-  refetchSalaryHistory: () => Promise<void>
+  refetchSalaryHistory: (options?: RefetchOptions) => Promise<QueryObserverResult<SalaryHistoryType[], Error>>
 }
 
 export function EditTeamMember({ 

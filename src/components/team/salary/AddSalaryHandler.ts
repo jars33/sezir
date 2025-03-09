@@ -1,8 +1,12 @@
 
 import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/hooks/use-toast"
+import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query"
+import { SalaryHistory } from "@/types/team-member"
 
-export function useAddSalary(refetchSalaryHistory: () => Promise<void>) {
+export function useAddSalary(
+  refetchSalaryHistory: (options?: RefetchOptions) => Promise<QueryObserverResult<SalaryHistory[], Error>>
+) {
   const { toast } = useToast()
 
   const handleAddSalary = async (
