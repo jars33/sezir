@@ -1,5 +1,4 @@
-
-import { startOfYear, endOfYear } from "date-fns"
+import { startOfYear, endOfYear, isWithinInterval } from "date-fns"
 import { 
   useTeamMembersQuery, 
   useProjectsQuery, 
@@ -70,16 +69,31 @@ export function useDashboardMetrics(filters: DashboardFilters = {}) {
       }
     }
 
-    // 1. Active Projects - projects that are in progress or planned and not ended
-    const activeProjects = projects?.filter(project => 
-      (project.status === 'in_progress' || project.status === 'planned') && 
-      (!project.end_date || new Date(project.end_date) >= new Date())
-    ).length || 0
+    // 1. Active Projects - projects that are active during the selected year
+    const activeProjects = projects?.filter(project => {
+      // Get start and end dates as Date objects
+      const projectStart = project.start_date ? new Date(project.start_date) : null
+      const projectEnd = project.end_date ? new Date(project.end_date) : null
+      
+      // Project has no dates set - consider it as not active
+      if (!projectStart) return false
+      
+      // Project with start date but no end date - check if start is before or during the selected year
+      if (projectStart && !projectEnd) {
+        return projectStart <= yearEnd
+      }
+      
+      // Project with both start and end dates - check if date ranges overlap
+      return (
+        // Project starts before the year ends AND ends after the year starts
+        projectStart <= yearEnd && projectEnd >= yearStart
+      )
+    }).length || 0
 
     // 2. Team Members - active team members (not left_company)
     const activeTeamMembers = teamMembers?.filter(member => 
       !member.left_company && 
-      (!member.end_date || new Date(member.end_date) >= new Date())
+      (!member.end_date || new Date(member.end_date) >= yearStart)
     ).length || 0
 
     // 3. Calculate Project Profitability using extracted calculation function

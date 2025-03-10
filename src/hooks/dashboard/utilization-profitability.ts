@@ -1,58 +1,68 @@
 
-import { isWithinInterval, getYear } from "date-fns"
+import { isWithinInterval } from "date-fns"
 
 // Calculate utilization vs profitability data points
 export function calculateUtilizationProfitability(
-  projects: any[],
-  allocations: any[],
-  projectRevenues: any[],
-  variableCosts: any[],
-  overheadCosts: any[],
+  projects: any[] | null | undefined,
+  allocations: any[] | null | undefined,
+  projectRevenues: any[] | null | undefined,
+  variableCosts: any[] | null | undefined,
+  overheadCosts: any[] | null | undefined,
   yearStart: Date,
   yearEnd: Date
 ) {
+  if (!projects || !Array.isArray(projects) || projects.length === 0) {
+    return []
+  }
+
   // First, calculate project-wise utilization
   const projectUtilization = new Map()
   const projectAllocationCosts = new Map()
   
-  // Initialize project allocation costs
-  projects?.forEach(project => {
-    projectAllocationCosts.set(project.id, 0)
-  })
-  
-  allocations?.forEach(allocation => {
-    const allocDate = new Date(allocation.month)
-    if (isWithinInterval(allocDate, { start: yearStart, end: yearEnd })) {
-      const projectId = allocation.project_assignments.project.id
-      
-      if (!projectUtilization.has(projectId)) {
-        projectUtilization.set(projectId, {
-          totalAllocation: 0,
-          dataPoints: 0,
-          projectName: '',
-          utilization: 0
-        })
-      }
-      
-      const projectData = projectUtilization.get(projectId)
-      projectData.totalAllocation += allocation.allocation_percentage
-      projectData.dataPoints++
-      
-      // Get project name from allocations data
-      if (!projectData.projectName) {
-        projectData.projectName = allocation.project_assignments.project.name || 
-          `Project ${allocation.project_assignments.project.number}`
-      }
-      
-      projectUtilization.set(projectId, projectData)
-      
-      // Also add allocation cost to the project's allocation costs
-      if (allocation.salary_cost) {
-        const currentCost = projectAllocationCosts.get(projectId) || 0
-        projectAllocationCosts.set(projectId, currentCost + Number(allocation.salary_cost))
-      }
+  // Initialize project allocation costs and structure
+  projects.forEach(project => {
+    if (project && project.id) {
+      projectAllocationCosts.set(project.id, 0)
+      projectUtilization.set(project.id, {
+        totalAllocation: 0,
+        dataPoints: 0,
+        projectName: project.name || `Project ${project.number || 'Unknown'}`,
+        utilization: 0
+      })
     }
   })
+  
+  // Calculate allocations
+  if (allocations && Array.isArray(allocations) && allocations.length > 0) {
+    allocations.forEach(allocation => {
+      if (!allocation || !allocation.month) return
+
+      const allocDate = new Date(allocation.month)
+      if (isWithinInterval(allocDate, { start: yearStart, end: yearEnd })) {
+        const projectAssignments = allocation.project_assignments
+        if (!projectAssignments) return
+        
+        const projectId = projectAssignments.project_id
+        const project = projectAssignments.project
+
+        // Ensure we have a valid project ID, either directly or through the project object
+        const validProjectId = projectId || (project && project.id)
+        
+        if (validProjectId && projectUtilization.has(validProjectId)) {
+          const projectData = projectUtilization.get(validProjectId)
+          projectData.totalAllocation += allocation.allocation_percentage || 0
+          projectData.dataPoints++
+          projectUtilization.set(validProjectId, projectData)
+          
+          // Add allocation cost
+          if (allocation.salary_cost) {
+            const currentCost = projectAllocationCosts.get(validProjectId) || 0
+            projectAllocationCosts.set(validProjectId, currentCost + Number(allocation.salary_cost))
+          }
+        }
+      }
+    })
+  }
   
   // Calculate average utilization per project
   projectUtilization.forEach((data, projectId) => {
@@ -77,59 +87,68 @@ export function calculateUtilizationProfitability(
   })
   
   // Add revenues
-  projectRevenues?.forEach(rev => {
-    const revYear = getYear(new Date(rev.month))
-    if (revYear === yearStart.getFullYear() && projectProfitability.has(rev.project_id)) {
-      const project = projectProfitability.get(rev.project_id)
-      project.revenue += Number(rev.amount)
-      projectProfitability.set(rev.project_id, project)
-    }
-  })
+  if (projectRevenues && Array.isArray(projectRevenues) && projectRevenues.length > 0) {
+    projectRevenues.forEach(rev => {
+      if (!rev || !rev.month || !rev.project_id) return
+
+      const revDate = new Date(rev.month)
+      if (isWithinInterval(revDate, { start: yearStart, end: yearEnd })) {
+        const project = projectProfitability.get(rev.project_id)
+        if (project) {
+          project.revenue += Number(rev.amount || 0)
+          projectProfitability.set(rev.project_id, project)
+        }
+      }
+    })
+  }
   
   // Add variable costs
-  variableCosts?.forEach(cost => {
-    const costYear = getYear(new Date(cost.month))
-    if (costYear === yearStart.getFullYear() && projectProfitability.has(cost.project_id)) {
-      const project = projectProfitability.get(cost.project_id)
-      project.cost += Number(cost.amount)
-      projectProfitability.set(cost.project_id, project)
-    }
-  })
+  if (variableCosts && Array.isArray(variableCosts) && variableCosts.length > 0) {
+    variableCosts.forEach(cost => {
+      if (!cost || !cost.month || !cost.project_id) return
+
+      const costDate = new Date(cost.month)
+      if (isWithinInterval(costDate, { start: yearStart, end: yearEnd })) {
+        const project = projectProfitability.get(cost.project_id)
+        if (project) {
+          project.cost += Number(cost.amount || 0)
+          projectProfitability.set(cost.project_id, project)
+        }
+      }
+    })
+  }
   
   // Add overhead costs
-  overheadCosts?.forEach(cost => {
-    const costYear = getYear(new Date(cost.month))
-    if (costYear === yearStart.getFullYear() && projectProfitability.has(cost.project_id)) {
-      const project = projectProfitability.get(cost.project_id)
-      project.cost += Number(cost.amount)
-      projectProfitability.set(cost.project_id, project)
-    }
-  })
+  if (overheadCosts && Array.isArray(overheadCosts) && overheadCosts.length > 0) {
+    overheadCosts.forEach(cost => {
+      if (!cost || !cost.month || !cost.project_id) return
+
+      const costDate = new Date(cost.month)
+      if (isWithinInterval(costDate, { start: yearStart, end: yearEnd })) {
+        const project = projectProfitability.get(cost.project_id)
+        if (project) {
+          project.cost += Number(cost.amount || 0)
+          projectProfitability.set(cost.project_id, project)
+        }
+      }
+    })
+  }
   
-  // Add allocation costs
-  projectProfitability.forEach((data, projectId) => {
-    const allocationCost = projectAllocationCosts.get(projectId) || 0
-    data.cost += allocationCost
-    projectProfitability.set(projectId, data)
-  })
-  
-  // Calculate profitability and prepare final data
+  // Add allocation costs and calculate final profitability
   const utilizationProfitabilityData = []
   
-  projectProfitability.forEach((data) => {
-    // Only include if there's any financial data
-    if (data.revenue > 0 || data.cost > 0) {
-      // Calculate profitability as percentage
-      if (data.cost > 0) {
-        data.profitability = ((data.revenue - data.cost) / data.cost) * 100
-      } else if (data.revenue > 0) {
-        data.profitability = 100 // 100% profit if revenue but no costs
-      } else {
-        data.profitability = 0
-      }
+  projectProfitability.forEach((data, projectId) => {
+    // Add allocation costs
+    data.cost += projectAllocationCosts.get(projectId) || 0
+    
+    // Calculate profitability
+    if (data.cost > 0 || data.revenue > 0) {
+      data.profitability = data.cost > 0 
+        ? ((data.revenue - data.cost) / data.cost) * 100
+        : (data.revenue > 0 ? 100 : 0)
       
       utilizationProfitabilityData.push({
-        projectId: data.projectId,
+        projectId,
         projectName: data.projectName,
         utilization: data.utilization,
         profitability: Math.round(data.profitability)

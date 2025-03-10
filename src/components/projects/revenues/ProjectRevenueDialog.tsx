@@ -52,6 +52,11 @@ export function ProjectRevenueDialog({
 
   const form = useForm<RevenueFormSchema>({
     resolver: zodResolver(revenueFormSchema),
+    defaultValues: {
+      month: "",
+      endMonth: "",
+      amount: "",
+    },
   })
 
   // Reset form with default values when dialog opens/closes or defaultValues change

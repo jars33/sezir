@@ -15,6 +15,12 @@ export function AddTeamMember({ userId }: AddTeamMemberProps) {
   const { handleSubmit } = useTeamMemberSubmit()
 
   const onSubmit = async (values: TeamMemberFormSchema) => {
+    if (!userId) {
+      console.error("No user ID provided to AddTeamMember")
+      return
+    }
+    
+    console.log("Submitting new team member with user ID:", userId)
     await handleSubmit(values, true, undefined, userId)
   }
 

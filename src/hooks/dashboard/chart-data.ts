@@ -8,15 +8,10 @@ export function generateChartData(
   allocations: any[]
 ) {
   const chartData = []
-  const today = new Date()
   const months = []
   
-  // For the selected year, get all months up to the current month if current year
-  const monthsToInclude = selectedYear === today.getFullYear()
-    ? today.getMonth() + 1 // Current month + 1 (0-indexed)
-    : 12
-  
-  for (let i = 0; i < monthsToInclude; i++) {
+  // Always include all 12 months of the selected year
+  for (let i = 0; i < 12; i++) {
     const month = new Date(selectedYear, i, 1)
     const monthName = month.toLocaleString('default', { month: 'short' })
     months.push({ date: month, name: monthName })

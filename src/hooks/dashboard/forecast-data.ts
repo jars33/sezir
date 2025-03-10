@@ -1,19 +1,24 @@
 
 import { addMonths, format } from "date-fns"
 
-// Generate forecast data based on historical trends
 export function generateForecastData(
   selectedYear: number,
-  projectRevenues: any[],
-  variableCosts: any[],
-  overheadCosts: any[],
-  allocations: any[]
+  projectRevenues: any[] = [],
+  variableCosts: any[] = [],
+  overheadCosts: any[] = [],
+  allocations: any[] = []
 ) {
+  // Initialize with empty arrays if inputs are undefined
+  projectRevenues = projectRevenues || []
+  variableCosts = variableCosts || []
+  overheadCosts = overheadCosts || []
+  allocations = allocations || []
+  
   const forecastData = []
   const currentDate = new Date()
   const isCurrentYear = selectedYear === currentDate.getFullYear()
   
-  // For the selected year, include all months
+  // Always include all 12 months of the selected year
   const months = []
   for (let i = 0; i < 12; i++) {
     const month = new Date(selectedYear, i, 1)
@@ -28,6 +33,9 @@ export function generateForecastData(
   const revenueGrowthRate = calculateGrowthRate(projectRevenues, selectedYear)
   const costGrowthRate = calculateGrowthRate([...variableCosts, ...overheadCosts], selectedYear)
   
+  let lastActualRevenue = 0
+  let lastActualCost = 0
+  
   // For each month, calculate actual or projected data
   months.forEach(({ date, name }, index) => {
     const monthStr = date.toISOString().substr(0, 7) // YYYY-MM
@@ -35,55 +43,64 @@ export function generateForecastData(
     
     let actualRevenue = 0
     let actualCost = 0
+    let projectedRevenue = null
+    let projectedCost = null
     
-    // Calculate actuals for past months
     if (isPastMonth) {
+      // Calculate actuals for past months
       projectRevenues?.forEach(rev => {
-        if (rev.month.startsWith(monthStr)) {
-          actualRevenue += Number(rev.amount)
+        if (rev && rev.month && rev.month.startsWith(monthStr)) {
+          actualRevenue += Number(rev.amount || 0)
         }
       })
       
       variableCosts?.forEach(cost => {
-        if (cost.month.startsWith(monthStr)) {
-          actualCost += Number(cost.amount)
+        if (cost && cost.month && cost.month.startsWith(monthStr)) {
+          actualCost += Number(cost.amount || 0)
         }
       })
       
       overheadCosts?.forEach(cost => {
-        if (cost.month.startsWith(monthStr)) {
-          actualCost += Number(cost.amount)
+        if (cost && cost.month && cost.month.startsWith(monthStr)) {
+          actualCost += Number(cost.amount || 0)
         }
       })
       
-      // Add allocation costs
       allocations?.forEach(allocation => {
-        if (allocation.month.startsWith(monthStr) && allocation.salary_cost) {
-          actualCost += Number(allocation.salary_cost)
+        if (allocation && allocation.month && allocation.month.startsWith(monthStr) && allocation.salary_cost) {
+          actualCost += Number(allocation.salary_cost || 0)
         }
       })
-    }
-    
-    // Calculate projections
-    let projectedRevenue = null
-    let projectedCost = null
-    
-    if (!isPastMonth) {
-      // For future months, project based on the last actual month or continue the projection
+      
+      lastActualRevenue = actualRevenue
+      lastActualCost = actualCost
+    } else {
+      // For future months, project based on the last actual values
       if (index === currentMonthIndex + 1) {
-        // First projection month is based on the last actual month
-        const lastActualRevenue = forecastData[currentMonthIndex]?.actualRevenue || 0
-        const lastActualCost = forecastData[currentMonthIndex]?.actualCost || 0
-        
+        // First projection month uses the last actual values
         projectedRevenue = lastActualRevenue * (1 + revenueGrowthRate)
         projectedCost = lastActualCost * (1 + costGrowthRate)
-      } else if (index > currentMonthIndex + 1) {
-        // Later projection months are based on previous projections
-        const prevProjectedRevenue = forecastData[index - 1]?.projectedRevenue || 0
-        const prevProjectedCost = forecastData[index - 1]?.projectedCost || 0
+      } else if (index > 0) {
+        // Subsequent months compound from previous projections
+        const previousMonth = forecastData[index - 1]
         
-        projectedRevenue = prevProjectedRevenue * (1 + revenueGrowthRate)
-        projectedCost = prevProjectedCost * (1 + costGrowthRate)
+        if (previousMonth) {
+          // Safely determine previous values with fallbacks to ensure we always have a number
+          const prevRevenue = previousMonth.projectedRevenue !== null ? 
+                             previousMonth.projectedRevenue : 
+                             (previousMonth.actualRevenue !== null ? previousMonth.actualRevenue : 0)
+                             
+          const prevCost = previousMonth.projectedCost !== null ?
+                          previousMonth.projectedCost :
+                          (previousMonth.actualCost !== null ? previousMonth.actualCost : 0)
+          
+          projectedRevenue = prevRevenue * (1 + revenueGrowthRate)
+          projectedCost = prevCost * (1 + costGrowthRate)
+        } else {
+          // Fallback if previous month data is missing
+          projectedRevenue = lastActualRevenue * (1 + revenueGrowthRate * index)
+          projectedCost = lastActualCost * (1 + costGrowthRate * index)
+        }
       }
     }
     
@@ -91,8 +108,8 @@ export function generateForecastData(
       month: name,
       actualRevenue: isPastMonth ? actualRevenue : null,
       actualCost: isPastMonth ? actualCost : null,
-      projectedRevenue: projectedRevenue,
-      projectedCost: projectedCost,
+      projectedRevenue: isPastMonth ? null : projectedRevenue,
+      projectedCost: isPastMonth ? null : projectedCost,
     })
   })
 
@@ -100,18 +117,24 @@ export function generateForecastData(
 }
 
 // Helper to calculate monthly growth rate
-function calculateGrowthRate(financialData: any[], selectedYear: number) {
+function calculateGrowthRate(financialData: any[] = [], selectedYear: number) {
   // Group by month
   const monthlyTotals = new Map()
   
   financialData?.forEach(item => {
-    const itemDate = new Date(item.month)
-    const itemYear = itemDate.getFullYear()
+    if (!item || !item.month) return
     
-    if (itemYear === selectedYear) {
-      const monthKey = format(itemDate, 'yyyy-MM')
-      const currentTotal = monthlyTotals.get(monthKey) || 0
-      monthlyTotals.set(monthKey, currentTotal + Number(item.amount))
+    try {
+      const itemDate = new Date(item.month)
+      const itemYear = itemDate.getFullYear()
+      
+      if (itemYear === selectedYear) {
+        const monthKey = format(itemDate, 'yyyy-MM')
+        const currentTotal = monthlyTotals.get(monthKey) || 0
+        monthlyTotals.set(monthKey, currentTotal + Number(item.amount || 0))
+      }
+    } catch (error) {
+      console.error("Error processing item for growth rate:", error)
     }
   })
   

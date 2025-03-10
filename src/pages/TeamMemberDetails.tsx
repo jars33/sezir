@@ -16,11 +16,17 @@ export default function TeamMemberDetails() {
   const { member, salaryHistory, isMemberLoading, isSalaryLoading, refetchSalaryHistory } = useTeamMember(id)
   const { data: managedMembers, isLoading: isManagedMembersLoading } = useManagedTeamMembers()
   
-  // Special case: Always allow access to the 'new' route
+  // Special case for the 'new' route - always allow access
   const isNewMember = id === 'new'
-  console.log("isNewMember", isNewMember) 
+  
+  // If it's a new member, render the AddTeamMember component immediately
+  // without waiting for any data loading or access checks
+  if (isNewMember && session?.user.id) {
+    return <AddTeamMember userId={session.user.id} />
+  }
+  
   const canAccessMember = React.useMemo(() => {
-    // Always allow access to the 'new' route
+    // This check only applies to existing members, not new ones
     if (isNewMember) return true
     
     if (!id || !managedMembers) return false
@@ -31,11 +37,10 @@ export default function TeamMemberDetails() {
   }, [id, managedMembers, isNewMember])
 
   useEffect(() => {
-    // Skip access check entirely for the 'new' route
+    // Skip access check for the 'new' route
     if (isNewMember) return;
     
-    // Only redirect if we've loaded managed members, the member isn't loading, 
-    // and the user doesn't have access to this specific member
+    // Only check access after managed members have loaded
     if (!isManagedMembersLoading && !isMemberLoading && !canAccessMember) {
       toast({
         variant: "destructive",
@@ -44,20 +49,14 @@ export default function TeamMemberDetails() {
       })
       navigate("/team")
     }
-  }, [canAccessMember, isManagedMembersLoading, isMemberLoading, navigate, toast, id, isNewMember])
+  }, [canAccessMember, isManagedMembersLoading, isMemberLoading, navigate, toast, isNewMember])
 
-  // For the 'new' route, always render immediately
-  if (isNewMember) {
-    return <AddTeamMember userId={session?.user.id || ""} />
-  }
-
-  // For existing member routes, show loading state or deny access
+  // For existing member routes, show loading state or the edit component
   if (isMemberLoading || isSalaryLoading || isManagedMembersLoading) {
     return <div className="p-8">Loading...</div>
   }
 
-  // If access is denied, this will be caught by the useEffect above
-  // but we add an additional check here just to be safe
+  // Additional safety check - if access is denied, return null
   if (!canAccessMember) {
     return null
   }
