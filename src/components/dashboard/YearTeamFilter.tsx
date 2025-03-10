@@ -7,7 +7,8 @@ import {
   SelectContent, 
   SelectItem 
 } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -24,10 +25,6 @@ const YearTeamFilter: React.FC<YearTeamFilterProps> = ({
   selectedTeam,
   setSelectedTeam,
 }) => {
-  // Generate year options (current year and 4 years before)
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
-
   // Fetch teams
   const { data: teams, isLoading: isTeamsLoading } = useQuery({
     queryKey: ["teams-filter"],
@@ -42,45 +39,61 @@ const YearTeamFilter: React.FC<YearTeamFilterProps> = ({
     },
   });
 
-  return (
-    <div className="flex flex-col sm:flex-row gap-4 mb-6">
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="year-filter">Year</Label>
-        <Select
-          value={selectedYear.toString()}
-          onValueChange={(value) => setSelectedYear(parseInt(value))}
-        >
-          <SelectTrigger id="year-filter" className="w-[150px]">
-            <SelectValue placeholder="Select Year" />
-          </SelectTrigger>
-          <SelectContent>
-            {years.map((year) => (
-              <SelectItem key={year} value={year.toString()}>
-                {year}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+  const handlePreviousYear = () => {
+    setSelectedYear(selectedYear - 1);
+  };
 
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="team-filter">Team</Label>
-        <Select
-          value={selectedTeam || "all"}
-          onValueChange={(value) => setSelectedTeam(value === "all" ? null : value)}
-        >
-          <SelectTrigger id="team-filter" className="w-[150px]">
-            <SelectValue placeholder="Select Team" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Teams</SelectItem>
-            {teams?.map((team) => (
-              <SelectItem key={team.id} value={team.id}>
-                {team.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+  const handleNextYear = () => {
+    setSelectedYear(selectedYear + 1);
+  };
+
+  return (
+    <div className="flex flex-col space-y-4 mb-6">
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="year-filter" className="text-sm font-medium">Year</label>
+          <div className="flex items-center">
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="rounded-r-none h-10 w-10" 
+              onClick={handlePreviousYear}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <div className="flex items-center justify-center bg-background font-medium border border-x-0 border-input h-10 px-8">
+              {selectedYear}
+            </div>
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="rounded-l-none h-10 w-10" 
+              onClick={handleNextYear}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="team-filter" className="text-sm font-medium">Team</label>
+          <Select
+            value={selectedTeam || "all"}
+            onValueChange={(value) => setSelectedTeam(value === "all" ? null : value)}
+          >
+            <SelectTrigger id="team-filter" className="w-[150px]">
+              <SelectValue placeholder="Select Team" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Teams</SelectItem>
+              {teams?.map((team) => (
+                <SelectItem key={team.id} value={team.id}>
+                  {team.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
     </div>
   );
