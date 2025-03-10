@@ -18,7 +18,7 @@ export default function TeamMemberDetails() {
   
   // Special case: Always allow access to the 'new' route
   const isNewMember = id === 'new'
-  
+  console.log("isNewMember", isNewMember) 
   const canAccessMember = React.useMemo(() => {
     // Always allow access to the 'new' route
     if (isNewMember) return true
