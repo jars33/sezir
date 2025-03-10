@@ -35,7 +35,8 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import type { TeamMember } from "@/types/team-member"
-import { Plus } from "lucide-react"
+import { Plus, Trash2 } from "lucide-react"
+import { DeleteTeamDialog } from "@/components/team/DeleteTeamDialog"
 
 const teamFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -63,6 +64,7 @@ export default function TeamDetails() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { toast } = useToast()
+  const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false)
 
   const form = useForm<TeamFormValues>({
     resolver: zodResolver(teamFormSchema),
@@ -186,6 +188,40 @@ export default function TeamDetails() {
     }
   }
 
+  async function handleDeleteTeam() {
+    if (!id || id === "new") return
+
+    try {
+      // First delete any team memberships
+      const { error: membershipError } = await supabase
+        .from("team_memberships")
+        .delete()
+        .eq("team_id", id)
+      
+      if (membershipError) throw membershipError
+
+      // Then delete the team
+      const { error: teamError } = await supabase
+        .from("teams")
+        .delete()
+        .eq("id", id)
+      
+      if (teamError) throw teamError
+
+      navigate("/teams")
+      toast({
+        title: "Success",
+        description: "Team successfully deleted",
+      })
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      })
+    }
+  }
+
   if (isTeamLoading) {
     return <div className="p-8">Loading...</div>
   }
@@ -195,6 +231,15 @@ export default function TeamDetails() {
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold">{id === "new" ? "New" : "Edit"} Team</h1>
         <div className="flex gap-4">
+          {id !== "new" && (
+            <Button 
+              variant="destructive" 
+              onClick={() => setDeleteDialogOpen(true)}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete Team
+            </Button>
+          )}
           <Button variant="outline" onClick={() => navigate("/teams")}>
             Back to Teams
           </Button>
@@ -342,6 +387,12 @@ export default function TeamDetails() {
           </Button>
         </div>
       </div>
+
+      <DeleteTeamDialog 
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDeleteTeam}
+      />
     </div>
   )
 }
