@@ -33,12 +33,9 @@ export function calculateCostBreakdown(
   allocations?.forEach(allocation => {
     const allocationYear = getYear(new Date(allocation.month))
     if (allocationYear === selectedYear) {
-      // Check if there's a project_assignments property with team_member_id
-      if (allocation.project_assignments && allocation.project_assignments.team_member_id) {
-        // Try to use the salary_cost directly if it exists
-        if (allocation.salary_cost !== undefined && allocation.salary_cost !== null) {
-          totalSalaryCosts += Number(allocation.salary_cost)
-        }
+      // We've added the salary_cost directly to each allocation in the useAllocationsQuery
+      if (allocation.salary_cost !== undefined && allocation.salary_cost !== null) {
+        totalSalaryCosts += Number(allocation.salary_cost)
       }
     }
   })

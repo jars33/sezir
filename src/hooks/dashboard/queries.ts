@@ -129,7 +129,7 @@ export function useOverheadCostsQuery({ selectedYear, teamId, yearStart, yearEnd
   })
 }
 
-// Query for allocations
+// Query for allocations - Fixed to correctly return salary cost information
 export function useAllocationsQuery({ selectedYear, teamId, yearStart, yearEnd }: DashboardQueryParams) {
   return useQuery({
     queryKey: ["project-allocations-metrics", selectedYear, teamId],
@@ -137,32 +137,59 @@ export function useAllocationsQuery({ selectedYear, teamId, yearStart, yearEnd }
       const startDate = yearStart.toISOString().substring(0, 10)
       const endDate = yearEnd.toISOString().substring(0, 10)
       
+      // First, get all allocations for the specified date range
       let query = supabase
         .from("project_member_allocations")
         .select(`
           id,
           month,
           allocation_percentage,
-          project_assignments!inner (
+          project_assignments!inner(
+            id,
             team_member_id,
             project_id,
-            project:projects!inner(
+            projects!inner(
               id,
               team_id
             )
           )
         `)
         .gte("month", startDate)
-        .lte("month", endDate)
+        .lte("month", endDate);
       
       if (teamId) {
-        query = query.eq("project_assignments.project.team_id", teamId)
+        query = query.eq("project_assignments.projects.team_id", teamId)
       }
 
-      const { data, error } = await query
+      const { data: allocations, error } = await query
 
       if (error) throw error
-      return data || []
+      
+      // For each allocation, get the team member's salary for that month
+      const allocationsWithSalaries = await Promise.all(
+        (allocations || []).map(async (allocation) => {
+          const { data: salaryData } = await supabase
+            .from("salary_history")
+            .select("amount")
+            .eq("team_member_id", allocation.project_assignments.team_member_id)
+            .lte("start_date", allocation.month)
+            .or(`end_date.is.null,end_date.gte.${allocation.month}`)
+            .order("start_date", { ascending: false })
+            .maybeSingle();
+
+          // Calculate the salary cost based on the allocation percentage
+          const monthlySalary = salaryData?.amount || 0;
+          const salary_cost = (monthlySalary * allocation.allocation_percentage) / 100;
+
+          // Return the allocation with the salary cost included
+          return {
+            ...allocation,
+            salary_cost
+          };
+        })
+      );
+
+      return allocationsWithSalaries || [];
     },
   })
 }
