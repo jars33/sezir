@@ -19,8 +19,14 @@ export default function TeamMemberDetails() {
   // Special case for the 'new' route - always allow access
   const isNewMember = id === 'new'
   
+  // If it's a new member, render the AddTeamMember component immediately
+  // without waiting for any data loading or access checks
+  if (isNewMember && session?.user.id) {
+    return <AddTeamMember userId={session.user.id} />
+  }
+  
   const canAccessMember = React.useMemo(() => {
-    // Always allow access to the 'new' route
+    // This check only applies to existing members, not new ones
     if (isNewMember) return true
     
     if (!id || !managedMembers) return false
@@ -44,11 +50,6 @@ export default function TeamMemberDetails() {
       navigate("/team")
     }
   }, [canAccessMember, isManagedMembersLoading, isMemberLoading, navigate, toast, isNewMember])
-
-  // For the 'new' route, render the AddTeamMember component immediately
-  if (isNewMember) {
-    return <AddTeamMember userId={session?.user.id || ""} />
-  }
 
   // For existing member routes, show loading state or the edit component
   if (isMemberLoading || isSalaryLoading || isManagedMembersLoading) {
