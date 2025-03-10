@@ -16,7 +16,7 @@ export default function TeamMemberDetails() {
   const { member, salaryHistory, isMemberLoading, isSalaryLoading, refetchSalaryHistory } = useTeamMember(id)
   const { data: managedMembers, isLoading: isManagedMembersLoading } = useManagedTeamMembers()
   
-  // Special case: Always allow access to the 'new' route
+  // Special case: Always allow access to the 'new' route for adding members
   const isNewMember = id === 'new'
   
   const canAccessMember = React.useMemo(() => {
