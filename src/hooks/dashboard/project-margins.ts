@@ -52,20 +52,22 @@ export function calculateProjectMargins(
     }
   })
   
-  // Calculate margins and filter out projects with no financial data
+  // Calculate margins and include all projects with financial data
   const projectMargins = []
   
   projectFinancialsMap.forEach((data) => {
-    // Only include if there's any financial data
-    if (data.revenue > 0 || data.cost > 0) {
-      // Calculate margin as (revenue - cost) / revenue * 100
-      if (data.revenue > 0) {
-        data.margin = ((data.revenue - data.cost) / data.revenue) * 100
-      } else {
-        data.margin = -100 // -100% margin if no revenue but has costs
-      }
-      projectMargins.push(data)
+    // Calculate margin for ALL projects, including those with zero values
+    // Just ensure we don't divide by zero
+    if (data.revenue > 0) {
+      data.margin = ((data.revenue - data.cost) / data.revenue) * 100
+    } else if (data.cost > 0) {
+      data.margin = -100 // -100% margin if no revenue but has costs
+    } else {
+      data.margin = 0 // No financial data
     }
+    
+    // Include all projects, even those with no financial data
+    projectMargins.push(data)
   })
   
   // Sort by margin in descending order
