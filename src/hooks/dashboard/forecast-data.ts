@@ -1,4 +1,3 @@
-
 import { addMonths, format } from "date-fns"
 
 export function generateForecastData(

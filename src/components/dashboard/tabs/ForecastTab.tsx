@@ -18,50 +18,6 @@ interface ForecastTabProps {
 }
 
 export function ForecastTab({ forecastData, isLoading }: ForecastTabProps) {
-  // Find transition points for the connector lines
-  const findTransitionPoints = () => {
-    if (!forecastData || forecastData.length === 0) return null;
-
-    let lastActualIndex = -1;
-    let firstProjectedIndex = -1;
-
-    for (let i = 0; i < forecastData.length; i++) {
-      const month = forecastData[i];
-      if (month.actualRevenue !== null) {
-        lastActualIndex = i;
-      } else if (firstProjectedIndex === -1 && month.projectedRevenue !== null) {
-        firstProjectedIndex = i;
-        break;
-      }
-    }
-
-    if (lastActualIndex >= 0 && firstProjectedIndex >= 0) {
-      return {
-        lastActual: forecastData[lastActualIndex],
-        firstProjected: forecastData[firstProjectedIndex],
-        lastActualIndex,
-        firstProjectedIndex
-      };
-    }
-    return null;
-  };
-
-  const transitionPoints = findTransitionPoints();
-  
-  // Create connector data points if transition points exist
-  const connectorData = transitionPoints ? [
-    {
-      month: transitionPoints.lastActual.month,
-      revenueConnector: transitionPoints.lastActual.actualRevenue,
-      costConnector: transitionPoints.lastActual.actualCost,
-    },
-    {
-      month: transitionPoints.firstProjected.month,
-      revenueConnector: transitionPoints.firstProjected.projectedRevenue,
-      costConnector: transitionPoints.firstProjected.projectedCost,
-    }
-  ] : [];
-
   return (
     <Card className="w-full">
       <div className="p-6">
@@ -137,36 +93,6 @@ export function ForecastTab({ forecastData, isLoading }: ForecastTabProps) {
                   strokeDasharray="5 5"
                   dot={{ r: 4 }}
                 />
-                
-                {/* Connector lines between actual and projected data */}
-                {transitionPoints && (
-                  <>
-                    <Line 
-                      data={connectorData}
-                      type="monotone"
-                      dataKey="revenueConnector" 
-                      name="Revenue Connector"
-                      stroke="#0EA5E9" 
-                      strokeWidth={2}
-                      strokeDasharray="5 5"
-                      dot={false}
-                      activeDot={false}
-                      legendType="none"
-                    />
-                    <Line 
-                      data={connectorData}
-                      type="monotone"
-                      dataKey="costConnector" 
-                      name="Cost Connector"
-                      stroke="#F97316" 
-                      strokeWidth={2}
-                      strokeDasharray="5 5"
-                      dot={false}
-                      activeDot={false}
-                      legendType="none"
-                    />
-                  </>
-                )}
               </ComposedChart>
             </ResponsiveContainer>
           )}
