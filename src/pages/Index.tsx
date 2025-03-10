@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { 
@@ -223,8 +222,8 @@ const Dashboard = () => {
                       <Bar 
                         dataKey="margin" 
                         name="Margin" 
-                        fill="#10B981"
                         radius={[0, 4, 4, 0]}
+                        fill={(data) => data.margin < 0 ? '#ef4444' : '#10B981'} // Red for negative, green for positive
                       />
                     </BarChart>
                   </ResponsiveContainer>
