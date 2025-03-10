@@ -48,52 +48,50 @@ const YearTeamFilter: React.FC<YearTeamFilterProps> = ({
   };
 
   return (
-    <div className="flex flex-col space-y-4 mb-6">
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="year-filter" className="text-sm font-medium">Year</label>
-          <div className="flex items-center">
-            <Button 
-              variant="outline" 
-              size="icon" 
-              className="rounded-r-none h-10 w-10" 
-              onClick={handlePreviousYear}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <div className="flex items-center justify-center bg-background font-medium border border-x-0 border-input h-10 px-8">
-              {selectedYear}
-            </div>
-            <Button 
-              variant="outline" 
-              size="icon" 
-              className="rounded-l-none h-10 w-10" 
-              onClick={handleNextYear}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="team-filter" className="text-sm font-medium">Team</label>
-          <Select
-            value={selectedTeam || "all"}
-            onValueChange={(value) => setSelectedTeam(value === "all" ? null : value)}
+    <div className="flex flex-col sm:flex-row gap-8 mb-8">
+      <div className="flex flex-col gap-2">
+        <label htmlFor="year-filter" className="text-sm font-medium">Year</label>
+        <div className="flex items-center">
+          <Button 
+            variant="outline" 
+            size="icon" 
+            className="rounded-r-none h-10 w-10 border-r-0" 
+            onClick={handlePreviousYear}
           >
-            <SelectTrigger id="team-filter" className="w-[150px]">
-              <SelectValue placeholder="Select Team" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Teams</SelectItem>
-              {teams?.map((team) => (
-                <SelectItem key={team.id} value={team.id}>
-                  {team.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <div className="flex items-center justify-center bg-background font-medium border border-input h-10 px-8">
+            {selectedYear}
+          </div>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            className="rounded-l-none h-10 w-10 border-l-0" 
+            onClick={handleNextYear}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
         </div>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <label htmlFor="team-filter" className="text-sm font-medium">Team</label>
+        <Select
+          value={selectedTeam || "all"}
+          onValueChange={(value) => setSelectedTeam(value === "all" ? null : value)}
+        >
+          <SelectTrigger id="team-filter" className="w-[180px]">
+            <SelectValue placeholder="All Teams" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Teams</SelectItem>
+            {teams?.map((team) => (
+              <SelectItem key={team.id} value={team.id}>
+                {team.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );

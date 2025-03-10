@@ -3,15 +3,15 @@ import { isWithinInterval } from "date-fns"
 
 // Calculate utilization vs profitability data points
 export function calculateUtilizationProfitability(
-  projects: any[],
-  allocations: any[],
-  projectRevenues: any[],
-  variableCosts: any[],
-  overheadCosts: any[],
+  projects: any[] | null | undefined,
+  allocations: any[] | null | undefined,
+  projectRevenues: any[] | null | undefined,
+  variableCosts: any[] | null | undefined,
+  overheadCosts: any[] | null | undefined,
   yearStart: Date,
   yearEnd: Date
 ) {
-  if (!projects || !Array.isArray(projects)) {
+  if (!projects || !Array.isArray(projects) || projects.length === 0) {
     return []
   }
 
@@ -33,7 +33,7 @@ export function calculateUtilizationProfitability(
   })
   
   // Calculate allocations
-  if (allocations && Array.isArray(allocations)) {
+  if (allocations && Array.isArray(allocations) && allocations.length > 0) {
     allocations.forEach(allocation => {
       if (!allocation || !allocation.month) return
 
@@ -87,7 +87,7 @@ export function calculateUtilizationProfitability(
   })
   
   // Add revenues
-  if (projectRevenues && Array.isArray(projectRevenues)) {
+  if (projectRevenues && Array.isArray(projectRevenues) && projectRevenues.length > 0) {
     projectRevenues.forEach(rev => {
       if (!rev || !rev.month || !rev.project_id) return
 
@@ -103,7 +103,7 @@ export function calculateUtilizationProfitability(
   }
   
   // Add variable costs
-  if (variableCosts && Array.isArray(variableCosts)) {
+  if (variableCosts && Array.isArray(variableCosts) && variableCosts.length > 0) {
     variableCosts.forEach(cost => {
       if (!cost || !cost.month || !cost.project_id) return
 
@@ -119,7 +119,7 @@ export function calculateUtilizationProfitability(
   }
   
   // Add overhead costs
-  if (overheadCosts && Array.isArray(overheadCosts)) {
+  if (overheadCosts && Array.isArray(overheadCosts) && overheadCosts.length > 0) {
     overheadCosts.forEach(cost => {
       if (!cost || !cost.month || !cost.project_id) return
 
