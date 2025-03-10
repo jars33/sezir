@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client"
 import { useQuery } from "@tanstack/react-query"
 
@@ -144,21 +143,21 @@ export function useAllocationsQuery({ selectedYear, teamId, yearStart, yearEnd }
           id,
           month,
           allocation_percentage,
-          project_assignments!inner(
+          project_assignments (
             id,
             team_member_id,
             project_id,
-            projects!inner(
+            project:projects (
               id,
               team_id
             )
           )
         `)
         .gte("month", startDate)
-        .lte("month", endDate);
+        .lte("month", endDate)
       
       if (teamId) {
-        query = query.eq("project_assignments.projects.team_id", teamId)
+        query = query.eq("project_assignments.project.team_id", teamId)
       }
 
       const { data: allocations, error } = await query
@@ -168,6 +167,10 @@ export function useAllocationsQuery({ selectedYear, teamId, yearStart, yearEnd }
       // For each allocation, get the team member's salary for that month
       const allocationsWithSalaries = await Promise.all(
         (allocations || []).map(async (allocation) => {
+          if (!allocation.project_assignments?.team_member_id) {
+            return { ...allocation, salary_cost: 0 }
+          }
+
           const { data: salaryData } = await supabase
             .from("salary_history")
             .select("amount")
@@ -175,21 +178,20 @@ export function useAllocationsQuery({ selectedYear, teamId, yearStart, yearEnd }
             .lte("start_date", allocation.month)
             .or(`end_date.is.null,end_date.gte.${allocation.month}`)
             .order("start_date", { ascending: false })
-            .maybeSingle();
+            .maybeSingle()
 
           // Calculate the salary cost based on the allocation percentage
-          const monthlySalary = salaryData?.amount || 0;
-          const salary_cost = (monthlySalary * allocation.allocation_percentage) / 100;
+          const monthlySalary = salaryData?.amount || 0
+          const salary_cost = (monthlySalary * allocation.allocation_percentage) / 100
 
-          // Return the allocation with the salary cost included
           return {
             ...allocation,
             salary_cost
-          };
+          }
         })
-      );
+      )
 
-      return allocationsWithSalaries || [];
+      return allocationsWithSalaries || []
     },
   })
 }
