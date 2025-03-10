@@ -20,9 +20,8 @@ export function generateForecastData(
     months.push({ date: month, name: monthName })
   }
   
-  // We want projections to start from March, so if it's the current year,
-  // we'll show actuals only up to February
-  const projectionStartMonth = 2 // March (0-based index)
+  // Current month index (0-based)
+  const currentMonthIndex = isCurrentYear ? currentDate.getMonth() : 11
   
   // Calculate average monthly growth rates from available data
   const revenueGrowthRate = calculateGrowthRate(projectRevenues, selectedYear)
@@ -31,7 +30,7 @@ export function generateForecastData(
   // For each month, calculate actual or projected data
   months.forEach(({ date, name }, index) => {
     const monthStr = date.toISOString().substr(0, 7) // YYYY-MM
-    const isPastMonth = index <= projectionStartMonth && isCurrentYear
+    const isPastMonth = index <= currentMonthIndex && isCurrentYear
     
     let actualRevenue = 0
     let actualCost = 0
@@ -63,14 +62,14 @@ export function generateForecastData(
     
     if (!isPastMonth) {
       // For future months, project based on the last actual month or continue the projection
-      if (index === projectionStartMonth + 1) {
+      if (index === currentMonthIndex + 1) {
         // First projection month is based on the last actual month
-        const lastActualRevenue = forecastData[projectionStartMonth]?.actualRevenue || 0
-        const lastActualCost = forecastData[projectionStartMonth]?.actualCost || 0
+        const lastActualRevenue = forecastData[currentMonthIndex]?.actualRevenue || 0
+        const lastActualCost = forecastData[currentMonthIndex]?.actualCost || 0
         
         projectedRevenue = lastActualRevenue * (1 + revenueGrowthRate)
         projectedCost = lastActualCost * (1 + costGrowthRate)
-      } else if (index > projectionStartMonth + 1) {
+      } else if (index > currentMonthIndex + 1) {
         // Later projection months are based on previous projections
         const prevProjectedRevenue = forecastData[index - 1]?.projectedRevenue || 0
         const prevProjectedCost = forecastData[index - 1]?.projectedCost || 0
