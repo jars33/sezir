@@ -6,7 +6,8 @@ export function generateForecastData(
   selectedYear: number,
   projectRevenues: any[],
   variableCosts: any[],
-  overheadCosts: any[]
+  overheadCosts: any[],
+  allocations: any[]
 ) {
   const forecastData = []
   const currentDate = new Date()
@@ -52,6 +53,13 @@ export function generateForecastData(
       overheadCosts?.forEach(cost => {
         if (cost.month.startsWith(monthStr)) {
           actualCost += Number(cost.amount)
+        }
+      })
+      
+      // Add allocation costs
+      allocations?.forEach(allocation => {
+        if (allocation.month.startsWith(monthStr) && allocation.salary_cost) {
+          actualCost += Number(allocation.salary_cost)
         }
       })
     }

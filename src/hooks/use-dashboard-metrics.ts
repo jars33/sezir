@@ -88,6 +88,7 @@ export function useDashboardMetrics(filters: DashboardFilters = {}) {
       projectRevenues,
       variableCosts,
       overheadCosts,
+      allocations,
       selectedYear
     )
     
@@ -103,7 +104,8 @@ export function useDashboardMetrics(filters: DashboardFilters = {}) {
       selectedYear,
       projectRevenues,
       variableCosts,
-      overheadCosts
+      overheadCosts,
+      allocations
     )
     
     // 6. Calculate project margins
@@ -112,6 +114,7 @@ export function useDashboardMetrics(filters: DashboardFilters = {}) {
       projectRevenues,
       variableCosts,
       overheadCosts,
+      allocations,
       selectedYear
     )
     
@@ -131,7 +134,8 @@ export function useDashboardMetrics(filters: DashboardFilters = {}) {
       selectedYear,
       projectRevenues,
       variableCosts,
-      overheadCosts
+      overheadCosts,
+      allocations
     )
     
     // 9. Calculate cost breakdown

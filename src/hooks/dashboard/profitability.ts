@@ -7,6 +7,7 @@ export function calculateProjectProfitability(
   projectRevenues: any[],
   variableCosts: any[],
   overheadCosts: any[],
+  allocations: any[],
   selectedYear: number
 ) {
   const projectProfitabilityMap = new Map()
@@ -16,7 +17,8 @@ export function calculateProjectProfitability(
     projectProfitabilityMap.set(project.id, {
       revenue: 0,
       variableCosts: 0,
-      overheadCosts: 0
+      overheadCosts: 0,
+      salaryCosts: 0
     })
   })
   
@@ -50,12 +52,25 @@ export function calculateProjectProfitability(
     }
   })
   
+  // Add salary costs from allocations
+  allocations?.forEach(allocation => {
+    const allocYear = getYear(new Date(allocation.month))
+    if (allocYear === selectedYear && allocation.project_assignments?.project?.id) {
+      const projectId = allocation.project_assignments.project.id
+      if (projectProfitabilityMap.has(projectId) && allocation.salary_cost) {
+        const project = projectProfitabilityMap.get(projectId)
+        project.salaryCosts += Number(allocation.salary_cost)
+        projectProfitabilityMap.set(projectId, project)
+      }
+    }
+  })
+  
   // Calculate average profitability
   let totalProfitability = 0
   let projectsWithFinancials = 0
   
   projectProfitabilityMap.forEach((data) => {
-    const totalCost = data.variableCosts + data.overheadCosts
+    const totalCost = data.variableCosts + data.overheadCosts + data.salaryCosts
     // Only count if there's any financial data
     if (data.revenue > 0 || totalCost > 0) {
       // Avoid division by zero

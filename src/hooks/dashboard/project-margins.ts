@@ -7,6 +7,7 @@ export function calculateProjectMargins(
   projectRevenues: any[],
   variableCosts: any[],
   overheadCosts: any[],
+  allocations: any[],
   selectedYear: number
 ) {
   const projectFinancialsMap = new Map()
@@ -49,6 +50,19 @@ export function calculateProjectMargins(
       const project = projectFinancialsMap.get(cost.project_id)
       project.cost += Number(cost.amount)
       projectFinancialsMap.set(cost.project_id, project)
+    }
+  })
+  
+  // Add salary costs from allocations
+  allocations?.forEach(allocation => {
+    const allocYear = getYear(new Date(allocation.month))
+    if (allocYear === selectedYear && allocation.project_assignments?.project?.id) {
+      const projectId = allocation.project_assignments.project.id
+      if (projectFinancialsMap.has(projectId) && allocation.salary_cost) {
+        const project = projectFinancialsMap.get(projectId)
+        project.cost += Number(allocation.salary_cost)
+        projectFinancialsMap.set(projectId, project)
+      }
     }
   })
   

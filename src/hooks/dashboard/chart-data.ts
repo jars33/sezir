@@ -4,7 +4,8 @@ export function generateChartData(
   selectedYear: number,
   projectRevenues: any[],
   variableCosts: any[],
-  overheadCosts: any[]
+  overheadCosts: any[],
+  allocations: any[]
 ) {
   const chartData = []
   const today = new Date()
@@ -42,6 +43,13 @@ export function generateChartData(
     overheadCosts?.forEach(cost => {
       if (cost.month.startsWith(monthStr)) {
         monthlyCost += Number(cost.amount)
+      }
+    })
+    
+    // Add allocation costs
+    allocations?.forEach(allocation => {
+      if (allocation.month.startsWith(monthStr) && allocation.salary_cost) {
+        monthlyCost += Number(allocation.salary_cost)
       }
     })
     

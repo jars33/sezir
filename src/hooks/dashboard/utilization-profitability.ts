@@ -13,6 +13,12 @@ export function calculateUtilizationProfitability(
 ) {
   // First, calculate project-wise utilization
   const projectUtilization = new Map()
+  const projectAllocationCosts = new Map()
+  
+  // Initialize project allocation costs
+  projects?.forEach(project => {
+    projectAllocationCosts.set(project.id, 0)
+  })
   
   allocations?.forEach(allocation => {
     const allocDate = new Date(allocation.month)
@@ -39,6 +45,12 @@ export function calculateUtilizationProfitability(
       }
       
       projectUtilization.set(projectId, projectData)
+      
+      // Also add allocation cost to the project's allocation costs
+      if (allocation.salary_cost) {
+        const currentCost = projectAllocationCosts.get(projectId) || 0
+        projectAllocationCosts.set(projectId, currentCost + Number(allocation.salary_cost))
+      }
     }
   })
   
@@ -92,6 +104,13 @@ export function calculateUtilizationProfitability(
       project.cost += Number(cost.amount)
       projectProfitability.set(cost.project_id, project)
     }
+  })
+  
+  // Add allocation costs
+  projectProfitability.forEach((data, projectId) => {
+    const allocationCost = projectAllocationCosts.get(projectId) || 0
+    data.cost += allocationCost
+    projectProfitability.set(projectId, data)
   })
   
   // Calculate profitability and prepare final data

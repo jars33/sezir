@@ -46,11 +46,8 @@ export function generateCashFlowData(
     
     let monthlySalaryCosts = 0
     allocations?.forEach(allocation => {
-      if (allocation.month.startsWith(monthStr)) {
-        // Make sure we check if salary_cost exists and is a valid number
-        if (allocation.salary_cost !== undefined && allocation.salary_cost !== null) {
-          monthlySalaryCosts += Number(allocation.salary_cost)
-        }
+      if (allocation.month.startsWith(monthStr) && allocation.salary_cost !== undefined && allocation.salary_cost !== null) {
+        monthlySalaryCosts += Number(allocation.salary_cost)
       }
     })
     
