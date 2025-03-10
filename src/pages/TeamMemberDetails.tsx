@@ -13,31 +13,43 @@ export default function TeamMemberDetails() {
   const navigate = useNavigate()
   const { session } = useAuth()
   const { toast } = useToast()
-  const { member, salaryHistory, isMemberLoading, isSalaryLoading, refetchSalaryHistory } = useTeamMember(id)
-  const { data: managedMembers, isLoading: isManagedMembersLoading } = useManagedTeamMembers()
   
   // Special case for the 'new' route - always allow access
   const isNewMember = id === 'new'
   
+  // IMPORTANT: For new members, don't fetch any data
+  // This prevents unnecessary queries and access checks
+  const { 
+    member, 
+    salaryHistory, 
+    isMemberLoading, 
+    isSalaryLoading, 
+    refetchSalaryHistory 
+  } = useTeamMember(isNewMember ? undefined : id)
+  
+  const { data: managedMembers, isLoading: isManagedMembersLoading } = useManagedTeamMembers()
+  
   // If it's a new member, render the AddTeamMember component immediately
   // without waiting for any data loading or access checks
-  if (isNewMember && session?.user.id) {
+  if (isNewMember) {
+    if (!session?.user?.id) {
+      return <div className="p-8">Please log in to add team members.</div>
+    }
+    console.log("Rendering AddTeamMember component for new member")
     return <AddTeamMember userId={session.user.id} />
   }
   
   const canAccessMember = React.useMemo(() => {
-    // This check only applies to existing members, not new ones
-    if (isNewMember) return true
-    
+    // Only apply access checks for existing members, not new ones
     if (!id || !managedMembers) return false
     
     const memberId = id.toString()
     // Check if the user has access to this team member
     return managedMembers.some(managedMember => managedMember.id === memberId)
-  }, [id, managedMembers, isNewMember])
+  }, [id, managedMembers])
 
   useEffect(() => {
-    // Skip access check for the 'new' route
+    // Skip access check for the 'new' route completely
     if (isNewMember) return;
     
     // Only check access after managed members have loaded

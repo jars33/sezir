@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { TeamMemberForm } from "@/components/team/TeamMemberForm"
 import { useTeamMemberSubmit } from "./TeamMemberSubmitHandler"
 import type { TeamMemberFormSchema } from "./team-member-schema"
+import { useToast } from "@/hooks/use-toast"
 
 interface AddTeamMemberProps {
   userId: string
@@ -12,16 +13,35 @@ interface AddTeamMemberProps {
 
 export function AddTeamMember({ userId }: AddTeamMemberProps) {
   const navigate = useNavigate()
+  const { toast } = useToast()
   const { handleSubmit } = useTeamMemberSubmit()
 
   const onSubmit = async (values: TeamMemberFormSchema) => {
     if (!userId) {
-      console.error("No user ID provided to AddTeamMember")
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No user ID available. Please log in again."
+      })
       return
     }
     
     console.log("Submitting new team member with user ID:", userId)
-    await handleSubmit(values, true, undefined, userId)
+    try {
+      await handleSubmit(values, true, undefined, userId)
+      toast({
+        title: "Success",
+        description: "Team member successfully added",
+      })
+      navigate("/team")
+    } catch (error: any) {
+      console.error("Error adding team member:", error)
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to add team member",
+      })
+    }
   }
 
   return (

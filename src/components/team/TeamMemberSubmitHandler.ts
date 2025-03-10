@@ -11,12 +11,8 @@ export function useTeamMemberSubmit() {
   const handleSubmit = async (values: TeamMemberFormSchema, isNewMember: boolean, id?: string, userId?: string) => {
     console.log("Starting team member submission with values:", values);
     if (!userId) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "You must be logged in to perform this action",
-      })
-      return
+      console.error("No userId provided to handleSubmit")
+      throw new Error("You must be logged in to perform this action")
     }
 
     try {
@@ -100,19 +96,10 @@ export function useTeamMemberSubmit() {
         }
       }
 
-      toast({
-        title: "Success",
-        description: `Team member successfully ${!isNewMember ? "updated" : "added"}`,
-      })
-      
-      navigate("/team")
+      return true;
     } catch (error: any) {
       console.error("Error in onSubmit:", error)
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message,
-      })
+      throw error;
     }
   }
 
