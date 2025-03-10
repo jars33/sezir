@@ -18,17 +18,27 @@ interface ForecastTabProps {
 }
 
 export function ForecastTab({ forecastData, isLoading }: ForecastTabProps) {
+  // Safely check if forecastData is available
+  const safeData = Array.isArray(forecastData) ? forecastData : [];
+  
   // Find the transition point between actual and projected data
   const findTransitionIndex = (dataKey: string) => {
-    if (!forecastData || forecastData.length === 0) return -1;
+    if (!safeData || safeData.length === 0) return -1;
     
-    for (let i = 0; i < forecastData.length - 1; i++) {
+    for (let i = 0; i < safeData.length - 1; i++) {
       // If current month has actual data and next month has projected data
+      const currentItem = safeData[i];
+      const nextItem = safeData[i + 1];
+      
+      if (!currentItem || !nextItem) continue;
+      
+      const nextDataKey = `projected${dataKey.charAt(0).toUpperCase() + dataKey.slice(1).replace(/^actual/, '')}`;
+      
       if (
-        forecastData[i]?.[dataKey] !== null && 
-        forecastData[i]?.[dataKey] !== undefined &&
-        forecastData[i + 1]?.[`projected${dataKey.charAt(0).toUpperCase() + dataKey.slice(1).replace(/^actual/, '')}`] !== null && 
-        forecastData[i + 1]?.[`projected${dataKey.charAt(0).toUpperCase() + dataKey.slice(1).replace(/^actual/, '')}`] !== undefined
+        currentItem[dataKey] !== null && 
+        currentItem[dataKey] !== undefined &&
+        nextItem[nextDataKey] !== null && 
+        nextItem[nextDataKey] !== undefined
       ) {
         return i;
       }
@@ -43,9 +53,9 @@ export function ForecastTab({ forecastData, isLoading }: ForecastTabProps) {
     
     const connectorData = [];
     
-    if (revenueTransitionIndex >= 0 && revenueTransitionIndex + 1 < forecastData.length) {
-      const lastActualMonth = forecastData[revenueTransitionIndex];
-      const firstProjectedMonth = forecastData[revenueTransitionIndex + 1];
+    if (revenueTransitionIndex >= 0 && revenueTransitionIndex + 1 < safeData.length) {
+      const lastActualMonth = safeData[revenueTransitionIndex];
+      const firstProjectedMonth = safeData[revenueTransitionIndex + 1];
       
       if (lastActualMonth && firstProjectedMonth && 
           lastActualMonth.actualRevenue !== null && 
@@ -62,9 +72,9 @@ export function ForecastTab({ forecastData, isLoading }: ForecastTabProps) {
       }
     }
     
-    if (costTransitionIndex >= 0 && costTransitionIndex + 1 < forecastData.length) {
-      const lastActualMonth = forecastData[costTransitionIndex];
-      const firstProjectedMonth = forecastData[costTransitionIndex + 1];
+    if (costTransitionIndex >= 0 && costTransitionIndex + 1 < safeData.length) {
+      const lastActualMonth = safeData[costTransitionIndex];
+      const firstProjectedMonth = safeData[costTransitionIndex + 1];
       
       if (lastActualMonth && firstProjectedMonth && 
           lastActualMonth.actualCost !== null && 
@@ -131,7 +141,7 @@ export function ForecastTab({ forecastData, isLoading }: ForecastTabProps) {
           ) : (
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart
-                data={forecastData}
+                data={safeData}
                 margin={{
                   top: 20,
                   right: 30,
