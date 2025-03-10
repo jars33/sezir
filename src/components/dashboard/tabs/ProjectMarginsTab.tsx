@@ -9,6 +9,7 @@ import {
   Tooltip, 
   ResponsiveContainer, 
   Legend, 
+  Cell
 } from 'recharts';
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -71,8 +72,16 @@ export function ProjectMarginsTab({ projectMargins, isLoading }: ProjectMarginsT
                   dataKey="margin" 
                   name="Margin" 
                   radius={[0, 4, 4, 0]}
-                  fill={(entry) => entry.margin < 0 ? '#ef4444' : '#10B981'} 
-                />
+                  fill="#10B981" // Default fill color
+                >
+                  {/* Use Cell components to conditionally style each bar */}
+                  {projectMargins.slice(0, 10).map((entry, index) => (
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={entry.margin < 0 ? '#ef4444' : '#10B981'} 
+                    />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           )}
