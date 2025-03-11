@@ -27,6 +27,11 @@ export function CostActionsDialog({
   amount,
   month,
 }: CostActionsDialogProps) {
+  // Add a guard clause to prevent rendering if required props are missing
+  if (amount === undefined || month === undefined) {
+    return null;
+  }
+
   const formattedMonth = new Date(month).toLocaleDateString(undefined, {
     year: "numeric",
     month: "long",
