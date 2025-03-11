@@ -174,17 +174,17 @@ export function TimelineMonth({
       {/* Empty div with flex-grow to push the total to the bottom */}
       <div className="flex-grow"></div>
 
-      {/* Total accumulated profit at the absolute bottom */}
+      {/* Monthly profit at the absolute bottom */}
       <div className={cn(
         "text-center font-medium text-sm p-2 rounded-md mt-auto",
-        accumulatedProfit >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+        monthProfit >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
       )}>
         {new Intl.NumberFormat("en-US", {
           style: "currency",
           currency: "EUR",
           minimumFractionDigits: 0,
           maximumFractionDigits: 0,
-        }).format(accumulatedProfit)}
+        }).format(monthProfit)}
       </div>
     </div>
   )
