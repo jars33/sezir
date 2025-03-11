@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
 import { ArrowLeft } from "lucide-react"
@@ -52,22 +51,18 @@ export default function ProjectDetails() {
     },
   })
 
-  // Check if the current user is the creator, a manager of the project's team, or a manager of the team's manager
   const { data: hasPermission = false, isLoading: isLoadingPermission } = useQuery({
     queryKey: ["project-permission", id, session?.user.id, project?.team_id],
     enabled: !!session?.user.id && !!project,
     queryFn: async () => {
-      // If project has no team_id, check if user is the creator
       if (!project?.team_id) {
         return project.user_id === session?.user.id
       }
       
-      // Check if user is the creator of the project
       if (project.user_id === session?.user.id) {
         return true;
       }
 
-      // Get the team info with manager_id and parent_team_id
       const { data: teamData, error: teamError } = await supabase
         .from("teams")
         .select("manager_id, parent_team_id")
@@ -79,12 +74,10 @@ export default function ProjectDetails() {
         return false
       }
 
-      // Check if user is the direct team manager
       if (teamData?.manager_id === session?.user.id) {
         return true
       }
 
-      // If there's a parent team, check if user is the manager of the parent team (manager of manager)
       if (teamData?.parent_team_id) {
         const { data: parentTeamData, error: parentTeamError } = await supabase
           .from("teams")
@@ -97,7 +90,6 @@ export default function ProjectDetails() {
         }
       }
 
-      // Check if user is a member of the team
       const { data: membershipData, error: membershipError } = await supabase
         .from("team_memberships")
         .select("id")
@@ -106,11 +98,9 @@ export default function ProjectDetails() {
         .single()
 
       if (membershipError && membershipError.code !== 'PGRST116') {
-        // PGRST116 is "no rows returned" error, which just means user is not a member
         console.error("Error checking team membership:", membershipError)
       }
 
-      // User has permission if they're a member of the team
       return !!membershipData
     }
   })
@@ -214,7 +204,7 @@ export default function ProjectDetails() {
         </div>
       </div>
 
-      <div className="space-y-6 mt-6">
+      <div className="mt-6">
         <ProjectTimelineView projectId={project.id} />
       </div>
 

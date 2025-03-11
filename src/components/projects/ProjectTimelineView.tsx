@@ -1,12 +1,10 @@
 
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 import { supabase } from "@/integrations/supabase/client"
 import { Card, CardContent } from "@/components/ui/card"
 import { ProjectDialog } from "@/components/ProjectDialog"
 import { DeleteProjectDialog } from "@/components/projects/DeleteProjectDialog"
-import { ProjectHeader } from "./timeline/ProjectHeader"
 import { TimelineView } from "./timeline/TimelineView"
 import { useProjectDetails, type Project } from "./timeline/hooks/useProjectDetails"
 import { useProjectPermissions } from "./timeline/hooks/useProjectPermissions"
@@ -17,7 +15,6 @@ interface ProjectTimelineViewProps {
 }
 
 export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
-  const navigate = useNavigate()
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
@@ -73,8 +70,8 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
 
       if (error) throw error
 
-      navigate("/projects")
       toast.success("Project deleted successfully")
+      // We don't need to navigate here as the parent will handle it
     } catch (error) {
       toast.error("Failed to delete project")
       console.error(error)
@@ -90,18 +87,8 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
   }
 
   return (
-    <div className="p-4">
-      <ProjectHeader
-        project={project}
-        hasPermission={hasPermission}
-        onNavigateBack={() => navigate(-1)}
-        onEditProject={() => setEditDialogOpen(true)}
-        onDeleteProject={() => setDeleteDialogOpen(true)}
-      />
-
-      <div className="space-y-6 mt-6">
-        <TimelineView projectId={projectId} />
-      </div>
+    <div className="space-y-6">
+      <TimelineView projectId={projectId} />
 
       <ProjectDialog
         project={project}
