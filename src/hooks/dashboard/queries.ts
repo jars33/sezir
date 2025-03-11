@@ -1,5 +1,7 @@
+
 import { supabase } from "@/integrations/supabase/client"
 import { useQuery } from "@tanstack/react-query"
+import { useProjectSettings } from "@/hooks/use-project-settings"
 
 interface DashboardQueryParams {
   selectedYear: number
@@ -102,29 +104,60 @@ export function useVariableCostsQuery({ selectedYear, teamId, yearStart, yearEnd
   })
 }
 
-// Query for project overhead costs
+// Return calculated overhead costs based on variable costs and project settings
 export function useOverheadCostsQuery({ selectedYear, teamId, yearStart, yearEnd }: DashboardQueryParams) {
+  const { getOverheadPercentage } = useProjectSettings()
+  
+  // Get variable costs first
+  const variableCostsQuery = useVariableCostsQuery({ selectedYear, teamId, yearStart, yearEnd })
+  
   return useQuery({
-    queryKey: ["project-overhead-costs-metrics", selectedYear, teamId],
+    queryKey: ["project-calculated-overhead-costs", selectedYear, teamId],
     queryFn: async () => {
-      const startDate = yearStart.toISOString().substring(0, 10)
-      const endDate = yearEnd.toISOString().substring(0, 10)
+      // Wait for variable costs to be loaded
+      await variableCostsQuery.refetch()
+      const variableCosts = variableCostsQuery.data || []
       
-      let query = supabase
-        .from("project_overhead_costs")
-        .select("*, projects!inner(id, team_id)")
-        .gte("month", startDate)
-        .lte("month", endDate)
+      // Group variable costs by project and month
+      const costsByProjectAndMonth = variableCosts.reduce<Record<string, Record<string, number>>>((acc, cost) => {
+        const projectId = cost.project_id
+        const yearMonth = cost.month.substring(0, 7) // Format: YYYY-MM
+        
+        if (!acc[projectId]) {
+          acc[projectId] = {}
+        }
+        
+        acc[projectId][yearMonth] = (acc[projectId][yearMonth] || 0) + Number(cost.amount)
+        return acc
+      }, {})
       
-      if (teamId) {
-        query = query.eq("projects.team_id", teamId)
+      // Create calculated overhead costs
+      const calculatedOverheadCosts = []
+      
+      for (const [projectId, monthCosts] of Object.entries(costsByProjectAndMonth)) {
+        for (const [month, totalAmount] of Object.entries(monthCosts)) {
+          const year = parseInt(month.split('-')[0])
+          const percentage = getOverheadPercentage(year)
+          const overheadAmount = (totalAmount * percentage) / 100
+          
+          // Find the project entry to get team_id
+          const projectEntry = variableCosts.find(c => c.project_id === projectId)
+          
+          calculatedOverheadCosts.push({
+            id: `calc-overhead-${projectId}-${month}`,
+            project_id: projectId,
+            month: `${month}-01`, // Set to first day of month
+            amount: overheadAmount,
+            description: `${percentage}% overhead`,
+            isCalculated: true,
+            projects: projectEntry ? { team_id: projectEntry.projects.team_id } : null
+          })
+        }
       }
-
-      const { data, error } = await query
-
-      if (error) throw error
-      return data || []
+      
+      return calculatedOverheadCosts
     },
+    enabled: variableCostsQuery.isSuccess,
   })
 }
 
