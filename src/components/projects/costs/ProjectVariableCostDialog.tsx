@@ -25,6 +25,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 
 const variableCostFormSchema = z.object({
   month: z.string().min(1, "Month is required"),
@@ -68,6 +69,7 @@ export function ProjectVariableCostDialog({
   onSuccess,
 }: ProjectVariableCostDialogProps) {
   const [isPeriod, setIsPeriod] = useState(false)
+  const { t } = useTranslation()
 
   const form = useForm<VariableCostFormSchema>({
     resolver: zodResolver(variableCostFormSchema),
@@ -172,20 +174,25 @@ export function ProjectVariableCostDialog({
     }
   }
 
+  // Determine if this is an edit or add operation
+  const isEditing = !!existingCost || !!showDelete
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {existingCost ? "Edit Variable Cost" : "Add Variable Cost"}
+            {isEditing ? t('costs.editCost') : t('costs.variableCost')}
           </DialogTitle>
           <DialogDescription>
-            Add variable cost for a single month or a period
+            {isEditing 
+              ? "Edit variable cost details"
+              : "Add variable cost for a single month or a period"}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-            {!existingCost && (
+            {!isEditing && (
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="period"
@@ -277,7 +284,7 @@ export function ProjectVariableCostDialog({
                 </Button>
               )}
               <Button type="submit">
-                {existingCost ? "Update" : "Add"} Variable Cost
+                {isEditing ? "Update" : "Add"} Variable Cost
               </Button>
             </DialogFooter>
           </form>
