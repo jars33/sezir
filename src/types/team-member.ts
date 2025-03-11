@@ -26,10 +26,4 @@ export type SalaryHistory = {
 export type TeamMemberFormValues = Omit<
   TeamMember,
   "id" | "created_at" | "updated_at"
-> & {
-  salary: {
-    amount: string
-    start_date: string
-    end_date: string | null
-  }
-}
+>

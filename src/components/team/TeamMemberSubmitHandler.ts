@@ -42,58 +42,19 @@ export function useTeamMemberSubmit() {
         }
 
         console.log("Successfully updated team member");
-
-        // Add salary if provided
-        if (values.salary.amount) {
-          const { error: salaryError } = await supabase
-            .from("salary_history")
-            .insert({
-              team_member_id: id,
-              amount: parseFloat(values.salary.amount),
-              start_date: values.salary.start_date,
-              end_date: values.salary.end_date,
-            })
-
-          if (salaryError) {
-            console.error("Salary insert error:", salaryError);
-            throw salaryError;
-          }
-          console.log("Successfully added salary history");
-        }
       } else {
         // Create new team member
         console.log("Creating new team member with data:", teamMemberData);
-        const { data: newMember, error: teamMemberError } = await supabase
+        const { error: teamMemberError } = await supabase
           .from("team_members")
           .insert(teamMemberData)
-          .select()
 
         if (teamMemberError) {
           console.error("Insert error:", teamMemberError)
           throw teamMemberError
         }
 
-        console.log("New team member created:", newMember);
-
-        // Add salary if provided and team member was created successfully
-        if (values.salary.amount && newMember && newMember.length > 0) {
-          const newMemberId = newMember[0].id;
-          
-          const { error: salaryError } = await supabase
-            .from("salary_history")
-            .insert({
-              team_member_id: newMemberId,
-              amount: parseFloat(values.salary.amount),
-              start_date: values.salary.start_date,
-              end_date: values.salary.end_date,
-            })
-
-          if (salaryError) {
-            console.error("Salary insert error:", salaryError);
-            throw salaryError;
-          }
-          console.log("Successfully added salary history for new member");
-        }
+        console.log("New team member created");
       }
 
       return true;

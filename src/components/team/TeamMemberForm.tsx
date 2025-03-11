@@ -22,11 +22,6 @@ export function TeamMemberForm({ member, userId, onSubmit, mode }: TeamMemberFor
     resolver: zodResolver(teamMemberFormSchema),
     defaultValues: {
       name: "",
-      salary: {
-        amount: "",
-        start_date: format(new Date(), 'yyyy-MM-dd'),
-        end_date: null,
-      },
       start_date: format(new Date(), 'yyyy-MM-dd'),
       end_date: null,
       company_phone: null,
@@ -42,11 +37,6 @@ export function TeamMemberForm({ member, userId, onSubmit, mode }: TeamMemberFor
       console.log("Resetting form with member data:", member)
       form.reset({
         name: member.name || "",
-        salary: {
-          amount: "",
-          start_date: format(new Date(), 'yyyy-MM-dd'),
-          end_date: null,
-        },
         start_date: member.start_date || format(new Date(), 'yyyy-MM-dd'),
         end_date: member.end_date,
         company_phone: member.company_phone,
