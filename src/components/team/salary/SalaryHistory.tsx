@@ -1,6 +1,6 @@
 
 import { format } from "date-fns"
-import { PlusCircle } from "lucide-react"
+import { PlusCircle, Edit, Trash2 } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
@@ -11,9 +11,17 @@ interface SalaryHistoryProps {
   id: string
   salaryHistory: SalaryHistory[] | undefined
   handleAddSalary: (values: { amount: string, start_date: string, end_date: string }) => Promise<void>
+  handleEditSalary?: (id: string, values: { amount: string, start_date: string, end_date: string }) => Promise<void>
+  handleDeleteSalary?: (id: string) => Promise<void>
 }
 
-export function SalaryHistory({ id, salaryHistory, handleAddSalary }: SalaryHistoryProps) {
+export function SalaryHistory({ 
+  id, 
+  salaryHistory, 
+  handleAddSalary, 
+  handleEditSalary, 
+  handleDeleteSalary 
+}: SalaryHistoryProps) {
   const form = useForm({
     defaultValues: {
       amount: "",
@@ -22,23 +30,53 @@ export function SalaryHistory({ id, salaryHistory, handleAddSalary }: SalaryHist
     },
   })
 
+  const [editingId, setEditingId] = React.useState<string | null>(null);
+
   const handleShowAddSalary = (e: React.MouseEvent) => {
     e.preventDefault();
+    resetForm();
     const salarySection = document.getElementById('add-salary-section');
     if (salarySection) {
       salarySection.style.display = 'block';
     }
   }
 
-  const onSubmit = async (values: { amount: string, start_date: string, end_date: string }) => {
-    console.log('Submitting salary with values:', values);
-    await handleAddSalary(values);
-    // Reset form values after successful submission
+  const handleShowEditSalary = (salary: SalaryHistory) => {
+    setEditingId(salary.id);
+    form.reset({
+      amount: salary.amount.toString(),
+      start_date: salary.start_date,
+      end_date: salary.end_date || "",
+    });
+    const salarySection = document.getElementById('add-salary-section');
+    if (salarySection) {
+      salarySection.style.display = 'block';
+    }
+  }
+
+  const resetForm = () => {
+    setEditingId(null);
     form.reset({
       amount: "",
       start_date: format(new Date(), 'yyyy-MM-dd'),
       end_date: "",
     });
+  }
+
+  const onSubmit = async (values: { amount: string, start_date: string, end_date: string }) => {
+    console.log('Submitting salary with values:', values);
+    if (editingId && handleEditSalary) {
+      await handleEditSalary(editingId, values);
+    } else {
+      await handleAddSalary(values);
+    }
+    
+    // Reset form and hide form section
+    resetForm();
+    const salarySection = document.getElementById('add-salary-section');
+    if (salarySection) {
+      salarySection.style.display = 'none';
+    }
   }
 
   return (
@@ -115,11 +153,12 @@ export function SalaryHistory({ id, salaryHistory, handleAddSalary }: SalaryHist
                   if (salarySection) {
                     salarySection.style.display = 'none';
                   }
+                  resetForm();
                 }}
               >
                 Cancel
               </Button>
-              <Button type="submit">Add Salary</Button>
+              <Button type="submit">{editingId ? 'Update' : 'Add'} Salary</Button>
             </div>
           </form>
         </Form>
@@ -132,6 +171,7 @@ export function SalaryHistory({ id, salaryHistory, handleAddSalary }: SalaryHist
               <th className="px-4 py-3 text-center text-sm font-medium text-gray-500">Amount</th>
               <th className="px-4 py-3 text-center text-sm font-medium text-gray-500">Start Date</th>
               <th className="px-4 py-3 text-center text-sm font-medium text-gray-500">End Date</th>
+              <th className="px-4 py-3 text-center text-sm font-medium text-gray-500">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y">
@@ -140,11 +180,34 @@ export function SalaryHistory({ id, salaryHistory, handleAddSalary }: SalaryHist
                 <td className="px-4 py-3 text-sm text-center">€{salary.amount}</td>
                 <td className="px-4 py-3 text-sm text-center">{salary.start_date}</td>
                 <td className="px-4 py-3 text-sm text-center">{salary.end_date || '-'}</td>
+                <td className="px-4 py-3 text-sm text-center">
+                  <div className="flex justify-center gap-2">
+                    <Button 
+                      type="button" 
+                      variant="ghost" 
+                      size="icon"
+                      onClick={() => handleShowEditSalary(salary)}
+                      title="Edit salary"
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      type="button" 
+                      variant="ghost" 
+                      size="icon" 
+                      className="text-red-500 hover:text-red-700"
+                      onClick={() => handleDeleteSalary && handleDeleteSalary(salary.id)}
+                      title="Delete salary"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </td>
               </tr>
             ))}
             {!salaryHistory?.length && (
               <tr>
-                <td colSpan={3} className="px-4 py-3 text-sm text-center text-gray-500">
+                <td colSpan={4} className="px-4 py-3 text-sm text-center text-gray-500">
                   No salary history found
                 </td>
               </tr>

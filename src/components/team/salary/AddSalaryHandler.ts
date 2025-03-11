@@ -24,7 +24,7 @@ export function useAddSalary(
           team_member_id: id,
           amount: parseFloat(values.amount),
           start_date: values.start_date,
-          end_date: values.end_date,
+          end_date: values.end_date || null,
         })
 
       if (error) throw error
@@ -33,7 +33,7 @@ export function useAddSalary(
 
       toast({
         title: "Success",
-        description: "Salary history updated successfully",
+        description: "Salary history added successfully",
       })
     } catch (error: any) {
       toast({
@@ -44,5 +44,60 @@ export function useAddSalary(
     }
   }
 
-  return { handleAddSalary }
+  const handleEditSalary = async (
+    salaryId: string,
+    values: { amount: string, start_date: string, end_date: string }
+  ) => {
+    try {
+      const { error } = await supabase
+        .from("salary_history")
+        .update({
+          amount: parseFloat(values.amount),
+          start_date: values.start_date,
+          end_date: values.end_date || null,
+        })
+        .eq("id", salaryId)
+
+      if (error) throw error
+
+      await refetchSalaryHistory()
+
+      toast({
+        title: "Success",
+        description: "Salary updated successfully",
+      })
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      })
+    }
+  }
+
+  const handleDeleteSalary = async (salaryId: string) => {
+    try {
+      const { error } = await supabase
+        .from("salary_history")
+        .delete()
+        .eq("id", salaryId)
+
+      if (error) throw error
+
+      await refetchSalaryHistory()
+
+      toast({
+        title: "Success",
+        description: "Salary deleted successfully",
+      })
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      })
+    }
+  }
+
+  return { handleAddSalary, handleEditSalary, handleDeleteSalary }
 }

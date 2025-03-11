@@ -27,7 +27,7 @@ export function EditTeamMember({
 }: EditTeamMemberProps) {
   const navigate = useNavigate()
   const { handleSubmit } = useTeamMemberSubmit()
-  const { handleAddSalary } = useAddSalary(refetchSalaryHistory)
+  const { handleAddSalary, handleEditSalary, handleDeleteSalary } = useAddSalary(refetchSalaryHistory)
 
   const onSubmit = async (values: TeamMemberFormSchema) => {
     await handleSubmit(values, false, id, userId)
@@ -35,6 +35,14 @@ export function EditTeamMember({
 
   const onAddSalary = async (values: { amount: string, start_date: string, end_date: string }) => {
     await handleAddSalary(id, values, false, userId)
+  }
+
+  const onEditSalary = async (salaryId: string, values: { amount: string, start_date: string, end_date: string }) => {
+    await handleEditSalary(salaryId, values)
+  }
+
+  const onDeleteSalary = async (salaryId: string) => {
+    await handleDeleteSalary(salaryId)
   }
 
   return (
@@ -59,7 +67,9 @@ export function EditTeamMember({
         <SalaryHistory 
           id={id} 
           salaryHistory={salaryHistory} 
-          handleAddSalary={onAddSalary} 
+          handleAddSalary={onAddSalary}
+          handleEditSalary={onEditSalary}
+          handleDeleteSalary={onDeleteSalary}
         />
       </div>
     </div>
