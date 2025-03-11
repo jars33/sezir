@@ -1,4 +1,3 @@
-
 import { format } from "date-fns"
 import {
   Tooltip,
@@ -77,13 +76,20 @@ export function TimelineMonth({
       </div>
 
       {/* Revenues - Always show either actual revenues or placeholder */}
-      <div className="text-center text-sm font-medium">
-        {new Intl.NumberFormat("en-US", {
-          style: "currency",
-          currency: "EUR",
-          minimumFractionDigits: 0,
-          maximumFractionDigits: 0,
-        }).format(totalRevenues)}
+      <div 
+        className={cn(
+          "p-2 rounded-md text-center",
+          totalRevenues > 0 ? "bg-green-50 dark:bg-green-900/20" : "bg-gray-50 dark:bg-gray-800/20"
+        )}
+      >
+        <div className="text-sm font-medium">
+          {new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "EUR",
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+          }).format(totalRevenues)}
+        </div>
       </div>
 
       {/* Allocations */}
