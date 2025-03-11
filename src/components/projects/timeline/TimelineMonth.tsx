@@ -68,46 +68,42 @@ export function TimelineMonth({
   return (
     <div 
       className={cn(
-        "p-4 space-y-2",
+        "p-4 space-y-2 border-r border-gray-200 dark:border-gray-800",
         isCurrentMonth ? "bg-blue-50 dark:bg-blue-900/20" : "bg-white dark:bg-gray-900"
       )}
     >
-      <div className="text-center font-medium text-sm mb-1">
+      <div className="text-center font-medium text-sm mb-3">
         {monthLabel}
       </div>
 
       {/* Revenues */}
-      {revenues.map((revenue) => (
-        <div
-          key={revenue.id}
-          onClick={() => onSelectRevenue(revenue)}
-          className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 p-2 rounded cursor-pointer text-center"
-        >
+      {revenues.length > 0 && (
+        <div className="text-center text-sm font-medium">
           {new Intl.NumberFormat("en-US", {
             style: "currency",
             currency: "EUR",
             minimumFractionDigits: 0,
             maximumFractionDigits: 0,
-          }).format(revenue.amount)}
+          }).format(totalRevenues)}
         </div>
-      ))}
+      )}
 
-      {/* Team Allocations */}
+      {/* Allocations */}
       {allocations.map((allocation) => (
         <div
           key={allocation.id}
           onClick={() => onSelectAllocation(allocation)}
-          className="bg-blue-50 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 p-2 rounded cursor-pointer"
+          className="bg-blue-50 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 p-2 rounded-md text-xs cursor-pointer"
         >
-          <div className="text-xs text-center font-medium truncate">
-            -{new Intl.NumberFormat("en-US", {
+          <div className="font-medium">
+            {new Intl.NumberFormat("en-US", {
               style: "currency",
               currency: "EUR",
               minimumFractionDigits: 0,
               maximumFractionDigits: 0,
-            }).format(allocation.salary_cost)}
+            }).format(-allocation.salary_cost)}
           </div>
-          <div className="text-xs text-center truncate">
+          <div className="truncate">
             {allocation.team_member_name} ({allocation.allocation_percentage}%)
           </div>
         </div>
@@ -118,18 +114,18 @@ export function TimelineMonth({
         <div
           key={cost.id}
           onClick={() => onSelectVariableCost(cost)}
-          className="bg-red-50 text-red-800 dark:bg-red-900/30 dark:text-red-300 p-2 rounded cursor-pointer"
+          className="bg-red-50 text-red-800 dark:bg-red-900/30 dark:text-red-300 p-2 rounded-md text-xs cursor-pointer"
         >
-          <div className="text-xs text-center font-medium">
-            -{new Intl.NumberFormat("en-US", {
+          <div className="font-medium">
+            {new Intl.NumberFormat("en-US", {
               style: "currency",
               currency: "EUR",
               minimumFractionDigits: 0,
               maximumFractionDigits: 0,
-            }).format(cost.amount)}
+            }).format(-cost.amount)}
           </div>
           {cost.description && (
-            <div className="text-xs text-center truncate">
+            <div className="truncate">
               {cost.description}
             </div>
           )}
@@ -140,25 +136,25 @@ export function TimelineMonth({
       {overheadCosts.map((cost) => (
         <div
           key={cost.id}
-          className="bg-orange-50 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300 p-2 rounded"
+          className="bg-orange-50 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300 p-2 rounded-md text-xs"
         >
-          <div className="text-xs text-center font-medium">
-            -{new Intl.NumberFormat("en-US", {
+          <div className="font-medium">
+            {new Intl.NumberFormat("en-US", {
               style: "currency",
               currency: "EUR",
               minimumFractionDigits: 0,
               maximumFractionDigits: 0,
-            }).format(cost.amount)}
+            }).format(-cost.amount)}
           </div>
-          <div className="text-xs text-center truncate">
-            {cost.description || "Overhead"}
+          <div className="truncate">
+            {cost.description || "11% overhead"}
           </div>
         </div>
       ))}
 
       {/* Month total */}
       <div className={cn(
-        "mt-auto pt-2 text-center font-semibold",
+        "mt-auto pt-2 text-center font-medium text-sm",
         monthProfit >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
       )}>
         {new Intl.NumberFormat("en-US", {

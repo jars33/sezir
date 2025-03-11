@@ -43,6 +43,7 @@ export function CostActionsManager({
       type={selectedCostAction.type}
       amount={selectedCostAction.amount}
       month={selectedCostAction.month}
+      description={selectedCostAction.description}
     />
   )
 }
