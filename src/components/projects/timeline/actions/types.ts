@@ -28,4 +28,5 @@ export interface CostActionItem {
   amount: number;
   month: string;
   id: string;
+  description?: string;
 }

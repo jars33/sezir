@@ -59,7 +59,7 @@ export function TimelineMonth({
   const totalCosts = totalVariableCosts + totalOverheadCosts + totalSalaryCosts
   const monthProfit = totalRevenues - totalCosts
 
-  const monthLabel = format(month, "MMM")
+  const monthLabel = format(month, "MMM yyyy")
   
   const isCurrentMonth =
     new Date().getMonth() === month.getMonth() &&
@@ -68,172 +68,106 @@ export function TimelineMonth({
   return (
     <div 
       className={cn(
-        "p-4 space-y-4 rounded-sm",
+        "p-4 space-y-2",
         isCurrentMonth ? "bg-blue-50 dark:bg-blue-900/20" : "bg-white dark:bg-gray-900"
       )}
     >
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium">{monthLabel}</h3>
-        <span className={cn(
-          "text-xs font-semibold",
-          monthProfit >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
-        )}>
+      <div className="text-center font-medium text-sm mb-1">
+        {monthLabel}
+      </div>
+
+      {/* Revenues */}
+      {revenues.map((revenue) => (
+        <div
+          key={revenue.id}
+          onClick={() => onSelectRevenue(revenue)}
+          className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 p-2 rounded cursor-pointer text-center"
+        >
           {new Intl.NumberFormat("en-US", {
             style: "currency",
             currency: "EUR",
             minimumFractionDigits: 0,
             maximumFractionDigits: 0,
-          }).format(monthProfit)}
-        </span>
-      </div>
-
-      <TooltipProvider>
-        {/* Accumulated Profit Display */}
-        <div className="mb-3">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className={cn(
-                "flex items-center text-xs p-1 rounded",
-                accumulatedProfit >= 0 ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-              )}>
-                <Info className="h-3 w-3 mr-1" />
-                <span className="truncate">
-                  {new Intl.NumberFormat("en-US", {
-                    style: "currency",
-                    currency: "EUR",
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 0,
-                  }).format(accumulatedProfit)}
-                </span>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>Accumulated profit up to this month</p>
-            </TooltipContent>
-          </Tooltip>
+          }).format(revenue.amount)}
         </div>
+      ))}
 
-        {/* Revenues */}
-        {revenues.length > 0 && (
-          <div className="space-y-1">
-            {revenues.map((revenue) => (
-              <Tooltip key={revenue.id}>
-                <TooltipTrigger asChild>
-                  <Badge 
-                    className="w-full justify-between cursor-pointer bg-green-100 hover:bg-green-200 text-green-800 border-0"
-                    onClick={() => onSelectRevenue(revenue)}
-                  >
-                    <CircleDollarSign className="h-3 w-3 mr-1" />
-                    <span>
-                      {new Intl.NumberFormat("en-US", {
-                        style: "currency",
-                        currency: "EUR",
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 0,
-                      }).format(revenue.amount)}
-                    </span>
-                  </Badge>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">
-                  <p>Revenue {format(new Date(revenue.month), "MMM d, yyyy")}</p>
-                  <p>Click to edit</p>
-                </TooltipContent>
-              </Tooltip>
-            ))}
+      {/* Team Allocations */}
+      {allocations.map((allocation) => (
+        <div
+          key={allocation.id}
+          onClick={() => onSelectAllocation(allocation)}
+          className="bg-blue-50 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 p-2 rounded cursor-pointer"
+        >
+          <div className="text-xs text-center font-medium truncate">
+            -{new Intl.NumberFormat("en-US", {
+              style: "currency",
+              currency: "EUR",
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 0,
+            }).format(allocation.salary_cost)}
           </div>
-        )}
+          <div className="text-xs text-center truncate">
+            {allocation.team_member_name} ({allocation.allocation_percentage}%)
+          </div>
+        </div>
+      ))}
 
-        {/* Variable Costs */}
-        {variableCosts.length > 0 && (
-          <div className="space-y-1 mt-1">
-            {variableCosts.map((cost) => (
-              <Tooltip key={cost.id}>
-                <TooltipTrigger asChild>
-                  <Badge 
-                    className="w-full justify-between cursor-pointer bg-red-100 hover:bg-red-200 text-red-800 border-0"
-                    onClick={() => onSelectVariableCost(cost)}
-                  >
-                    <TrendingDown className="h-3 w-3 mr-1" />
-                    <span>
-                      {new Intl.NumberFormat("en-US", {
-                        style: "currency",
-                        currency: "EUR",
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 0,
-                      }).format(cost.amount)}
-                    </span>
-                  </Badge>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">
-                  <p>Variable Cost {format(new Date(cost.month), "MMM d, yyyy")}</p>
-                  {cost.description && <p>{cost.description}</p>}
-                  <p>Click to edit</p>
-                </TooltipContent>
-              </Tooltip>
-            ))}
+      {/* Variable Costs */}
+      {variableCosts.map((cost) => (
+        <div
+          key={cost.id}
+          onClick={() => onSelectVariableCost(cost)}
+          className="bg-red-50 text-red-800 dark:bg-red-900/30 dark:text-red-300 p-2 rounded cursor-pointer"
+        >
+          <div className="text-xs text-center font-medium">
+            -{new Intl.NumberFormat("en-US", {
+              style: "currency",
+              currency: "EUR",
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 0,
+            }).format(cost.amount)}
           </div>
-        )}
+          {cost.description && (
+            <div className="text-xs text-center truncate">
+              {cost.description}
+            </div>
+          )}
+        </div>
+      ))}
 
-        {/* Overhead Costs */}
-        {overheadCosts.length > 0 && (
-          <div className="space-y-1 mt-1">
-            {overheadCosts.map((cost) => (
-              <Tooltip key={cost.id}>
-                <TooltipTrigger asChild>
-                  <Badge 
-                    className="w-full justify-between cursor-pointer bg-orange-100 hover:bg-orange-200 text-orange-800 border-0"
-                  >
-                    <Calculator className="h-3 w-3 mr-1" />
-                    <span>
-                      {new Intl.NumberFormat("en-US", {
-                        style: "currency",
-                        currency: "EUR",
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 0,
-                      }).format(cost.amount)}
-                    </span>
-                  </Badge>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">
-                  <p>Overhead Cost {format(new Date(cost.month), "MMM d, yyyy")}</p>
-                  {cost.description && <p>{cost.description}</p>}
-                  <p>Automatically calculated based on variable costs</p>
-                </TooltipContent>
-              </Tooltip>
-            ))}
+      {/* Overhead Costs */}
+      {overheadCosts.map((cost) => (
+        <div
+          key={cost.id}
+          className="bg-orange-50 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300 p-2 rounded"
+        >
+          <div className="text-xs text-center font-medium">
+            -{new Intl.NumberFormat("en-US", {
+              style: "currency",
+              currency: "EUR",
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 0,
+            }).format(cost.amount)}
           </div>
-        )}
+          <div className="text-xs text-center truncate">
+            {cost.description || "Overhead"}
+          </div>
+        </div>
+      ))}
 
-        {/* Team Allocations */}
-        {allocations.length > 0 && (
-          <div className="space-y-1 mt-1">
-            {allocations.map((allocation) => (
-              <Tooltip key={allocation.id}>
-                <TooltipTrigger asChild>
-                  <Badge 
-                    className="w-full justify-between cursor-pointer bg-purple-100 hover:bg-purple-200 text-purple-800 border-0"
-                    onClick={() => onSelectAllocation(allocation)}
-                  >
-                    <CircleUser className="h-3 w-3 mr-1" />
-                    <span>
-                      {new Intl.NumberFormat("en-US", {
-                        style: "currency",
-                        currency: "EUR",
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 0,
-                      }).format(allocation.salary_cost)}
-                    </span>
-                  </Badge>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">
-                  <p>{allocation.team_member_name} ({allocation.allocation_percentage}%)</p>
-                  <p>Click to edit</p>
-                </TooltipContent>
-              </Tooltip>
-            ))}
-          </div>
-        )}
-      </TooltipProvider>
+      {/* Month total */}
+      <div className={cn(
+        "mt-auto pt-2 text-center font-semibold",
+        monthProfit >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+      )}>
+        {new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "EUR",
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        }).format(monthProfit)}
+      </div>
     </div>
   )
 }

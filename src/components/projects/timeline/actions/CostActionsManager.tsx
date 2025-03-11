@@ -27,6 +27,7 @@ export function CostActionsManager({
           id: selectedCostAction.id,
           month: selectedCostAction.month,
           amount: selectedCostAction.amount,
+          description: selectedCostAction.description
         });
         setSelectedCostAction(null);
       }}
@@ -35,6 +36,7 @@ export function CostActionsManager({
           id: selectedCostAction.id,
           month: selectedCostAction.month,
           amount: selectedCostAction.amount,
+          description: selectedCostAction.description
         });
         setSelectedCostAction(null);
       }}

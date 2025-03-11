@@ -280,7 +280,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
                     allocations={monthAllocations}
                     onSelectRevenue={setSelectedRevenue}
                     onSelectVariableCost={setSelectedVariableCost}
-                    onSelectOverheadCost={null} // Removing the ability to select overhead costs
+                    onSelectOverheadCost={() => {}} // We pass an empty function since overhead costs are not selectable
                     onSelectAllocation={(allocation) => {
                       setSelectedAllocation(allocation)
                       setAllocationDialogOpen(true)
