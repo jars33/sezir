@@ -2,8 +2,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
-import { useProjectSettings } from "@/hooks/use-project-settings"
-import { format } from "date-fns"
 
 interface TimelineItem {
   id: string
@@ -24,7 +22,6 @@ interface AllocationItem {
 
 export function useTimelineData(projectId: string) {
   const queryClient = useQueryClient()
-  const { getOverheadPercentage } = useProjectSettings()
   
   const { 
     data: revenues,
@@ -61,6 +58,27 @@ export function useTimelineData(projectId: string) {
 
       if (error) {
         toast.error("Failed to load variable costs")
+        throw error
+      }
+
+      return data as TimelineItem[]
+    },
+  })
+
+  const { 
+    data: overheadCosts,
+    isLoading: isOverheadCostsLoading,
+    refetch: refetchOverheadCosts 
+  } = useQuery({
+    queryKey: ["project-overhead-costs", projectId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("project_overhead_costs")
+        .select("*")
+        .eq("project_id", projectId)
+
+      if (error) {
+        toast.error("Failed to load overhead costs")
         throw error
       }
 
@@ -129,49 +147,24 @@ export function useTimelineData(projectId: string) {
     },
   })
 
-  // Calculate overhead costs based on variable costs and overhead percentage
-  const overheadCosts = React.useMemo(() => {
-    if (!variableCosts) return []
-    
-    // Group variable costs by month
-    const costsByMonth = variableCosts.reduce<Record<string, number>>((acc, cost) => {
-      const yearMonth = cost.month.substring(0, 7) // Format: YYYY-MM
-      acc[yearMonth] = (acc[yearMonth] || 0) + Number(cost.amount)
-      return acc
-    }, {})
-    
-    // Create overhead costs for each month with variable costs
-    return Object.entries(costsByMonth).map(([month, totalAmount]) => {
-      const year = parseInt(month.split('-')[0])
-      const percentage = getOverheadPercentage(year)
-      const overheadAmount = (totalAmount * percentage) / 100
-      
-      return {
-        id: `overhead-${month}`,
-        month: `${month}-01`, // Set to first day of month for date formatting
-        amount: overheadAmount,
-        description: `${percentage}% overhead`,
-        isCalculated: true // Mark as calculated so we know it's not from DB
-      }
-    })
-  }, [variableCosts, getOverheadPercentage])
-
   // Combined refetch function
   const refetchTimelineData = async () => {
     await Promise.all([
       refetchRevenues(),
       refetchVariableCosts(),
+      refetchOverheadCosts(),
       refetchAllocations()
     ])
   }
 
   // Combined loading state
-  const isLoading = isRevenuesLoading || isVariableCostsLoading || isAllocationsLoading
+  const isLoading = isRevenuesLoading || isVariableCostsLoading || 
+                    isOverheadCostsLoading || isAllocationsLoading
 
   return {
     revenues: revenues || [],
     variableCosts: variableCosts || [],
-    overheadCosts,
+    overheadCosts: overheadCosts || [],
     allocations: allocations || [],
     isLoading,
     refetchTimelineData

@@ -134,6 +134,7 @@ export function TimelineActions({
           onOpenChange={() => setSelectedOverheadCost(null)}
           onSubmit={() => setSelectedOverheadCost(null)}
           defaultValues={{
+            id: selectedOverheadCost.id,
             amount: selectedOverheadCost.amount.toString(),
             month: selectedOverheadCost.month,
           }}
@@ -190,7 +191,6 @@ export function TimelineActions({
                 amount: selectedCostAction.amount,
               });
             }
-            setSelectedCostAction(null);
           }}
           onDelete={() => {
             if (selectedCostAction.type === "variable") {
@@ -202,7 +202,6 @@ export function TimelineActions({
                 id: selectedCostAction.id,
               });
             }
-            setSelectedCostAction(null);
           }}
           type={selectedCostAction.type}
           amount={selectedCostAction.amount}
