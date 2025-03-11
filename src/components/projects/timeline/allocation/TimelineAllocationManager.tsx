@@ -1,9 +1,10 @@
 
-import { useState } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { format } from "date-fns"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
 import { ProjectAllocationDialog } from "../../allocations/ProjectAllocationDialog"
+import { useManagedTeamMembers } from "@/hooks/use-managed-team-members"
 import type { AllocationItem } from "../actions/types"
 
 interface TimelineAllocationManagerProps {
@@ -24,6 +25,7 @@ export function TimelineAllocationManager({
   refetchTimelineData
 }: TimelineAllocationManagerProps) {
   const { toast } = useToast()
+  const { data: teamMembers = [] } = useManagedTeamMembers()
 
   const handleAllocationSubmit = async (values: {
     teamMemberId: string
@@ -115,13 +117,19 @@ export function TimelineAllocationManager({
     }
   }
 
+  // Extract simplified team members list for the dropdown
+  const teamMembersList = teamMembers.map(member => ({
+    id: member.id,
+    name: member.name
+  }))
+
   return (
     <ProjectAllocationDialog
       projectId={projectId}
       open={allocationDialogOpen}
       onOpenChange={setAllocationDialogOpen}
       onSubmit={handleAllocationSubmit}
-      teamMembers={[]}
+      teamMembers={teamMembersList}
       initialAllocation={selectedAllocation ? {
         id: selectedAllocation.id,
         teamMemberId: selectedAllocation.team_member_id,

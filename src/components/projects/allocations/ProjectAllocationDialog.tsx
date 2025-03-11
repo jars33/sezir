@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog"
 import {
   Form,
@@ -19,19 +20,14 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { toast } from "sonner"
 import { supabase } from "@/integrations/supabase/client"
 import { useQueryClient } from "@tanstack/react-query"
+import { useTranslation } from "react-i18next"
+import { TeamMemberSelectField } from "../TeamMemberSelectField"
 
 const allocationFormSchema = z.object({
   teamMemberId: z.string().min(1, "Please select a team member"),
@@ -75,6 +71,7 @@ export function ProjectAllocationDialog({
   const [isPeriod, setIsPeriod] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const queryClient = useQueryClient()
+  const { t } = useTranslation()
   
   const form = useForm<AllocationFormValues>({
     resolver: zodResolver(allocationFormSchema),
@@ -179,18 +176,21 @@ export function ProjectAllocationDialog({
     }
   }
 
+  // Determine if this is an edit or add operation
+  const isEditing = !!initialAllocation
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{initialAllocation ? 'Edit' : 'Add'} Team Member Allocation</DialogTitle>
+          <DialogTitle>{isEditing ? 'Edit' : 'Add'} Team Member Allocation</DialogTitle>
           <DialogDescription>
-            {initialAllocation ? 'Update allocation for this month' : 'Add allocation for a single month or a period'}
+            {isEditing ? 'Update allocation for this month' : 'Add allocation for a single month or a period'}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-            {!initialAllocation && (
+            {!isEditing && (
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="period"
@@ -206,32 +206,10 @@ export function ProjectAllocationDialog({
               </div>
             )}
 
-            <FormField
-              control={form.control}
-              name="teamMemberId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Team Member</FormLabel>
-                  <Select 
-                    onValueChange={field.onChange} 
-                    value={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a team member" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {teamMembers.map((member) => (
-                        <SelectItem key={member.id} value={member.id}>
-                          {member.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
+            <TeamMemberSelectField 
+              control={form.control} 
+              teamMembers={teamMembers}
+              disabled={isEditing}
             />
 
             <FormField
@@ -302,7 +280,7 @@ export function ProjectAllocationDialog({
                 </FormItem>
               )}
             />
-            <div className="flex justify-between items-center">
+            <DialogFooter>
               {initialAllocation && (
                 <Button
                   type="button"
@@ -313,10 +291,10 @@ export function ProjectAllocationDialog({
                   Delete Allocation
                 </Button>
               )}
-              <Button type="submit" className={initialAllocation ? "ml-auto" : ""}>
-                {initialAllocation ? 'Update' : 'Add'} Allocation
+              <Button type="submit">
+                {isEditing ? 'Update' : 'Add'} Allocation
               </Button>
-            </div>
+            </DialogFooter>
           </form>
         </Form>
       </DialogContent>

@@ -31,7 +31,7 @@ export function TeamMemberAllocationDialog({
   onSubmit,
 }: TeamMemberAllocationDialogProps) {
   const [isPeriod, setIsPeriod] = useState(false)
-  const { data: projects } = useProjectsData()
+  const { data: projects = [] } = useProjectsData()
   const { form, handleSubmit } = useAllocationFormSubmit({ onSubmit, open })
   
   // Reset form when dialog opens/closes
