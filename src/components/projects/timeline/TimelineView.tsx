@@ -83,11 +83,17 @@ export function TimelineView({ projectId }: TimelineViewProps) {
     setAllocationDialogOpen(true)
   }
 
+  const handleAddAllocation = () => {
+    setSelectedAllocation(null)
+    setAllocationDialogOpen(true)
+  }
+
   return (
     <Card>
       <TimelineHeader
         onAddRevenue={() => setAddRevenueDate(new Date())}
         onAddVariableCost={() => setAddVariableCostDate(new Date())}
+        onAddAllocation={handleAddAllocation}
         onPreviousYear={handlePreviousYear}
         onNextYear={handleNextYear}
         totalProfit={totalProfitCalc}
