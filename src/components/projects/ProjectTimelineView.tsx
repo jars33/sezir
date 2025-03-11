@@ -1,4 +1,3 @@
-
 import { useState, useMemo, useEffect } from "react"
 import { addMonths, format, startOfMonth, setMonth } from "date-fns"
 import { Card, CardContent } from "@/components/ui/card"
@@ -20,6 +19,7 @@ interface TimelineItem {
   month: string
   amount: number
   description?: string
+  isNew?: boolean
 }
 
 interface AllocationItem {
@@ -233,6 +233,14 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
     return accumulatedRevenues - accumulatedVariableCosts - accumulatedOverheadCosts - accumulatedSalaryCosts
   }
 
+  const handleRevenueSeleсtion = (revenue: TimelineItem) => {
+    if (revenue.isNew) {
+      setAddRevenueDate(new Date(revenue.month))
+    } else {
+      setSelectedRevenue(revenue)
+    }
+  }
+
   return (
     <Card>
       <TimelineHeader
@@ -278,7 +286,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
                     variableCosts={monthVariableCosts}
                     overheadCosts={monthOverheadCosts}
                     allocations={monthAllocations}
-                    onSelectRevenue={setSelectedRevenue}
+                    onSelectRevenue={handleRevenueSeleсtion}
                     onSelectVariableCost={setSelectedVariableCost}
                     onSelectOverheadCost={() => {}} // We pass an empty function since overhead costs are not selectable
                     onSelectAllocation={(allocation) => {

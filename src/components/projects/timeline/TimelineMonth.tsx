@@ -1,4 +1,3 @@
-
 import { format } from "date-fns"
 import {
   Tooltip,
@@ -65,18 +64,21 @@ export function TimelineMonth({
     new Date().getMonth() === month.getMonth() &&
     new Date().getFullYear() === month.getFullYear()
 
-  // Function to handle revenue click
   const handleRevenueClick = () => {
-    // If there's only one revenue for the month, select it directly
     if (revenues.length === 1) {
       onSelectRevenue(revenues[0]);
     } 
-    // If there are multiple revenues, we could select the first one or handle this differently
     else if (revenues.length > 1) {
       onSelectRevenue(revenues[0]);
+    } 
+    else {
+      onSelectRevenue({ 
+        id: null, 
+        month: format(month, "yyyy-MM"),
+        amount: "",
+        isNew: true 
+      });
     }
-    // If there's no revenue yet, we don't need to do anything special
-    // as the parent component can detect this is a new revenue
   }
 
   return (
@@ -90,7 +92,6 @@ export function TimelineMonth({
         {monthLabel}
       </div>
 
-      {/* Revenues - Always show either actual revenues or placeholder */}
       <div 
         onClick={handleRevenueClick}
         className={cn(
@@ -108,7 +109,6 @@ export function TimelineMonth({
         </div>
       </div>
 
-      {/* Allocations */}
       {allocations.map((allocation) => (
         <div
           key={allocation.id}
@@ -129,7 +129,6 @@ export function TimelineMonth({
         </div>
       ))}
 
-      {/* Variable Costs */}
       {variableCosts.map((cost) => (
         <div
           key={cost.id}
@@ -152,7 +151,6 @@ export function TimelineMonth({
         </div>
       ))}
 
-      {/* Overhead Costs */}
       {overheadCosts.map((cost) => (
         <div
           key={cost.id}
@@ -172,7 +170,6 @@ export function TimelineMonth({
         </div>
       ))}
 
-      {/* Month total - Now appears at the bottom due to flex-grow pushing it down */}
       <div className="mt-auto pt-2 flex items-center justify-center">
         <div className={cn(
           "text-center font-medium text-sm",
