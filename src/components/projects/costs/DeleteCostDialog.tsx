@@ -15,6 +15,7 @@ interface DeleteCostDialogProps {
   onOpenChange: (open: boolean) => void
   onConfirm: () => void
   type: "variable" | "overhead" | "revenue"
+  cost_id?: string // Made optional since we're not using it in the current component
 }
 
 export function DeleteCostDialog({
