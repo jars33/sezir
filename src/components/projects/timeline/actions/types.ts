@@ -4,6 +4,7 @@ export interface TimelineItem {
   month: string
   amount: number
   description?: string
+  isNew?: boolean
 }
 
 export interface TimelineActionsProps {
@@ -29,4 +30,14 @@ export interface CostActionItem {
   month: string;
   id: string;
   description?: string;
+}
+
+export interface AllocationItem {
+  id: string
+  month: string
+  allocation_percentage: number
+  team_member_name: string
+  salary_cost: number
+  team_member_id: string
+  project_assignment_id: string
 }

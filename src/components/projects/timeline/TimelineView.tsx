@@ -1,3 +1,4 @@
+
 import { Card, CardContent } from "@/components/ui/card"
 import { TimelineHeader } from "./TimelineHeader"
 import { TimelineMonth } from "./TimelineMonth"
@@ -179,7 +180,8 @@ export function TimelineView({ projectId }: TimelineViewProps) {
   }, [revenues, variableCosts, allocations, year, getOverheadPercentage])
 
   const handleRevenueSeleсtion = (revenue: TimelineItem) => {
-    if (revenue.isNew) {
+    // Check if revenue has the isNew property and it's true
+    if (revenue.isNew === true) {
       setAddRevenueDate(new Date(revenue.month))
     } else {
       setSelectedRevenue(revenue)
