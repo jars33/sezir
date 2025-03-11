@@ -1,4 +1,3 @@
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,7 +26,6 @@ interface DeleteCostDialogProps {
   onConfirm?: () => void
   type: "variable" | "overhead" | "revenue"
   cost_id?: string 
-  // Add the missing props that were causing errors
   cost?: CostItem
   costType?: string
   projectId?: string
@@ -45,7 +43,6 @@ export function DeleteCostDialog({
 }: DeleteCostDialogProps) {
   const { t } = useTranslation();
   
-  // Determine the type text and entry type for the message
   const getTypeTranslation = () => {
     switch(type) {
       case "variable": return t('costs.variableCost');
@@ -69,7 +66,7 @@ export function DeleteCostDialog({
         return;
       }
 
-      let tableName = "";
+      let tableName: "project_variable_costs" | "project_revenues";
       switch (type) {
         case "variable":
           tableName = "project_variable_costs";
