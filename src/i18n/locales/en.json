@@ -1,4 +1,3 @@
-
 {
   "common": {
     "dashboard": "Dashboard",
@@ -18,7 +17,23 @@
     "listView": "List View",
     "team": "Team",
     "noTeam": "No Team",
-    "selectTeam": "Select a team"
+    "selectTeam": "Select a team",
+    "member": "Team Member",
+    "selectMember": "Select a team member",
+    "noMembers": "No team members available",
+    "allocation": {
+      "title": "Add Team Member Allocation",
+      "edit": "Edit Team Member Allocation",
+      "description": "Add allocation for a single month or a period",
+      "period": "Period",
+      "month": "Month",
+      "startMonth": "Start Month",
+      "endMonth": "End Month",
+      "percentage": "Allocation Percentage",
+      "add": "Add Allocation",
+      "update": "Update Allocation",
+      "delete": "Delete Allocation"
+    }
   },
   "project": {
     "projectNumber": "Project Number",
