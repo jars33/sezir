@@ -28,7 +28,6 @@ interface TimelineCalculationsResult {
 export function useTimelineCalculations(
   revenues: TimelineItem[],
   variableCosts: TimelineItem[],
-  overheadCosts: TimelineItem[],
   allocations: AllocationItem[],
   currentYear: number
 ): TimelineCalculationsResult {
@@ -47,7 +46,6 @@ export function useTimelineCalculations(
   }, 0) || 0
 
   // Calculate overhead costs as a percentage of the variable costs
-  // NOTE: The existing overheadCosts array is ignored as it's now calculated automatically
   const totalOverheadCosts = (totalVariableCosts * overheadPercentage) / 100
 
   const totalSalaryCosts = allocations?.reduce((sum, a) => {

@@ -22,7 +22,6 @@ interface TimelineSummaryProps {
   year: number
   revenues: TimelineItem[]
   variableCosts: TimelineItem[]
-  overheadCosts: TimelineItem[]
   allocations: AllocationItem[]
 }
 
@@ -30,7 +29,6 @@ export function TimelineSummary({
   year,
   revenues,
   variableCosts,
-  overheadCosts,
   allocations,
 }: TimelineSummaryProps) {
   const [showDecimals] = useLocalStorage<boolean>("showDecimals", true)
