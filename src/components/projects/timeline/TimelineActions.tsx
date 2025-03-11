@@ -26,12 +26,14 @@ export function TimelineActions({
   return (
     <>
       <RevenueActions
+        projectId={projectId}
         addRevenueDate={addRevenueDate}
         selectedRevenue={selectedRevenue}
         deleteRevenue={deleteRevenue}
         setAddRevenueDate={setAddRevenueDate}
         setSelectedRevenue={setSelectedRevenue}
         setDeleteRevenue={setDeleteRevenue}
+        onVariableCostUpdate={onVariableCostUpdate}
       />
       
       <VariableCostActions
