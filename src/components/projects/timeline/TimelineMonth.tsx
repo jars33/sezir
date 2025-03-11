@@ -76,17 +76,15 @@ export function TimelineMonth({
         {monthLabel}
       </div>
 
-      {/* Revenues */}
-      {revenues.length > 0 && (
-        <div className="text-center text-sm font-medium">
-          {new Intl.NumberFormat("en-US", {
-            style: "currency",
-            currency: "EUR",
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
-          }).format(totalRevenues)}
-        </div>
-      )}
+      {/* Revenues - Always show either actual revenues or placeholder */}
+      <div className="text-center text-sm font-medium">
+        {new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "EUR",
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        }).format(totalRevenues)}
+      </div>
 
       {/* Allocations */}
       {allocations.map((allocation) => (
@@ -152,17 +150,19 @@ export function TimelineMonth({
         </div>
       ))}
 
-      {/* Month total */}
-      <div className={cn(
-        "mt-auto pt-2 text-center font-medium text-sm",
-        monthProfit >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
-      )}>
-        {new Intl.NumberFormat("en-US", {
-          style: "currency",
-          currency: "EUR",
-          minimumFractionDigits: 0,
-          maximumFractionDigits: 0,
-        }).format(monthProfit)}
+      {/* Month total - Now appears at the bottom due to flex-grow pushing it down */}
+      <div className="mt-auto pt-2 flex items-center justify-center">
+        <div className={cn(
+          "text-center font-medium text-sm",
+          monthProfit >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+        )}>
+          {new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "EUR",
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+          }).format(monthProfit)}
+        </div>
       </div>
     </div>
   )
