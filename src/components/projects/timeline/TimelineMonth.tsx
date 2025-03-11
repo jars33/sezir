@@ -1,3 +1,4 @@
+
 import { format } from "date-fns"
 import {
   Tooltip,
@@ -84,7 +85,7 @@ export function TimelineMonth({
   return (
     <div 
       className={cn(
-        "p-4 space-y-2 border-r border-gray-200 dark:border-gray-800",
+        "p-4 space-y-2 border-r border-gray-200 dark:border-gray-800 flex flex-col",
         isCurrentMonth ? "bg-blue-50 dark:bg-blue-900/20" : "bg-white dark:bg-gray-900"
       )}
     >
@@ -170,18 +171,20 @@ export function TimelineMonth({
         </div>
       ))}
 
-      <div className="mt-auto pt-2 flex items-center justify-center">
-        <div className={cn(
-          "text-center font-medium text-sm",
-          monthProfit >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
-        )}>
-          {new Intl.NumberFormat("en-US", {
-            style: "currency",
-            currency: "EUR",
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
-          }).format(monthProfit)}
-        </div>
+      {/* Empty div with flex-grow to push the total to the bottom */}
+      <div className="flex-grow"></div>
+
+      {/* Total accumulated profit at the absolute bottom */}
+      <div className={cn(
+        "text-center font-medium text-sm p-2 rounded-md mt-auto",
+        accumulatedProfit >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+      )}>
+        {new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "EUR",
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        }).format(accumulatedProfit)}
       </div>
     </div>
   )
