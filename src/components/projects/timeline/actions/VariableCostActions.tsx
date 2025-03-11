@@ -3,6 +3,8 @@ import React from "react"
 import { format, parseISO } from "date-fns"
 import { ProjectVariableCostDialog } from "../../costs/ProjectVariableCostDialog"
 import { DeleteCostDialog } from "../../costs/DeleteCostDialog"
+import { supabase } from "@/integrations/supabase/client"
+import { toast } from "sonner"
 import type { TimelineItem } from "./types"
 
 interface VariableCostActionsProps {
@@ -30,7 +32,6 @@ export function VariableCostActions({
     setAddVariableCostDate(null)
     setSelectedVariableCost(null)
     
-    // Call the onVariableCostUpdate callback if provided
     if (onVariableCostUpdate) {
       await onVariableCostUpdate()
     }
@@ -38,16 +39,59 @@ export function VariableCostActions({
 
   // Format the month correctly for the display in the dialog
   const getFormattedMonth = (dateString: string) => {
-    // If we have a full date format, extract just the year-month part
     if (dateString.length > 7) {
       try {
         return format(parseISO(dateString), 'yyyy-MM')
       } catch (e) {
         console.error("Error parsing date:", e)
-        return dateString.substring(0, 7) // Fallback to first 7 chars
+        return dateString.substring(0, 7)
       }
     }
     return dateString
+  }
+
+  const handleAddVariableCost = async (values: { month: string; amount: string; description: string }) => {
+    try {
+      const { error } = await supabase
+        .from("project_variable_costs")
+        .insert({
+          project_id: projectId,
+          month: values.month + "-01",
+          amount: Number(values.amount),
+          description: values.description
+        })
+
+      if (error) throw error
+      
+      toast.success("Variable cost added successfully")
+      await handleVariableCostSuccess()
+    } catch (error) {
+      console.error("Error adding variable cost:", error)
+      toast.error("Failed to add variable cost")
+    }
+  }
+
+  const handleUpdateVariableCost = async (values: { month: string; amount: string; description: string }) => {
+    try {
+      if (!selectedVariableCost) return
+
+      const { error } = await supabase
+        .from("project_variable_costs")
+        .update({
+          month: values.month + "-01",
+          amount: Number(values.amount),
+          description: values.description
+        })
+        .eq('id', selectedVariableCost.id)
+
+      if (error) throw error
+      
+      toast.success("Variable cost updated successfully")
+      await handleVariableCostSuccess()
+    } catch (error) {
+      console.error("Error updating variable cost:", error)
+      toast.error("Failed to update variable cost")
+    }
   }
 
   return (
@@ -56,10 +100,7 @@ export function VariableCostActions({
         open={addVariableCostDate !== null}
         onOpenChange={() => setAddVariableCostDate(null)}
         projectId={projectId}
-        onSubmit={({ month, amount, description }) => {
-          // Handle submission of variable cost
-          handleVariableCostSuccess()
-        }}
+        onSubmit={handleAddVariableCost}
         defaultValues={{
           month: addVariableCostDate ? format(addVariableCostDate, 'yyyy-MM') : '',
           amount: '',
@@ -72,19 +113,16 @@ export function VariableCostActions({
           open={selectedVariableCost !== null}
           onOpenChange={() => setSelectedVariableCost(null)}
           projectId={projectId}
-          onSubmit={({ month, amount, description }) => {
-            // Handle update of variable cost
-            handleVariableCostSuccess()
-          }}
+          onSubmit={handleUpdateVariableCost}
           defaultValues={{
             month: getFormattedMonth(selectedVariableCost.month),
-            amount: selectedVariableCost ? selectedVariableCost.amount.toString() : '',
-            description: selectedVariableCost ? selectedVariableCost.description || '' : '',
+            amount: selectedVariableCost.amount.toString(),
+            description: selectedVariableCost.description || '',
           }}
           showDelete={true}
           onDelete={() => {
-            setDeleteVariableCost(selectedVariableCost);
-            setSelectedVariableCost(null);
+            setDeleteVariableCost(selectedVariableCost)
+            setSelectedVariableCost(null)
           }}
         />
       )}
@@ -99,5 +137,5 @@ export function VariableCostActions({
         />
       )}
     </>
-  );
+  )
 }
