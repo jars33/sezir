@@ -158,41 +158,6 @@ export type Database = {
           },
         ]
       }
-      project_overhead_costs: {
-        Row: {
-          amount: number
-          created_at: string
-          id: string
-          month: string
-          project_id: string
-          updated_at: string
-        }
-        Insert: {
-          amount?: number
-          created_at?: string
-          id?: string
-          month: string
-          project_id: string
-          updated_at?: string
-        }
-        Update: {
-          amount?: number
-          created_at?: string
-          id?: string
-          month?: string
-          project_id?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "project_overhead_costs_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       project_overhead_settings: {
         Row: {
           created_at: string

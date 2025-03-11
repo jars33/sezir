@@ -35,12 +35,11 @@ export function TimelineView({ projectId }: TimelineViewProps) {
 
   const queryClient = useQueryClient()
 
-  const { revenues, variableCosts, overheadCosts, allocations, isLoading, refetchTimelineData } = useTimelineData(projectId)
+  const { revenues, variableCosts, allocations, isLoading, refetchTimelineData } = useTimelineData(projectId)
 
   const { totalProfit: totalProfitCalc } = useTimelineCalculations(
     revenues,
     variableCosts,
-    overheadCosts,
     allocations,
     year
   )
@@ -99,7 +98,6 @@ export function TimelineView({ projectId }: TimelineViewProps) {
           year={year}
           revenues={revenues}
           variableCosts={variableCosts}
-          overheadCosts={overheadCosts}
           allocations={allocations}
         />
         
@@ -107,12 +105,12 @@ export function TimelineView({ projectId }: TimelineViewProps) {
           startDate={startDate}
           revenues={revenues}
           variableCosts={variableCosts}
-          overheadCosts={overheadCosts}
           allocations={allocations}
           onSelectRevenue={handleRevenueSeleсtion}
           onSelectVariableCost={setSelectedVariableCost}
           onSelectAllocation={handleAllocationSelection}
           calculateAccumulatedProfitUpToMonth={calculateAccumulatedProfitUpToMonth}
+          year={year}
         />
 
         <TimelineActions

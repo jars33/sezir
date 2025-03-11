@@ -130,33 +130,6 @@ export function useTimelineData(projectId: string) {
     },
   })
 
-  // Calculate overhead costs based on variable costs and overhead percentage
-  const overheadCosts = useMemo(() => {
-    if (!variableCosts) return []
-    
-    // Group variable costs by month
-    const costsByMonth = variableCosts.reduce<Record<string, number>>((acc, cost) => {
-      const yearMonth = cost.month.substring(0, 7) // Format: YYYY-MM
-      acc[yearMonth] = (acc[yearMonth] || 0) + Number(cost.amount)
-      return acc
-    }, {})
-    
-    // Create overhead costs for each month with variable costs
-    return Object.entries(costsByMonth).map(([month, totalAmount]) => {
-      const year = parseInt(month.split('-')[0])
-      const percentage = getOverheadPercentage(year)
-      const overheadAmount = (totalAmount * percentage) / 100
-      
-      return {
-        id: `overhead-${month}`,
-        month: `${month}-01`, // Set to first day of month for date formatting
-        amount: overheadAmount,
-        description: `${percentage}% overhead`,
-        isCalculated: true // Mark as calculated so we know it's not from DB
-      }
-    })
-  }, [variableCosts, getOverheadPercentage])
-
   // Combined refetch function
   const refetchTimelineData = async () => {
     await Promise.all([
@@ -172,7 +145,6 @@ export function useTimelineData(projectId: string) {
   return {
     revenues: revenues || [],
     variableCosts: variableCosts || [],
-    overheadCosts,
     allocations: allocations || [],
     isLoading,
     refetchTimelineData
