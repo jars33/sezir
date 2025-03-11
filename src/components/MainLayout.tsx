@@ -1,3 +1,4 @@
+
 import { Outlet, useNavigate, Link, useLocation } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { supabase } from "@/integrations/supabase/client"
@@ -82,7 +83,7 @@ export default function MainLayout() {
                     </DropdownMenuTrigger>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>{t('common.language')}: {currentLanguage === 'en' ? 'English' : 'Português'}</p>
+                    <p>Language: {currentLanguage === 'en' ? 'English' : 'Português'}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>

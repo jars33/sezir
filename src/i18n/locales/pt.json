@@ -8,17 +8,13 @@
     "inbox": "Caixa de Entrada",
     "signOut": "Terminar Sessão",
     "loading": "A carregar...",
-    "showDecimals": "Mostrar decimais",
-    "language": "Idioma"
+    "showDecimals": "Mostrar decimais"
   },
   "team": {
     "title": "Membros da Equipa",
     "addTeamMember": "Adicionar Membro",
     "timelineView": "Vista de Cronologia",
-    "listView": "Vista em Lista",
-    "team": "Equipa",
-    "noTeam": "Sem Equipa",
-    "selectTeam": "Selecionar uma equipa"
+    "listView": "Vista em Lista"
   },
   "project": {
     "projectNumber": "Número do Projeto",
@@ -30,35 +26,12 @@
     "planned": "Planeado",
     "inProgress": "Em Progresso",
     "completed": "Concluído",
-    "cancelled": "Cancelado",
-    "team": "Equipa",
-    "selectTeam": "Selecionar uma equipa",
-    "noTeam": "Sem Equipa",
-    "createProject": "Criar Projeto",
-    "editProject": "Editar Projeto",
-    "updateProject": "Atualizar Projeto",
-    "optional": "opcional"
+    "cancelled": "Cancelado"
   },
   "dialog": {
     "areYouSure": "Tem a certeza?",
     "deleteProjectWarning": "Esta ação não pode ser desfeita. Isto irá eliminar permanentemente o projeto.",
     "cancel": "Cancelar",
     "delete": "Eliminar"
-  },
-  "costs": {
-    "variableCost": "Custo Variável",
-    "overheadCost": "Custo Fixo",
-    "revenue": "Receita",
-    "editCost": "Editar Custo",
-    "deleteCost": "Eliminar Custo",
-    "actions": "Ações de Custo",
-    "entry": "entrada",
-    "cost": "custo",
-    "deleteWarning": "Esta ação não pode ser desfeita. Isto irá eliminar permanentemente a {type} {entryType}.",
-    "costBreakdown": "Discriminação de Custos",
-    "totalCosts": "Custos Totais",
-    "profit": "Lucro",
-    "rentability": "Rentabilidade",
-    "allocations": "Alocações"
   }
 }

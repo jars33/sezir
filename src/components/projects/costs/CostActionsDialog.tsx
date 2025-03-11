@@ -7,7 +7,6 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Edit2Icon, Trash2Icon } from "lucide-react"
-import { useTranslation } from "react-i18next"
 
 interface CostActionsDialogProps {
   open: boolean
@@ -28,8 +27,6 @@ export function CostActionsDialog({
   amount,
   month,
 }: CostActionsDialogProps) {
-  const { t } = useTranslation();
-  
   // Add a guard clause to prevent rendering if required props are missing
   if (amount === undefined || month === undefined) {
     return null;
@@ -40,13 +37,11 @@ export function CostActionsDialog({
     month: "long",
   })
 
-  const costType = type === "variable" ? t('costs.variableCost') : t('costs.overheadCost');
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{costType} {t('costs.actions')}</DialogTitle>
+          <DialogTitle>{type === "variable" ? "Variable" : "Overhead"} Cost Actions</DialogTitle>
         </DialogHeader>
         <div className="py-6">
           <div className="mb-6 text-center">
@@ -63,7 +58,7 @@ export function CostActionsDialog({
               }}
             >
               <Edit2Icon className="mr-2 h-4 w-4" />
-              {t('costs.editCost')}
+              Edit Cost
             </Button>
             <Button
               variant="outline"
@@ -74,7 +69,7 @@ export function CostActionsDialog({
               }}
             >
               <Trash2Icon className="mr-2 h-4 w-4" />
-              {t('costs.deleteCost')}
+              Delete Cost
             </Button>
           </div>
         </div>

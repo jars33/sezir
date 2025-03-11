@@ -9,7 +9,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { useTranslation } from "react-i18next"
 
 interface DeleteCostDialogProps {
   open: boolean
@@ -25,32 +24,18 @@ export function DeleteCostDialog({
   onConfirm,
   type,
 }: DeleteCostDialogProps) {
-  const { t } = useTranslation();
-  
-  // Determine the type text and entry type for the message
-  const getTypeTranslation = () => {
-    switch(type) {
-      case "variable": return t('costs.variableCost');
-      case "overhead": return t('costs.overheadCost');
-      case "revenue": return t('costs.revenue');
-      default: return type;
-    }
-  };
-  
-  const entryType = type === 'revenue' ? t('costs.entry') : t('costs.cost');
-
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>{t('dialog.areYouSure')}</AlertDialogTitle>
+          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            {t('costs.deleteWarning', { type: getTypeTranslation().toLowerCase(), entryType })}
+            This action cannot be undone. This will permanently delete the {type} {type === 'revenue' ? 'entry' : 'cost'}.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>{t('dialog.cancel')}</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm}>{t('dialog.delete')}</AlertDialogAction>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={onConfirm}>Delete</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

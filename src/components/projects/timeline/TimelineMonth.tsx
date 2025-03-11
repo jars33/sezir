@@ -174,7 +174,7 @@ export function TimelineMonth({
           </div>
         )}
 
-        {/* Overhead Costs */}
+        {/* Overhead Costs - Automatically calculated */}
         {overheadCosts.length > 0 && (
           <div className="space-y-1 mt-1">
             {overheadCosts.map((cost) => (

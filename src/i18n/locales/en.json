@@ -8,17 +8,13 @@
     "inbox": "Inbox",
     "signOut": "Sign Out",
     "loading": "Loading...",
-    "showDecimals": "Show decimals",
-    "language": "Language"
+    "showDecimals": "Show decimals"
   },
   "team": {
     "title": "Team Members",
     "addTeamMember": "Add Team Member",
     "timelineView": "Timeline View",
-    "listView": "List View",
-    "team": "Team",
-    "noTeam": "No Team",
-    "selectTeam": "Select a team"
+    "listView": "List View"
   },
   "project": {
     "projectNumber": "Project Number",
@@ -30,35 +26,12 @@
     "planned": "Planned",
     "inProgress": "In Progress",
     "completed": "Completed",
-    "cancelled": "Cancelled",
-    "team": "Team",
-    "selectTeam": "Select a team",
-    "noTeam": "No Team",
-    "createProject": "Create Project",
-    "editProject": "Edit Project",
-    "updateProject": "Update Project",
-    "optional": "optional"
+    "cancelled": "Cancelled"
   },
   "dialog": {
     "areYouSure": "Are you sure?",
     "deleteProjectWarning": "This action cannot be undone. This will permanently delete the project.",
     "cancel": "Cancel",
     "delete": "Delete"
-  },
-  "costs": {
-    "variableCost": "Variable Cost",
-    "overheadCost": "Overhead Cost",
-    "revenue": "Revenue",
-    "editCost": "Edit Cost",
-    "deleteCost": "Delete Cost",
-    "actions": "Cost Actions",
-    "entry": "entry",
-    "cost": "cost",
-    "deleteWarning": "This action cannot be undone. This will permanently delete the {type} {entryType}.",
-    "costBreakdown": "Cost Breakdown",
-    "totalCosts": "Total Costs",
-    "profit": "Profit",
-    "rentability": "Rentability",
-    "allocations": "Allocations"
   }
 }

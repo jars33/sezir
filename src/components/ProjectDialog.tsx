@@ -14,7 +14,6 @@ import { ProjectBasicFields } from "./projects/ProjectBasicFields"
 import { projectFormSchema, type ProjectFormSchema } from "./projects/project-schema"
 import { useEffect } from "react"
 import { TeamSelectField } from "./projects/TeamSelectField"
-import { useTranslation } from "react-i18next"
 
 interface ProjectDialogProps {
   project?: {
@@ -37,8 +36,6 @@ export function ProjectDialog({
   onOpenChange,
   onSubmit,
 }: ProjectDialogProps) {
-  const { t } = useTranslation();
-  
   const form = useForm<ProjectFormSchema>({
     resolver: zodResolver(projectFormSchema),
     defaultValues: {
@@ -89,7 +86,7 @@ export function ProjectDialog({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>
-            {project ? t('project.editProject') : t('project.createProject')}
+            {project ? "Edit Project" : "Create New Project"}
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
@@ -98,7 +95,7 @@ export function ProjectDialog({
             <TeamSelectField form={form} />
             <DialogFooter>
               <Button type="submit">
-                {project ? t('project.updateProject') : t('project.createProject')}
+                {project ? "Update Project" : "Create Project"}
               </Button>
             </DialogFooter>
           </form>
