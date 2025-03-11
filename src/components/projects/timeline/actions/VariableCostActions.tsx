@@ -31,6 +31,7 @@ export function VariableCostActions({
   const handleVariableCostSuccess = async () => {
     setAddVariableCostDate(null)
     setSelectedVariableCost(null)
+    setDeleteVariableCost(null)
     
     if (onVariableCostUpdate) {
       await onVariableCostUpdate()

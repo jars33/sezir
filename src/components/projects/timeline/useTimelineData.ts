@@ -130,8 +130,14 @@ export function useTimelineData(projectId: string) {
     },
   })
 
-  // Combined refetch function
+  // Combined refetch function - ensure we properly refresh all data
   const refetchTimelineData = async () => {
+    // First invalidate all relevant queries
+    queryClient.invalidateQueries({ queryKey: ["project-revenues", projectId] })
+    queryClient.invalidateQueries({ queryKey: ["project-variable-costs", projectId] })
+    queryClient.invalidateQueries({ queryKey: ["project-allocations", projectId, "with-salaries"] })
+    
+    // Then explicitly refetch each query
     await Promise.all([
       refetchRevenues(),
       refetchVariableCosts(),
