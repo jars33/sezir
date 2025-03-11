@@ -37,6 +37,7 @@ export function TimelineActions({
       />
       
       <VariableCostActions
+        projectId={projectId} // Adding the missing projectId prop here
         addVariableCostDate={addVariableCostDate}
         selectedVariableCost={selectedVariableCost}
         deleteVariableCost={deleteVariableCost}
