@@ -12,6 +12,7 @@ import { ProjectAllocationDialog } from "./allocations/ProjectAllocationDialog"
 import { useToast } from "@/hooks/use-toast"
 import { useQuery } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
+import { useProjectSettings } from "@/hooks/use-project-settings"
 
 interface TimelineItem {
   id: string
@@ -53,13 +54,17 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
   const [allocationDialogOpen, setAllocationDialogOpen] = useState(false)
 
   const { toast } = useToast()
+  const { getOverheadPercentage, settings } = useProjectSettings()
 
   const { revenues, variableCosts, overheadCosts, allocations } = useTimelineData(projectId)
 
   const totalProfit = useMemo(() => {
     const totalRevenues = revenues?.reduce((sum, r) => sum + Number(r.amount), 0) || 0
     const totalVariableCosts = variableCosts?.reduce((sum, c) => sum + Number(c.amount), 0) || 0
-    const totalOverheadCosts = overheadCosts?.reduce((sum, c) => sum + Number(c.amount), 0) || 0
+    
+    const overheadPercentage = getOverheadPercentage(year)
+    const totalOverheadCosts = (totalVariableCosts * overheadPercentage) / 100
+    
     const totalSalaryCosts = allocations?.reduce((sum, a) => sum + Number(a.salary_cost), 0) || 0
     const totalCosts = totalVariableCosts + totalOverheadCosts + totalSalaryCosts
     const profit = totalRevenues - totalCosts
@@ -69,7 +74,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
       amount: profit,
       rentability
     }
-  }, [revenues, variableCosts, overheadCosts, allocations])
+  }, [revenues, variableCosts, allocations, year, getOverheadPercentage, settings])
 
   const months = Array.from({ length: 12 }, (_, i) => addMonths(startDate, i))
 
@@ -206,9 +211,9 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
       ?.filter(c => c.month <= targetMonthStr)
       .reduce((sum, c) => sum + Number(c.amount), 0) || 0
 
-    const accumulatedOverheadCosts = overheadCosts
-      ?.filter(c => c.month <= targetMonthStr)
-      .reduce((sum, c) => sum + Number(c.amount), 0) || 0
+    const overheadPercentage = getOverheadPercentage(year)
+    
+    const accumulatedOverheadCosts = (accumulatedVariableCosts * overheadPercentage) / 100
 
     const accumulatedSalaryCosts = allocations
       ?.filter(a => a.month <= targetMonthStr)

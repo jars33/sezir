@@ -1,7 +1,7 @@
-
 import { format, getYear, getQuarter, startOfYear, endOfYear } from "date-fns"
 import { Card } from "@/components/ui/card"
 import { useLocalStorage } from "@/hooks/use-local-storage"
+import { useProjectSettings } from "@/hooks/use-project-settings"
 
 interface TimelineItem {
   id: string
@@ -34,7 +34,8 @@ export function TimelineSummary({
   allocations,
 }: TimelineSummaryProps) {
   const [showDecimals] = useLocalStorage<boolean>("showDecimals", true)
-
+  const { getOverheadPercentage } = useProjectSettings()
+  
   const calculateProfit = (items: any[], startDate: Date, endDate: Date) => {
     const filteredRevenues = revenues.filter(
       r => {
@@ -49,13 +50,9 @@ export function TimelineSummary({
         return date >= startDate && date <= endDate
       }
     ).reduce((sum, c) => sum + Number(c.amount), 0)
-
-    const filteredOverheadCosts = overheadCosts.filter(
-      c => {
-        const date = new Date(c.month)
-        return date >= startDate && date <= endDate
-      }
-    ).reduce((sum, c) => sum + Number(c.amount), 0)
+    
+    const overheadPercentage = getOverheadPercentage(year)
+    const filteredOverheadCosts = (filteredVariableCosts * overheadPercentage) / 100
 
     const filteredSalaryCosts = allocations.filter(
       a => {
@@ -67,7 +64,6 @@ export function TimelineSummary({
     const totalCosts = filteredVariableCosts + filteredOverheadCosts + filteredSalaryCosts
     const profit = filteredRevenues - totalCosts
 
-    // Calculate rentability percentage
     const rentability = totalCosts > 0 ? (profit / totalCosts) * 100 : 0
 
     return {
