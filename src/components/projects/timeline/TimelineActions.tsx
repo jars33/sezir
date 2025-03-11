@@ -61,7 +61,7 @@ export function TimelineActions({
       <ProjectRevenueDialog
         open={addRevenueDate !== null}
         onOpenChange={() => setAddRevenueDate(null)}
-        projectId={projectId}
+        project_id={projectId}
         selectedDate={addRevenueDate}
         onSuccess={() => setAddRevenueDate(null)}
       />
@@ -71,7 +71,7 @@ export function TimelineActions({
         <ProjectRevenueDialog
           open={selectedRevenue !== null}
           onOpenChange={() => setSelectedRevenue(null)}
-          projectId={projectId}
+          project_id={projectId}
           selectedDate={selectedRevenue ? new Date(selectedRevenue.month) : null}
           initialValues={{
             id: selectedRevenue.id,
@@ -85,7 +85,7 @@ export function TimelineActions({
       <ProjectVariableCostDialog
         open={addVariableCostDate !== null}
         onOpenChange={() => setAddVariableCostDate(null)}
-        projectId={projectId}
+        project_id={projectId}
         selectedDate={addVariableCostDate}
         onSuccess={handleVariableCostSuccess}
       />
@@ -95,7 +95,7 @@ export function TimelineActions({
         <ProjectVariableCostDialog
           open={selectedVariableCost !== null}
           onOpenChange={() => setSelectedVariableCost(null)}
-          projectId={projectId}
+          project_id={projectId}
           selectedDate={selectedVariableCost ? new Date(selectedVariableCost.month) : null}
           initialValues={{
             id: selectedVariableCost.id,
@@ -111,7 +111,7 @@ export function TimelineActions({
         <DeleteCostDialog
           open={deleteRevenue !== null}
           onOpenChange={() => setDeleteRevenue(null)}
-          costId={deleteRevenue.id}
+          cost_id={deleteRevenue.id}
           type="revenue"
           onSuccess={() => setDeleteRevenue(null)}
         />
@@ -121,7 +121,7 @@ export function TimelineActions({
         <DeleteCostDialog
           open={deleteVariableCost !== null}
           onOpenChange={() => setDeleteVariableCost(null)}
-          costId={deleteVariableCost.id}
+          cost_id={deleteVariableCost.id}
           type="variable"
           onSuccess={handleVariableCostSuccess}
         />

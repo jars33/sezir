@@ -8,7 +8,6 @@ import { useLocalStorage } from "@/hooks/use-local-storage"
 interface TimelineHeaderProps {
   onAddRevenue: () => void
   onAddVariableCost: () => void
-  onAddOverheadCost: () => void
   onPreviousYear: () => void
   onNextYear: () => void
   totalProfit: number
@@ -18,7 +17,6 @@ interface TimelineHeaderProps {
 export function TimelineHeader({
   onAddRevenue,
   onAddVariableCost,
-  onAddOverheadCost,
   onPreviousYear,
   onNextYear,
   totalProfit,
@@ -70,15 +68,6 @@ export function TimelineHeader({
             >
               <PlusCircle className="h-4 w-4 mr-2" />
               Cost
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="hover:bg-blue-50 hover:text-blue-600"
-              onClick={onAddOverheadCost}
-            >
-              <PlusCircle className="h-4 w-4 mr-2" />
-              Allocation
             </Button>
           </div>
           <div className="flex gap-2">
