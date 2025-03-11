@@ -3,22 +3,29 @@ import React, { useState } from "react"
 import { CostActionsDialog } from "../costs/CostActionsDialog"
 import { ProjectRevenueDialog } from "../revenues/ProjectRevenueDialog"
 import { ProjectVariableCostDialog } from "../costs/ProjectVariableCostDialog"
+import { ProjectOverheadCostDialog } from "../costs/ProjectOverheadCostDialog"
 import { DeleteCostDialog } from "../costs/DeleteCostDialog"
 
 interface TimelineActionsProps {
   projectId: string
   addRevenueDate: Date | null
   addVariableCostDate: Date | null
+  addOverheadCostDate: Date | null
   selectedRevenue: any | null
   selectedVariableCost: any | null
+  selectedOverheadCost: any | null
   deleteRevenue: any | null
   deleteVariableCost: any | null
+  deleteOverheadCost: any | null
   setAddRevenueDate: (date: Date | null) => void
   setAddVariableCostDate: (date: Date | null) => void
+  setAddOverheadCostDate: (date: Date | null) => void
   setSelectedRevenue: (revenue: any | null) => void
   setSelectedVariableCost: (cost: any | null) => void
+  setSelectedOverheadCost: (cost: any | null) => void
   setDeleteRevenue: (revenue: any | null) => void
   setDeleteVariableCost: (cost: any | null) => void
+  setDeleteOverheadCost: (cost: any | null) => void
   onVariableCostUpdate?: () => Promise<void>
 }
 
@@ -26,20 +33,26 @@ export function TimelineActions({
   projectId,
   addRevenueDate,
   addVariableCostDate,
+  addOverheadCostDate,
   selectedRevenue,
   selectedVariableCost,
+  selectedOverheadCost,
   deleteRevenue,
   deleteVariableCost,
+  deleteOverheadCost,
   setAddRevenueDate,
   setAddVariableCostDate,
+  setAddOverheadCostDate,
   setSelectedRevenue,
   setSelectedVariableCost,
+  setSelectedOverheadCost,
   setDeleteRevenue,
   setDeleteVariableCost,
+  setDeleteOverheadCost,
   onVariableCostUpdate,
 }: TimelineActionsProps) {
   const [selectedCostAction, setSelectedCostAction] = useState<{
-    type: "variable";
+    type: "variable" | "overhead";
     amount: number;
     month: string;
     id: string;
@@ -106,13 +119,35 @@ export function TimelineActions({
         />
       )}
 
+      {/* Overhead Cost Dialog */}
+      <ProjectOverheadCostDialog
+        open={addOverheadCostDate !== null}
+        onOpenChange={() => setAddOverheadCostDate(null)}
+        onSubmit={() => setAddOverheadCostDate(null)}
+        defaultValues={undefined}
+      />
+
+      {/* Overhead Cost Edit Dialog */}
+      {selectedOverheadCost && (
+        <ProjectOverheadCostDialog
+          open={selectedOverheadCost !== null}
+          onOpenChange={() => setSelectedOverheadCost(null)}
+          onSubmit={() => setSelectedOverheadCost(null)}
+          defaultValues={{
+            amount: selectedOverheadCost.amount.toString(),
+            month: selectedOverheadCost.month,
+          }}
+        />
+      )}
+
       {/* Delete Dialogs */}
       {deleteRevenue && (
         <DeleteCostDialog
           open={deleteRevenue !== null}
           onOpenChange={() => setDeleteRevenue(null)}
-          onConfirm={() => setDeleteRevenue(null)}
+          costId={deleteRevenue.id}
           type="revenue"
+          onSuccess={() => setDeleteRevenue(null)}
         />
       )}
 
@@ -120,8 +155,19 @@ export function TimelineActions({
         <DeleteCostDialog
           open={deleteVariableCost !== null}
           onOpenChange={() => setDeleteVariableCost(null)}
-          onConfirm={handleVariableCostSuccess}
+          costId={deleteVariableCost.id}
           type="variable"
+          onSuccess={handleVariableCostSuccess}
+        />
+      )}
+
+      {deleteOverheadCost && (
+        <DeleteCostDialog
+          open={deleteOverheadCost !== null}
+          onOpenChange={() => setDeleteOverheadCost(null)}
+          costId={deleteOverheadCost.id}
+          type="overhead"
+          onSuccess={() => setDeleteOverheadCost(null)}
         />
       )}
       
@@ -131,17 +177,31 @@ export function TimelineActions({
           open={selectedCostAction !== null}
           onOpenChange={() => setSelectedCostAction(null)}
           onEdit={() => {
-            setSelectedVariableCost({
-              id: selectedCostAction.id,
-              month: selectedCostAction.month,
-              amount: selectedCostAction.amount,
-            });
+            if (selectedCostAction.type === "variable") {
+              setSelectedVariableCost({
+                id: selectedCostAction.id,
+                month: selectedCostAction.month,
+                amount: selectedCostAction.amount,
+              });
+            } else {
+              setSelectedOverheadCost({
+                id: selectedCostAction.id,
+                month: selectedCostAction.month,
+                amount: selectedCostAction.amount,
+              });
+            }
             setSelectedCostAction(null);
           }}
           onDelete={() => {
-            setDeleteVariableCost({
-              id: selectedCostAction.id,
-            });
+            if (selectedCostAction.type === "variable") {
+              setDeleteVariableCost({
+                id: selectedCostAction.id,
+              });
+            } else {
+              setDeleteOverheadCost({
+                id: selectedCostAction.id,
+              });
+            }
             setSelectedCostAction(null);
           }}
           type={selectedCostAction.type}

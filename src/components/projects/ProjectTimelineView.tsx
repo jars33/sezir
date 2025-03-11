@@ -1,4 +1,3 @@
-
 import { useState, useMemo, useEffect } from "react"
 import { addMonths, format, startOfMonth, setMonth } from "date-fns"
 import { Card, CardContent } from "@/components/ui/card"
@@ -44,10 +43,13 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
 
   const [addRevenueDate, setAddRevenueDate] = useState<Date | null>(null)
   const [addVariableCostDate, setAddVariableCostDate] = useState<Date | null>(null)
+  const [addOverheadCostDate, setAddOverheadCostDate] = useState<Date | null>(null)
   const [selectedRevenue, setSelectedRevenue] = useState<TimelineItem | null>(null)
   const [selectedVariableCost, setSelectedVariableCost] = useState<TimelineItem | null>(null)
+  const [selectedOverheadCost, setSelectedOverheadCost] = useState<TimelineItem | null>(null)
   const [deleteRevenue, setDeleteRevenue] = useState<TimelineItem | null>(null)
   const [deleteVariableCost, setDeleteVariableCost] = useState<TimelineItem | null>(null)
+  const [deleteOverheadCost, setDeleteOverheadCost] = useState<TimelineItem | null>(null)
   const [selectedAllocation, setSelectedAllocation] = useState<AllocationItem | null>(null)
   const [allocationDialogOpen, setAllocationDialogOpen] = useState(false)
   
@@ -238,6 +240,10 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
       <TimelineHeader
         onAddRevenue={() => setAddRevenueDate(new Date())}
         onAddVariableCost={() => setAddVariableCostDate(new Date())}
+        onAddOverheadCost={() => {
+          setSelectedAllocation(null)
+          setAllocationDialogOpen(true)
+        }}
         onPreviousYear={handlePreviousYear}
         onNextYear={handleNextYear}
         totalProfit={totalProfit.amount}
@@ -280,7 +286,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
                     allocations={monthAllocations}
                     onSelectRevenue={setSelectedRevenue}
                     onSelectVariableCost={setSelectedVariableCost}
-                    onSelectOverheadCost={null} // Removing the ability to select overhead costs
+                    onSelectOverheadCost={setSelectedOverheadCost}
                     onSelectAllocation={(allocation) => {
                       setSelectedAllocation(allocation)
                       setAllocationDialogOpen(true)
@@ -297,16 +303,22 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
           projectId={projectId}
           addRevenueDate={addRevenueDate}
           addVariableCostDate={addVariableCostDate}
+          addOverheadCostDate={addOverheadCostDate}
           selectedRevenue={selectedRevenue}
           selectedVariableCost={selectedVariableCost}
+          selectedOverheadCost={selectedOverheadCost}
           deleteRevenue={deleteRevenue}
           deleteVariableCost={deleteVariableCost}
+          deleteOverheadCost={deleteOverheadCost}
           setAddRevenueDate={setAddRevenueDate}
           setAddVariableCostDate={setAddVariableCostDate}
+          setAddOverheadCostDate={setAddOverheadCostDate}
           setSelectedRevenue={setSelectedRevenue}
           setSelectedVariableCost={setSelectedVariableCost}
+          setSelectedOverheadCost={setSelectedOverheadCost}
           setDeleteRevenue={setDeleteRevenue}
           setDeleteVariableCost={setDeleteVariableCost}
+          setDeleteOverheadCost={setDeleteOverheadCost}
           onVariableCostUpdate={handleVariableCostUpdate}
         />
 
