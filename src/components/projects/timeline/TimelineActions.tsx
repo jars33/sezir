@@ -1,38 +1,32 @@
-import { useQueryClient } from "@tanstack/react-query"
-import { supabase } from "@/integrations/supabase/client"
-import { toast } from "sonner"
-import { format } from "date-fns"
-import { ProjectRevenueDialog } from "../revenues/ProjectRevenueDialog"
-import { ProjectCostDialog } from "../costs/ProjectCostDialog"
-import { DeleteCostDialog } from "../costs/DeleteCostDialog"
 
-interface TimelineItem {
-  id: string
-  month: string
-  amount: number
-  description?: string
-}
+import React from "react"
+import { CostActionsDialog } from "../costs/CostActionsDialog"
+import { ProjectRevenueDialog } from "../revenues/ProjectRevenueDialog"
+import { ProjectVariableCostDialog } from "../costs/ProjectVariableCostDialog"
+import { ProjectOverheadCostDialog } from "../costs/ProjectOverheadCostDialog"
+import { DeleteCostDialog } from "../costs/DeleteCostDialog"
 
 interface TimelineActionsProps {
   projectId: string
   addRevenueDate: Date | null
   addVariableCostDate: Date | null
   addOverheadCostDate: Date | null
-  selectedRevenue: TimelineItem | null
-  selectedVariableCost: TimelineItem | null
-  selectedOverheadCost: TimelineItem | null
-  deleteRevenue: TimelineItem | null
-  deleteVariableCost: TimelineItem | null
-  deleteOverheadCost: TimelineItem | null
+  selectedRevenue: any | null
+  selectedVariableCost: any | null
+  selectedOverheadCost: any | null
+  deleteRevenue: any | null
+  deleteVariableCost: any | null
+  deleteOverheadCost: any | null
   setAddRevenueDate: (date: Date | null) => void
   setAddVariableCostDate: (date: Date | null) => void
   setAddOverheadCostDate: (date: Date | null) => void
-  setSelectedRevenue: (revenue: TimelineItem | null) => void
-  setSelectedVariableCost: (cost: TimelineItem | null) => void
-  setSelectedOverheadCost: (cost: TimelineItem | null) => void
-  setDeleteRevenue: (revenue: TimelineItem | null) => void
-  setDeleteVariableCost: (cost: TimelineItem | null) => void
-  setDeleteOverheadCost: (cost: TimelineItem | null) => void
+  setSelectedRevenue: (revenue: any | null) => void
+  setSelectedVariableCost: (cost: any | null) => void
+  setSelectedOverheadCost: (cost: any | null) => void
+  setDeleteRevenue: (revenue: any | null) => void
+  setDeleteVariableCost: (cost: any | null) => void
+  setDeleteOverheadCost: (cost: any | null) => void
+  onVariableCostUpdate?: () => Promise<void>
 }
 
 export function TimelineActions({
@@ -55,284 +49,126 @@ export function TimelineActions({
   setDeleteRevenue,
   setDeleteVariableCost,
   setDeleteOverheadCost,
+  onVariableCostUpdate,
 }: TimelineActionsProps) {
-  const queryClient = useQueryClient()
-
-  const handleCreateRevenue = async (values: { month: string; amount: string }) => {
-    try {
-      const { error } = await supabase.from("project_revenues").insert([
-        {
-          project_id: projectId,
-          month: values.month + "-01",
-          amount: parseFloat(values.amount),
-        },
-      ])
-
-      if (error) throw error
-
-      queryClient.invalidateQueries({ queryKey: ["project-revenues"] })
-      toast.success("Revenue added successfully")
-      setAddRevenueDate(null)
-    } catch (error) {
-      toast.error("Failed to add revenue")
-    }
-  }
-
-  const handleCreateCost = async (values: { type: "variable" | "overhead"; month: string; amount: string; description?: string }) => {
-    try {
-      if (values.type === "variable") {
-        const { error } = await supabase.from("project_variable_costs").insert([
-          {
-            project_id: projectId,
-            month: values.month + "-01",
-            amount: parseFloat(values.amount),
-            description: values.description,
-          },
-        ])
-
-        if (error) throw error
-        queryClient.invalidateQueries({ queryKey: ["project-variable-costs"] })
-        toast.success("Variable cost added successfully")
-        setAddVariableCostDate(null)
-      } else {
-        const { error } = await supabase.from("project_overhead_costs").insert([
-          {
-            project_id: projectId,
-            month: values.month + "-01",
-            amount: parseFloat(values.amount),
-          },
-        ])
-
-        if (error) throw error
-        queryClient.invalidateQueries({ queryKey: ["project-overhead-costs"] })
-        toast.success("Overhead cost added successfully")
-        setAddOverheadCostDate(null)
-      }
-    } catch (error) {
-      toast.error(`Failed to add ${values.type} cost`)
-    }
-  }
-
-  const handleUpdateRevenue = async (values: { month: string; amount: string }) => {
-    if (!selectedRevenue) return
-    try {
-      const { error } = await supabase
-        .from("project_revenues")
-        .update({
-          month: values.month + "-01",
-          amount: parseFloat(values.amount),
-        })
-        .eq("id", selectedRevenue.id)
-
-      if (error) throw error
-
-      queryClient.invalidateQueries({ queryKey: ["project-revenues"] })
-      toast.success("Revenue updated successfully")
-      setSelectedRevenue(null)
-    } catch (error) {
-      toast.error("Failed to update revenue")
-    }
-  }
-
-  const handleUpdateCost = async (values: { type: "variable" | "overhead"; month: string; amount: string; description?: string }) => {
-    try {
-      if (values.type === "variable" && selectedVariableCost) {
-        const { error } = await supabase
-          .from("project_variable_costs")
-          .update({
-            month: values.month + "-01",
-            amount: parseFloat(values.amount),
-            description: values.description,
-          })
-          .eq("id", selectedVariableCost.id)
-
-        if (error) throw error
-        queryClient.invalidateQueries({ queryKey: ["project-variable-costs"] })
-        toast.success("Variable cost updated successfully")
-        setSelectedVariableCost(null)
-      } else if (values.type === "overhead" && selectedOverheadCost) {
-        const { error } = await supabase
-          .from("project_overhead_costs")
-          .update({
-            month: values.month + "-01",
-            amount: parseFloat(values.amount),
-          })
-          .eq("id", selectedOverheadCost.id)
-
-        if (error) throw error
-        queryClient.invalidateQueries({ queryKey: ["project-overhead-costs"] })
-        toast.success("Overhead cost updated successfully")
-        setSelectedOverheadCost(null)
-      }
-    } catch (error) {
-      toast.error(`Failed to update ${values.type} cost`)
-    }
-  }
-
-  const handleDeleteRevenue = async () => {
-    if (!deleteRevenue) return
-    try {
-      const { error } = await supabase
-        .from("project_revenues")
-        .delete()
-        .eq("id", deleteRevenue.id)
-
-      if (error) throw error
-
-      queryClient.invalidateQueries({ queryKey: ["project-revenues"] })
-      toast.success("Revenue deleted successfully")
-      setDeleteRevenue(null)
-    } catch (error) {
-      toast.error("Failed to delete revenue")
-    }
-  }
-
-  const handleDeleteCost = async (type: "variable" | "overhead") => {
-    try {
-      if (type === "variable" && deleteVariableCost) {
-        const { error } = await supabase
-          .from("project_variable_costs")
-          .delete()
-          .eq("id", deleteVariableCost.id)
-
-        if (error) throw error
-        queryClient.invalidateQueries({ queryKey: ["project-variable-costs"] })
-        toast.success("Variable cost deleted successfully")
-        setDeleteVariableCost(null)
-      } else if (type === "overhead" && deleteOverheadCost) {
-        const { error } = await supabase
-          .from("project_overhead_costs")
-          .delete()
-          .eq("id", deleteOverheadCost.id)
-
-        if (error) throw error
-        queryClient.invalidateQueries({ queryKey: ["project-overhead-costs"] })
-        toast.success("Overhead cost deleted successfully")
-        setDeleteOverheadCost(null)
-      }
-    } catch (error) {
-      toast.error(`Failed to delete ${type} cost`)
+  const handleVariableCostSuccess = async () => {
+    setAddVariableCostDate(null)
+    setSelectedVariableCost(null)
+    
+    // Call the onVariableCostUpdate callback if provided
+    if (onVariableCostUpdate) {
+      await onVariableCostUpdate()
     }
   }
 
   return (
     <>
+      {/* Revenue Dialog */}
       <ProjectRevenueDialog
-        open={Boolean(addRevenueDate)}
-        onOpenChange={(open) => !open && setAddRevenueDate(null)}
-        onSubmit={handleCreateRevenue}
-        defaultValues={
-          addRevenueDate
-            ? {
-                month: format(addRevenueDate, "yyyy-MM"),
-                amount: "",
-              }
-            : undefined
-        }
+        projectId={projectId}
+        isOpen={addRevenueDate !== null}
+        onClose={() => setAddRevenueDate(null)}
+        selectedDate={addRevenueDate}
+        onSuccess={() => setAddRevenueDate(null)}
       />
 
-      <ProjectRevenueDialog
-        open={Boolean(selectedRevenue)}
-        onOpenChange={(open) => !open && setSelectedRevenue(null)}
-        onSubmit={handleUpdateRevenue}
-        defaultValues={
-          selectedRevenue
-            ? {
-                month: selectedRevenue.month.slice(0, 7),
-                amount: selectedRevenue.amount.toString(),
-              }
-            : undefined
-        }
-        showDelete
-        onDelete={() => {
-          setDeleteRevenue(selectedRevenue)
-          setSelectedRevenue(null)
-        }}
+      {/* Revenue Edit Dialog */}
+      {selectedRevenue && (
+        <ProjectRevenueDialog
+          projectId={projectId}
+          isOpen={selectedRevenue !== null}
+          onClose={() => setSelectedRevenue(null)}
+          selectedDate={selectedRevenue ? new Date(selectedRevenue.month) : null}
+          initialValues={{
+            id: selectedRevenue.id,
+            amount: selectedRevenue.amount.toString(),
+          }}
+          onSuccess={() => setSelectedRevenue(null)}
+        />
+      )}
+
+      {/* Variable Cost Dialog */}
+      <ProjectVariableCostDialog
+        projectId={projectId}
+        isOpen={addVariableCostDate !== null}
+        onClose={() => setAddVariableCostDate(null)}
+        selectedDate={addVariableCostDate}
+        onSuccess={handleVariableCostSuccess}
       />
 
-      <ProjectCostDialog
-        open={Boolean(addVariableCostDate) || Boolean(addOverheadCostDate)}
-        onOpenChange={(open) => {
-          if (!open) {
-            setAddVariableCostDate(null)
-            setAddOverheadCostDate(null)
-          }
-        }}
-        onSubmit={handleCreateCost}
-        defaultValues={
-          addVariableCostDate
-            ? {
-                type: "variable",
-                month: format(addVariableCostDate, "yyyy-MM"),
-                amount: "",
-              }
-            : addOverheadCostDate
-            ? {
-                type: "overhead",
-                month: format(addOverheadCostDate, "yyyy-MM"),
-                amount: "",
-              }
-            : undefined
-        }
+      {/* Variable Cost Edit Dialog */}
+      {selectedVariableCost && (
+        <ProjectVariableCostDialog
+          projectId={projectId}
+          isOpen={selectedVariableCost !== null}
+          onClose={() => setSelectedVariableCost(null)}
+          selectedDate={selectedVariableCost ? new Date(selectedVariableCost.month) : null}
+          initialValues={{
+            id: selectedVariableCost.id,
+            amount: selectedVariableCost.amount.toString(),
+            description: selectedVariableCost.description || "",
+          }}
+          onSuccess={handleVariableCostSuccess}
+        />
+      )}
+
+      {/* Overhead Cost Dialog */}
+      <ProjectOverheadCostDialog
+        projectId={projectId}
+        isOpen={addOverheadCostDate !== null}
+        onClose={() => setAddOverheadCostDate(null)}
+        selectedDate={addOverheadCostDate}
+        onSuccess={() => setAddOverheadCostDate(null)}
       />
 
-      <ProjectCostDialog
-        open={Boolean(selectedVariableCost) || Boolean(selectedOverheadCost)}
-        onOpenChange={(open) => {
-          if (!open) {
-            setSelectedVariableCost(null)
-            setSelectedOverheadCost(null)
-          }
-        }}
-        onSubmit={handleUpdateCost}
-        defaultValues={
-          selectedVariableCost
-            ? {
-                type: "variable",
-                month: selectedVariableCost.month.slice(0, 7),
-                amount: selectedVariableCost.amount.toString(),
-                description: selectedVariableCost.description,
-              }
-            : selectedOverheadCost
-            ? {
-                type: "overhead",
-                month: selectedOverheadCost.month.slice(0, 7),
-                amount: selectedOverheadCost.amount.toString(),
-              }
-            : undefined
-        }
-        showDelete
-        onDelete={() => {
-          if (selectedVariableCost) {
-            setDeleteVariableCost(selectedVariableCost)
-            setSelectedVariableCost(null)
-          } else if (selectedOverheadCost) {
-            setDeleteOverheadCost(selectedOverheadCost)
-            setSelectedOverheadCost(null)
-          }
-        }}
-      />
+      {/* Overhead Cost Edit Dialog */}
+      {selectedOverheadCost && (
+        <ProjectOverheadCostDialog
+          projectId={projectId}
+          isOpen={selectedOverheadCost !== null}
+          onClose={() => setSelectedOverheadCost(null)}
+          selectedDate={selectedOverheadCost ? new Date(selectedOverheadCost.month) : null}
+          initialValues={{
+            id: selectedOverheadCost.id,
+            amount: selectedOverheadCost.amount.toString(),
+          }}
+          onSuccess={() => setSelectedOverheadCost(null)}
+        />
+      )}
 
-      <DeleteCostDialog
-        open={Boolean(deleteRevenue)}
-        onOpenChange={(open) => !open && setDeleteRevenue(null)}
-        onConfirm={handleDeleteRevenue}
-        type="revenue"
-      />
+      {/* Delete Dialogs */}
+      {deleteRevenue && (
+        <DeleteCostDialog
+          id={deleteRevenue.id}
+          isOpen={deleteRevenue !== null}
+          onClose={() => setDeleteRevenue(null)}
+          type="revenue"
+          onSuccess={() => setDeleteRevenue(null)}
+        />
+      )}
 
-      <DeleteCostDialog
-        open={Boolean(deleteVariableCost)}
-        onOpenChange={(open) => !open && setDeleteVariableCost(null)}
-        onConfirm={() => handleDeleteCost("variable")}
-        type="variable"
-      />
+      {deleteVariableCost && (
+        <DeleteCostDialog
+          id={deleteVariableCost.id}
+          isOpen={deleteVariableCost !== null}
+          onClose={() => setDeleteVariableCost(null)}
+          type="variable-cost"
+          onSuccess={handleVariableCostSuccess}
+        />
+      )}
 
-      <DeleteCostDialog
-        open={Boolean(deleteOverheadCost)}
-        onOpenChange={(open) => !open && setDeleteOverheadCost(null)}
-        onConfirm={() => handleDeleteCost("overhead")}
-        type="overhead"
-      />
+      {deleteOverheadCost && (
+        <DeleteCostDialog
+          id={deleteOverheadCost.id}
+          isOpen={deleteOverheadCost !== null}
+          onClose={() => setDeleteOverheadCost(null)}
+          type="overhead-cost"
+          onSuccess={() => setDeleteOverheadCost(null)}
+        />
+      )}
+      
+      {/* Cost Actions Dialog for actions on specific items */}
+      <CostActionsDialog />
     </>
   )
 }

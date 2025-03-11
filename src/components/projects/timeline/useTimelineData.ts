@@ -1,5 +1,5 @@
 
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
 
@@ -21,7 +21,13 @@ interface AllocationItem {
 }
 
 export function useTimelineData(projectId: string) {
-  const { data: revenues } = useQuery({
+  const queryClient = useQueryClient()
+  
+  const { 
+    data: revenues,
+    isLoading: isRevenuesLoading,
+    refetch: refetchRevenues 
+  } = useQuery({
     queryKey: ["project-revenues", projectId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -38,7 +44,11 @@ export function useTimelineData(projectId: string) {
     },
   })
 
-  const { data: variableCosts } = useQuery({
+  const { 
+    data: variableCosts,
+    isLoading: isVariableCostsLoading,
+    refetch: refetchVariableCosts 
+  } = useQuery({
     queryKey: ["project-variable-costs", projectId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -55,7 +65,11 @@ export function useTimelineData(projectId: string) {
     },
   })
 
-  const { data: overheadCosts } = useQuery({
+  const { 
+    data: overheadCosts,
+    isLoading: isOverheadCostsLoading,
+    refetch: refetchOverheadCosts 
+  } = useQuery({
     queryKey: ["project-overhead-costs", projectId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -72,7 +86,11 @@ export function useTimelineData(projectId: string) {
     },
   })
 
-  const { data: allocations } = useQuery({
+  const { 
+    data: allocations,
+    isLoading: isAllocationsLoading,
+    refetch: refetchAllocations 
+  } = useQuery({
     queryKey: ["project-allocations", projectId, "with-salaries"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -129,10 +147,26 @@ export function useTimelineData(projectId: string) {
     },
   })
 
+  // Combined refetch function
+  const refetchTimelineData = async () => {
+    await Promise.all([
+      refetchRevenues(),
+      refetchVariableCosts(),
+      refetchOverheadCosts(),
+      refetchAllocations()
+    ])
+  }
+
+  // Combined loading state
+  const isLoading = isRevenuesLoading || isVariableCostsLoading || 
+                    isOverheadCostsLoading || isAllocationsLoading
+
   return {
     revenues: revenues || [],
     variableCosts: variableCosts || [],
     overheadCosts: overheadCosts || [],
     allocations: allocations || [],
+    isLoading,
+    refetchTimelineData
   }
 }

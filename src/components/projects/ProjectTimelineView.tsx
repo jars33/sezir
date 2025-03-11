@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { addMonths, format, startOfMonth, setMonth } from "date-fns"
 import { Card, CardContent } from "@/components/ui/card"
 import { useTimelineData } from "./timeline/useTimelineData"
@@ -10,7 +10,7 @@ import { useTimelineCalculations } from "./timeline/TimelineCalculations"
 import { useProjectYear } from "@/hooks/use-project-year"
 import { ProjectAllocationDialog } from "./allocations/ProjectAllocationDialog"
 import { useToast } from "@/hooks/use-toast"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
 import { useProjectSettings } from "@/hooks/use-project-settings"
 
@@ -52,11 +52,16 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
   const [deleteOverheadCost, setDeleteOverheadCost] = useState<TimelineItem | null>(null)
   const [selectedAllocation, setSelectedAllocation] = useState<AllocationItem | null>(null)
   const [allocationDialogOpen, setAllocationDialogOpen] = useState(false)
-
+  
   const { toast } = useToast()
+  const queryClient = useQueryClient()
   const { getOverheadPercentage, settings } = useProjectSettings()
 
-  const { revenues, variableCosts, overheadCosts, allocations } = useTimelineData(projectId)
+  const { revenues, variableCosts, overheadCosts, allocations, isLoading, refetchTimelineData } = useTimelineData(projectId)
+
+  useEffect(() => {
+    refetchTimelineData()
+  }, [settings, refetchTimelineData])
 
   const totalProfit = useMemo(() => {
     const totalRevenues = revenues?.reduce((sum, r) => sum + Number(r.amount), 0) || 0
@@ -110,6 +115,12 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
     const newYear = year + 1
     setYear(newYear)
     setStartDate(startOfMonth(setMonth(new Date(newYear, 0), 0)))
+  }
+
+  const handleVariableCostUpdate = async () => {
+    queryClient.invalidateQueries({ queryKey: ["project-variable-costs", projectId] })
+    queryClient.invalidateQueries({ queryKey: ["project-revenues", projectId] })
+    await refetchTimelineData()
   }
 
   const handleAllocationSubmit = async (values: {
@@ -190,6 +201,8 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
 
       setAllocationDialogOpen(false)
       setSelectedAllocation(null)
+      
+      await refetchTimelineData()
     } catch (error: any) {
       console.error("Error managing allocation:", error)
       toast({
@@ -306,6 +319,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
           setDeleteRevenue={setDeleteRevenue}
           setDeleteVariableCost={setDeleteVariableCost}
           setDeleteOverheadCost={setDeleteOverheadCost}
+          onVariableCostUpdate={handleVariableCostUpdate}
         />
 
         <ProjectAllocationDialog
