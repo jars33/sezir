@@ -1,3 +1,4 @@
+
 import { format } from "date-fns"
 import {
   Tooltip,
@@ -64,6 +65,20 @@ export function TimelineMonth({
     new Date().getMonth() === month.getMonth() &&
     new Date().getFullYear() === month.getFullYear()
 
+  // Function to handle revenue click
+  const handleRevenueClick = () => {
+    // If there's only one revenue for the month, select it directly
+    if (revenues.length === 1) {
+      onSelectRevenue(revenues[0]);
+    } 
+    // If there are multiple revenues, we could select the first one or handle this differently
+    else if (revenues.length > 1) {
+      onSelectRevenue(revenues[0]);
+    }
+    // If there's no revenue yet, we don't need to do anything special
+    // as the parent component can detect this is a new revenue
+  }
+
   return (
     <div 
       className={cn(
@@ -77,8 +92,9 @@ export function TimelineMonth({
 
       {/* Revenues - Always show either actual revenues or placeholder */}
       <div 
+        onClick={handleRevenueClick}
         className={cn(
-          "p-2 rounded-md text-center",
+          "p-2 rounded-md text-center cursor-pointer hover:opacity-80 transition-opacity",
           totalRevenues > 0 ? "bg-green-50 dark:bg-green-900/20" : "bg-gray-50 dark:bg-gray-800/20"
         )}
       >
