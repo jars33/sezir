@@ -1,5 +1,6 @@
+
 import React from "react"
-import { format } from "date-fns"
+import { format, parseISO } from "date-fns"
 import { ProjectVariableCostDialog } from "../../costs/ProjectVariableCostDialog"
 import { DeleteCostDialog } from "../../costs/DeleteCostDialog"
 import type { TimelineItem } from "./types"
@@ -35,6 +36,20 @@ export function VariableCostActions({
     }
   }
 
+  // Format the month correctly for the display in the dialog
+  const getFormattedMonth = (dateString: string) => {
+    // If we have a full date format, extract just the year-month part
+    if (dateString.length > 7) {
+      try {
+        return format(parseISO(dateString), 'yyyy-MM')
+      } catch (e) {
+        console.error("Error parsing date:", e)
+        return dateString.substring(0, 7) // Fallback to first 7 chars
+      }
+    }
+    return dateString
+  }
+
   return (
     <>
       <ProjectVariableCostDialog
@@ -62,7 +77,7 @@ export function VariableCostActions({
             handleVariableCostSuccess()
           }}
           defaultValues={{
-            month: selectedVariableCost ? selectedVariableCost.month : '',
+            month: getFormattedMonth(selectedVariableCost.month),
             amount: selectedVariableCost ? selectedVariableCost.amount.toString() : '',
             description: selectedVariableCost ? selectedVariableCost.description || '' : '',
           }}

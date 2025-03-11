@@ -2,7 +2,7 @@
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   Dialog,
   DialogContent,
@@ -78,6 +78,19 @@ export function ProjectVariableCostDialog({
       description: existingCost?.description || defaultValues?.description || "",
     },
   })
+
+  // Reset form with default values when dialog opens/closes or defaultValues change
+  useEffect(() => {
+    if (open) {
+      form.reset({
+        month: existingCost?.month || defaultValues?.month || "",
+        endMonth: defaultValues?.endMonth || "",
+        amount: existingCost ? String(existingCost.amount) : defaultValues?.amount || "",
+        description: existingCost?.description || defaultValues?.description || "",
+      })
+      setIsPeriod(false) // Reset period state when editing
+    }
+  }, [open, defaultValues, existingCost, form])
 
   const handleSubmit = async (values: VariableCostFormSchema) => {
     try {
@@ -172,19 +185,21 @@ export function ProjectVariableCostDialog({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="period"
-                checked={isPeriod}
-                onCheckedChange={(checked) => setIsPeriod(checked === true)}
-              />
-              <label
-                htmlFor="period"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                Period
-              </label>
-            </div>
+            {!existingCost && (
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="period"
+                  checked={isPeriod}
+                  onCheckedChange={(checked) => setIsPeriod(checked === true)}
+                />
+                <label
+                  htmlFor="period"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Period
+                </label>
+              </div>
+            )}
 
             <FormField
               control={form.control}

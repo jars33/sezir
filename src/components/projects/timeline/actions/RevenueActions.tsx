@@ -1,6 +1,6 @@
 
 import React from "react"
-import { format } from "date-fns"
+import { format, parseISO } from "date-fns"
 import { ProjectRevenueDialog } from "../../revenues/ProjectRevenueDialog"
 import { DeleteCostDialog } from "../../costs/DeleteCostDialog"
 import type { TimelineItem } from "./types"
@@ -30,11 +30,14 @@ export function RevenueActions({
 }: RevenueActionsProps) {
   const handleAddRevenue = async ({ month, amount }: { month: string; amount: string }) => {
     try {
+      // Ensure we have a valid date format by appending day (01)
+      const formattedMonth = `${month}-01` 
+      
       const { error } = await supabase
         .from("project_revenues")
         .insert({
           project_id: projectId,
-          month: month,
+          month: formattedMonth,
           amount: Number(amount),
         })
 
@@ -53,10 +56,13 @@ export function RevenueActions({
     if (!selectedRevenue) return
 
     try {
+      // Ensure we have a valid date format by appending day (01)
+      const formattedMonth = `${month}-01`
+      
       const { error } = await supabase
         .from("project_revenues")
         .update({
-          month: month,
+          month: formattedMonth,
           amount: Number(amount),
         })
         .eq("id", selectedRevenue.id)
@@ -92,6 +98,20 @@ export function RevenueActions({
     }
   }
 
+  // Format the month correctly for the display in the dialog
+  const getFormattedMonth = (dateString: string) => {
+    // If we have a full date format, extract just the year-month part
+    if (dateString.length > 7) {
+      try {
+        return format(parseISO(dateString), 'yyyy-MM')
+      } catch (e) {
+        console.error("Error parsing date:", e)
+        return dateString.substring(0, 7) // Fallback to first 7 chars
+      }
+    }
+    return dateString
+  }
+
   return (
     <>
       <ProjectRevenueDialog
@@ -110,7 +130,7 @@ export function RevenueActions({
           onOpenChange={() => setSelectedRevenue(null)}
           onSubmit={handleUpdateRevenue}
           defaultValues={{
-            month: selectedRevenue.month,
+            month: getFormattedMonth(selectedRevenue.month),
             amount: selectedRevenue.amount.toString(),
           }}
           showDelete={true}
