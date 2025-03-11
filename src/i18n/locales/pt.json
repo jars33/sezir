@@ -54,6 +54,11 @@
     "actions": "Ações de Custo",
     "entry": "entrada",
     "cost": "custo",
-    "deleteWarning": "Esta ação não pode ser desfeita. Isto irá eliminar permanentemente a {type} {entryType}."
+    "deleteWarning": "Esta ação não pode ser desfeita. Isto irá eliminar permanentemente a {type} {entryType}.",
+    "costBreakdown": "Discriminação de Custos",
+    "totalCosts": "Custos Totais",
+    "profit": "Lucro",
+    "rentability": "Rentabilidade",
+    "allocations": "Alocações"
   }
 }
