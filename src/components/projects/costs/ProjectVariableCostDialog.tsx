@@ -23,6 +23,8 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
+import { supabase } from "@/integrations/supabase/client"
+import { toast } from "sonner"
 
 const variableCostFormSchema = z.object({
   month: z.string().min(1, "Month is required"),
@@ -33,13 +35,25 @@ const variableCostFormSchema = z.object({
 
 type VariableCostFormSchema = z.infer<typeof variableCostFormSchema>
 
+export interface CostItem {
+  id: string
+  month: string
+  amount: number
+  description?: string
+  isCalculated?: boolean
+}
+
 interface ProjectVariableCostDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onSubmit: (values: { month: string; amount: string; description: string }) => void
+  onSubmit?: (values: { month: string; amount: string; description: string }) => void
   defaultValues?: Partial<VariableCostFormSchema>
   showDelete?: boolean
   onDelete?: () => void
+  // Add the missing props that were causing errors
+  projectId: string
+  existingCost?: CostItem
+  onSuccess?: () => Promise<void>
 }
 
 export function ProjectVariableCostDialog({
@@ -49,62 +63,100 @@ export function ProjectVariableCostDialog({
   defaultValues,
   showDelete,
   onDelete,
+  projectId,
+  existingCost,
+  onSuccess,
 }: ProjectVariableCostDialogProps) {
   const [isPeriod, setIsPeriod] = useState(false)
 
   const form = useForm<VariableCostFormSchema>({
     resolver: zodResolver(variableCostFormSchema),
     defaultValues: {
-      month: defaultValues?.month || "",
+      month: existingCost?.month || defaultValues?.month || "",
       endMonth: defaultValues?.endMonth || "",
-      amount: defaultValues?.amount || "",
-      description: defaultValues?.description || "",
+      amount: existingCost ? String(existingCost.amount) : defaultValues?.amount || "",
+      description: existingCost?.description || defaultValues?.description || "",
     },
   })
 
-  const handleSubmit = (values: VariableCostFormSchema) => {
-    if (!isPeriod) {
-      onSubmit({
-        month: values.month,
-        amount: values.amount,
-        description: values.description,
-      })
-      return
+  const handleSubmit = async (values: VariableCostFormSchema) => {
+    try {
+      if (onSubmit) {
+        if (!isPeriod) {
+          onSubmit({
+            month: values.month,
+            amount: values.amount,
+            description: values.description,
+          })
+          return
+        }
+
+        const startDate = new Date(values.month)
+        const endDate = new Date(values.endMonth || values.month)
+
+        if (endDate < startDate) {
+          form.setError("endMonth", {
+            type: "manual",
+            message: "End month must be after start month",
+          })
+          return
+        }
+
+        // Set dates to first of month for accurate month calculations
+        startDate.setDate(1)
+        endDate.setDate(1)
+        
+        // Add one month to end date to include the end month itself
+        endDate.setMonth(endDate.getMonth() + 1)
+
+        const months: Date[] = []
+        let currentDate = new Date(startDate)
+        while (currentDate < endDate) {
+          months.push(new Date(currentDate))
+          currentDate.setMonth(currentDate.getMonth() + 1)
+        }
+
+        months.forEach((month) => {
+          const monthStr = month.toISOString().slice(0, 7)
+          onSubmit({
+            month: monthStr,
+            amount: values.amount,
+            description: values.description,
+          })
+        })
+      } else if (existingCost) {
+        // Update existing cost
+        const { error } = await supabase
+          .from("project_variable_costs")
+          .update({
+            month: values.month + "-01", // Ensure it's first day of month
+            amount: Number(values.amount),
+            description: values.description
+          })
+          .eq("id", existingCost.id)
+        
+        if (error) throw error
+        if (onSuccess) await onSuccess()
+        onOpenChange(false)
+      } else {
+        // Add new cost
+        const { error } = await supabase
+          .from("project_variable_costs")
+          .insert({
+            project_id: projectId,
+            month: values.month + "-01", // Ensure it's first day of month
+            amount: Number(values.amount),
+            description: values.description
+          })
+        
+        if (error) throw error
+        if (onSuccess) await onSuccess()
+        onOpenChange(false)
+      }
+    } catch (error) {
+      toast.error("Failed to save variable cost")
+      console.error(error)
     }
-
-    const startDate = new Date(values.month)
-    const endDate = new Date(values.endMonth || values.month)
-
-    if (endDate < startDate) {
-      form.setError("endMonth", {
-        type: "manual",
-        message: "End month must be after start month",
-      })
-      return
-    }
-
-    // Set dates to first of month for accurate month calculations
-    startDate.setDate(1)
-    endDate.setDate(1)
-    
-    // Add one month to end date to include the end month itself
-    endDate.setMonth(endDate.getMonth() + 1)
-
-    const months: Date[] = []
-    let currentDate = new Date(startDate)
-    while (currentDate < endDate) {
-      months.push(new Date(currentDate))
-      currentDate.setMonth(currentDate.getMonth() + 1)
-    }
-
-    months.forEach((month) => {
-      const monthStr = month.toISOString().slice(0, 7)
-      onSubmit({
-        month: monthStr,
-        amount: values.amount,
-        description: values.description,
-      })
-    })
   }
 
   return (
@@ -112,7 +164,7 @@ export function ProjectVariableCostDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {defaultValues ? "Edit Variable Cost" : "Add Variable Cost"}
+            {existingCost ? "Edit Variable Cost" : "Add Variable Cost"}
           </DialogTitle>
           <DialogDescription>
             Add variable cost for a single month or a period
@@ -210,7 +262,7 @@ export function ProjectVariableCostDialog({
                 </Button>
               )}
               <Button type="submit">
-                {defaultValues ? "Update" : "Add"} Variable Cost
+                {existingCost ? "Update" : "Add"} Variable Cost
               </Button>
             </DialogFooter>
           </form>
