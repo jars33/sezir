@@ -17,6 +17,7 @@ interface CostActionsDialogProps {
   type: "variable" | "overhead"
   amount: number
   month: string
+  description?: string
 }
 
 export function CostActionsDialog({
@@ -27,6 +28,7 @@ export function CostActionsDialog({
   type,
   amount,
   month,
+  description,
 }: CostActionsDialogProps) {
   const { t } = useTranslation();
   
@@ -52,6 +54,7 @@ export function CostActionsDialog({
           <div className="mb-6 text-center">
             <div className="text-2xl font-semibold">€{amount.toFixed(2)}</div>
             <div className="text-sm text-gray-500">{formattedMonth}</div>
+            {description && <div className="text-sm mt-1">{description}</div>}
           </div>
           <div className="space-y-2">
             <Button
