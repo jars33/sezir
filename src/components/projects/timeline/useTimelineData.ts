@@ -1,4 +1,5 @@
 
+import { useMemo } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
@@ -130,7 +131,7 @@ export function useTimelineData(projectId: string) {
   })
 
   // Calculate overhead costs based on variable costs and overhead percentage
-  const overheadCosts = React.useMemo(() => {
+  const overheadCosts = useMemo(() => {
     if (!variableCosts) return []
     
     // Group variable costs by month
