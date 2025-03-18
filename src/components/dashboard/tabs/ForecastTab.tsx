@@ -1,7 +1,8 @@
 
+import React from "react";
 import { Card } from "@/components/ui/card";
 import { 
-  ComposedChart, 
+  LineChart, 
   Line, 
   XAxis, 
   YAxis, 
@@ -21,112 +22,6 @@ export function ForecastTab({ forecastData, isLoading }: ForecastTabProps) {
   // Safely check if forecastData is available
   const safeData = Array.isArray(forecastData) ? forecastData : [];
   
-  // Find the transition point between actual and projected data
-  const findTransitionIndex = (dataKey: string) => {
-    if (!safeData || safeData.length === 0) return -1;
-    
-    for (let i = 0; i < safeData.length - 1; i++) {
-      // If current month has actual data and next month has projected data
-      const currentItem = safeData[i];
-      const nextItem = safeData[i + 1];
-      
-      if (!currentItem || !nextItem) continue;
-      
-      const nextDataKey = `projected${dataKey.charAt(0).toUpperCase() + dataKey.slice(1).replace(/^actual/, '')}`;
-      
-      if (
-        currentItem[dataKey] !== null && 
-        currentItem[dataKey] !== undefined &&
-        nextItem[nextDataKey] !== null && 
-        nextItem[nextDataKey] !== undefined
-      ) {
-        return i;
-      }
-    }
-    return -1;
-  };
-
-  // Create connecting data for dotted lines
-  const createConnectorData = () => {
-    const revenueTransitionIndex = findTransitionIndex('actualRevenue');
-    const costTransitionIndex = findTransitionIndex('actualCost');
-    
-    const connectorData = [];
-    
-    if (revenueTransitionIndex >= 0 && revenueTransitionIndex + 1 < safeData.length) {
-      const lastActualMonth = safeData[revenueTransitionIndex];
-      const firstProjectedMonth = safeData[revenueTransitionIndex + 1];
-      
-      if (lastActualMonth && firstProjectedMonth && 
-          lastActualMonth.actualRevenue !== null && 
-          lastActualMonth.actualRevenue !== undefined &&
-          firstProjectedMonth.projectedRevenue !== null && 
-          firstProjectedMonth.projectedRevenue !== undefined) {
-        connectorData.push({
-          dataKey: 'revenueConnector',
-          startMonth: lastActualMonth.month,
-          endMonth: firstProjectedMonth.month,
-          startValue: lastActualMonth.actualRevenue,
-          endValue: firstProjectedMonth.projectedRevenue
-        });
-      }
-    }
-    
-    if (costTransitionIndex >= 0 && costTransitionIndex + 1 < safeData.length) {
-      const lastActualMonth = safeData[costTransitionIndex];
-      const firstProjectedMonth = safeData[costTransitionIndex + 1];
-      
-      if (lastActualMonth && firstProjectedMonth && 
-          lastActualMonth.actualCost !== null && 
-          lastActualMonth.actualCost !== undefined &&
-          firstProjectedMonth.projectedCost !== null && 
-          firstProjectedMonth.projectedCost !== undefined) {
-        connectorData.push({
-          dataKey: 'costConnector',
-          startMonth: lastActualMonth.month,
-          endMonth: firstProjectedMonth.month,
-          startValue: lastActualMonth.actualCost,
-          endValue: firstProjectedMonth.projectedCost
-        });
-      }
-    }
-    
-    return connectorData;
-  };
-  
-  // Add connector lines to the chart
-  const renderConnectorLines = () => {
-    const connectors = createConnectorData();
-    
-    return connectors.map((connector, index) => {
-      const isRevenue = connector.dataKey === 'revenueConnector';
-      const strokeColor = isRevenue ? '#0EA5E9' : '#F97316';
-      
-      // Custom data for this line only
-      const lineData = [
-        { month: connector.startMonth, value: connector.startValue },
-        { month: connector.endMonth, value: connector.endValue }
-      ];
-      
-      return (
-        <Line
-          key={connector.dataKey}
-          data={lineData}
-          type="monotone"
-          dataKey="value"
-          stroke={strokeColor}
-          strokeWidth={2}
-          strokeDasharray="5 5"
-          dot={false}
-          activeDot={false}
-          isAnimationActive={false}
-          name={isRevenue ? "Revenue Transition" : "Cost Transition"}
-          connectNulls={true}
-        />
-      );
-    });
-  };
-
   return (
     <Card className="w-full">
       <div className="p-6">
@@ -140,7 +35,7 @@ export function ForecastTab({ forecastData, isLoading }: ForecastTabProps) {
             </div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart
+              <LineChart
                 data={safeData}
                 margin={{
                   top: 20,
@@ -186,28 +81,7 @@ export function ForecastTab({ forecastData, isLoading }: ForecastTabProps) {
                   dot={{ r: 5 }}
                   connectNulls={true}
                 />
-                <Line 
-                  type="monotone"
-                  dataKey="projectedRevenue" 
-                  name="Projected Revenue" 
-                  stroke="#0EA5E9" 
-                  strokeWidth={2}
-                  strokeDasharray="5 5"
-                  dot={{ r: 4 }}
-                  connectNulls={true}
-                />
-                <Line 
-                  type="monotone"
-                  dataKey="projectedCost" 
-                  name="Projected Cost" 
-                  stroke="#F97316" 
-                  strokeWidth={2}
-                  strokeDasharray="5 5"
-                  dot={{ r: 4 }}
-                  connectNulls={true}
-                />
-                {renderConnectorLines()}
-              </ComposedChart>
+              </LineChart>
             </ResponsiveContainer>
           )}
         </div>
