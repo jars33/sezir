@@ -67,7 +67,7 @@ export function ForecastTab({ forecastData, isLoading }: ForecastTabProps) {
                   type="monotone"
                   dataKey="actualRevenue" 
                   name="Actual Revenue" 
-                  stroke="#0EA5E9" 
+                  stroke="#4CAF50" 
                   strokeWidth={2}
                   dot={{ r: 5 }}
                   connectNulls={true}

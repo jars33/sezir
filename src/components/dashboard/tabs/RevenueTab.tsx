@@ -69,7 +69,7 @@ export function RevenueTab({ chartData, isLoading }: RevenueTabProps) {
                   type="monotone"
                   dataKey="revenue" 
                   name="Revenue" 
-                  stroke="#0EA5E9" 
+                  stroke="#4CAF50" 
                   strokeWidth={2}
                   activeDot={{ r: 6 }}
                 />
