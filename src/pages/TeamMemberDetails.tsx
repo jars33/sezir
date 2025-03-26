@@ -25,11 +25,13 @@ export default function TeamMemberDetails() {
     refetchSalaryHistory 
   } = useTeamMember(isNewMember ? undefined : id)
   
+  // Make sure we have a session
+  if (!session?.user?.id) {
+    return <div className="p-8">Please log in to add or edit team members.</div>
+  }
+
   // If it's a new member, render the AddTeamMember component immediately
   if (isNewMember) {
-    if (!session?.user?.id) {
-      return <div className="p-8">Please log in to add team members.</div>
-    }
     console.log("Rendering AddTeamMember component for new member")
     return <AddTeamMember userId={session.user.id} />
   }
@@ -38,13 +40,8 @@ export default function TeamMemberDetails() {
   if (isMemberLoading || isSalaryLoading) {
     return <div className="p-8">Loading...</div>
   }
-
-  // Make sure we have a session
-  if (!session?.user?.id) {
-    return <div className="p-8">Please log in to edit team members.</div>
-  }
   
-  // Make sure we have a valid ID
+  // Make sure we have a valid ID for existing members
   if (!id) {
     toast({
       variant: "destructive",
