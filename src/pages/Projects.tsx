@@ -8,10 +8,8 @@ import { supabase } from "@/integrations/supabase/client"
 import { Button } from "@/components/ui/button"
 import { ProjectDialog } from "@/components/ProjectDialog"
 import { type ProjectFormSchema } from "@/components/projects/project-schema"
-import { ProjectList } from "@/components/projects/ProjectList"
 import { GanttChartView } from "@/components/projects/GanttChartView"
 import { useAuth } from "@/components/AuthProvider"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ProjectSettingsDialog } from "@/components/projects/ProjectSettingsDialog"
 
 type Project = {
@@ -99,35 +97,11 @@ export default function Projects() {
         </div>
       </div>
 
-      <Tabs defaultValue="gantt">
-        <TabsList>
-          <TabsTrigger value="list">List View</TabsTrigger>
-          <TabsTrigger value="gantt">Gantt View</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="list">
-          <ProjectList
-            projects={projects ?? []}
-            onEdit={(project) => {
-              // This no longer redirects, now handled directly in ProjectList
-              // navigate(`/projects/${project.id}`)
-            }}
-            onDelete={(project) => navigate(`/projects/${project.id}`)}
-            onSelect={(project) => {
-              setSelectedProject(project)
-              navigate(`/projects/${project.id}`)
-            }}
-            selectedProject={selectedProject}
-          />
-        </TabsContent>
-
-        <TabsContent value="gantt">
-          <GanttChartView
-            projects={projects ?? []}
-            onProjectClick={(project) => navigate(`/projects/${project.id}`)}
-          />
-        </TabsContent>
-      </Tabs>
+      {/* Directly show the Gantt chart view, without tabs */}
+      <GanttChartView
+        projects={projects ?? []}
+        onProjectClick={(project) => navigate(`/projects/${project.id}`)}
+      />
 
       <ProjectDialog
         open={createDialogOpen}
