@@ -28,10 +28,16 @@ export function AddTeamMember({ userId }: AddTeamMemberProps) {
     
     console.log("Submitting new team member with user ID:", userId)
     try {
-      await handleSubmit(values, true, undefined, userId)
+      const result = await handleSubmit(values, true, undefined, userId)
+      
+      let successMessage = "Team member successfully added"
+      if (result.newUserCreated) {
+        successMessage += " and user account created"
+      }
+      
       toast({
         title: "Success",
-        description: "Team member successfully added",
+        description: successMessage,
       })
       navigate("/team")
     } catch (error: any) {
