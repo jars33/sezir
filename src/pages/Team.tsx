@@ -5,11 +5,13 @@ import { ChevronLeft, ChevronRight, UserPlus } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { TeamMemberList } from "@/components/team/TeamMemberList"
 import { TeamMemberTimeline } from "@/components/team/TeamMemberTimeline"
+import { TeamMemberDialog } from "@/components/team/TeamMemberDialog"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useAuth } from "@/components/AuthProvider"
 import { useTranslation } from "react-i18next"
 import { useManagedTeamMembers } from "@/hooks/use-managed-team-members"
+import type { TeamMember } from "@/types/team-member"
 
 export default function Team() {
   const navigate = useNavigate()
@@ -17,6 +19,8 @@ export default function Team() {
   const { toast } = useToast()
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
   const [activeTab, setActiveTab] = useState("timeline")
+  const [teamMemberDialogOpen, setTeamMemberDialogOpen] = useState(false)
+  const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null)
   const { t } = useTranslation()
 
   const { data: members, refetch, isLoading, isError, error } = useManagedTeamMembers()
@@ -27,14 +31,19 @@ export default function Team() {
   console.log("🔍 Team.tsx - isError:", isError)
   console.log("🔍 Team.tsx - error:", error)
 
-  const handleEdit = (member) => {
-    navigate(`/team/${member.id}`)
+  const handleEdit = (member: TeamMember) => {
+    setSelectedMember(member)
+    setTeamMemberDialogOpen(true)
   }
 
   const handleAddNewMember = () => {
-    // Navigate to the new team member page - ensure this is explicitly 'new'
-    console.log("📣 Team.tsx - Navigating to /team/new")
-    navigate("/team/new")
+    // Reset selected member and open dialog
+    setSelectedMember(null)
+    setTeamMemberDialogOpen(true)
+  }
+
+  const handleModalSuccess = () => {
+    refetch()
   }
 
   if (!session) {
@@ -63,6 +72,16 @@ export default function Team() {
             Try Again
           </Button>
         </div>
+        
+        {session?.user?.id && (
+          <TeamMemberDialog
+            member={null}
+            open={teamMemberDialogOpen}
+            onOpenChange={setTeamMemberDialogOpen}
+            userId={session.user.id}
+            onSuccess={handleModalSuccess}
+          />
+        )}
       </div>
     )
   }
@@ -120,7 +139,11 @@ export default function Team() {
           </div>
 
           <TabsContent value="list" className="mt-2">
-            <TeamMemberList members={members} onEdit={handleEdit} onSuccess={() => refetch()} />
+            <TeamMemberList 
+              members={members} 
+              onEdit={handleEdit} 
+              onSuccess={() => refetch()} 
+            />
           </TabsContent>
 
           <TabsContent value="timeline" className="mt-2">
@@ -129,6 +152,16 @@ export default function Team() {
             ))}
           </TabsContent>
         </Tabs>
+      )}
+
+      {session?.user?.id && (
+        <TeamMemberDialog
+          member={selectedMember}
+          open={teamMemberDialogOpen}
+          onOpenChange={setTeamMemberDialogOpen}
+          userId={session.user.id}
+          onSuccess={handleModalSuccess}
+        />
       )}
     </div>
   )
