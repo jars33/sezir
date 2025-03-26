@@ -3,7 +3,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RevenueTab } from "./tabs/RevenueTab";
 import { ProjectMarginsTab } from "./tabs/ProjectMarginsTab";
 import { UtilizationTab } from "./tabs/UtilizationTab";
-import { ForecastTab } from "./tabs/ForecastTab";
 import { CostBreakdownTab } from "./tabs/CostBreakdownTab";
 import { CashFlowTab } from "./tabs/CashFlowTab";
 import { YearComparisonTab } from "./tabs/YearComparisonTab";
@@ -20,7 +19,6 @@ export function DashboardTabs({ metrics, isLoading }: DashboardTabsProps) {
         <TabsTrigger value="revenue">Revenue & Costs</TabsTrigger>
         <TabsTrigger value="project-margins">Project Margins</TabsTrigger>
         <TabsTrigger value="utilization">Utilization vs Profitability</TabsTrigger>
-        <TabsTrigger value="forecast">Financial Forecast</TabsTrigger>
         <TabsTrigger value="cost-breakdown">Cost Breakdown</TabsTrigger>
         <TabsTrigger value="cash-flow">Cash Flow</TabsTrigger>
         <TabsTrigger value="year-comparison">Year Comparison</TabsTrigger>
@@ -46,14 +44,6 @@ export function DashboardTabs({ metrics, isLoading }: DashboardTabsProps) {
       <TabsContent value="utilization">
         <UtilizationTab 
           utilizationProfitabilityData={metrics.utilizationProfitabilityData} 
-          isLoading={isLoading} 
-        />
-      </TabsContent>
-      
-      {/* Financial Forecast Tab */}
-      <TabsContent value="forecast">
-        <ForecastTab 
-          forecastData={metrics.forecastData} 
           isLoading={isLoading} 
         />
       </TabsContent>
