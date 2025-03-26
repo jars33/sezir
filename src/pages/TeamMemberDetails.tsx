@@ -13,19 +13,28 @@ export default function TeamMemberDetails() {
   const { session } = useAuth()
   const { toast } = useToast()
   
+  console.log("🔍 TeamMemberDetails - Rendering with id:", id)
+  console.log("🔍 TeamMemberDetails - Session:", session)
+  
   // Special case for the 'new' route - always allow access
   const isNewMember = id === 'new'
+  console.log("🔍 TeamMemberDetails - isNewMember:", isNewMember)
   
   // Make sure we have a session
   if (!session?.user?.id) {
+    console.log("⚠️ TeamMemberDetails - No session available, redirecting to login")
     return <div className="p-8">Please log in to add or edit team members.</div>
   }
   
+  console.log("✅ TeamMemberDetails - Session available, user ID:", session.user.id)
+  
   // If it's a new member, render the AddTeamMember component immediately
   if (isNewMember) {
-    console.log("Rendering AddTeamMember component for new member")
+    console.log("🆕 TeamMemberDetails - Rendering AddTeamMember for new member")
     return <AddTeamMember userId={session.user.id} />
   }
+  
+  console.log("📊 TeamMemberDetails - Fetching existing member data for ID:", id)
   
   // For existing members, fetch data
   const { 
@@ -36,13 +45,19 @@ export default function TeamMemberDetails() {
     refetchSalaryHistory 
   } = useTeamMember(id)
   
+  console.log("📊 TeamMemberDetails - Member data:", member)
+  console.log("📊 TeamMemberDetails - Salary history:", salaryHistory)
+  console.log("📊 TeamMemberDetails - Loading states:", { isMemberLoading, isSalaryLoading })
+  
   // Show loading state while data is being fetched
   if (isMemberLoading || isSalaryLoading) {
+    console.log("⏳ TeamMemberDetails - Still loading data...")
     return <div className="p-8">Loading...</div>
   }
   
   // Make sure we have a valid ID for existing members
   if (!id) {
+    console.error("❌ TeamMemberDetails - No team member ID found")
     toast({
       variant: "destructive",
       title: "Error",
@@ -52,6 +67,8 @@ export default function TeamMemberDetails() {
     return null
   }
 
+  console.log("✅ TeamMemberDetails - Rendering EditTeamMember with data")
+  
   return (
     <EditTeamMember
       id={id}
