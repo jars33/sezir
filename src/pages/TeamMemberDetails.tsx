@@ -1,5 +1,5 @@
 
-import React from "react"
+import React, { useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/components/AuthProvider"
@@ -13,13 +13,13 @@ export default function TeamMemberDetails() {
   const { session } = useAuth()
   const { toast } = useToast()
   
+  // Special case for the 'new' route - always allow access
+  const isNewMember = id === 'new'
+  
   // Make sure we have a session
   if (!session?.user?.id) {
     return <div className="p-8">Please log in to add or edit team members.</div>
   }
-  
-  // Special case for the 'new' route - always allow access
-  const isNewMember = id === 'new'
   
   // If it's a new member, render the AddTeamMember component immediately
   if (isNewMember) {
@@ -27,14 +27,14 @@ export default function TeamMemberDetails() {
     return <AddTeamMember userId={session.user.id} />
   }
   
-  // For new members, don't fetch any data
+  // For existing members, fetch data
   const { 
     member, 
     salaryHistory, 
     isMemberLoading, 
     isSalaryLoading, 
     refetchSalaryHistory 
-  } = useTeamMember(isNewMember ? undefined : id)
+  } = useTeamMember(id)
   
   // Show loading state while data is being fetched
   if (isMemberLoading || isSalaryLoading) {
