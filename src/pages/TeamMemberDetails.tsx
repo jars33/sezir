@@ -1,82 +1,68 @@
-
-import React, { useEffect } from "react"
-import { useParams, useNavigate } from "react-router-dom"
+import React from "react"
+import { useNavigate } from "react-router-dom"
+import { Button } from "@/components/ui/button"
+import { TeamMemberForm } from "@/components/team/TeamMemberForm"
+import { useTeamMemberSubmit } from "./TeamMemberSubmitHandler"
+import type { TeamMemberFormSchema } from "./team-member-schema"
 import { useToast } from "@/hooks/use-toast"
-import { useAuth } from "@/components/AuthProvider"
-import { useTeamMember } from "@/hooks/use-team-member"
-import { AddTeamMember } from "@/components/team/AddTeamMember"
-import { EditTeamMember } from "@/components/team/EditTeamMember"
 
-export default function TeamMemberDetails() {
-  const { id } = useParams()
+interface AddTeamMemberProps {
+  userId: string
+}
+
+export function AddTeamMember({ userId }: AddTeamMemberProps) {
   const navigate = useNavigate()
-  const { session } = useAuth()
   const { toast } = useToast()
-  
-  console.log("🔍 TeamMemberDetails - Rendering with id:", id)
-  console.log("🔍 TeamMemberDetails - Session:", session)
-  
-  // Make sure we have a session
-  if (!session?.user?.id) {
-    console.log("⚠️ TeamMemberDetails - No session available, redirecting to login")
-    return <div className="p-8">Please log in to add or edit team members.</div>
-  }
-  
-  console.log("✅ TeamMemberDetails - Session available, user ID:", session.user.id)
-  
-  // Special case for the 'new' route - always allow access
-  // This needs to be explicit to handle the route properly
-  const isNewMember = id === 'new'
-  console.log("🔍 TeamMemberDetails - isNewMember:", isNewMember, "id:", id)
-  
-  // If it's a new member, render the AddTeamMember component immediately
-  if (isNewMember) {
-    console.log("🆕 TeamMemberDetails - Rendering AddTeamMember for new member")
-    return <AddTeamMember userId={session.user.id} />
-  }
-  
-  console.log("📊 TeamMemberDetails - Fetching existing member data for ID:", id)
-  
-  // For existing members, fetch data
-  const { 
-    member, 
-    salaryHistory, 
-    isMemberLoading, 
-    isSalaryLoading, 
-    refetchSalaryHistory 
-  } = useTeamMember(id)
-  
-  console.log("📊 TeamMemberDetails - Member data:", member)
-  console.log("📊 TeamMemberDetails - Salary history:", salaryHistory)
-  console.log("📊 TeamMemberDetails - Loading states:", { isMemberLoading, isSalaryLoading })
-  
-  // Show loading state while data is being fetched
-  if (isMemberLoading || isSalaryLoading) {
-    console.log("⏳ TeamMemberDetails - Still loading data...")
-    return <div className="p-8">Loading...</div>
-  }
-  
-  // For existing members, we need to make sure we have a valid ID
-  if (!id || id === 'undefined') {
-    console.error("❌ TeamMemberDetails - No team member ID found")
-    toast({
-      variant: "destructive",
-      title: "Error",
-      description: "No team member ID found"
-    })
-    navigate("/team")
-    return null
+  const { handleSubmit } = useTeamMemberSubmit()
+
+  const onSubmit = async (values: TeamMemberFormSchema) => {
+    if (!userId) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No user ID available. Please log in again."
+      })
+      return
+    }
+
+    console.log("Submitting new team member with user ID:", userId)
+    try {
+      await handleSubmit(values, true, undefined, userId)
+
+      toast({
+        title: "Success",
+        description: "Team member successfully added",
+      })
+      navigate("/team")
+    } catch (error: any) {
+      console.error("Error adding team member:", error)
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to add team member",
+      })
+    }
   }
 
-  console.log("✅ TeamMemberDetails - Rendering EditTeamMember with data")
-  
   return (
-    <EditTeamMember
-      id={id}
-      member={member}
-      salaryHistory={salaryHistory}
-      userId={session.user.id}
-      refetchSalaryHistory={refetchSalaryHistory}
-    />
+    <div className="container py-8">
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-3xl font-bold">Add Team Member</h1>
+        <div className="flex gap-4">
+          <Button variant="outline" onClick={() => navigate("/team")}>
+            Back to List
+          </Button>
+        </div>
+      </div>
+
+      <div className="max-w-2xl mx-auto">
+        <TeamMemberForm
+          member={null}
+          userId={userId}
+          onSubmit={onSubmit}
+          mode="new"
+        />
+      </div>
+    </div>
   )
 }
