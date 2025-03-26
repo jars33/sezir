@@ -43,13 +43,24 @@ export default function TeamMemberDetails() {
   if (!session?.user?.id) {
     return <div className="p-8">Please log in to edit team members.</div>
   }
+  
+  // Make sure we have a valid ID
+  if (!id) {
+    toast({
+      variant: "destructive",
+      title: "Error",
+      description: "No team member ID found"
+    })
+    navigate("/team")
+    return null
+  }
 
   return (
     <EditTeamMember
-      id={id || ""}
+      id={id}
       member={member}
       salaryHistory={salaryHistory}
-      userId={session.user.id || ""}
+      userId={session.user.id}
       refetchSalaryHistory={refetchSalaryHistory}
     />
   )

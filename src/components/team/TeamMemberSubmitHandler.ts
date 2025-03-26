@@ -55,7 +55,9 @@ export function useTeamMemberSubmit() {
 
       console.log("Submitting team member data:", teamMemberData)
 
-      if (!isNewMember) {
+      if (!isNewMember && id) {
+        // Make sure id is not empty before attempting to update
+        console.log("Updating team member with ID:", id);
         // Update existing team member
         const { error: teamMemberError } = await supabase
           .from("team_members")
