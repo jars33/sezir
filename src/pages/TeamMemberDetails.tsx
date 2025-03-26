@@ -13,8 +13,19 @@ export default function TeamMemberDetails() {
   const { session } = useAuth()
   const { toast } = useToast()
   
+  // Make sure we have a session
+  if (!session?.user?.id) {
+    return <div className="p-8">Please log in to add or edit team members.</div>
+  }
+  
   // Special case for the 'new' route - always allow access
   const isNewMember = id === 'new'
+  
+  // If it's a new member, render the AddTeamMember component immediately
+  if (isNewMember) {
+    console.log("Rendering AddTeamMember component for new member")
+    return <AddTeamMember userId={session.user.id} />
+  }
   
   // For new members, don't fetch any data
   const { 
@@ -24,17 +35,6 @@ export default function TeamMemberDetails() {
     isSalaryLoading, 
     refetchSalaryHistory 
   } = useTeamMember(isNewMember ? undefined : id)
-  
-  // Make sure we have a session
-  if (!session?.user?.id) {
-    return <div className="p-8">Please log in to add or edit team members.</div>
-  }
-
-  // If it's a new member, render the AddTeamMember component immediately
-  if (isNewMember) {
-    console.log("Rendering AddTeamMember component for new member")
-    return <AddTeamMember userId={session.user.id} />
-  }
   
   // Show loading state while data is being fetched
   if (isMemberLoading || isSalaryLoading) {

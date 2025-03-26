@@ -32,7 +32,7 @@ export default function Team() {
   }
 
   const handleAddNewMember = () => {
-    // Always navigate to the new team member page
+    // Navigate to the new team member page
     navigate("/team/new")
   }
 
