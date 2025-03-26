@@ -16,6 +16,32 @@ export function useTeamMemberSubmit() {
     }
 
     try {
+      // Create a new user account if email is provided and it's a new team member
+      let newUserCreated = false
+      if (isNewMember && values.company_email) {
+        console.log("Creating a new user account for:", values.company_email)
+        const tempPassword = generateRandomPassword()
+        
+        const { data: userData, error: userError } = await supabase.auth.admin.createUser({
+          email: values.company_email,
+          password: tempPassword,
+          email_confirm: true, // Auto confirm the email
+        })
+        
+        if (userError) {
+          // Only throw an error if it's not a "User already registered" error
+          if (!userError.message.includes("already registered")) {
+            console.error("Error creating user:", userError)
+            throw userError
+          } else {
+            console.log("User already exists:", values.company_email)
+          }
+        } else {
+          console.log("Successfully created user:", userData)
+          newUserCreated = true
+        }
+      }
+
       const teamMemberData = {
         name: values.name,
         start_date: values.start_date,
@@ -29,7 +55,9 @@ export function useTeamMemberSubmit() {
 
       console.log("Submitting team member data:", teamMemberData)
 
-      if (!isNewMember) {
+      if (!isNewMember && id) {
+        // Make sure id is not empty before attempting to update
+        console.log("Updating team member with ID:", id);
         // Update existing team member
         const { error: teamMemberError } = await supabase
           .from("team_members")
@@ -57,11 +85,23 @@ export function useTeamMemberSubmit() {
         console.log("New team member created");
       }
 
-      return true;
+      return { success: true, newUserCreated };
     } catch (error: any) {
       console.error("Error in onSubmit:", error)
       throw error;
     }
+  }
+
+  // Helper function to generate a random password
+  const generateRandomPassword = () => {
+    const length = 12
+    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*"
+    let password = ""
+    for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * charset.length)
+      password += charset[randomIndex]
+    }
+    return password
   }
 
   return { handleSubmit }
