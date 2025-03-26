@@ -148,7 +148,12 @@ export default function Team() {
 
           <TabsContent value="timeline" className="mt-2">
             {members.map((member) => (
-              <TeamMemberTimeline key={member.id} member={member} selectedYear={selectedYear} />
+              <TeamMemberTimeline 
+                key={member.id} 
+                member={member} 
+                selectedYear={selectedYear} 
+                onEditMember={handleEdit}
+              />
             ))}
           </TabsContent>
         </Tabs>

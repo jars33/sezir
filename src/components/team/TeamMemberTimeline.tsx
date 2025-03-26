@@ -11,9 +11,10 @@ import type { TeamMember } from "@/types/team-member"
 interface TeamMemberTimelineProps {
   member: TeamMember
   selectedYear: number
+  onEditMember: (member: TeamMember) => void
 }
 
-export function TeamMemberTimeline({ member, selectedYear }: TeamMemberTimelineProps) {
+export function TeamMemberTimeline({ member, selectedYear, onEditMember }: TeamMemberTimelineProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const currentDate = new Date()
   
@@ -28,7 +29,8 @@ export function TeamMemberTimeline({ member, selectedYear }: TeamMemberTimelineP
     <Card className="mb-3">
       <TimelineHeader 
         member={member} 
-        onAddAllocation={() => setIsDialogOpen(true)} 
+        onAddAllocation={() => setIsDialogOpen(true)}
+        onEditMember={onEditMember}
       />
       
       <CardContent className="overflow-x-auto pb-3 pt-0">
