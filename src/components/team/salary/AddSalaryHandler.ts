@@ -99,5 +99,29 @@ export function useAddSalary(
     }
   }
 
-  return { handleAddSalary, handleEditSalary, handleDeleteSalary }
+  // New function to update the end date of previous salary
+  const updatePreviousSalaryEndDate = async (salaryId: string, endDate: string) => {
+    try {
+      const { error } = await supabase
+        .from("salary_history")
+        .update({
+          end_date: endDate,
+        })
+        .eq("id", salaryId)
+
+      if (error) throw error
+
+      // Don't refetch or show toast here as this is part of add salary flow
+    } catch (error: any) {
+      console.error("Error updating previous salary end date:", error)
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Could not update previous salary: " + error.message,
+      })
+      throw error
+    }
+  }
+
+  return { handleAddSalary, handleEditSalary, handleDeleteSalary, updatePreviousSalaryEndDate }
 }

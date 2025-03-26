@@ -1,6 +1,6 @@
 
 import React, { useState } from "react"
-import { format } from "date-fns"
+import { format, subDays, parseISO } from "date-fns"
 import { PlusCircle, Pencil, Trash2 } from "lucide-react"
 import {
   Table,
@@ -43,7 +43,7 @@ export function SalaryHistorySection({
   const [editingSalary, setEditingSalary] = useState<SalaryHistory | null>(null)
   const [salaryToDelete, setSalaryToDelete] = useState<string | null>(null)
   
-  const { handleAddSalary, handleEditSalary, handleDeleteSalary } = useAddSalary(refetchSalaryHistory)
+  const { handleAddSalary, handleEditSalary, handleDeleteSalary, updatePreviousSalaryEndDate } = useAddSalary(refetchSalaryHistory)
 
   const formatSalary = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -58,13 +58,33 @@ export function SalaryHistorySection({
   }
 
   const handleSalarySubmit = async (values: { amount: string, start_date: string, end_date: string }) => {
-    if (editingSalary) {
-      await handleEditSalary(editingSalary.id, values)
-    } else {
-      await handleAddSalary(memberId, values, false, userId)
+    try {
+      if (editingSalary) {
+        await handleEditSalary(editingSalary.id, values)
+      } else {
+        // Find the most recent active salary (with no end date or end date after the new start date)
+        const activeSalaries = salaryHistory.filter(
+          (salary) => !salary.end_date || new Date(salary.end_date) >= new Date(values.start_date)
+        ).sort((a, b) => 
+          new Date(b.start_date).getTime() - new Date(a.start_date).getTime()
+        );
+        
+        const mostRecentSalary = activeSalaries[0];
+        
+        // If there is an active salary, update its end date before adding the new one
+        if (mostRecentSalary) {
+          const dayBeforeNewStart = format(subDays(parseISO(values.start_date), 1), 'yyyy-MM-dd');
+          await updatePreviousSalaryEndDate(mostRecentSalary.id, dayBeforeNewStart);
+        }
+        
+        // Now add the new salary
+        await handleAddSalary(memberId, values, false, userId)
+      }
+      setShowSalaryForm(false)
+      setEditingSalary(null)
+    } catch (error) {
+      console.error("Error handling salary submission:", error);
     }
-    setShowSalaryForm(false)
-    setEditingSalary(null)
   }
 
   const handleDeleteConfirm = async () => {
