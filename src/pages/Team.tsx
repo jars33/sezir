@@ -32,7 +32,8 @@ export default function Team() {
   }
 
   const handleAddNewMember = () => {
-    // Navigate to the new team member page
+    // Navigate to the new team member page - ensure this is explicitly 'new'
+    console.log("📣 Team.tsx - Navigating to /team/new")
     navigate("/team/new")
   }
 

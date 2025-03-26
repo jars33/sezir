@@ -25,8 +25,9 @@ export default function TeamMemberDetails() {
   console.log("✅ TeamMemberDetails - Session available, user ID:", session.user.id)
   
   // Special case for the 'new' route - always allow access
+  // This needs to be explicit to handle the route properly
   const isNewMember = id === 'new'
-  console.log("🔍 TeamMemberDetails - isNewMember:", isNewMember)
+  console.log("🔍 TeamMemberDetails - isNewMember:", isNewMember, "id:", id)
   
   // If it's a new member, render the AddTeamMember component immediately
   if (isNewMember) {
