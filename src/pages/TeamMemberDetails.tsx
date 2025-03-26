@@ -16,10 +16,6 @@ export default function TeamMemberDetails() {
   console.log("🔍 TeamMemberDetails - Rendering with id:", id)
   console.log("🔍 TeamMemberDetails - Session:", session)
   
-  // Special case for the 'new' route - always allow access
-  const isNewMember = id === 'new'
-  console.log("🔍 TeamMemberDetails - isNewMember:", isNewMember)
-  
   // Make sure we have a session
   if (!session?.user?.id) {
     console.log("⚠️ TeamMemberDetails - No session available, redirecting to login")
@@ -27,6 +23,10 @@ export default function TeamMemberDetails() {
   }
   
   console.log("✅ TeamMemberDetails - Session available, user ID:", session.user.id)
+  
+  // Special case for the 'new' route - always allow access
+  const isNewMember = id === 'new'
+  console.log("🔍 TeamMemberDetails - isNewMember:", isNewMember)
   
   // If it's a new member, render the AddTeamMember component immediately
   if (isNewMember) {
@@ -55,8 +55,8 @@ export default function TeamMemberDetails() {
     return <div className="p-8">Loading...</div>
   }
   
-  // Make sure we have a valid ID for existing members
-  if (!id) {
+  // For existing members, we need to make sure we have a valid ID
+  if (!id || id === 'undefined') {
     console.error("❌ TeamMemberDetails - No team member ID found")
     toast({
       variant: "destructive",
