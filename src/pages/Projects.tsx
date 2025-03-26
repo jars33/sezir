@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { ProjectDialog } from "@/components/ProjectDialog"
 import { type ProjectFormSchema } from "@/components/projects/project-schema"
 import { ProjectList } from "@/components/projects/ProjectList"
-import { CalendarProjectView } from "@/components/projects/CalendarProjectView"
+import { GanttChartView } from "@/components/projects/GanttChartView"
 import { useAuth } from "@/components/AuthProvider"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ProjectSettingsDialog } from "@/components/projects/ProjectSettingsDialog"
@@ -99,10 +99,10 @@ export default function Projects() {
         </div>
       </div>
 
-      <Tabs defaultValue="list">
+      <Tabs defaultValue="gantt">
         <TabsList>
           <TabsTrigger value="list">List View</TabsTrigger>
-          <TabsTrigger value="calendar">Calendar View</TabsTrigger>
+          <TabsTrigger value="gantt">Gantt View</TabsTrigger>
         </TabsList>
 
         <TabsContent value="list">
@@ -121,8 +121,8 @@ export default function Projects() {
           />
         </TabsContent>
 
-        <TabsContent value="calendar">
-          <CalendarProjectView
+        <TabsContent value="gantt">
+          <GanttChartView
             projects={projects ?? []}
             onProjectClick={(project) => navigate(`/projects/${project.id}`)}
           />
