@@ -24,6 +24,7 @@ const formSchema = z.object({
 
 export default function Auth() {
   const [isLoading, setIsLoading] = useState(false)
+  const [isSignUp, setIsSignUp] = useState(false)
   const navigate = useNavigate()
   const { toast } = useToast()
 
@@ -38,13 +39,29 @@ export default function Auth() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: values.email,
-        password: values.password,
-      })
-      
-      if (error) throw error
-      navigate("/")
+      if (isSignUp) {
+        const { error } = await supabase.auth.signUp({
+          email: values.email,
+          password: values.password,
+        })
+        if (error) {
+          if (error.message.includes("rate limit")) {
+            throw new Error("Please wait a few seconds before trying again")
+          }
+          throw error
+        }
+        toast({
+          title: "Success!",
+          description: "Please check your email to verify your account.",
+        })
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: values.email,
+          password: values.password,
+        })
+        if (error) throw error
+        navigate("/")
+      }
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -62,10 +79,12 @@ export default function Auth() {
         <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
           <div className="flex flex-col space-y-2 text-center">
             <h1 className="text-2xl font-semibold tracking-tight">
-              Welcome back
+              {isSignUp ? "Create an account" : "Welcome back"}
             </h1>
             <p className="text-sm text-muted-foreground">
-              Enter your email to sign in to your account
+              {isSignUp
+                ? "Enter your email below to create your account"
+                : "Enter your email to sign in to your account"}
             </p>
           </div>
           <Form {...form}>
@@ -101,14 +120,20 @@ export default function Auth() {
                 )}
               />
               <Button className="w-full" type="submit" disabled={isLoading}>
-                {isLoading ? "Loading..." : "Sign In"}
+                {isLoading ? "Loading..." : isSignUp ? "Sign Up" : "Sign In"}
               </Button>
             </form>
           </Form>
           <div className="text-center">
-            <p className="text-sm text-muted-foreground">
-              Contact your administrator if you need access to the system.
-            </p>
+            <Button
+              variant="link"
+              className="text-sm"
+              onClick={() => setIsSignUp(!isSignUp)}
+            >
+              {isSignUp
+                ? "Already have an account? Sign in"
+                : "Don't have an account? Sign up"}
+            </Button>
           </div>
         </div>
       </div>

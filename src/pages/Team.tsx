@@ -21,7 +21,7 @@ export default function Team() {
 
   const { data: members, refetch, isLoading, isError, error } = useManagedTeamMembers()
 
-  console.log("🔍 Team.tsx - Auth session:", session?.user?.id)
+  console.log("🔍 Team.tsx - Auth session:", session?.user.id)
   console.log("🔍 Team.tsx - Members data:", members)
   console.log("🔍 Team.tsx - isLoading:", isLoading)
   console.log("🔍 Team.tsx - isError:", isError)
@@ -32,7 +32,7 @@ export default function Team() {
   }
 
   const handleAddNewMember = () => {
-    // Navigate to the new team member page
+    // Always navigate to the new team member page
     navigate("/team/new")
   }
 

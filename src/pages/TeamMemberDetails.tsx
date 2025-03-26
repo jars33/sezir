@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react"
+import React from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/components/AuthProvider"
@@ -16,48 +16,40 @@ export default function TeamMemberDetails() {
   // Special case for the 'new' route - always allow access
   const isNewMember = id === 'new'
   
-  // Make sure we have a session
-  if (!session?.user?.id) {
-    return <div className="p-8">Please log in to add or edit team members.</div>
-  }
-  
-  // If it's a new member, render the AddTeamMember component immediately
-  if (isNewMember) {
-    console.log("Rendering AddTeamMember component for new member")
-    return <AddTeamMember userId={session.user.id} />
-  }
-  
-  // For existing members, fetch data
+  // For new members, don't fetch any data
   const { 
     member, 
     salaryHistory, 
     isMemberLoading, 
     isSalaryLoading, 
     refetchSalaryHistory 
-  } = useTeamMember(id)
+  } = useTeamMember(isNewMember ? undefined : id)
+  
+  // If it's a new member, render the AddTeamMember component immediately
+  if (isNewMember) {
+    if (!session?.user?.id) {
+      return <div className="p-8">Please log in to add team members.</div>
+    }
+    console.log("Rendering AddTeamMember component for new member")
+    return <AddTeamMember userId={session.user.id} />
+  }
   
   // Show loading state while data is being fetched
   if (isMemberLoading || isSalaryLoading) {
     return <div className="p-8">Loading...</div>
   }
-  
-  // Make sure we have a valid ID for existing members
-  if (!id) {
-    toast({
-      variant: "destructive",
-      title: "Error",
-      description: "No team member ID found"
-    })
-    navigate("/team")
-    return null
+
+  // Make sure we have a session
+  if (!session?.user?.id) {
+    return <div className="p-8">Please log in to edit team members.</div>
   }
 
   return (
     <EditTeamMember
-      id={id}
+      id={id || ""}
       member={member}
       salaryHistory={salaryHistory}
-      userId={session.user.id}
+      userId={session.user.id || ""}
       refetchSalaryHistory={refetchSalaryHistory}
     />
   )

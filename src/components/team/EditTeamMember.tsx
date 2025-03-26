@@ -30,19 +30,7 @@ export function EditTeamMember({
   const { handleAddSalary, handleEditSalary, handleDeleteSalary } = useAddSalary(refetchSalaryHistory)
 
   const onSubmit = async (values: TeamMemberFormSchema) => {
-    try {
-      // Check if we have a valid ID for updating
-      if (!id) {
-        throw new Error("No team member ID available for update");
-      }
-      
-      await handleSubmit(values, false, id, userId);
-      
-      navigate("/team");
-    } catch (error: any) {
-      console.error("Error updating team member:", error);
-      throw error;
-    }
+    await handleSubmit(values, false, id, userId)
   }
 
   const onAddSalary = async (values: { amount: string, start_date: string, end_date: string }) => {
