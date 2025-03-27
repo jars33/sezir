@@ -29,27 +29,72 @@ export function TeamMemberList({ members, onEdit, onSuccess }: TeamMemberListPro
   const handleDelete = async () => {
     if (!memberToDelete) return
 
-    const { error } = await supabase
-      .from("team_members")
-      .delete()
-      .eq("id", memberToDelete.id)
+    try {
+      // If there's a company email, delete the corresponding user account first
+      if (memberToDelete.company_email) {
+        console.log("Checking for user account with email:", memberToDelete.company_email)
+        
+        // Find the user with this email
+        const { data: userData, error: userFetchError } = await supabase
+          .from("auth.users")
+          .select("id")
+          .eq("email", memberToDelete.company_email)
+          .maybeSingle()
+        
+        if (userFetchError) {
+          console.error("Error finding user account:", userFetchError)
+        } else if (userData) {
+          console.log("Found user account:", userData)
+          
+          // Use the admin API to delete the user
+          const { error: userDeleteError } = await supabase.auth.admin.deleteUser(
+            userData.id
+          )
+          
+          if (userDeleteError) {
+            console.error("Error deleting user account:", userDeleteError)
+            toast({
+              variant: "destructive",
+              title: "Warning",
+              description: "Team member deleted but failed to delete user account",
+            })
+          } else {
+            console.log("Successfully deleted user account")
+          }
+        }
+      }
+      
+      // Delete the team member record
+      const { error } = await supabase
+        .from("team_members")
+        .delete()
+        .eq("id", memberToDelete.id)
 
-    if (error) {
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to delete team member: " + error.message,
+        })
+        return
+      }
+
+      toast({
+        title: "Success",
+        description: "Team member deleted successfully",
+      })
+      
+      onSuccess()
+      setDeleteDialogOpen(false)
+      setMemberToDelete(null)
+    } catch (error: any) {
+      console.error("Error in delete process:", error)
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to delete team member",
+        description: error.message || "An unexpected error occurred",
       })
-      return
     }
-
-    toast({
-      title: "Success",
-      description: "Team member deleted successfully",
-    })
-    onSuccess()
-    setDeleteDialogOpen(false)
-    setMemberToDelete(null)
   }
 
   const confirmDelete = (member: TeamMember) => {
@@ -113,6 +158,7 @@ export function TeamMemberList({ members, onEdit, onSuccess }: TeamMemberListPro
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
         onConfirm={handleDelete}
+        includesUserAccount={memberToDelete?.company_email ? true : false}
       />
     </div>
   )
