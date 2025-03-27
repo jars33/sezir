@@ -103,6 +103,7 @@ export default function Auth() {
   async function onResetSubmit(values: z.infer<typeof resetPasswordFormSchema>) {
     setIsResetLoading(true)
     try {
+      // Use window.location.origin + '/auth' for the redirectTo URL to ensure proper redirection
       const { error } = await supabase.auth.resetPasswordForEmail(values.email, {
         redirectTo: `${window.location.origin}/auth`,
       })
