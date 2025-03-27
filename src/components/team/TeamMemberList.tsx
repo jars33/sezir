@@ -32,35 +32,23 @@ export function TeamMemberList({ members, onEdit, onSuccess }: TeamMemberListPro
     try {
       // If there's a company email, delete the corresponding user account first
       if (memberToDelete.company_email) {
-        console.log("Checking for user account with email:", memberToDelete.company_email)
+        console.log("Attempting to delete user account with email:", memberToDelete.company_email)
         
-        // Find the user with this email
-        const { data: userData, error: userFetchError } = await supabase
-          .from("auth.users")
-          .select("id")
-          .eq("email", memberToDelete.company_email)
-          .maybeSingle()
+        // Use the admin.deleteUser function directly - no need to query auth.users first
+        // The function will find the user by email if it exists
+        const { error: userDeleteError } = await supabase.functions.invoke('delete-user', {
+          body: { email: memberToDelete.company_email }
+        })
         
-        if (userFetchError) {
-          console.error("Error finding user account:", userFetchError)
-        } else if (userData) {
-          console.log("Found user account:", userData)
-          
-          // Use the admin API to delete the user
-          const { error: userDeleteError } = await supabase.auth.admin.deleteUser(
-            userData.id
-          )
-          
-          if (userDeleteError) {
-            console.error("Error deleting user account:", userDeleteError)
-            toast({
-              variant: "destructive",
-              title: "Warning",
-              description: "Team member deleted but failed to delete user account",
-            })
-          } else {
-            console.log("Successfully deleted user account")
-          }
+        if (userDeleteError) {
+          console.error("Error deleting user account:", userDeleteError)
+          toast({
+            variant: "destructive",
+            title: "Warning",
+            description: "Team member deleted but failed to delete user account",
+          })
+        } else {
+          console.log("Successfully requested user account deletion")
         }
       }
       
