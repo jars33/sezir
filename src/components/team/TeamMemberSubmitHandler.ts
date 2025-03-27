@@ -78,7 +78,7 @@ export function useTeamMemberSubmit() {
             if (error) {
               console.error("Error inviting user:", error);
               toast({
-                variant: "warning",
+                variant: "default", // Changed from "warning" to "default"
                 title: "Note",
                 description: "Team member created but invitation could not be sent."
               });
