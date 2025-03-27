@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable"
 import { useProjectYear } from "@/hooks/use-project-year"
 import { ProjectStatusFilter } from "./filters/ProjectStatusFilter"
+import { YearSelector } from "./YearSelector"
 
 interface Project {
   id: string
@@ -36,9 +37,6 @@ export function GanttChartView({ projects, onProjectClick }: GanttChartViewProps
   
   // Generate array of months for display (full year - 12 months)
   const months = Array.from({ length: 12 }, (_, i) => new Date(year, i, 1))
-
-  const handlePreviousYear = () => setYear(year - 1)
-  const handleNextYear = () => setYear(year + 1)
 
   // Calculate current date position as percentage of year (for vertical line)
   const getCurrentDatePosition = () => {
@@ -137,14 +135,7 @@ export function GanttChartView({ projects, onProjectClick }: GanttChartViewProps
             selectedStatuses={statusFilter}
             onChange={setStatusFilter}
           />
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={handlePreviousYear}>
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleNextYear}>
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
+          <YearSelector year={year} onChange={setYear} />
         </div>
       </div>
 
@@ -205,7 +196,7 @@ export function GanttChartView({ projects, onProjectClick }: GanttChartViewProps
                   className="absolute top-0 bottom-0 w-px bg-red-500 z-10"
                   style={{ 
                     left: `${getCurrentDatePosition()}%`,
-                    height: `${sortedProjects.length * 40 + 10}px`
+                    height: `${Math.max(500, sortedProjects.length * 40 + 10)}px`
                   }}
                 >
                   <div className="absolute top-0 -translate-x-1/2 bg-red-500 text-white text-xs px-1 rounded">
