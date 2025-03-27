@@ -1,12 +1,13 @@
 
 import { useState } from "react"
 import { format, addMonths, differenceInCalendarMonths, startOfMonth, endOfMonth, isWithinInterval, isBefore, isAfter } from "date-fns"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight, Calendar } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable"
 import { useProjectYear } from "@/hooks/use-project-year"
+import { ProjectStatusFilter } from "./filters/ProjectStatusFilter"
 
 interface Project {
   id: string
@@ -24,10 +25,14 @@ interface GanttChartViewProps {
 
 export function GanttChartView({ projects, onProjectClick }: GanttChartViewProps) {
   const { year, setYear } = useProjectYear()
+  const [statusFilter, setStatusFilter] = useState<string[]>([])
   
   // Create date objects for the start and end of the selected year
   const yearStart = new Date(year, 0, 1) // January 1st
   const yearEnd = new Date(year, 11, 31) // December 31st
+  
+  // Get current date for the timeline indicator
+  const currentDate = new Date()
   
   // Generate array of months for display (full year - 12 months)
   const months = Array.from({ length: 12 }, (_, i) => new Date(year, i, 1))
@@ -35,21 +40,40 @@ export function GanttChartView({ projects, onProjectClick }: GanttChartViewProps
   const handlePreviousYear = () => setYear(year - 1)
   const handleNextYear = () => setYear(year + 1)
 
-  // Filter projects with valid date ranges that fall within or overlap with the selected year
+  // Calculate current date position as percentage of year (for vertical line)
+  const getCurrentDatePosition = () => {
+    // If current date is not in the selected year, don't show the line
+    if (currentDate.getFullYear() !== year) return null;
+    
+    // Calculate days passed in the year as percentage of total days in year
+    const startOfYear = new Date(year, 0, 1);
+    const daysInYear = 365 + (year % 4 === 0 ? 1 : 0); // Account for leap years
+    const daysPassed = differenceInCalendarMonths(currentDate, startOfYear) * 30 + 
+                      currentDate.getDate() - 1;
+    
+    return (daysPassed / daysInYear) * 100;
+  }
+
+  // Apply filters to projects
   const filteredProjects = projects.filter(project => {
-    if (!project.start_date) return false
+    // Filter by date range (must fall within or overlap with selected year)
+    if (!project.start_date) return false;
     
-    const projectStart = new Date(project.start_date)
-    const projectEnd = project.end_date ? new Date(project.end_date) : null
+    const projectStart = new Date(project.start_date);
+    const projectEnd = project.end_date ? new Date(project.end_date) : null;
     
-    // Project starts before or during this year
-    return (
+    const dateInRange = (
       // Either starts in this year
       isWithinInterval(projectStart, { start: yearStart, end: yearEnd }) ||
       // Or started earlier but ends in or after this year
       (isBefore(projectStart, yearStart) && (!projectEnd || isAfter(projectEnd, yearStart)))
-    )
-  })
+    );
+    
+    // Filter by status if any status filters are selected
+    const statusMatch = statusFilter.length === 0 || statusFilter.includes(project.status);
+    
+    return dateInRange && statusMatch;
+  });
 
   // Sort projects by start date
   const sortedProjects = [...filteredProjects].sort((a, b) => {
@@ -108,13 +132,19 @@ export function GanttChartView({ projects, onProjectClick }: GanttChartViewProps
         <h2 className="text-xl font-semibold">
           Project Timeline - {year}
         </h2>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={handlePreviousYear}>
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" size="sm" onClick={handleNextYear}>
-            <ChevronRight className="h-4 w-4" />
-          </Button>
+        <div className="flex items-center gap-4">
+          <ProjectStatusFilter 
+            selectedStatuses={statusFilter}
+            onChange={setStatusFilter}
+          />
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={handlePreviousYear}>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleNextYear}>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -167,12 +197,29 @@ export function GanttChartView({ projects, onProjectClick }: GanttChartViewProps
               ))}
             </div>
 
-            {/* Project timeline bars */}
-            <div className="space-y-1">
-              {sortedProjects.map((project) => {
+            {/* Timeline with current date indicator */}
+            <div className="relative">
+              {/* Current date vertical line */}
+              {getCurrentDatePosition() !== null && (
+                <div 
+                  className="absolute top-0 bottom-0 w-px bg-red-500 z-10"
+                  style={{ 
+                    left: `${getCurrentDatePosition()}%`,
+                    height: `${sortedProjects.length * 40 + 10}px`
+                  }}
+                >
+                  <div className="absolute top-0 -translate-x-1/2 bg-red-500 text-white text-xs px-1 rounded">
+                    Today
+                  </div>
+                </div>
+              )}
+
+              {/* Project timeline bars - aligned with names */}
+              {sortedProjects.map((project, index) => {
                 const { offset, width } = calculateProjectBar(project)
                 return (
                   <div key={project.id} className="h-10 relative">
+                    {/* Align the bars with the project names */}
                     <div 
                       className={`absolute rounded h-6 top-1/2 -translate-y-1/2 ${getStatusColor(project.status)} cursor-pointer opacity-80 hover:opacity-100`}
                       style={{ 

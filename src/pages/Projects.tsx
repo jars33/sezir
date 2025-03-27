@@ -97,7 +97,7 @@ export default function Projects() {
         </div>
       </div>
 
-      {/* Directly show the Gantt chart view, without tabs */}
+      {/* Enhanced Gantt chart view with current date line and status filtering */}
       <GanttChartView
         projects={projects ?? []}
         onProjectClick={(project) => navigate(`/projects/${project.id}`)}
