@@ -34,7 +34,7 @@ export function GanttTimeline({
       {/* Months header */}
       <div className="grid grid-cols-12 mb-2">
         {months.map((month) => (
-          <div key={month.getTime()} className="text-sm font-medium px-1 text-center bg-gray-100 py-2 rounded-t-md">
+          <div key={month.getTime()} className="text-sm font-medium px-1 text-center bg-gray-100 dark:bg-gray-800 dark:text-gray-200 py-2 rounded-t-md">
             {format(month, 'MMM')}
           </div>
         ))}
@@ -48,7 +48,7 @@ export function GanttTimeline({
             className="absolute top-0 bottom-0 w-px bg-red-500 z-10"
             style={{ 
               left: `${currentDatePosition}%`,
-              height: `${Math.max(500, projects.length * 40 + 10)}px`
+              height: `${Math.max(500, projects.length * 40 + 50)}px`
             }}
           >
             <div className="absolute top-0 -translate-x-1/2 bg-red-500 text-white text-xs px-1 rounded">
@@ -71,7 +71,7 @@ export function GanttTimeline({
                 }}
                 onClick={() => onProjectClick(project)}
               >
-                <div className="px-2 text-xs text-white truncate h-full flex items-center">
+                <div className="px-2 text-xs text-white truncate h-full flex items-center font-medium">
                   {project.number} - {project.name}
                 </div>
               </div>
@@ -79,7 +79,7 @@ export function GanttTimeline({
           )
         })}
         {projects.length === 0 && (
-          <div className="h-40 flex items-center justify-center text-gray-500">
+          <div className="h-40 flex items-center justify-center text-gray-500 dark:text-gray-400">
             No projects found for {year}
           </div>
         )}

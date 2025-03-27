@@ -70,7 +70,7 @@ export function GanttChartView({ projects, onProjectClick }: GanttChartViewProps
     <Card className="p-4">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold">
-          Project Timeline - {year}
+          Timeline
         </h2>
         <div className="flex items-center gap-4">
           <ProjectStatusFilter 

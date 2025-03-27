@@ -33,23 +33,23 @@ export function GanttProjectList({ projects, onProjectClick }: GanttProjectListP
   }
 
   return (
-    <div className="pr-2 border-r h-full">
-      <div className="font-medium py-2 px-2 bg-gray-100 rounded-t-md mb-2">
+    <div className="pr-2 border-r h-full dark:border-gray-700">
+      <div className="font-medium py-2 px-2 bg-gray-100 dark:bg-gray-800 dark:text-gray-200 rounded-t-md mb-2">
         Projects
       </div>
       <div className="space-y-1">
         {projects.map((project) => (
           <div 
             key={project.id}
-            className="pl-2 py-1 text-sm cursor-pointer hover:bg-gray-100 rounded"
+            className="pl-2 py-1 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
             onClick={() => onProjectClick(project)}
           >
-            <div className="font-medium">{project.number} - {project.name}</div>
+            <div className="font-medium dark:text-gray-100">{project.number} - {project.name}</div>
             <div className="flex items-center space-x-2">
               <Badge variant="outline" className={`${getStatusColor(project.status)} text-white text-xs`}>
                 {project.status.replace('_', ' ')}
               </Badge>
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-gray-500 dark:text-gray-400">
                 {project.start_date ? format(new Date(project.start_date), 'MMM d, yyyy') : 'No date'} 
                 {project.end_date ? ` - ${format(new Date(project.end_date), 'MMM d, yyyy')}` : ''}
               </span>
@@ -57,7 +57,7 @@ export function GanttProjectList({ projects, onProjectClick }: GanttProjectListP
           </div>
         ))}
         {projects.length === 0 && (
-          <div className="text-center py-4 text-gray-500">
+          <div className="text-center py-4 text-gray-500 dark:text-gray-400">
             No projects found
           </div>
         )}
