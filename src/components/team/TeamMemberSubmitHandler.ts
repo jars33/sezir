@@ -18,6 +18,8 @@ export function useTeamMemberSubmit() {
     try {
       // Create a new user account if email is provided and it's a new team member
       let newUserCreated = false
+      let invitationSent = false
+      
       if (isNewMember && values.company_email) {
         console.log("Creating a new user account for:", values.company_email)
         const tempPassword = generateRandomPassword()
@@ -39,6 +41,33 @@ export function useTeamMemberSubmit() {
         } else {
           console.log("Successfully created user:", userData)
           newUserCreated = true
+          
+          // Send invitation email
+          try {
+            // Call our edge function to send the invitation
+            const response = await supabase.functions.invoke("send-invitation", {
+              body: {
+                email: values.company_email,
+                firstName: values.name.split(" ")[0] // Use first name from the full name
+              }
+            });
+            
+            if (response.error) {
+              console.error("Error sending invitation:", response.error);
+              throw new Error(response.error.message || "Failed to send invitation");
+            }
+            
+            invitationSent = true;
+            console.log("Invitation sent successfully");
+          } catch (inviteError: any) {
+            console.error("Error sending invitation:", inviteError);
+            // We don't throw here to avoid blocking team member creation if email fails
+            toast({
+              variant: "destructive",
+              title: "Warning",
+              description: `Team member created but invitation email failed: ${inviteError.message}`,
+            });
+          }
         }
       }
 
@@ -85,7 +114,7 @@ export function useTeamMemberSubmit() {
         console.log("New team member created");
       }
 
-      return { success: true, newUserCreated };
+      return { success: true, newUserCreated, invitationSent };
     } catch (error: any) {
       console.error("Error in onSubmit:", error)
       throw error;

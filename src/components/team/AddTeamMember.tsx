@@ -35,6 +35,9 @@ export function AddTeamMember({ userId }: AddTeamMemberProps) {
       if (result.newUserCreated) {
         successMessage += " and user account created"
       }
+      if (result.invitationSent) {
+        successMessage += ". An invitation link has been sent to their email."
+      }
       
       toast({
         title: "Success",
