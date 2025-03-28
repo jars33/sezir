@@ -1,11 +1,10 @@
-
 {
   "common": {
+    "appName": "Sezir",
     "dashboard": "Painel",
     "organization": "Organização",
     "teamMembers": "Membros da Equipa",
     "projects": "Projetos",
-    "inbox": "Caixa de Entrada",
     "signOut": "Terminar Sessão",
     "loading": "A carregar...",
     "showDecimals": "Mostrar decimais",

@@ -1,11 +1,10 @@
-
 {
   "common": {
+    "appName": "Sezir",
     "dashboard": "Dashboard",
     "organization": "Organization",
     "teamMembers": "Team Members",
     "projects": "Projects",
-    "inbox": "Inbox",
     "signOut": "Sign Out",
     "loading": "Loading...",
     "showDecimals": "Show decimals",
