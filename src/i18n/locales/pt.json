@@ -18,9 +18,12 @@
     "year": "Ano",
     "team": "Equipa",
     "allTeams": "Todas as Equipas",
-    "activeProjects": "Projetos Ativos",
-    "resourceUtilization": "Utilização de Recursos",
-    "avgProjectProfitability": "Rentabilidade Média de Projetos",
+    "activeprojects": "Projetos Ativos",
+    "teammembers": "Membros da Equipa",
+    "avg": {
+      "projectprofitability": "Rentabilidade Média de Projetos"
+    },
+    "resourceutilization": "Utilização de Recursos",
     "tabs": {
       "revenueCosts": "Receitas & Custos",
       "projectMargins": "Margens de Projetos",
@@ -33,8 +36,12 @@
       "revenueCostProfit": "Receita, Custo & Lucro",
       "revenue": "Receita",
       "cost": "Custo",
-      "profit": "Lucro"
-    }
+      "profit": "Lucro",
+      "utilization": "Utilização",
+      "profitability": "Rentabilidade",
+      "teamUtilizationProfitability": "Utilização vs. Rentabilidade da Equipa"
+    },
+    "projects": "Projetos"
   },
   "team": {
     "title": "Membros da Equipa",

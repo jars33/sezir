@@ -18,9 +18,12 @@
     "year": "Year",
     "team": "Team",
     "allTeams": "All Teams",
-    "activeProjects": "Active Projects",
-    "resourceUtilization": "Resource Utilization",
-    "avgProjectProfitability": "Avg. Project Profitability",
+    "activeprojects": "Active Projects",
+    "teammembers": "Team Members",
+    "avg": {
+      "projectprofitability": "Avg. Project Profitability"
+    },
+    "resourceutilization": "Resource Utilization",
     "tabs": {
       "revenueCosts": "Revenue & Costs",
       "projectMargins": "Project Margins",
@@ -33,8 +36,12 @@
       "revenueCostProfit": "Revenue, Cost & Profit",
       "revenue": "Revenue",
       "cost": "Cost",
-      "profit": "Profit"
-    }
+      "profit": "Profit",
+      "utilization": "Utilization",
+      "profitability": "Profitability",
+      "teamUtilizationProfitability": "Team Utilization vs. Profitability"
+    },
+    "projects": "Projects"
   },
   "team": {
     "title": "Team Members",

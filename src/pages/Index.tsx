@@ -17,10 +17,10 @@ const Dashboard = () => {
   });
 
   const stats = [
-    { name: 'Active Projects', value: metrics.activeProjects.toString() },
-    { name: 'Team Members', value: metrics.teamMembers.toString() },
-    { name: 'Avg. Project Profitability', value: `${metrics.avgProjectProfitability}%` },
-    { name: 'Resource Utilization', value: `${metrics.resourceUtilization}%` },
+    { name: 'activeprojects', value: metrics.activeProjects.toString() },
+    { name: 'teammembers', value: metrics.teamMembers.toString() },
+    { name: 'avg.projectprofitability', value: `${metrics.avgProjectProfitability}%` },
+    { name: 'resourceutilization', value: `${metrics.resourceUtilization}%` },
   ];
 
   return (
