@@ -12,6 +12,7 @@ import {
   Legend, 
 } from 'recharts';
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslation } from "react-i18next";
 
 interface UtilizationTabProps {
   utilizationProfitabilityData: any[];
@@ -19,11 +20,13 @@ interface UtilizationTabProps {
 }
 
 export function UtilizationTab({ utilizationProfitabilityData, isLoading }: UtilizationTabProps) {
+  const { t } = useTranslation();
+  
   return (
     <Card className="w-full">
       <div className="p-6">
         <h2 className="text-lg font-medium text-foreground mb-4">
-          Team Utilization vs. Profitability
+          {t('dashboard.charts.teamUtilizationProfitability')}
         </h2>
         <div className="h-80 w-full">
           {isLoading ? (
@@ -44,7 +47,7 @@ export function UtilizationTab({ utilizationProfitabilityData, isLoading }: Util
                 <XAxis 
                   type="number" 
                   dataKey="utilization" 
-                  name="Utilization" 
+                  name={t('dashboard.charts.utilization')} 
                   unit="%" 
                   domain={[0, 100]}
                   className="text-muted-foreground"
@@ -52,7 +55,7 @@ export function UtilizationTab({ utilizationProfitabilityData, isLoading }: Util
                 <YAxis 
                   type="number" 
                   dataKey="profitability" 
-                  name="Profitability" 
+                  name={t('dashboard.charts.profitability')} 
                   unit="%" 
                   domain={[-50, 150]}
                   className="text-muted-foreground"
@@ -76,7 +79,7 @@ export function UtilizationTab({ utilizationProfitabilityData, isLoading }: Util
                 />
                 <Legend />
                 <Scatter 
-                  name="Projects" 
+                  name={t('dashboard.projects')} 
                   data={utilizationProfitabilityData} 
                   fill="#8884D8"
                 />
