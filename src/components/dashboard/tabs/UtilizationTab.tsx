@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { 
   ScatterChart, 
@@ -79,9 +78,9 @@ export function UtilizationTab({ utilizationProfitabilityData, isLoading }: Util
                   }}
                   labelFormatter={(label) => null}
                   contentStyle={{
-                    backgroundColor: 'hsl(var(--background))',
-                    border: '1px solid hsl(var(--border))',
-                    color: 'hsl(var(--foreground))'
+                    backgroundColor: 'var(--theme-background)',
+                    border: '1px solid var(--theme-border)',
+                    color: 'var(--theme-foreground)'
                   }}
                 />
                 <Legend 
