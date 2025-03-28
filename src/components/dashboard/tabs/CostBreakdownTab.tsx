@@ -21,6 +21,22 @@ interface CostBreakdownTabProps {
 export function CostBreakdownTab({ costBreakdown, isLoading }: CostBreakdownTabProps) {
   const { t } = useTranslation();
   
+  // Translate category names for display
+  const translatedCostBreakdown = costBreakdown.map(item => {
+    const categoryKey = item.category === "Salaries" 
+      ? "costs.salaries" 
+      : item.category === "Variable Costs" 
+        ? "costs.variableCosts" 
+        : item.category === "Overhead" 
+          ? "costs.overhead" 
+          : "";
+    
+    return {
+      ...item,
+      category: categoryKey ? t(categoryKey) : item.category
+    };
+  });
+  
   return (
     <Card className="w-full">
       <div className="p-6">
@@ -38,7 +54,7 @@ export function CostBreakdownTab({ costBreakdown, isLoading }: CostBreakdownTabP
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={costBreakdown}
+                      data={translatedCostBreakdown}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
@@ -48,7 +64,7 @@ export function CostBreakdownTab({ costBreakdown, isLoading }: CostBreakdownTabP
                       nameKey="category"
                       label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                     >
-                      {costBreakdown.map((entry, index) => (
+                      {translatedCostBreakdown.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
@@ -69,7 +85,7 @@ export function CostBreakdownTab({ costBreakdown, isLoading }: CostBreakdownTabP
                 <div className="h-full flex flex-col justify-center">
                   <h3 className="text-md font-medium mb-4">{t('costs.costBreakdown')}</h3>
                   <ul className="space-y-4">
-                    {costBreakdown.map((item, index) => (
+                    {translatedCostBreakdown.map((item, index) => (
                       <li key={index} className="flex items-center">
                         <div 
                           className="w-4 h-4 mr-2 rounded-full" 

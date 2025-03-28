@@ -185,7 +185,10 @@
     "revenues": "Receitas",
     "totalRevenue": "Receita Total",
     "addRevenue": "Adicionar Receita",
-    "totalProfit": "Lucro Total"
+    "totalProfit": "Lucro Total",
+    "salaries": "Salários",
+    "variableCosts": "Custos Variáveis",
+    "overhead": "Custos Fixos"
   },
   "salary": {
     "history": "Histórico Salarial",
