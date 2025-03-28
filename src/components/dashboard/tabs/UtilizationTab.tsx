@@ -72,8 +72,9 @@ export function UtilizationTab({ utilizationProfitabilityData, isLoading }: Util
                     if (name === "utilization") translatedName = t('dashboard.charts.utilization');
                     if (name === "profitability") translatedName = t('dashboard.charts.profitability');
                     
+                    // Return value without % as this is added by the unit property in XAxis and YAxis
                     return [
-                      `${value}%`, 
+                      value, 
                       translatedName
                     ];
                   }}
