@@ -11,6 +11,7 @@ import {
   Legend,
 } from 'recharts';
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslation } from "react-i18next";
 
 interface RevenueTabProps {
   chartData: any[];
@@ -18,6 +19,8 @@ interface RevenueTabProps {
 }
 
 export function RevenueTab({ chartData, isLoading }: RevenueTabProps) {
+  const { t } = useTranslation();
+
   // Calculate profit data for each month
   const chartDataWithProfit = chartData?.map(item => ({
     ...item,
@@ -28,7 +31,7 @@ export function RevenueTab({ chartData, isLoading }: RevenueTabProps) {
     <Card className="w-full">
       <div className="p-6">
         <h2 className="text-lg font-medium text-foreground mb-4">
-          Revenue, Cost & Profit
+          {t('dashboard.charts.revenueCostProfit')}
         </h2>
         <div className="h-80 w-full">
           {isLoading ? (
@@ -53,10 +56,17 @@ export function RevenueTab({ chartData, isLoading }: RevenueTabProps) {
                   className="text-muted-foreground" 
                 />
                 <Tooltip 
-                  formatter={(value: number, name: string) => [
-                    `€${value.toFixed(2)}`,
-                    name.charAt(0).toUpperCase() + name.slice(1)
-                  ]}
+                  formatter={(value: number, name: string) => {
+                    let translatedName = name;
+                    if (name === "revenue") translatedName = t('dashboard.charts.revenue');
+                    if (name === "cost") translatedName = t('dashboard.charts.cost');
+                    if (name === "profit") translatedName = t('dashboard.charts.profit');
+                    
+                    return [
+                      `€${value.toFixed(2)}`,
+                      translatedName
+                    ];
+                  }}
                   labelFormatter={(label) => `${label}`}
                   contentStyle={{
                     backgroundColor: 'hsl(var(--background))',
@@ -64,7 +74,14 @@ export function RevenueTab({ chartData, isLoading }: RevenueTabProps) {
                     color: 'hsl(var(--foreground))'
                   }}
                 />
-                <Legend />
+                <Legend 
+                  formatter={(value) => {
+                    if (value === "Revenue") return t('dashboard.charts.revenue');
+                    if (value === "Cost") return t('dashboard.charts.cost');
+                    if (value === "Profit") return t('dashboard.charts.profit');
+                    return value;
+                  }}
+                />
                 <Line 
                   type="monotone"
                   dataKey="revenue" 
