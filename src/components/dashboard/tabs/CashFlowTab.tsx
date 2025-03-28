@@ -12,7 +12,6 @@ import {
   Legend,
 } from 'recharts';
 import { Skeleton } from "@/components/ui/skeleton";
-import { useTranslation } from "react-i18next";
 
 interface CashFlowTabProps {
   cashFlowData: any[];
@@ -20,13 +19,11 @@ interface CashFlowTabProps {
 }
 
 export function CashFlowTab({ cashFlowData, isLoading }: CashFlowTabProps) {
-  const { t } = useTranslation();
-  
   return (
     <Card className="w-full">
       <div className="p-6">
         <h2 className="text-lg font-medium text-foreground mb-4">
-          {t('dashboard.tabs.cashFlow')}
+          Cash Flow Analysis
         </h2>
         <div className="h-80 w-full">
           {isLoading ? (
@@ -51,21 +48,10 @@ export function CashFlowTab({ cashFlowData, isLoading }: CashFlowTabProps) {
                   className="text-muted-foreground" 
                 />
                 <Tooltip 
-                  formatter={(value: number, name: string) => {
-                    let translatedName = name;
-                    
-                    // Translate common terms
-                    if (name === "revenue") translatedName = t('dashboard.charts.revenue');
-                    if (name === "variableCosts") translatedName = t('costs.variableCost');
-                    if (name === "overheadCosts") translatedName = t('costs.overheadCost');
-                    if (name === "salaryCosts") translatedName = "Salary Costs"; // Add translation if available
-                    if (name === "netCashFlow") translatedName = "Net Cash Flow"; // Add translation if available
-                    
-                    return [
-                      `€${value.toFixed(2)}`,
-                      translatedName
-                    ];
-                  }}
+                  formatter={(value: number, name: string) => [
+                    `€${value.toFixed(2)}`,
+                    name.charAt(0).toUpperCase() + name.slice(1).replace(/([A-Z])/g, ' $1')
+                  ]}
                   labelFormatter={(label) => `${label}`}
                   contentStyle={{
                     backgroundColor: 'hsl(var(--background))',
@@ -73,17 +59,7 @@ export function CashFlowTab({ cashFlowData, isLoading }: CashFlowTabProps) {
                     color: 'hsl(var(--foreground))'
                   }}
                 />
-                <Legend 
-                  formatter={(value) => {
-                    // Translate legend labels
-                    if (value === "Revenue") return t('dashboard.charts.revenue');
-                    if (value === "Variable Costs") return t('costs.variableCost');
-                    if (value === "Overhead Costs") return t('costs.overheadCost');
-                    if (value === "Salary Costs") return "Salary Costs"; // Add translation if available
-                    if (value === "Net Cash Flow") return "Net Cash Flow"; // Add translation if available
-                    return value;
-                  }}
-                />
+                <Legend />
                 <Bar 
                   dataKey="revenue" 
                   name="Revenue" 

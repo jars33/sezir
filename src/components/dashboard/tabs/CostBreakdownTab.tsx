@@ -8,7 +8,6 @@ import {
   ResponsiveContainer, 
 } from 'recharts';
 import { Skeleton } from "@/components/ui/skeleton";
-import { useTranslation } from "react-i18next";
 
 // Colors for pie chart
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
@@ -19,13 +18,11 @@ interface CostBreakdownTabProps {
 }
 
 export function CostBreakdownTab({ costBreakdown, isLoading }: CostBreakdownTabProps) {
-  const { t } = useTranslation();
-  
   return (
     <Card className="w-full">
       <div className="p-6">
         <h2 className="text-lg font-medium text-foreground mb-4">
-          {t('dashboard.tabs.costBreakdown')}
+          Cost Breakdown
         </h2>
         <div className="h-80 w-full">
           {isLoading ? (
@@ -53,9 +50,7 @@ export function CostBreakdownTab({ costBreakdown, isLoading }: CostBreakdownTabP
                       ))}
                     </Pie>
                     <Tooltip
-                      formatter={(value: number, name: string) => {
-                        return [`€${value.toFixed(2)}`, t('costs.cost')];
-                      }}
+                      formatter={(value: number) => [`€${value.toFixed(2)}`, 'Amount']}
                       contentStyle={{
                         backgroundColor: 'hsl(var(--background))',
                         border: '1px solid hsl(var(--border))',
@@ -67,7 +62,7 @@ export function CostBreakdownTab({ costBreakdown, isLoading }: CostBreakdownTabP
               </div>
               <div>
                 <div className="h-full flex flex-col justify-center">
-                  <h3 className="text-md font-medium mb-4">{t('costs.costBreakdown')}</h3>
+                  <h3 className="text-md font-medium mb-4">Cost Distribution</h3>
                   <ul className="space-y-4">
                     {costBreakdown.map((item, index) => (
                       <li key={index} className="flex items-center">

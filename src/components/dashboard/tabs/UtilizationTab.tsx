@@ -66,17 +66,10 @@ export function UtilizationTab({ utilizationProfitabilityData, isLoading }: Util
                 />
                 <Tooltip 
                   cursor={{ strokeDasharray: '3 3' }}
-                  formatter={(value: number, name: string) => {
-                    // Translate tooltip labels
-                    let translatedName = name;
-                    if (name === "utilization") translatedName = t('dashboard.charts.utilization');
-                    if (name === "profitability") translatedName = t('dashboard.charts.profitability');
-                    
-                    return [
-                      `${value}%`, 
-                      translatedName
-                    ];
-                  }}
+                  formatter={(value: number, name: string) => [
+                    `${value}`, // Removed % since we add it through labelFormatter
+                    name
+                  ]}
                   labelFormatter={(label) => null}
                   contentStyle={{
                     backgroundColor: 'hsl(var(--background))',
@@ -84,11 +77,7 @@ export function UtilizationTab({ utilizationProfitabilityData, isLoading }: Util
                     color: 'hsl(var(--foreground))'
                   }}
                 />
-                <Legend 
-                  formatter={(value) => {
-                    return value === t('dashboard.projects') ? t('dashboard.projects') : value;
-                  }}
-                />
+                <Legend />
                 <Scatter 
                   name={t('dashboard.projects')} 
                   data={utilizationProfitabilityData} 
