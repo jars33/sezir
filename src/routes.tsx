@@ -9,7 +9,6 @@ import Team from "@/pages/Team"
 import Teams from "@/pages/Teams"
 import TeamDetails from "@/pages/TeamDetails"
 import TeamMemberDetails from "@/pages/TeamMemberDetails"
-import Inbox from "@/pages/Inbox"
 import NotFound from "@/pages/NotFound"
 
 export const routes: RouteObject[] = [
@@ -56,10 +55,6 @@ export const routes: RouteObject[] = [
       {
         path: "team/:id",
         element: <TeamMemberDetails />,
-      },
-      {
-        path: "inbox",
-        element: <Inbox />,
       },
       {
         path: "*",

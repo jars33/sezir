@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useNavigate, useLocation } from "react-router-dom"
-import { LayoutDashboard, Users, Folders, Mail, Network } from "lucide-react"
+import { LayoutDashboard, Users, Folders, Network } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
@@ -51,14 +51,6 @@ export function Sidebar({ className }: SidebarProps) {
             >
               <Folders className="mr-2 h-4 w-4" />
               {t('common.projects')}
-            </Button>
-            <Button
-              variant={location.pathname === "/inbox" ? "secondary" : "ghost"}
-              className="w-full justify-start"
-              onClick={() => navigate("/inbox")}
-            >
-              <Mail className="mr-2 h-4 w-4" />
-              {t('common.inbox')}
             </Button>
           </div>
         </div>
