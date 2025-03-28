@@ -6,6 +6,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card"
+import { useTranslation } from "react-i18next"
 
 interface ProjectRevenueListHeaderProps {
   totalRevenue: number
@@ -16,18 +17,20 @@ export function ProjectRevenueListHeader({
   totalRevenue, 
   onAddRevenue 
 }: ProjectRevenueListHeaderProps) {
+  const { t } = useTranslation();
+  
   return (
     <CardHeader>
       <div className="flex items-center justify-between">
         <div>
-          <CardTitle>Revenues</CardTitle>
+          <CardTitle>{t('costs.revenues')}</CardTitle>
           <CardDescription>
-            Total Revenue: €{totalRevenue.toFixed(2)}
+            {t('costs.totalRevenue')}: €{totalRevenue.toFixed(2)}
           </CardDescription>
         </div>
         <Button onClick={onAddRevenue}>
           <PlusCircle className="mr-2 h-4 w-4" />
-          Add Revenue
+          {t('costs.addRevenue')}
         </Button>
       </div>
     </CardHeader>

@@ -12,6 +12,7 @@ import {
   Cell
 } from 'recharts';
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslation } from "react-i18next";
 
 interface ProjectMarginsTabProps {
   projectMargins: any[];
@@ -19,11 +20,13 @@ interface ProjectMarginsTabProps {
 }
 
 export function ProjectMarginsTab({ projectMargins, isLoading }: ProjectMarginsTabProps) {
+  const { t } = useTranslation();
+  
   return (
     <Card className="w-full">
       <div className="p-6">
         <h2 className="text-lg font-medium text-foreground mb-4">
-          Project Margin Analysis
+          {t('dashboard.tabs.projectMargins')}
         </h2>
         <div className="h-80 w-full">
           {isLoading ? (
@@ -56,10 +59,15 @@ export function ProjectMarginsTab({ projectMargins, isLoading }: ProjectMarginsT
                   className="text-muted-foreground"
                 />
                 <Tooltip 
-                  formatter={(value: number, name: string) => [
-                    `${value.toFixed(1)}%`,
-                    'Margin'
-                  ]}
+                  formatter={(value: number, name: string) => {
+                    // Translate margin label
+                    let translatedName = name === "margin" ? t('costs.rentability') : name;
+                    
+                    return [
+                      `${value.toFixed(1)}%`,
+                      translatedName
+                    ];
+                  }}
                   labelFormatter={(label) => `${label}`}
                   contentStyle={{
                     backgroundColor: 'hsl(var(--background))',
@@ -67,7 +75,11 @@ export function ProjectMarginsTab({ projectMargins, isLoading }: ProjectMarginsT
                     color: 'hsl(var(--foreground))'
                   }}
                 />
-                <Legend />
+                <Legend 
+                  formatter={(value) => {
+                    return value === "Margin" ? t('costs.rentability') : value;
+                  }}
+                />
                 <Bar 
                   dataKey="margin" 
                   name="Margin" 

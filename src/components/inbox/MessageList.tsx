@@ -1,8 +1,10 @@
+
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Star } from "lucide-react"
 import { Message } from "@/types/inbox"
+import { useTranslation } from "react-i18next"
 
 interface MessageListProps {
   messages: Message[]
@@ -23,6 +25,8 @@ export function MessageList({
   onToggleStarred,
   formatDate,
 }: MessageListProps) {
+  const { t } = useTranslation();
+  
   const filteredMessages = messages.filter(
     (message) =>
       message.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -34,9 +38,9 @@ export function MessageList({
       <ScrollArea className="h-[calc(100vh-220px)]">
         <div className="p-4 space-y-2">
           {isLoading ? (
-            <p className="text-center text-muted-foreground">Loading...</p>
+            <p className="text-center text-muted-foreground">{t('common.loading')}</p>
           ) : filteredMessages.length === 0 ? (
-            <p className="text-center text-muted-foreground">No messages found</p>
+            <p className="text-center text-muted-foreground">{t('inbox.noMessagesFound')}</p>
           ) : (
             filteredMessages.map((message) => (
               <div
@@ -50,7 +54,7 @@ export function MessageList({
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
-                    <p className="truncate">From: {message.sender_id}</p>
+                    <p className="truncate">{t('inbox.from')}: {message.sender_id}</p>
                     <p className="truncate text-sm">{message.subject}</p>
                     <p className="text-sm text-muted-foreground truncate">
                       {message.preview}
@@ -68,6 +72,7 @@ export function MessageList({
                         e.stopPropagation()
                         onToggleStarred(message)
                       }}
+                      title={message.is_starred ? t('inbox.unstar') : t('inbox.star')}
                     >
                       <Star
                         className={`h-4 w-4 ${

@@ -11,6 +11,7 @@ import {
   Legend,
 } from 'recharts';
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslation } from "react-i18next";
 
 interface YearComparisonTabProps {
   yearComparisonData: any[];
@@ -18,11 +19,13 @@ interface YearComparisonTabProps {
 }
 
 export function YearComparisonTab({ yearComparisonData, isLoading }: YearComparisonTabProps) {
+  const { t } = useTranslation();
+  
   return (
     <Card className="w-full">
       <div className="p-6">
         <h2 className="text-lg font-medium text-foreground mb-4">
-          Year-over-Year Comparison
+          {t('dashboard.tabs.yearComparison')}
         </h2>
         <div className="h-80 w-full">
           {isLoading ? (
@@ -47,10 +50,28 @@ export function YearComparisonTab({ yearComparisonData, isLoading }: YearCompari
                   className="text-muted-foreground" 
                 />
                 <Tooltip 
-                  formatter={(value: number, name: string) => [
-                    `€${value.toFixed(2)}`,
-                    name.replace(/([A-Z])/g, ' $1').replace(/([a-z])([A-Z])/g, '$1 $2')
-                  ]}
+                  formatter={(value: number, name: string) => {
+                    let translatedName = name;
+                    
+                    // Translate common terms in data keys
+                    if (name.includes("Revenue")) {
+                      translatedName = name.replace("Revenue", t('dashboard.charts.revenue'));
+                    }
+                    if (name.includes("Profit")) {
+                      translatedName = name.replace("Profit", t('dashboard.charts.profit'));
+                    }
+                    if (name.includes("Current Year")) {
+                      translatedName = translatedName.replace("Current Year", "Current Year");  // Add translation if available
+                    }
+                    if (name.includes("Previous Year")) {
+                      translatedName = translatedName.replace("Previous Year", "Previous Year");  // Add translation if available
+                    }
+                    
+                    return [
+                      `€${value.toFixed(2)}`,
+                      translatedName
+                    ];
+                  }}
                   labelFormatter={(label) => `${label}`}
                   contentStyle={{
                     backgroundColor: 'hsl(var(--background))',
@@ -58,7 +79,27 @@ export function YearComparisonTab({ yearComparisonData, isLoading }: YearCompari
                     color: 'hsl(var(--foreground))'
                   }}
                 />
-                <Legend />
+                <Legend 
+                  formatter={(value) => {
+                    // Translate legend labels
+                    let translatedValue = value;
+                    
+                    if (value.includes("Revenue")) {
+                      translatedValue = value.replace("Revenue", t('dashboard.charts.revenue'));
+                    }
+                    if (value.includes("Profit")) {
+                      translatedValue = translatedValue.replace("Profit", t('dashboard.charts.profit'));
+                    }
+                    if (value.includes("Current Year")) {
+                      translatedValue = translatedValue.replace("Current Year", "Current Year");  // Add translation if available
+                    }
+                    if (value.includes("Previous Year")) {
+                      translatedValue = translatedValue.replace("Previous Year", "Previous Year");  // Add translation if available
+                    }
+                    
+                    return translatedValue;
+                  }}
+                />
                 <Line 
                   type="monotone"
                   dataKey="currentYearRevenue" 
