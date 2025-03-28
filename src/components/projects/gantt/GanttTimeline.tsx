@@ -27,6 +27,7 @@ export function GanttTimeline({
   onProjectClick, 
   currentDatePosition 
 }: GanttTimelineProps) {
+  const { t } = useTranslation();
   const { getStatusColor, calculateProjectBar } = useGanttCalculations(year)
 
   return (
@@ -52,7 +53,7 @@ export function GanttTimeline({
             }}
           >
             <div className="absolute top-0 -translate-x-1/2 bg-red-500 text-white text-xs px-1 rounded">
-              Today
+              {t('common.today')}
             </div>
           </div>
         )}
@@ -62,7 +63,6 @@ export function GanttTimeline({
           const { offset, width } = calculateProjectBar(project)
           return (
             <div key={project.id} className="h-10 relative">
-              {/* Align the bars with the project names */}
               <div 
                 className={`absolute rounded h-6 top-1/2 -translate-y-1/2 ${getStatusColor(project.status)} cursor-pointer opacity-80 hover:opacity-100`}
                 style={{ 
@@ -80,7 +80,7 @@ export function GanttTimeline({
         })}
         {projects.length === 0 && (
           <div className="h-40 flex items-center justify-center text-gray-500 dark:text-gray-400">
-            No projects found for {year}
+            {t('common.noProjectsFound')} {year}
           </div>
         )}
       </div>

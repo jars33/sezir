@@ -1,4 +1,3 @@
-
 import React, { useState } from "react"
 import { format, subDays, parseISO } from "date-fns"
 import { PlusCircle, Pencil, Trash2 } from "lucide-react"
@@ -25,6 +24,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import type { SalaryHistory } from "@/types/team-member"
 import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query"
+import { useTranslation } from "react-i18next"
 
 interface SalaryHistorySectionProps {
   memberId: string
@@ -39,6 +39,7 @@ export function SalaryHistorySection({
   refetchSalaryHistory,
   userId 
 }: SalaryHistorySectionProps) {
+  const { t } = useTranslation();
   const [showSalaryForm, setShowSalaryForm] = useState(false)
   const [editingSalary, setEditingSalary] = useState<SalaryHistory | null>(null)
   const [salaryToDelete, setSalaryToDelete] = useState<string | null>(null)
@@ -102,7 +103,7 @@ export function SalaryHistorySection({
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium">Salary History</h3>
+        <h3 className="text-lg font-medium">{t('salary.history')}</h3>
         <Button 
           variant="outline" 
           size="sm" 
@@ -112,7 +113,7 @@ export function SalaryHistorySection({
           }}
         >
           <PlusCircle className="h-4 w-4 mr-2" />
-          Add Salary
+          {t('salary.addSalary')}
         </Button>
       </div>
 
@@ -131,10 +132,10 @@ export function SalaryHistorySection({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Start Date</TableHead>
-              <TableHead>End Date</TableHead>
-              <TableHead className="text-right">Amount</TableHead>
-              <TableHead className="w-[100px]">Actions</TableHead>
+              <TableHead>{t('salary.startDate')}</TableHead>
+              <TableHead>{t('salary.endDate')}</TableHead>
+              <TableHead className="text-right">{t('salary.amount')}</TableHead>
+              <TableHead className="w-[100px]">{t('project.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -163,21 +164,21 @@ export function SalaryHistorySection({
         </Table>
       ) : (
         <div className="text-center p-4 bg-gray-50 dark:bg-gray-800/50 rounded-md">
-          <p className="text-muted-foreground">No salary history added yet.</p>
+          <p className="text-muted-foreground">{t('salary.noHistory')}</p>
         </div>
       )}
 
       <AlertDialog open={!!salaryToDelete} onOpenChange={(open) => !open && setSalaryToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Salary Record</AlertDialogTitle>
+            <AlertDialogTitle>{t('salary.delete')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this salary record? This action cannot be undone.
+              {t('salary.deleteWarning')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteConfirm}>Delete</AlertDialogAction>
+            <AlertDialogCancel>{t('dialog.cancel')}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm}>{t('dialog.delete')}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

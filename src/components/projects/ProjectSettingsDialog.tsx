@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { Settings } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -27,8 +26,8 @@ import { Input } from "@/components/ui/input";
 import { useProjectSettings } from "@/hooks/use-project-settings";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslation } from "react-i18next";
 
-// Define form schema for project settings
 const projectSettingsSchema = z.object({
   overheadPercentage: z.coerce
     .number()
@@ -39,14 +38,13 @@ const projectSettingsSchema = z.object({
 type ProjectSettingsFormValues = z.infer<typeof projectSettingsSchema>;
 
 export function ProjectSettingsDialog() {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const { getOverheadPercentage, updateOverheadPercentage, loading } = useProjectSettings();
   
-  // Get available years (current year and 4 years in the future)
   const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() + i);
   
-  // Initialize form with current settings for the selected year
   const form = useForm<ProjectSettingsFormValues>({
     resolver: zodResolver(projectSettingsSchema),
     defaultValues: {
@@ -54,8 +52,6 @@ export function ProjectSettingsDialog() {
     },
   });
   
-  // Update form when year changes or settings are loaded
-  // Make this a useCallback to prevent infinite re-renders
   const updateFormValues = useCallback(() => {
     if (!loading) {
       const currentValue = getOverheadPercentage(selectedYear);
@@ -63,7 +59,6 @@ export function ProjectSettingsDialog() {
     }
   }, [selectedYear, loading, form, getOverheadPercentage]);
   
-  // Use effect to update the form when the dialog opens or year changes
   useEffect(() => {
     updateFormValues();
   }, [selectedYear, loading, updateFormValues, open]);
@@ -82,15 +77,15 @@ export function ProjectSettingsDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="icon" title="Project Settings">
+        <Button variant="outline" size="icon" title={t('project.settings')}>
           <Settings className="h-4 w-4" />
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Project Settings</DialogTitle>
+          <DialogTitle>{t('project.settings')}</DialogTitle>
           <DialogDescription>
-            Configure global project settings like overhead percentages per year.
+            {t('project.configureSettings')}
           </DialogDescription>
         </DialogHeader>
         
@@ -103,7 +98,7 @@ export function ProjectSettingsDialog() {
         ) : (
           <>
             <div className="mb-4">
-              <div className="text-sm font-medium">Year</div>
+              <div className="text-sm font-medium">{t('project.year')}</div>
               <div className="flex flex-wrap gap-2 mt-2">
                 {years.map(year => (
                   <Button
@@ -125,7 +120,7 @@ export function ProjectSettingsDialog() {
                   name="overheadPercentage"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Overhead Percentage for {selectedYear}</FormLabel>
+                      <FormLabel>{t('project.overheadPercentage')} {selectedYear}</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
@@ -136,7 +131,7 @@ export function ProjectSettingsDialog() {
                         />
                       </FormControl>
                       <FormDescription>
-                        This percentage will be applied to all projects started in {selectedYear}.
+                        {t('project.overheadDescription')} {selectedYear}.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -144,7 +139,7 @@ export function ProjectSettingsDialog() {
                 />
                 
                 <DialogFooter>
-                  <Button type="submit">Save Settings</Button>
+                  <Button type="submit">{t('project.saveSettings')}</Button>
                 </DialogFooter>
               </form>
             </Form>

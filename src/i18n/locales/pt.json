@@ -1,3 +1,4 @@
+
 {
   "common": {
     "dashboard": "Painel",
@@ -8,7 +9,10 @@
     "signOut": "Terminar Sessão",
     "loading": "A carregar...",
     "showDecimals": "Mostrar decimais",
-    "language": "Idioma"
+    "language": "Idioma",
+    "today": "Hoje",
+    "noProjectsFound": "Nenhum projeto encontrado",
+    "timeline": "Cronologia"
   },
   "team": {
     "title": "Membros da Equipa",
@@ -52,7 +56,16 @@
     "createProject": "Criar Projeto",
     "editProject": "Editar Projeto",
     "updateProject": "Atualizar Projeto",
-    "optional": "opcional"
+    "optional": "opcional",
+    "newProject": "Novo Projeto",
+    "settings": "Configurações do Projeto",
+    "configureSettings": "Configure as configurações globais do projeto como percentagens de custo fixo por ano.",
+    "noProjects": "Ainda não tem nenhum projeto.",
+    "addYourFirstProject": "Adicionar o Seu Primeiro Projeto",
+    "overheadPercentage": "Percentagem de Custo Fixo para",
+    "overheadDescription": "Esta percentagem será aplicada a todos os projetos iniciados em",
+    "saveSettings": "Guardar Configurações",
+    "year": "Ano"
   },
   "dialog": {
     "areYouSure": "Tem a certeza?",
@@ -75,5 +88,17 @@
     "profit": "Lucro",
     "rentability": "Rentabilidade",
     "allocations": "Alocações"
+  },
+  "salary": {
+    "history": "Histórico Salarial",
+    "addSalary": "Adicionar Salário",
+    "editSalary": "Editar Salário",
+    "startDate": "Data de Início",
+    "endDate": "Data de Fim",
+    "endDateOptional": "Data de Fim (Opcional)",
+    "amount": "Montante (€)",
+    "noHistory": "Ainda não foi adicionado histórico salarial.",
+    "delete": "Eliminar Registro Salarial",
+    "deleteWarning": "Tem certeza que deseja eliminar este registro salarial? Esta ação não pode ser desfeita."
   }
 }

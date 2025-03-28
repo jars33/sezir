@@ -11,6 +11,7 @@ import { type ProjectFormSchema } from "@/components/projects/project-schema"
 import { GanttChartView } from "@/components/projects/GanttChartView"
 import { useAuth } from "@/components/AuthProvider"
 import { ProjectSettingsDialog } from "@/components/projects/ProjectSettingsDialog"
+import { useTranslation } from "react-i18next"
 
 type Project = {
   id: string
@@ -26,6 +27,7 @@ type Project = {
 }
 
 export default function Projects() {
+  const { t } = useTranslation()
   const { session } = useAuth()
   const navigate = useNavigate()
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
@@ -81,18 +83,18 @@ export default function Projects() {
   }
 
   if (isLoading) {
-    return <div className="p-6">Loading...</div>
+    return <div className="p-6">{t('common.loading')}</div>
   }
 
   return (
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Projects</h1>
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">{t('common.projects')}</h1>
         <div className="flex items-center gap-2">
           <ProjectSettingsDialog />
           <Button onClick={() => setCreateDialogOpen(true)}>
             <PlusCircle className="mr-2 h-4 w-4" />
-            New Project
+            {t('project.newProject')}
           </Button>
         </div>
       </div>

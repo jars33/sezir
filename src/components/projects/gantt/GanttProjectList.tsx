@@ -17,6 +17,8 @@ interface GanttProjectListProps {
 }
 
 export function GanttProjectList({ projects, onProjectClick }: GanttProjectListProps) {
+  const { t } = useTranslation();
+  
   const getStatusColor = (status: Project["status"]) => {
     switch (status) {
       case "planned":
@@ -32,10 +34,20 @@ export function GanttProjectList({ projects, onProjectClick }: GanttProjectListP
     }
   }
 
+  const getStatusTranslation = (status: string) => {
+    switch (status) {
+      case "planned": return t('project.planned')
+      case "in_progress": return t('project.inProgress')
+      case "completed": return t('project.completed')
+      case "cancelled": return t('project.cancelled')
+      default: return status
+    }
+  }
+
   return (
     <div className="pr-2 border-r h-full dark:border-gray-700">
       <div className="font-medium py-2 px-2 bg-gray-100 dark:bg-gray-800 dark:text-gray-200 rounded-t-md mb-2">
-        Projects
+        {t('common.projects')}
       </div>
       <div className="space-y-1">
         {projects.map((project) => (
@@ -47,7 +59,7 @@ export function GanttProjectList({ projects, onProjectClick }: GanttProjectListP
             <div className="font-medium dark:text-gray-100">{project.number} - {project.name}</div>
             <div className="flex items-center space-x-2">
               <Badge variant="outline" className={`${getStatusColor(project.status)} text-white text-xs`}>
-                {project.status.replace('_', ' ')}
+                {getStatusTranslation(project.status)}
               </Badge>
               <span className="text-xs text-gray-500 dark:text-gray-400">
                 {project.start_date ? format(new Date(project.start_date), 'MMM d, yyyy') : 'No date'} 
@@ -58,7 +70,7 @@ export function GanttProjectList({ projects, onProjectClick }: GanttProjectListP
         ))}
         {projects.length === 0 && (
           <div className="text-center py-4 text-gray-500 dark:text-gray-400">
-            No projects found
+            {t('common.noProjectsFound')}
           </div>
         )}
       </div>
