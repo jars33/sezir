@@ -2,6 +2,7 @@
 import { format } from "date-fns"
 import { useProjectSettings } from "@/hooks/use-project-settings"
 import { useGanttCalculations } from "./useGanttCalculations"
+import { useTranslation } from "react-i18next"
 
 interface Project {
   id: string

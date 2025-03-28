@@ -1,6 +1,7 @@
 
 import { format } from "date-fns"
 import { Badge } from "@/components/ui/badge"
+import { useTranslation } from "react-i18next"
 
 interface Project {
   id: string
