@@ -67,7 +67,7 @@ export function UtilizationTab({ utilizationProfitabilityData, isLoading }: Util
                 <Tooltip 
                   cursor={{ strokeDasharray: '3 3' }}
                   formatter={(value: number, name: string) => [
-                    `${value}%`,
+                    `${value}`, // Removed % since we add it through labelFormatter
                     name
                   ]}
                   labelFormatter={(label) => null}
