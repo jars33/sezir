@@ -19,7 +19,7 @@ i18n
         translation: ptTranslation
       }
     },
-    fallbackLng: 'en',
+    fallbackLng: 'pt',
     debug: false,
     interpolation: {
       escapeValue: false, // React already escapes values

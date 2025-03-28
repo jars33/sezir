@@ -7,7 +7,7 @@ type Language = 'en' | 'pt';
 
 export function useLanguage() {
   const { i18n } = useTranslation();
-  const [language, setLanguageStorage] = useLocalStorage<Language>('app-language', 'en');
+  const [language, setLanguageStorage] = useLocalStorage<Language>('app-language', 'pt');
 
   useEffect(() => {
     i18n.changeLanguage(language);
