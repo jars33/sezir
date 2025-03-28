@@ -19,28 +19,31 @@ export function Sidebar({ className }: SidebarProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useLocalStorage<boolean>("sidebar-collapsed", false)
 
   return (
-    <>
-      {/* Sidebar toggle for collapsed state */}
-      {sidebarCollapsed && (
-        <Button
-          variant="ghost"
-          size="icon"
-          className="fixed left-4 top-4 z-20"
-          onClick={() => setSidebarCollapsed(false)}
-        >
-          <MenuIcon className="h-5 w-5" />
-        </Button>
-      )}
-
+    <div className="relative">
+      {/* Sidebar with content */}
       <div 
         className={cn(
-          "transition-all duration-300 ease-in-out", 
+          "transition-all duration-300 ease-in-out fixed left-0 top-0 bottom-0 z-10 bg-background border-r", 
           sidebarCollapsed ? "w-0 opacity-0 -translate-x-full" : "w-[200px] opacity-100 translate-x-0",
           className
         )}
       >
-        <div className="space-y-4 py-4">
-          <div className="px-3 py-2 flex justify-between items-center">
+        <div className="space-y-4 py-4 h-full flex flex-col">
+          <div className="px-3 py-2 flex-1">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-lg font-semibold">{t('common.appName')}</h2>
+              
+              {/* Collapse sidebar button */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => setSidebarCollapsed(true)}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+            </div>
+            
             <div className="space-y-1">
               <Button
                 variant={location.pathname === "/" ? "secondary" : "ghost"}
@@ -75,19 +78,9 @@ export function Sidebar({ className }: SidebarProps) {
                 {t('common.projects')}
               </Button>
             </div>
-            
-            {/* Collapse sidebar button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => setSidebarCollapsed(true)}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
           </div>
         </div>
       </div>
-    </>
+    </div>
   )
 }

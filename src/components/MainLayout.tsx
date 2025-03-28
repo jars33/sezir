@@ -48,20 +48,22 @@ export default function MainLayout() {
 
   return (
     <div className="min-h-screen flex w-full">
-      <Sidebar className="h-screen fixed left-0 top-0 z-10" />
+      <Sidebar className="h-screen" />
 
       {/* Main content */}
       <div className={cn(
         "flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out",
-        sidebarCollapsed ? "pl-0" : "pl-[200px]"
+        sidebarCollapsed ? "ml-0" : "ml-[200px]"
       )}>
         <header className="h-12 flex items-center border-b border-border bg-background sticky top-0 z-10">
+          {/* Only show menu button when sidebar is collapsed */}
           {sidebarCollapsed && (
             <Button
               variant="ghost"
               size="icon"
               className="ml-2"
               onClick={() => setSidebarCollapsed(false)}
+              aria-label="Open sidebar"
             >
               <MenuIcon className="h-4 w-4" />
             </Button>
