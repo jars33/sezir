@@ -72,9 +72,9 @@ export function UtilizationTab({ utilizationProfitabilityData, isLoading }: Util
                   ]}
                   labelFormatter={(label) => null}
                   contentStyle={{
-                    backgroundColor: 'hsl(var(--background))',
-                    border: '1px solid hsl(var(--border))',
-                    color: 'hsl(var(--foreground))'
+                    backgroundColor: 'var(--popover)',
+                    border: '1px solid var(--border)',
+                    color: 'var(--popover-foreground)'
                   }}
                 />
                 <Legend />
