@@ -4,8 +4,10 @@ import { useDashboardMetrics } from "@/hooks/use-dashboard-metrics";
 import YearTeamFilter from "@/components/dashboard/YearTeamFilter";
 import { StatsCards } from "@/components/dashboard/StatsCards";
 import { DashboardTabs } from "@/components/dashboard/DashboardTabs";
+import { useTranslation } from "react-i18next";
 
 const Dashboard = () => {
+  const { t } = useTranslation();
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   
@@ -24,7 +26,7 @@ const Dashboard = () => {
   return (
     <div className="w-full">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-foreground">Dashboard</h1>
+        <h1 className="text-2xl font-semibold text-foreground dark:text-white">{t('common.dashboard')}</h1>
       </div>
 
       <YearTeamFilter

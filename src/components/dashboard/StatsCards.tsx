@@ -1,6 +1,7 @@
 
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslation } from "react-i18next";
 
 interface Stat {
   name: string;
@@ -13,13 +14,15 @@ interface StatsCardsProps {
 }
 
 export function StatsCards({ stats, isLoading }: StatsCardsProps) {
+  const { t } = useTranslation();
+  
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       {stats.map((stat) => (
         <Card key={stat.name} className="p-4">
           <div>
             <div className="text-sm font-medium text-muted-foreground truncate">
-              {stat.name}
+              {t(`dashboard.${stat.name.toLowerCase().replace(/\s/g, '')}`)}
             </div>
           </div>
           <div className="mt-1">

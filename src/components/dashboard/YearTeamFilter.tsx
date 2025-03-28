@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useTranslation } from "react-i18next";
 
 interface YearTeamFilterProps {
   selectedYear: number;
@@ -25,6 +26,8 @@ const YearTeamFilter: React.FC<YearTeamFilterProps> = ({
   selectedTeam,
   setSelectedTeam,
 }) => {
+  const { t } = useTranslation();
+  
   // Fetch teams
   const { data: teams, isLoading: isTeamsLoading } = useQuery({
     queryKey: ["teams-filter"],
@@ -50,7 +53,7 @@ const YearTeamFilter: React.FC<YearTeamFilterProps> = ({
   return (
     <div className="flex flex-col sm:flex-row gap-8 mb-8">
       <div className="flex flex-col gap-2">
-        <label htmlFor="year-filter" className="text-sm font-medium">Year</label>
+        <label htmlFor="year-filter" className="text-sm font-medium">{t('dashboard.year')}</label>
         <div className="flex items-center">
           <Button 
             variant="outline" 
@@ -75,16 +78,16 @@ const YearTeamFilter: React.FC<YearTeamFilterProps> = ({
       </div>
 
       <div className="flex flex-col gap-2">
-        <label htmlFor="team-filter" className="text-sm font-medium">Team</label>
+        <label htmlFor="team-filter" className="text-sm font-medium">{t('dashboard.team')}</label>
         <Select
           value={selectedTeam || "all"}
           onValueChange={(value) => setSelectedTeam(value === "all" ? null : value)}
         >
           <SelectTrigger id="team-filter" className="w-[180px]">
-            <SelectValue placeholder="All Teams" />
+            <SelectValue placeholder={t('dashboard.allTeams')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Teams</SelectItem>
+            <SelectItem value="all">{t('dashboard.allTeams')}</SelectItem>
             {teams?.map((team) => (
               <SelectItem key={team.id} value={team.id}>
                 {team.name}

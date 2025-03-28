@@ -14,6 +14,28 @@
     "noProjectsFound": "Nenhum projeto encontrado",
     "timeline": "Cronologia"
   },
+  "dashboard": {
+    "year": "Ano",
+    "team": "Equipa",
+    "allTeams": "Todas as Equipas",
+    "activeProjects": "Projetos Ativos",
+    "resourceUtilization": "Utilização de Recursos",
+    "avgProjectProfitability": "Rentabilidade Média de Projetos",
+    "tabs": {
+      "revenueCosts": "Receitas & Custos",
+      "projectMargins": "Margens de Projetos",
+      "utilizationProfitability": "Utilização vs Rentabilidade",
+      "costBreakdown": "Discriminação de Custos",
+      "cashFlow": "Fluxo de Caixa",
+      "yearComparison": "Comparação Anual"
+    },
+    "charts": {
+      "revenueCostProfit": "Receita, Custo & Lucro",
+      "revenue": "Receita",
+      "cost": "Custo",
+      "profit": "Lucro"
+    }
+  },
   "team": {
     "title": "Membros da Equipa",
     "addTeamMember": "Adicionar Membro",

@@ -6,6 +6,7 @@ import { UtilizationTab } from "./tabs/UtilizationTab";
 import { CostBreakdownTab } from "./tabs/CostBreakdownTab";
 import { CashFlowTab } from "./tabs/CashFlowTab";
 import { YearComparisonTab } from "./tabs/YearComparisonTab";
+import { useTranslation } from "react-i18next";
 
 interface DashboardTabsProps {
   metrics: any;
@@ -13,15 +14,17 @@ interface DashboardTabsProps {
 }
 
 export function DashboardTabs({ metrics, isLoading }: DashboardTabsProps) {
+  const { t } = useTranslation();
+  
   return (
     <Tabs defaultValue="revenue" className="mb-6">
       <TabsList className="mb-4">
-        <TabsTrigger value="revenue">Revenue & Costs</TabsTrigger>
-        <TabsTrigger value="project-margins">Project Margins</TabsTrigger>
-        <TabsTrigger value="utilization">Utilization vs Profitability</TabsTrigger>
-        <TabsTrigger value="cost-breakdown">Cost Breakdown</TabsTrigger>
-        <TabsTrigger value="cash-flow">Cash Flow</TabsTrigger>
-        <TabsTrigger value="year-comparison">Year Comparison</TabsTrigger>
+        <TabsTrigger value="revenue">{t('dashboard.tabs.revenueCosts')}</TabsTrigger>
+        <TabsTrigger value="project-margins">{t('dashboard.tabs.projectMargins')}</TabsTrigger>
+        <TabsTrigger value="utilization">{t('dashboard.tabs.utilizationProfitability')}</TabsTrigger>
+        <TabsTrigger value="cost-breakdown">{t('dashboard.tabs.costBreakdown')}</TabsTrigger>
+        <TabsTrigger value="cash-flow">{t('dashboard.tabs.cashFlow')}</TabsTrigger>
+        <TabsTrigger value="year-comparison">{t('dashboard.tabs.yearComparison')}</TabsTrigger>
       </TabsList>
       
       {/* Revenue & Costs Tab */}

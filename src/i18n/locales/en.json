@@ -14,6 +14,28 @@
     "noProjectsFound": "No projects found",
     "timeline": "Timeline"
   },
+  "dashboard": {
+    "year": "Year",
+    "team": "Team",
+    "allTeams": "All Teams",
+    "activeProjects": "Active Projects",
+    "resourceUtilization": "Resource Utilization",
+    "avgProjectProfitability": "Avg. Project Profitability",
+    "tabs": {
+      "revenueCosts": "Revenue & Costs",
+      "projectMargins": "Project Margins",
+      "utilizationProfitability": "Utilization vs Profitability",
+      "costBreakdown": "Cost Breakdown",
+      "cashFlow": "Cash Flow",
+      "yearComparison": "Year Comparison"
+    },
+    "charts": {
+      "revenueCostProfit": "Revenue, Cost & Profit",
+      "revenue": "Revenue",
+      "cost": "Cost",
+      "profit": "Profit"
+    }
+  },
   "team": {
     "title": "Team Members",
     "addTeamMember": "Add Team Member",
