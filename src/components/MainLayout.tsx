@@ -1,8 +1,9 @@
+
 import { Outlet, useNavigate, Link, useLocation } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { supabase } from "@/integrations/supabase/client"
 import { useAuth } from "./AuthProvider"
-import { Calendar, Users, LayoutDashboard, Inbox, FolderOpen, Moon, Sun, Hash, Languages } from "lucide-react"
+import { Calendar, Users, LayoutDashboard, Hash, Languages, Moon, Sun, MenuIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Sidebar } from "@/components/ui/sidebar"
 import { useTheme } from "next-themes"
@@ -25,6 +26,7 @@ export default function MainLayout() {
   const [showDecimals, setShowDecimals] = useLocalStorage<boolean>("showDecimals", true)
   const { currentLanguage, changeLanguage, languages } = useLanguage()
   const { t } = useTranslation()
+  const [sidebarCollapsed, setSidebarCollapsed] = useLocalStorage<boolean>("sidebar-collapsed", false)
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
@@ -46,11 +48,24 @@ export default function MainLayout() {
 
   return (
     <div className="min-h-screen flex w-full">
-      <Sidebar className="h-screen fixed left-0 top-0 w-[200px]" />
+      <Sidebar className="h-screen fixed left-0 top-0 z-10" />
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col min-w-0 pl-[200px]">
+      <div className={cn(
+        "flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out",
+        sidebarCollapsed ? "pl-0" : "pl-[200px]"
+      )}>
         <header className="h-12 flex items-center border-b border-border bg-background sticky top-0 z-10">
+          {sidebarCollapsed && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="ml-2"
+              onClick={() => setSidebarCollapsed(false)}
+            >
+              <MenuIcon className="h-4 w-4" />
+            </Button>
+          )}
           <div className="flex-1" />
           <div className="px-4 flex items-center gap-2">
             <TooltipProvider>

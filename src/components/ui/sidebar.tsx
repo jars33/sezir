@@ -5,8 +5,10 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useNavigate, useLocation } from "react-router-dom"
-import { LayoutDashboard, Users, Folders, Network } from "lucide-react"
+import { LayoutDashboard, Users, Folders, Network, MenuIcon, ChevronLeft } from "lucide-react"
 import { useTranslation } from "react-i18next"
+import { useState } from "react"
+import { useLocalStorage } from "@/hooks/use-local-storage"
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -14,47 +16,78 @@ export function Sidebar({ className }: SidebarProps) {
   const navigate = useNavigate()
   const location = useLocation()
   const { t } = useTranslation()
+  const [sidebarCollapsed, setSidebarCollapsed] = useLocalStorage<boolean>("sidebar-collapsed", false)
 
   return (
-    <div className={cn("pb-12", className)}>
-      <div className="space-y-4 py-4">
-        <div className="px-3 py-2">
-          <div className="space-y-1">
+    <>
+      {/* Sidebar toggle for collapsed state */}
+      {sidebarCollapsed && (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="fixed left-4 top-4 z-20"
+          onClick={() => setSidebarCollapsed(false)}
+        >
+          <MenuIcon className="h-5 w-5" />
+        </Button>
+      )}
+
+      <div 
+        className={cn(
+          "transition-all duration-300 ease-in-out", 
+          sidebarCollapsed ? "w-0 opacity-0 -translate-x-full" : "w-[200px] opacity-100 translate-x-0",
+          className
+        )}
+      >
+        <div className="space-y-4 py-4">
+          <div className="px-3 py-2 flex justify-between items-center">
+            <div className="space-y-1">
+              <Button
+                variant={location.pathname === "/" ? "secondary" : "ghost"}
+                className="w-full justify-start"
+                onClick={() => navigate("/")}
+              >
+                <LayoutDashboard className="mr-2 h-4 w-4" />
+                {t('common.dashboard')}
+              </Button>
+              <Button
+                variant={location.pathname === "/teams" ? "secondary" : "ghost"}
+                className="w-full justify-start"
+                onClick={() => navigate("/teams")}
+              >
+                <Network className="mr-2 h-4 w-4" />
+                {t('common.organization')}
+              </Button>
+              <Button
+                variant={location.pathname === "/team" ? "secondary" : "ghost"}
+                className="w-full justify-start"
+                onClick={() => navigate("/team")}
+              >
+                <Users className="mr-2 h-4 w-4" />
+                {t('common.teamMembers')}
+              </Button>
+              <Button
+                variant={location.pathname.startsWith("/projects") ? "secondary" : "ghost"}
+                className="w-full justify-start"
+                onClick={() => navigate("/projects")}
+              >
+                <Folders className="mr-2 h-4 w-4" />
+                {t('common.projects')}
+              </Button>
+            </div>
+            
+            {/* Collapse sidebar button */}
             <Button
-              variant={location.pathname === "/" ? "secondary" : "ghost"}
-              className="w-full justify-start"
-              onClick={() => navigate("/")}
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setSidebarCollapsed(true)}
             >
-              <LayoutDashboard className="mr-2 h-4 w-4" />
-              {t('common.dashboard')}
-            </Button>
-            <Button
-              variant={location.pathname === "/teams" ? "secondary" : "ghost"}
-              className="w-full justify-start"
-              onClick={() => navigate("/teams")}
-            >
-              <Network className="mr-2 h-4 w-4" />
-              {t('common.organization')}
-            </Button>
-            <Button
-              variant={location.pathname === "/team" ? "secondary" : "ghost"}
-              className="w-full justify-start"
-              onClick={() => navigate("/team")}
-            >
-              <Users className="mr-2 h-4 w-4" />
-              {t('common.teamMembers')}
-            </Button>
-            <Button
-              variant={location.pathname.startsWith("/projects") ? "secondary" : "ghost"}
-              className="w-full justify-start"
-              onClick={() => navigate("/projects")}
-            >
-              <Folders className="mr-2 h-4 w-4" />
-              {t('common.projects')}
+              <ChevronLeft className="h-4 w-4" />
             </Button>
           </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
