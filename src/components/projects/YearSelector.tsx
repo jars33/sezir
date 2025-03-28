@@ -1,6 +1,7 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useTranslation } from "react-i18next"
 
 interface YearSelectorProps {
   year: number
@@ -8,6 +9,7 @@ interface YearSelectorProps {
 }
 
 export function YearSelector({ year, onChange }: YearSelectorProps) {
+  const { t } = useTranslation();
   const handlePreviousYear = () => onChange(year - 1)
   const handleNextYear = () => onChange(year + 1)
 
@@ -18,6 +20,7 @@ export function YearSelector({ year, onChange }: YearSelectorProps) {
         size="icon"
         onClick={handlePreviousYear}
         className="rounded-full h-10 w-10"
+        title={t('common.previousYear')}
       >
         <ChevronLeft className="h-4 w-4" />
       </Button>
@@ -31,6 +34,7 @@ export function YearSelector({ year, onChange }: YearSelectorProps) {
         size="icon"
         onClick={handleNextYear}
         className="rounded-full h-10 w-10"
+        title={t('common.nextYear')}
       >
         <ChevronRight className="h-4 w-4" />
       </Button>

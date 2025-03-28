@@ -4,6 +4,7 @@ import { CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { format } from "date-fns"
 import { useLocalStorage } from "@/hooks/use-local-storage"
+import { useTranslation } from "react-i18next"
 
 interface TimelineHeaderProps {
   onAddRevenue: () => void
@@ -24,6 +25,7 @@ export function TimelineHeader({
   totalProfit,
   startDate,
 }: TimelineHeaderProps) {
+  const { t } = useTranslation();
   const [showDecimals] = useLocalStorage<boolean>("showDecimals", true)
 
   const formatAmount = (amount: number) => {
@@ -34,10 +36,10 @@ export function TimelineHeader({
     <CardHeader className="pb-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-8">
-          <CardTitle>Financials</CardTitle>
+          <CardTitle>{t('project.financials')}</CardTitle>
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-500">
-              Total Profit:
+              {t('costs.totalProfit')}:
             </span>
             <div className={`text-lg font-semibold min-w-[150px] ${
               totalProfit >= 0 
@@ -60,7 +62,7 @@ export function TimelineHeader({
               onClick={onAddRevenue}
             >
               <PlusCircle className="h-4 w-4 mr-2" />
-              Revenue
+              {t('costs.revenue')}
             </Button>
             <Button
               variant="outline"
@@ -69,7 +71,7 @@ export function TimelineHeader({
               onClick={onAddVariableCost}
             >
               <PlusCircle className="h-4 w-4 mr-2" />
-              Cost
+              {t('costs.cost')}
             </Button>
             {onAddAllocation && (
               <Button
@@ -79,7 +81,7 @@ export function TimelineHeader({
                 onClick={onAddAllocation}
               >
                 <PlusCircle className="h-4 w-4 mr-2" />
-                Allocation
+                {t('team.allocation.title')}
               </Button>
             )}
           </div>

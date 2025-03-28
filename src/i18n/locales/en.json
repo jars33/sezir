@@ -1,3 +1,4 @@
+
 {
   "common": {
     "dashboard": "Dashboard",
@@ -11,7 +12,15 @@
     "language": "Language",
     "today": "Today",
     "noProjectsFound": "No projects found",
-    "timeline": "Timeline"
+    "timeline": "Timeline",
+    "pageNotFound": "Oops! Page not found",
+    "returnToHome": "Return to Home",
+    "previousYear": "Previous Year",
+    "nextYear": "Next Year",
+    "month": "Month",
+    "amount": "Amount",
+    "edit": "Edit",
+    "delete": "Delete"
   },
   "dashboard": {
     "year": "Year",
@@ -38,7 +47,10 @@
       "profit": "Profit",
       "utilization": "Utilization",
       "profitability": "Profitability",
-      "teamUtilizationProfitability": "Team Utilization vs. Profitability"
+      "teamUtilizationProfitability": "Team Utilization vs. Profitability",
+      "financialForecast": "Financial Forecast",
+      "actualRevenue": "Actual Revenue",
+      "actualCost": "Actual Cost"
     },
     "projects": "Projects"
   },
@@ -93,7 +105,8 @@
     "overheadPercentage": "Overhead Percentage for",
     "overheadDescription": "This percentage will be applied to all projects started in",
     "saveSettings": "Save Settings",
-    "year": "Year"
+    "year": "Year",
+    "financials": "Financials"
   },
   "dialog": {
     "areYouSure": "Are you sure?",
@@ -115,7 +128,11 @@
     "totalCosts": "Total Costs",
     "profit": "Profit",
     "rentability": "Rentability",
-    "allocations": "Allocations"
+    "allocations": "Allocations",
+    "revenues": "Revenues",
+    "totalRevenue": "Total Revenue",
+    "addRevenue": "Add Revenue",
+    "totalProfit": "Total Profit"
   },
   "salary": {
     "history": "Salary History",
@@ -128,5 +145,21 @@
     "noHistory": "No salary history added yet.",
     "delete": "Delete Salary Record",
     "deleteWarning": "Are you sure you want to delete this salary record? This action cannot be undone."
+  },
+  "inbox": {
+    "refresh": "Refresh",
+    "archive": "Archive",
+    "delete": "Delete",
+    "received": "Received",
+    "sent": "Sent",
+    "previous": "Previous",
+    "next": "Next",
+    "searchMessages": "Search messages...",
+    "from": "From",
+    "noMessagesFound": "No messages found",
+    "star": "Star",
+    "unstar": "Unstar",
+    "selectMessageToView": "Select a message to view",
+    "reply": "Reply"
   }
 }

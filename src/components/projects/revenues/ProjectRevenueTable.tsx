@@ -10,6 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { useLocalStorage } from "@/hooks/use-local-storage"
+import { useTranslation } from "react-i18next"
 
 interface ProjectRevenue {
   id: string
@@ -31,6 +32,7 @@ export function ProjectRevenueTable({
   onEdit,
   onDelete
 }: ProjectRevenueTableProps) {
+  const { t } = useTranslation();
   const [showDecimals] = useLocalStorage<boolean>("showDecimals", true)
 
   const formatAmount = (amount: number) => {
@@ -41,9 +43,9 @@ export function ProjectRevenueTable({
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Month</TableHead>
-          <TableHead>Amount</TableHead>
-          <TableHead className="w-[100px]">Actions</TableHead>
+          <TableHead>{t('common.month')}</TableHead>
+          <TableHead>{t('common.amount')}</TableHead>
+          <TableHead className="w-[100px]">{t('project.actions')}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -62,6 +64,7 @@ export function ProjectRevenueTable({
                   variant="ghost"
                   size="icon"
                   onClick={() => onEdit(revenue)}
+                  title={t('common.edit')}
                 >
                   <Edit2Icon className="h-4 w-4" />
                 </Button>
@@ -69,6 +72,7 @@ export function ProjectRevenueTable({
                   variant="ghost"
                   size="icon"
                   onClick={() => onDelete(revenue)}
+                  title={t('common.delete')}
                 >
                   <Trash2Icon className="h-4 w-4" />
                 </Button>
