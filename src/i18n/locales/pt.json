@@ -12,15 +12,7 @@
     "language": "Idioma",
     "today": "Hoje",
     "noProjectsFound": "Nenhum projeto encontrado",
-    "timeline": "Cronologia",
-    "pageNotFound": "Oops! Página não encontrada",
-    "returnToHome": "Voltar à Página Inicial",
-    "previousYear": "Ano Anterior",
-    "nextYear": "Próximo Ano",
-    "month": "Mês",
-    "amount": "Montante",
-    "edit": "Editar",
-    "delete": "Eliminar"
+    "timeline": "Cronologia"
   },
   "dashboard": {
     "year": "Ano",
@@ -47,10 +39,7 @@
       "profit": "Lucro",
       "utilization": "Utilização",
       "profitability": "Rentabilidade",
-      "teamUtilizationProfitability": "Utilização vs. Rentabilidade da Equipa",
-      "financialForecast": "Previsão Financeira",
-      "actualRevenue": "Receita Real",
-      "actualCost": "Custo Real"
+      "teamUtilizationProfitability": "Utilização vs. Rentabilidade da Equipa"
     },
     "projects": "Projetos"
   },
@@ -105,8 +94,7 @@
     "overheadPercentage": "Percentagem de Custo Fixo para",
     "overheadDescription": "Esta percentagem será aplicada a todos os projetos iniciados em",
     "saveSettings": "Guardar Configurações",
-    "year": "Ano",
-    "financials": "Finanças"
+    "year": "Ano"
   },
   "dialog": {
     "areYouSure": "Tem a certeza?",
@@ -128,11 +116,7 @@
     "totalCosts": "Custos Totais",
     "profit": "Lucro",
     "rentability": "Rentabilidade",
-    "allocations": "Alocações",
-    "revenues": "Receitas",
-    "totalRevenue": "Receita Total",
-    "addRevenue": "Adicionar Receita",
-    "totalProfit": "Lucro Total"
+    "allocations": "Alocações"
   },
   "salary": {
     "history": "Histórico Salarial",
@@ -145,21 +129,5 @@
     "noHistory": "Ainda não foi adicionado histórico salarial.",
     "delete": "Eliminar Registro Salarial",
     "deleteWarning": "Tem certeza que deseja eliminar este registro salarial? Esta ação não pode ser desfeita."
-  },
-  "inbox": {
-    "refresh": "Atualizar",
-    "archive": "Arquivar",
-    "delete": "Eliminar",
-    "received": "Recebidos",
-    "sent": "Enviados",
-    "previous": "Anterior",
-    "next": "Próximo",
-    "searchMessages": "Pesquisar mensagens...",
-    "from": "De",
-    "noMessagesFound": "Nenhuma mensagem encontrada",
-    "star": "Destacar",
-    "unstar": "Remover destaque",
-    "selectMessageToView": "Selecione uma mensagem para visualizar",
-    "reply": "Responder"
   }
 }

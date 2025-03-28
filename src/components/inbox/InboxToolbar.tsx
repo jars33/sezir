@@ -10,7 +10,6 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react"
-import { useTranslation } from "react-i18next"
 
 interface InboxToolbarProps {
   onRefresh: () => void
@@ -27,35 +26,33 @@ export function InboxToolbar({
   view,
   onViewChange,
 }: InboxToolbarProps) {
-  const { t } = useTranslation();
-  
   return (
     <>
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <Button variant="outline" size="icon" onClick={onRefresh} title={t('inbox.refresh')}>
+          <Button variant="outline" size="icon" onClick={onRefresh}>
             <RefreshCcw className="h-4 w-4" />
           </Button>
           <div className="flex items-center space-x-2">
-            <Button variant="outline" size="icon" title={t('inbox.archive')}>
+            <Button variant="outline" size="icon">
               <Archive className="h-4 w-4" />
             </Button>
-            <Button variant="outline" size="icon" title={t('inbox.delete')}>
+            <Button variant="outline" size="icon">
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>
         </div>
         <Tabs value={view} onValueChange={(v) => onViewChange(v as "received" | "sent")}>
           <TabsList>
-            <TabsTrigger value="received">{t('inbox.received')}</TabsTrigger>
-            <TabsTrigger value="sent">{t('inbox.sent')}</TabsTrigger>
+            <TabsTrigger value="received">Received</TabsTrigger>
+            <TabsTrigger value="sent">Sent</TabsTrigger>
           </TabsList>
         </Tabs>
         <div className="flex items-center space-x-2">
-          <Button variant="outline" size="icon" title={t('inbox.previous')}>
+          <Button variant="outline" size="icon">
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" title={t('inbox.next')}>
+          <Button variant="outline" size="icon">
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
@@ -65,7 +62,7 @@ export function InboxToolbar({
         <Search className="h-4 w-4 text-muted-foreground" />
         <Input
           type="text"
-          placeholder={t('inbox.searchMessages')}
+          placeholder="Search messages..."
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           className="flex-1"

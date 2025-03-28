@@ -12,7 +12,6 @@ import {
   Legend,
 } from 'recharts';
 import { Skeleton } from "@/components/ui/skeleton";
-import { useTranslation } from "react-i18next";
 
 interface ForecastTabProps {
   forecastData: any[];
@@ -20,7 +19,6 @@ interface ForecastTabProps {
 }
 
 export function ForecastTab({ forecastData, isLoading }: ForecastTabProps) {
-  const { t } = useTranslation();
   // Safely check if forecastData is available
   const safeData = Array.isArray(forecastData) ? forecastData : [];
   
@@ -28,7 +26,7 @@ export function ForecastTab({ forecastData, isLoading }: ForecastTabProps) {
     <Card className="w-full">
       <div className="p-6">
         <h2 className="text-lg font-medium text-foreground mb-4">
-          {t('dashboard.charts.financialForecast')}
+          Financial Forecast
         </h2>
         <div className="h-80 w-full">
           {isLoading ? (
@@ -53,17 +51,10 @@ export function ForecastTab({ forecastData, isLoading }: ForecastTabProps) {
                   className="text-muted-foreground" 
                 />
                 <Tooltip 
-                  formatter={(value: number, name: string) => {
-                    let translatedName = name;
-                    
-                    if (name === "actualRevenue") translatedName = t('dashboard.charts.actualRevenue');
-                    if (name === "actualCost") translatedName = t('dashboard.charts.actualCost');
-                    
-                    return [
-                      value ? `€${value.toFixed(2)}` : 'N/A',
-                      translatedName
-                    ];
-                  }}
+                  formatter={(value: number, name: string) => [
+                    value ? `€${value.toFixed(2)}` : 'N/A',
+                    name.charAt(0).toUpperCase() + name.slice(1).replace(/([A-Z])/g, ' $1')
+                  ]}
                   labelFormatter={(label) => `${label}`}
                   contentStyle={{
                     backgroundColor: 'hsl(var(--background))',
@@ -71,13 +62,7 @@ export function ForecastTab({ forecastData, isLoading }: ForecastTabProps) {
                     color: 'hsl(var(--foreground))'
                   }}
                 />
-                <Legend 
-                  formatter={(value) => {
-                    if (value === "Actual Revenue") return t('dashboard.charts.actualRevenue');
-                    if (value === "Actual Cost") return t('dashboard.charts.actualCost');
-                    return value;
-                  }}
-                />
+                <Legend />
                 <Line 
                   type="monotone"
                   dataKey="actualRevenue" 
