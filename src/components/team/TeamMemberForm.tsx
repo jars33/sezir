@@ -9,6 +9,7 @@ import { TeamMemberBasicFields } from "./TeamMemberBasicFields"
 import { TeamMemberContactFields } from "./TeamMemberContactFields"
 import { teamMemberFormSchema, type TeamMemberFormSchema } from "./team-member-schema"
 import type { TeamMember } from "@/types/team-member"
+import { useTranslation } from "react-i18next"
 
 interface TeamMemberFormProps {
   member: TeamMember | null
@@ -18,6 +19,8 @@ interface TeamMemberFormProps {
 }
 
 export function TeamMemberForm({ member, userId, onSubmit, mode }: TeamMemberFormProps) {
+  const { t } = useTranslation()
+  
   const form = useForm<TeamMemberFormSchema>({
     resolver: zodResolver(teamMemberFormSchema),
     defaultValues: {
@@ -55,7 +58,9 @@ export function TeamMemberForm({ member, userId, onSubmit, mode }: TeamMemberFor
         <TeamMemberContactFields form={form} />
         <div className="flex justify-end">
           <Button type="submit">
-            {mode === "new" ? "Add" : "Update"} Team Member
+            {mode === "new" 
+              ? t('team.addTeamMember', "Add Team Member") 
+              : t('team.updateTeamMember', "Update Team Member")}
           </Button>
         </div>
       </form>

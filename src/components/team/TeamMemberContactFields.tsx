@@ -3,12 +3,15 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/comp
 import { Input } from "@/components/ui/input"
 import type { UseFormReturn } from "react-hook-form"
 import type { TeamMemberFormSchema } from "./team-member-schema"
+import { useTranslation } from "react-i18next"
 
 interface TeamMemberContactFieldsProps {
   form: UseFormReturn<TeamMemberFormSchema>
 }
 
 export function TeamMemberContactFields({ form }: TeamMemberContactFieldsProps) {
+  const { t } = useTranslation()
+  
   return (
     <>
       <FormField
@@ -16,7 +19,7 @@ export function TeamMemberContactFields({ form }: TeamMemberContactFieldsProps) 
         name="company_phone"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Company Phone</FormLabel>
+            <FormLabel>{t('team.companyPhone', "Company Phone")}</FormLabel>
             <FormControl>
               <Input {...field} value={field.value || ''} />
             </FormControl>
@@ -30,7 +33,7 @@ export function TeamMemberContactFields({ form }: TeamMemberContactFieldsProps) 
         name="company_email"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Company Email</FormLabel>
+            <FormLabel>{t('team.companyEmail', "Company Email")}</FormLabel>
             <FormControl>
               <Input type="email" {...field} value={field.value || ''} />
             </FormControl>

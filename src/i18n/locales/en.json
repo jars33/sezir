@@ -1,3 +1,4 @@
+
 {
   "common": {
     "dashboard": "Dashboard",
@@ -22,6 +23,7 @@
     "delete": "Delete",
     "success": "Success",
     "error": "Error",
+    "details": "Details",
     "months": {
       "jan": "Jan",
       "feb": "Feb",
@@ -101,6 +103,21 @@
     "teamUpdated": "Team successfully updated",
     "teamCreated": "Team successfully created",
     "teamDeleted": "Team successfully deleted",
+    "editTeamMember": "Edit Team Member",
+    "updateTeamMember": "Update Team Member",
+    "editMemberDescription": "Update team member details or manage their salary history",
+    "backToList": "Back to List",
+    "type": "Type",
+    "selectType": "Select type",
+    "contract": "Contract",
+    "external": "External",
+    "companyPhone": "Company Phone",
+    "companyEmail": "Company Email",
+    "noIdError": "No team member ID available for update",
+    "memberAdded": "Team member successfully added",
+    "memberUpdated": "Team member successfully updated",
+    "userAccountCreated": " and user account created",
+    "saveError": "Failed to save team member",
     "allocation": {
       "title": "Add Team Member Allocation",
       "edit": "Edit Team Member Allocation",

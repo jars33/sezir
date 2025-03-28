@@ -9,6 +9,7 @@ import { useAddSalary } from "./salary/AddSalaryHandler"
 import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query"
 import type { TeamMemberFormSchema } from "./team-member-schema"
 import type { TeamMember, SalaryHistory as SalaryHistoryType } from "@/types/team-member"
+import { useTranslation } from "react-i18next"
 
 interface EditTeamMemberProps {
   id: string
@@ -25,6 +26,7 @@ export function EditTeamMember({
   userId,
   refetchSalaryHistory 
 }: EditTeamMemberProps) {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { handleSubmit } = useTeamMemberSubmit()
   const { handleAddSalary, handleEditSalary, handleDeleteSalary } = useAddSalary(refetchSalaryHistory)
@@ -33,7 +35,7 @@ export function EditTeamMember({
     try {
       // Check if we have a valid ID for updating
       if (!id) {
-        throw new Error("No team member ID available for update");
+        throw new Error(t('team.noIdError', "No team member ID available for update"));
       }
       
       await handleSubmit(values, false, id, userId);
@@ -60,10 +62,10 @@ export function EditTeamMember({
   return (
     <div className="container py-8">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold">Edit Team Member</h1>
+        <h1 className="text-3xl font-bold">{t('team.editTeamMember', "Edit Team Member")}</h1>
         <div className="flex gap-4">
           <Button variant="outline" onClick={() => navigate("/team")}>
-            Back to List
+            {t('team.backToList', "Back to List")}
           </Button>
         </div>
       </div>

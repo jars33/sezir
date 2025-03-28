@@ -4,12 +4,15 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import type { UseFormReturn } from "react-hook-form"
 import type { TeamMemberFormSchema } from "./team-member-schema"
+import { useTranslation } from "react-i18next"
 
 interface TeamMemberBasicFieldsProps {
   form: UseFormReturn<TeamMemberFormSchema>
 }
 
 export function TeamMemberBasicFields({ form }: TeamMemberBasicFieldsProps) {
+  const { t } = useTranslation()
+  
   return (
     <>
       <FormField
@@ -17,7 +20,7 @@ export function TeamMemberBasicFields({ form }: TeamMemberBasicFieldsProps) {
         name="name"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Name</FormLabel>
+            <FormLabel>{t('team.name')}</FormLabel>
             <FormControl>
               <Input {...field} />
             </FormControl>
@@ -31,19 +34,19 @@ export function TeamMemberBasicFields({ form }: TeamMemberBasicFieldsProps) {
         name="type"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Type</FormLabel>
+            <FormLabel>{t('team.type', "Type")}</FormLabel>
             <Select
               onValueChange={field.onChange}
               defaultValue={field.value}
             >
               <FormControl>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select type" />
+                  <SelectValue placeholder={t('team.selectType', "Select type")} />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                <SelectItem value="contract">Contract</SelectItem>
-                <SelectItem value="external">External</SelectItem>
+                <SelectItem value="contract">{t('team.contract', "Contract")}</SelectItem>
+                <SelectItem value="external">{t('team.external', "External")}</SelectItem>
               </SelectContent>
             </Select>
             <FormMessage />
@@ -57,7 +60,7 @@ export function TeamMemberBasicFields({ form }: TeamMemberBasicFieldsProps) {
           name="start_date"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Start Date</FormLabel>
+              <FormLabel>{t('salary.startDate')}</FormLabel>
               <FormControl>
                 <Input type="date" {...field} />
               </FormControl>
@@ -71,7 +74,7 @@ export function TeamMemberBasicFields({ form }: TeamMemberBasicFieldsProps) {
           name="end_date"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>End Date (optional)</FormLabel>
+              <FormLabel>{t('salary.endDateOptional')}</FormLabel>
               <FormControl>
                 <Input 
                   type="date" 

@@ -1,3 +1,4 @@
+
 {
   "common": {
     "dashboard": "Painel",
@@ -22,6 +23,7 @@
     "delete": "Eliminar",
     "success": "Sucesso",
     "error": "Erro",
+    "details": "Detalhes",
     "months": {
       "jan": "Jan",
       "feb": "Fev",
@@ -101,6 +103,21 @@
     "teamUpdated": "Equipa atualizada com sucesso",
     "teamCreated": "Equipa criada com sucesso",
     "teamDeleted": "Equipa eliminada com sucesso",
+    "editTeamMember": "Editar Membro da Equipa",
+    "updateTeamMember": "Atualizar Membro da Equipa",
+    "editMemberDescription": "Atualize os detalhes do membro da equipa ou gerencie o seu histórico salarial",
+    "backToList": "Voltar à Lista",
+    "type": "Tipo",
+    "selectType": "Selecionar tipo",
+    "contract": "Contrato",
+    "external": "Externo",
+    "companyPhone": "Telefone da Empresa",
+    "companyEmail": "Email da Empresa",
+    "noIdError": "Nenhum ID de membro disponível para atualização",
+    "memberAdded": "Membro da equipa adicionado com sucesso",
+    "memberUpdated": "Membro da equipa atualizado com sucesso",
+    "userAccountCreated": " e conta de utilizador criada",
+    "saveError": "Falha ao salvar membro da equipa",
     "allocation": {
       "title": "Adicionar Alocação de Membro",
       "edit": "Editar Alocação de Membro",

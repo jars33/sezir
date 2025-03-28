@@ -66,7 +66,7 @@ function Calendar({
         IconRight: ({ ..._props }) => <ChevronRight className="h-4 w-4" />,
       }}
       formatters={{
-        formatMonthCaption: ({ month }) => getMonthLabel(month.getMonth()),
+        formatMonthCaption: (date) => getMonthLabel(date.getMonth()),
       }}
       {...props}
     />

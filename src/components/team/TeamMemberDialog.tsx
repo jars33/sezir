@@ -21,6 +21,7 @@ import { useTeamMemberSubmit } from "./TeamMemberSubmitHandler"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { SalaryHistorySection } from "./salary/SalaryHistorySection"
 import { useTeamMember } from "@/hooks/use-team-member"
+import { useTranslation } from "react-i18next"
 
 interface TeamMemberDialogProps {
   member?: TeamMember | null
@@ -37,6 +38,7 @@ export function TeamMemberDialog({
   userId,
   onSuccess,
 }: TeamMemberDialogProps) {
+  const { t } = useTranslation()
   const { toast } = useToast()
   const { handleSubmit: submitHandler } = useTeamMemberSubmit()
   const isNewMember = !member?.id
@@ -96,15 +98,15 @@ export function TeamMemberDialog({
       const result = await submitHandler(values, isNewMember, member?.id, userId)
       
       let successMessage = isNewMember 
-        ? "Team member successfully added" 
-        : "Team member successfully updated"
+        ? t('team.memberAdded', "Team member successfully added")
+        : t('team.memberUpdated', "Team member successfully updated")
         
       if (result?.newUserCreated) {
-        successMessage += " and user account created"
+        successMessage += t('team.userAccountCreated', " and user account created")
       }
       
       toast({
-        title: "Success",
+        title: t('common.success'),
         description: successMessage,
       })
       
@@ -114,8 +116,8 @@ export function TeamMemberDialog({
       console.error("Error saving team member:", error)
       toast({
         variant: "destructive",
-        title: "Error",
-        description: error.message || "Failed to save team member",
+        title: t('common.error'),
+        description: error.message || t('team.saveError', "Failed to save team member"),
       })
     }
   }
@@ -125,11 +127,11 @@ export function TeamMemberDialog({
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>
-            {isNewMember ? "Add Team Member" : "Edit Team Member"}
+            {isNewMember ? t('team.addTeamMember') : t('team.editTeamMember')}
           </DialogTitle>
           {!isNewMember && (
             <DialogDescription>
-              Update team member details or manage their salary history
+              {t('team.editMemberDescription', "Update team member details or manage their salary history")}
             </DialogDescription>
           )}
         </DialogHeader>
@@ -141,7 +143,7 @@ export function TeamMemberDialog({
               <TeamMemberContactFields form={form} />
               <DialogFooter>
                 <Button type="submit">
-                  Add Team Member
+                  {t('team.addTeamMember')}
                 </Button>
               </DialogFooter>
             </form>
@@ -149,8 +151,8 @@ export function TeamMemberDialog({
         ) : (
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="basic">Details</TabsTrigger>
-              <TabsTrigger value="salary" disabled={isNewMember}>Salary History</TabsTrigger>
+              <TabsTrigger value="basic">{t('common.details', "Details")}</TabsTrigger>
+              <TabsTrigger value="salary" disabled={isNewMember}>{t('salary.history')}</TabsTrigger>
             </TabsList>
             
             <TabsContent value="basic" className="space-y-4 pt-4">
@@ -160,7 +162,7 @@ export function TeamMemberDialog({
                   <TeamMemberContactFields form={form} />
                   <DialogFooter>
                     <Button type="submit">
-                      Update Team Member
+                      {t('team.updateTeamMember', "Update Team Member")}
                     </Button>
                   </DialogFooter>
                 </form>

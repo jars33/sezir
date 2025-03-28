@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import type { SalaryHistory } from "@/types/team-member"
+import { useTranslation } from "react-i18next"
 
 const salaryFormSchema = z.object({
   amount: z.string().min(1, "Amount is required"),
@@ -31,6 +32,7 @@ interface SalaryFormProps {
 }
 
 export function SalaryForm({ salary, onSubmit, onCancel }: SalaryFormProps) {
+  const { t } = useTranslation()
   const isEditing = !!salary
   
   const form = useForm<SalaryFormValues>({
@@ -53,7 +55,7 @@ export function SalaryForm({ salary, onSubmit, onCancel }: SalaryFormProps) {
                 name="start_date"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Start Date</FormLabel>
+                    <FormLabel>{t('salary.startDate')}</FormLabel>
                     <FormControl>
                       <Input type="date" {...field} />
                     </FormControl>
@@ -67,7 +69,7 @@ export function SalaryForm({ salary, onSubmit, onCancel }: SalaryFormProps) {
                 name="end_date"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>End Date (Optional)</FormLabel>
+                    <FormLabel>{t('salary.endDateOptional')}</FormLabel>
                     <FormControl>
                       <Input 
                         type="date" 
@@ -86,7 +88,7 @@ export function SalaryForm({ salary, onSubmit, onCancel }: SalaryFormProps) {
                 name="amount"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Amount ($)</FormLabel>
+                    <FormLabel>{t('salary.amount')}</FormLabel>
                     <FormControl>
                       <Input 
                         type="number"
@@ -103,10 +105,10 @@ export function SalaryForm({ salary, onSubmit, onCancel }: SalaryFormProps) {
             
             <div className="flex justify-end space-x-2">
               <Button variant="outline" type="button" onClick={onCancel}>
-                Cancel
+                {t('dialog.cancel')}
               </Button>
               <Button type="submit">
-                {isEditing ? "Update" : "Add"} Salary
+                {isEditing ? t('salary.editSalary') : t('salary.addSalary')}
               </Button>
             </div>
           </form>
