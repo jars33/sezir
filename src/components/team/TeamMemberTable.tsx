@@ -1,4 +1,3 @@
-
 import { format } from "date-fns"
 import {
   Table,
@@ -25,7 +24,7 @@ export function TeamMemberTable({ member, salaryHistory }: TeamMemberTableProps)
   const formatSalary = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'EUR'
     }).format(amount)
   }
 

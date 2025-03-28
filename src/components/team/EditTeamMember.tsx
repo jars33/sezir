@@ -1,4 +1,3 @@
-
 import React from "react"
 import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
@@ -33,7 +32,6 @@ export function EditTeamMember({
 
   const onSubmit = async (values: TeamMemberFormSchema) => {
     try {
-      // Check if we have a valid ID for updating
       if (!id) {
         throw new Error(t('team.noIdError', "No team member ID available for update"));
       }
