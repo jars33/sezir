@@ -1,5 +1,6 @@
 
 import { format } from "date-fns"
+import i18next from "i18next"
 
 export function generateForecastData(
   selectedYear: number,
@@ -19,7 +20,8 @@ export function generateForecastData(
   // Include all 12 months of the selected year
   for (let i = 0; i < 12; i++) {
     const month = new Date(selectedYear, i, 1)
-    const monthName = month.toLocaleString('default', { month: 'short' })
+    const monthKey = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'][month.getMonth()]
+    const monthName = i18next.t(`common.months.${monthKey}`)
     const monthStr = month.toISOString().substr(0, 7) // YYYY-MM
     
     let actualRevenue = 0

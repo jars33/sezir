@@ -9,6 +9,7 @@ import { YearSelector } from "./YearSelector"
 import { GanttProjectList } from "./gantt/GanttProjectList"
 import { GanttTimeline } from "./gantt/GanttTimeline"
 import { useGanttCalculations } from "./gantt/useGanttCalculations"
+import { useTranslation } from "react-i18next"
 
 interface Project {
   id: string
@@ -25,6 +26,7 @@ interface GanttChartViewProps {
 }
 
 export function GanttChartView({ projects, onProjectClick }: GanttChartViewProps) {
+  const { t } = useTranslation()
   const { year, setYear } = useProjectYear()
   const [statusFilter, setStatusFilter] = useState<string[]>([])
   
@@ -70,7 +72,7 @@ export function GanttChartView({ projects, onProjectClick }: GanttChartViewProps
     <Card className="p-4">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold">
-          Timeline
+          {t('common.timeline')}
         </h2>
         <div className="flex items-center gap-4">
           <ProjectStatusFilter 

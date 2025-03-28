@@ -1,5 +1,6 @@
 
 import { getYear } from "date-fns"
+import i18next from "i18next"
 
 // Generate cash flow data
 export function generateCashFlowData(
@@ -15,7 +16,8 @@ export function generateCashFlowData(
   const months = []
   for (let i = 0; i < 12; i++) {
     const month = new Date(selectedYear, i, 1)
-    const monthName = month.toLocaleString('default', { month: 'short' })
+    const monthKey = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'][month.getMonth()]
+    const monthName = i18next.t(`common.months.${monthKey}`)
     months.push({ date: month, name: monthName })
   }
   

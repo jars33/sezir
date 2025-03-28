@@ -4,6 +4,7 @@ import { format, addMonths } from "date-fns"
 import { TimelineMonth } from "../TimelineMonth"
 import type { TimelineItem, AllocationItem } from "../actions/types"
 import { useProjectSettings } from "@/hooks/use-project-settings"
+import { useTranslation } from "react-i18next"
 
 interface TimelineMonthsGridProps {
   startDate: Date
@@ -28,6 +29,7 @@ export function TimelineMonthsGrid({
   calculateAccumulatedProfitUpToMonth,
   year
 }: TimelineMonthsGridProps) {
+  const { t } = useTranslation()
   const { getOverheadPercentage } = useProjectSettings()
   
   // Generate an array of 12 months starting from startDate

@@ -7,6 +7,7 @@ import { TimelineHeader } from "./timeline/TimelineHeader"
 import { useAllocationData } from "./timeline/useAllocationData"
 import { useAllocationSubmit } from "./timeline/useAllocationSubmit"
 import type { TeamMember } from "@/types/team-member"
+import { useTranslation } from "react-i18next"
 
 interface TeamMemberTimelineProps {
   member: TeamMember
@@ -17,6 +18,7 @@ interface TeamMemberTimelineProps {
 export function TeamMemberTimeline({ member, selectedYear, onEditMember }: TeamMemberTimelineProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const currentDate = new Date()
+  const { t } = useTranslation()
   
   const { allocations, refetch } = useAllocationData(member.id, selectedYear)
   const { handleAllocationSubmit } = useAllocationSubmit(member.id, refetch)
