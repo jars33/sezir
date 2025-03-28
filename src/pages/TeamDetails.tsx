@@ -37,6 +37,7 @@ import {
 import type { TeamMember } from "@/types/team-member"
 import { Plus, Trash2 } from "lucide-react"
 import { DeleteTeamDialog } from "@/components/team/DeleteTeamDialog"
+import { useTranslation } from "react-i18next"
 
 const teamFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -64,6 +65,7 @@ export default function TeamDetails() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { toast } = useToast()
+  const { t } = useTranslation()
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false)
 
   const form = useForm<TeamFormValues>({
@@ -176,13 +178,13 @@ export default function TeamDetails() {
 
       navigate("/teams")
       toast({
-        title: "Success",
-        description: `Team successfully ${team ? "updated" : "created"}`,
+        title: t('common.success'),
+        description: team ? t('team.teamUpdated') : t('team.teamCreated'),
       })
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Error",
+        title: t('common.error'),
         description: error.message,
       })
     }
@@ -210,26 +212,26 @@ export default function TeamDetails() {
 
       navigate("/teams")
       toast({
-        title: "Success",
-        description: "Team successfully deleted",
+        title: t('common.success'),
+        description: t('team.teamDeleted'),
       })
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Error",
+        title: t('common.error'),
         description: error.message,
       })
     }
   }
 
   if (isTeamLoading) {
-    return <div className="p-8">Loading...</div>
+    return <div className="p-8">{t('common.loading')}</div>
   }
 
   return (
     <div className="container py-8">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold">{id === "new" ? "New" : "Edit"} Team</h1>
+        <h1 className="text-3xl font-bold">{id === "new" ? t('team.newTeam') : t('team.editTeam')}</h1>
         <div className="flex gap-4">
           {id !== "new" && (
             <Button 
@@ -237,11 +239,11 @@ export default function TeamDetails() {
               onClick={() => setDeleteDialogOpen(true)}
             >
               <Trash2 className="h-4 w-4 mr-2" />
-              Delete Team
+              {t('team.deleteTeam')}
             </Button>
           )}
           <Button variant="outline" onClick={() => navigate("/teams")}>
-            Back to Teams
+            {t('team.backToTeams')}
           </Button>
         </div>
       </div>
@@ -254,7 +256,7 @@ export default function TeamDetails() {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Team Name</FormLabel>
+                  <FormLabel>{t('team.teamName')}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -268,7 +270,7 @@ export default function TeamDetails() {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>{t('team.description')}</FormLabel>
                   <FormControl>
                     <Textarea {...field} />
                   </FormControl>
@@ -282,14 +284,14 @@ export default function TeamDetails() {
               name="manager_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Team Manager</FormLabel>
+                  <FormLabel>{t('team.teamManager')}</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     value={field.value}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a manager" />
+                        <SelectValue placeholder={t('team.selectManager')} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -310,14 +312,14 @@ export default function TeamDetails() {
               name="parent_team_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Parent Team</FormLabel>
+                  <FormLabel>{t('team.parentTeam')}</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     value={field.value}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a parent team" />
+                        <SelectValue placeholder={t('team.selectParentTeam')} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -340,7 +342,7 @@ export default function TeamDetails() {
         {id !== "new" && (
           <div className="mt-8">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold">Team Members</h2>
+              <h2 className="text-xl font-semibold">{t('team.title')}</h2>
               {id !== "new" && (
                 <TeamMembershipDialog 
                   teamId={id} 
@@ -355,15 +357,15 @@ export default function TeamDetails() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Role</TableHead>
+                  <TableHead>{t('team.name')}</TableHead>
+                  <TableHead>{t('team.role')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {teamMembers?.map((membership) => (
                   <TableRow key={membership.id}>
                     <TableCell>
-                      {membership.team_members?.name || "Unknown member"}
+                      {membership.team_members?.name || t('team.unknownMember')}
                     </TableCell>
                     <TableCell className="capitalize">{membership.role}</TableCell>
                   </TableRow>
@@ -371,7 +373,7 @@ export default function TeamDetails() {
                 {!isTeamMembersLoading && (!teamMembers || teamMembers.length === 0) && (
                   <TableRow>
                     <TableCell colSpan={2} className="text-center text-muted-foreground">
-                      No team members yet
+                      {t('team.noTeamMembers')}
                     </TableCell>
                   </TableRow>
                 )}
@@ -383,7 +385,7 @@ export default function TeamDetails() {
         {/* Add the button at the bottom of the page */}
         <div className="pt-4">
           <Button type="button" onClick={form.handleSubmit(onSubmit)}>
-            {id === "new" ? "Create" : "Update"} Team
+            {id === "new" ? t('team.createTeam') : t('team.updateTeam')}
           </Button>
         </div>
       </div>
