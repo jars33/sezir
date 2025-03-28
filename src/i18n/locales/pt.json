@@ -65,6 +65,9 @@
     "member": "Membro da Equipa",
     "selectMember": "Selecione um membro da equipa",
     "noMembers": "Não existem membros disponíveis",
+    "members": "membros",
+    "manager": "Gestor",
+    "newTeam": "Nova Equipa",
     "allocation": {
       "title": "Adicionar Alocação de Membro",
       "edit": "Editar Alocação de Membro",

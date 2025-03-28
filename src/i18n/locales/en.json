@@ -65,6 +65,9 @@
     "member": "Team Member",
     "selectMember": "Select a team member",
     "noMembers": "No team members available",
+    "members": "members",
+    "manager": "Manager",
+    "newTeam": "New Team",
     "allocation": {
       "title": "Add Team Member Allocation",
       "edit": "Edit Team Member Allocation",

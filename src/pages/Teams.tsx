@@ -8,10 +8,12 @@ import { OrganizationChart } from "@/components/team/OrganizationChart"
 import { useToast } from "@/hooks/use-toast"
 import type { Team, TeamMembership, TeamNode } from "@/types/team"
 import type { TeamMember } from "@/types/team-member"
+import { useTranslation } from "react-i18next"
 
 export default function Teams() {
   const navigate = useNavigate()
   const { toast } = useToast()
+  const { t } = useTranslation()
 
   const { data: teams } = useQuery({
     queryKey: ["teams"],
@@ -81,10 +83,10 @@ export default function Teams() {
   return (
     <div className="container py-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Organization</h1>
+        <h1 className="text-3xl font-bold">{t('common.organization')}</h1>
         <Button onClick={() => navigate("/teams/new")}>
           <PlusCircle className="h-4 w-4 mr-2" />
-          New Team
+          {t('team.newTeam')}
         </Button>
       </div>
 

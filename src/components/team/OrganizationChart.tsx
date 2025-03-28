@@ -2,6 +2,7 @@
 import { Card } from "@/components/ui/card"
 import { useNavigate } from "react-router-dom"
 import type { TeamNode } from "@/types/team"
+import { useTranslation } from "react-i18next"
 
 interface OrganizationChartProps {
   teams: TeamNode[]
@@ -9,6 +10,7 @@ interface OrganizationChartProps {
 
 export function OrganizationChart({ teams }: OrganizationChartProps) {
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   const renderTeamNode = (node: TeamNode) => {
     if (!node) return null
@@ -22,11 +24,11 @@ export function OrganizationChart({ teams }: OrganizationChartProps) {
           <h3 className="font-semibold text-lg mb-2">{node.name}</h3>
           {node.manager && (
             <div className="text-sm text-muted-foreground mb-2">
-              Manager: {node.manager.name}
+              {t('team.manager')}: {node.manager.name}
             </div>
           )}
           <div className="text-sm text-muted-foreground">
-            {node.members?.length || 0} members
+            {node.members?.length || 0} {t('team.members')}
           </div>
         </Card>
         
