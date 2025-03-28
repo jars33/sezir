@@ -1,6 +1,8 @@
+
 import * as React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { DayPicker } from "react-day-picker";
+import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
@@ -13,6 +15,14 @@ function Calendar({
   showOutsideDays = true,
   ...props
 }: CalendarProps) {
+  const { t, i18n } = useTranslation();
+  
+  // Custom month labels based on current language
+  const getMonthLabel = (monthIndex: number) => {
+    const monthKeys = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+    return t(`common.months.${monthKeys[monthIndex]}`);
+  };
+  
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
@@ -54,6 +64,9 @@ function Calendar({
       components={{
         IconLeft: ({ ..._props }) => <ChevronLeft className="h-4 w-4" />,
         IconRight: ({ ..._props }) => <ChevronRight className="h-4 w-4" />,
+      }}
+      formatters={{
+        formatMonthCaption: ({ month }) => getMonthLabel(month.getMonth()),
       }}
       {...props}
     />

@@ -31,13 +31,19 @@ export function GanttTimeline({
   const { t } = useTranslation();
   const { getStatusColor, calculateProjectBar } = useGanttCalculations(year)
 
+  // Get month name based on the month number
+  const getMonthKey = (month: Date) => {
+    const monthNames = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
+    return monthNames[month.getMonth()]
+  }
+
   return (
     <div className="pl-2 h-full">
       {/* Months header */}
       <div className="grid grid-cols-12 mb-2">
         {months.map((month) => (
           <div key={month.getTime()} className="text-sm font-medium px-1 text-center bg-gray-100 dark:bg-gray-800 dark:text-gray-200 py-2 rounded-t-md">
-            {format(month, 'MMM')}
+            {t(`common.months.${getMonthKey(month)}`)}
           </div>
         ))}
       </div>

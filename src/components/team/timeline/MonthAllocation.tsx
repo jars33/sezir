@@ -2,6 +2,7 @@
 import { format } from "date-fns"
 import { useNavigate } from "react-router-dom"
 import type { AllocationData } from "./types"
+import { useTranslation } from "react-i18next"
 
 interface MonthAllocationProps {
   month: Date
@@ -11,6 +12,7 @@ interface MonthAllocationProps {
 
 export function MonthAllocation({ month, allocations, currentDate }: MonthAllocationProps) {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const monthStr = format(month, "yyyy-MM")
   const monthAllocations = allocations?.filter(allocation => 
     format(new Date(allocation.month), "yyyy-MM") === monthStr
@@ -37,6 +39,12 @@ export function MonthAllocation({ month, allocations, currentDate }: MonthAlloca
     navigate(`/projects/${projectId}`)
   }
 
+  // Get month name based on the month number
+  const getMonthKey = (month: Date) => {
+    const monthNames = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
+    return monthNames[month.getMonth()]
+  }
+
   return (
     <div 
       key={month.getTime()} 
@@ -46,7 +54,7 @@ export function MonthAllocation({ month, allocations, currentDate }: MonthAlloca
     >
       <div className="text-center mb-1">
         <div className={'text-xs font-medium ' + (isCurrentMonth(month) ? 'text-blue-800 dark:text-blue-300' : '')}>
-          {format(month, "MMM yyyy")}
+          {t(`common.months.${getMonthKey(month)}`)} {month.getFullYear()}
         </div>
         <div className={'text-xs font-medium ' + (
           totalAllocation > 100 ? 'text-red-700 dark:text-red-400' :

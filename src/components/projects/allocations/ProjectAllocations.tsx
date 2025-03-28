@@ -9,6 +9,7 @@ import { ProjectAllocationDialog } from "./ProjectAllocationDialog"
 import { useToast } from "@/hooks/use-toast"
 import { useProjectYear } from "@/hooks/use-project-year"
 import { useQueryClient } from "@tanstack/react-query"
+import { useTranslation } from "react-i18next"
 
 interface ProjectAllocationsProps {
   projectId: string
@@ -28,12 +29,18 @@ interface AllocationData {
 }
 
 export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
+  const { t } = useTranslation()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selectedAllocation, setSelectedAllocation] = useState<AllocationData | null>(null)
   const { toast } = useToast()
   const { year, setYear } = useProjectYear()
   const [startDate, setStartDate] = useState(() => new Date(year, 0, 1))
   const queryClient = useQueryClient()
+
+  const getMonthKey = (month: Date) => {
+    const monthNames = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
+    return monthNames[month.getMonth()]
+  }
 
   const { data: teamMembers } = useQuery({
     queryKey: ["team-members"],
@@ -144,7 +151,7 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
         if (updateError) throw updateError
 
         toast({
-          title: "Success",
+          title: t('common.success'),
           description: "Team member allocation updated successfully",
         })
       } else {
@@ -159,7 +166,7 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
         if (insertError) throw insertError
 
         toast({
-          title: "Success",
+          title: t('common.success'),
           description: "Team member allocation added successfully",
         })
       }
@@ -171,7 +178,7 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
       console.error("Error managing allocation:", error)
       toast({
         variant: "destructive",
-        title: "Error",
+        title: t('common.error'),
         description: error.message,
       })
     }
@@ -204,7 +211,7 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
                 <div key={month.getTime()} className="bg-white p-2 min-h-[250px] flex flex-col">
                   <div className="flex items-center justify-center gap-1 mb-1">
                     <div className="text-sm font-medium">
-                      {format(month, "MMM yyyy")}
+                      {t(`common.months.${getMonthKey(month)}`)} {month.getFullYear()}
                     </div>
                   </div>
                   <div className="flex-1 space-y-1">

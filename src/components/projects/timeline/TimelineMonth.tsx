@@ -1,4 +1,3 @@
-
 import { format } from "date-fns"
 import {
   Tooltip,
@@ -15,6 +14,7 @@ import {
   Info,
   Calculator,
 } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 interface TimelineMonthProps {
   month: Date
@@ -41,6 +41,7 @@ export function TimelineMonth({
   onSelectAllocation,
   accumulatedProfit,
 }: TimelineMonthProps) {
+  const { t } = useTranslation()
   const totalRevenues = revenues.reduce((sum, r) => sum + Number(r.amount), 0)
   const totalVariableCosts = variableCosts.reduce(
     (sum, c) => sum + Number(c.amount),
@@ -59,7 +60,10 @@ export function TimelineMonth({
   const totalCosts = totalVariableCosts + totalOverheadCosts + totalSalaryCosts
   const monthProfit = totalRevenues - totalCosts
 
-  const monthLabel = format(month, "MMM yyyy")
+  const getMonthKey = (month: Date) => {
+    const monthNames = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
+    return monthNames[month.getMonth()]
+  }
   
   const isCurrentMonth =
     new Date().getMonth() === month.getMonth() &&
@@ -90,7 +94,7 @@ export function TimelineMonth({
       )}
     >
       <div className="text-center font-medium text-sm mb-3">
-        {monthLabel}
+        {t(`common.months.${getMonthKey(month)}`)} {month.getFullYear()}
       </div>
 
       <div 
@@ -171,10 +175,8 @@ export function TimelineMonth({
         </div>
       ))}
 
-      {/* Empty div with flex-grow to push the total to the bottom */}
       <div className="flex-grow"></div>
 
-      {/* Monthly profit at the absolute bottom */}
       <div className={cn(
         "text-center font-medium text-sm p-2 rounded-md mt-auto",
         monthProfit >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"

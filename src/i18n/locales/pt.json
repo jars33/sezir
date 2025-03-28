@@ -1,4 +1,3 @@
-
 {
   "common": {
     "dashboard": "Painel",
@@ -22,7 +21,21 @@
     "edit": "Editar",
     "delete": "Eliminar",
     "success": "Sucesso",
-    "error": "Erro"
+    "error": "Erro",
+    "months": {
+      "jan": "Jan",
+      "feb": "Fev",
+      "mar": "Mar",
+      "apr": "Abr",
+      "may": "Mai",
+      "jun": "Jun",
+      "jul": "Jul",
+      "aug": "Ago",
+      "sep": "Set",
+      "oct": "Out",
+      "nov": "Nov",
+      "dec": "Dez"
+    }
   },
   "dashboard": {
     "year": "Ano",
