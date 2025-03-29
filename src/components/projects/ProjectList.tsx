@@ -1,4 +1,3 @@
-
 import { Pencil, Trash2Icon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -13,11 +12,11 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "@tanstack/react-query"
-import { supabase } from "@/integrations/supabase/client"
 import { useState } from "react"
 import { ProjectDialog } from "@/components/ProjectDialog"
 import { toast } from "sonner"
 import type { ProjectFormSchema } from "./project-schema"
+import { teamsService, projectService } from "@/services/supabase"
 
 type Project = {
   id: string
@@ -62,16 +61,7 @@ export function ProjectList({
   const { data: teams } = useQuery({
     queryKey: ["team-names"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("teams")
-        .select("id, name")
-
-      if (error) throw error
-
-      return data.reduce((acc, team) => {
-        acc[team.id] = team.name
-        return acc
-      }, {} as Record<string, string>)
+      return await teamsService.getTeamNames();
     },
   })
 
@@ -95,21 +85,14 @@ export function ProjectList({
     try {
       if (!projectToEdit) return
 
-      const projectData = {
+      await projectService.updateProject(projectToEdit.id, {
         number: values.number,
         name: values.name,
         start_date: values.start_date || null,
         end_date: values.end_date || null,
         status: values.status,
-        team_id: values.team_id || null,
-      }
-
-      const { error } = await supabase
-        .from("projects")
-        .update(projectData)
-        .eq("id", projectToEdit.id)
-
-      if (error) throw error
+        team_id: values.team_id === "no-team" ? null : values.team_id,
+      });
 
       // Close the dialog and show success message
       setEditDialogOpen(false)

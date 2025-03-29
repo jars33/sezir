@@ -1,8 +1,8 @@
 
-import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/hooks/use-toast"
 import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query"
 import { SalaryHistory } from "@/types/team-member"
+import { salaryHandlingService } from "@/services/supabase"
 
 export function useAddSalary(
   refetchSalaryHistory: (options?: RefetchOptions) => Promise<QueryObserverResult<SalaryHistory[], Error>>
@@ -18,16 +18,12 @@ export function useAddSalary(
     if (!id || isNewMember || !userId) return;
 
     try {
-      const { error } = await supabase
-        .from("salary_history")
-        .insert({
-          team_member_id: id,
-          amount: parseFloat(values.amount),
-          start_date: values.start_date,
-          end_date: values.end_date || null,
-        })
-
-      if (error) throw error
+      await salaryHandlingService.addSalary(
+        id,
+        parseFloat(values.amount),
+        values.start_date,
+        values.end_date || null
+      );
 
       await refetchSalaryHistory()
 
@@ -49,16 +45,12 @@ export function useAddSalary(
     values: { amount: string, start_date: string, end_date: string }
   ) => {
     try {
-      const { error } = await supabase
-        .from("salary_history")
-        .update({
-          amount: parseFloat(values.amount),
-          start_date: values.start_date,
-          end_date: values.end_date || null,
-        })
-        .eq("id", salaryId)
-
-      if (error) throw error
+      await salaryHandlingService.updateSalary(
+        salaryId,
+        parseFloat(values.amount),
+        values.start_date,
+        values.end_date || null
+      );
 
       await refetchSalaryHistory()
 
@@ -77,12 +69,7 @@ export function useAddSalary(
 
   const handleDeleteSalary = async (salaryId: string) => {
     try {
-      const { error } = await supabase
-        .from("salary_history")
-        .delete()
-        .eq("id", salaryId)
-
-      if (error) throw error
+      await salaryHandlingService.deleteSalary(salaryId);
 
       await refetchSalaryHistory()
 
@@ -99,18 +86,11 @@ export function useAddSalary(
     }
   }
 
-  // New function to update the end date of previous salary
+  // Update the end date of previous salary
   const updatePreviousSalaryEndDate = async (salaryId: string, endDate: string) => {
     try {
-      const { error } = await supabase
-        .from("salary_history")
-        .update({
-          end_date: endDate,
-        })
-        .eq("id", salaryId)
-
-      if (error) throw error
-
+      await salaryHandlingService.updateSalaryEndDate(salaryId, endDate);
+      
       // Don't refetch or show toast here as this is part of add salary flow
     } catch (error: any) {
       console.error("Error updating previous salary end date:", error)

@@ -1,6 +1,5 @@
 
 import { useQuery } from "@tanstack/react-query"
-import { supabase } from "@/integrations/supabase/client"
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
 import {
   Select,
@@ -12,14 +11,10 @@ import {
 import type { UseFormReturn } from "react-hook-form"
 import type { ProjectFormSchema } from "./project-schema"
 import { useTranslation } from "react-i18next"
+import { teamsService } from "@/services/supabase"
 
 interface TeamSelectFieldProps {
   form: UseFormReturn<ProjectFormSchema>
-}
-
-interface Team {
-  id: string
-  name: string
 }
 
 export function TeamSelectField({ form }: TeamSelectFieldProps) {
@@ -28,13 +23,7 @@ export function TeamSelectField({ form }: TeamSelectFieldProps) {
   const { data: teams, isLoading } = useQuery({
     queryKey: ["teams"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("teams")
-        .select("id, name")
-        .order("name")
-
-      if (error) throw error
-      return data as Team[]
+      return await teamsService.getTeams();
     },
   })
 

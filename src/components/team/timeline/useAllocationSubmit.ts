@@ -1,6 +1,5 @@
 
-import { format } from "date-fns"
-import { supabase } from "@/integrations/supabase/client"
+import { teamMemberAllocationsService } from "@/services/supabase"
 import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query"
 import type { AllocationData } from "./types"
 
@@ -16,48 +15,24 @@ export function useAllocationSubmit(
 ) {
   const handleAllocationSubmit = async (values: AllocationValues) => {
     try {
-      const { data: existingAssignment, error: assignmentError } = await supabase
-        .from("project_assignments")
-        .select("id")
-        .eq("team_member_id", memberId)
-        .eq("project_id", values.projectId)
-        .maybeSingle()
+      // Create or get the assignment ID
+      const assignmentId = await teamMemberAllocationsService.createAssignment(
+        memberId,
+        values.projectId,
+        values.month
+      );
 
-      if (assignmentError) throw assignmentError
+      // Create the allocation
+      await teamMemberAllocationsService.createAllocation(
+        assignmentId,
+        values.month,
+        parseInt(values.allocation)
+      );
 
-      let assignmentId: string
-
-      if (existingAssignment) {
-        assignmentId = existingAssignment.id
-      } else {
-        const { data: newAssignment, error: createError } = await supabase
-          .from("project_assignments")
-          .insert({
-            team_member_id: memberId,
-            project_id: values.projectId,
-            start_date: format(values.month, 'yyyy-MM-dd'),
-          })
-          .select()
-          .single()
-
-        if (createError) throw createError
-        assignmentId = newAssignment.id
-      }
-
-      const { error: allocationError } = await supabase
-        .from("project_member_allocations")
-        .insert({
-          project_assignment_id: assignmentId,
-          month: format(values.month, 'yyyy-MM-dd'),
-          allocation_percentage: parseInt(values.allocation),
-        })
-
-      if (allocationError) throw allocationError
-
-      await onSuccess()
+      await onSuccess();
     } catch (error: any) {
       console.error("Error submitting allocation:", error)
-      throw error
+      throw error;
     }
   }
 

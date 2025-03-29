@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -23,9 +22,9 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
-import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
+import { variableCostService } from "@/services/supabase"
 
 const variableCostFormSchema = z.object({
   month: z.string().min(1, "Month is required"),
@@ -51,7 +50,6 @@ interface ProjectVariableCostDialogProps {
   defaultValues?: Partial<VariableCostFormSchema>
   showDelete?: boolean
   onDelete?: () => void
-  // Add the missing props that were causing errors
   projectId: string
   existingCost?: CostItem
   onSuccess?: () => Promise<void>
@@ -81,7 +79,6 @@ export function ProjectVariableCostDialog({
     },
   })
 
-  // Reset form with default values when dialog opens/closes or defaultValues change
   useEffect(() => {
     if (open) {
       form.reset({
@@ -90,7 +87,7 @@ export function ProjectVariableCostDialog({
         amount: existingCost ? String(existingCost.amount) : defaultValues?.amount || "",
         description: existingCost?.description || defaultValues?.description || "",
       })
-      setIsPeriod(false) // Reset period state when editing
+      setIsPeriod(false)
     }
   }, [open, defaultValues, existingCost, form])
 
@@ -117,11 +114,9 @@ export function ProjectVariableCostDialog({
           return
         }
 
-        // Set dates to first of month for accurate month calculations
         startDate.setDate(1)
         endDate.setDate(1)
         
-        // Add one month to end date to include the end month itself
         endDate.setMonth(endDate.getMonth() + 1)
 
         const months: Date[] = []
@@ -140,31 +135,23 @@ export function ProjectVariableCostDialog({
           })
         })
       } else if (existingCost) {
-        // Update existing cost
-        const { error } = await supabase
-          .from("project_variable_costs")
-          .update({
-            month: values.month + "-01", // Ensure it's first day of month
-            amount: Number(values.amount),
-            description: values.description
-          })
-          .eq("id", existingCost.id)
+        await variableCostService.updateVariableCost(
+          existingCost.id,
+          values.month + "-01",
+          Number(values.amount),
+          values.description
+        );
         
-        if (error) throw error
         if (onSuccess) await onSuccess()
         onOpenChange(false)
       } else {
-        // Add new cost
-        const { error } = await supabase
-          .from("project_variable_costs")
-          .insert({
-            project_id: projectId,
-            month: values.month + "-01", // Ensure it's first day of month
-            amount: Number(values.amount),
-            description: values.description
-          })
+        await variableCostService.createVariableCost(
+          projectId,
+          values.month + "-01",
+          Number(values.amount),
+          values.description
+        );
         
-        if (error) throw error
         if (onSuccess) await onSuccess()
         onOpenChange(false)
       }
@@ -174,7 +161,6 @@ export function ProjectVariableCostDialog({
     }
   }
 
-  // Determine if this is an edit or add operation
   const isEditing = !!existingCost || !!showDelete
 
   return (
