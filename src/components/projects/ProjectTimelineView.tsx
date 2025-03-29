@@ -1,13 +1,13 @@
 
 import { useState } from "react"
 import { toast } from "sonner"
-import { supabase } from "@/integrations/supabase/client"
 import { Card, CardContent } from "@/components/ui/card"
 import { ProjectDialog } from "@/components/ProjectDialog"
 import { DeleteProjectDialog } from "@/components/projects/DeleteProjectDialog"
 import { TimelineView } from "./timeline/TimelineView"
-import { useProjectDetails, type Project } from "./timeline/hooks/useProjectDetails"
+import { useProjectDetails } from "./timeline/hooks/useProjectDetails"
 import { useProjectPermissions } from "./timeline/hooks/useProjectPermissions"
+import { projectService } from "@/services/supabase"
 import type { ProjectFormSchema } from "@/components/projects/project-schema"
 
 interface ProjectTimelineViewProps {
@@ -41,13 +41,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
         team_id: values.team_id === "no-team" ? null : values.team_id,
       }
 
-      const { error } = await supabase
-        .from("projects")
-        .update(projectData)
-        .eq("id", projectId)
-
-      if (error) throw error
-
+      await projectService.updateProject(projectId, projectData)
       setEditDialogOpen(false)
       toast.success("Project updated successfully")
     } catch (error) {
@@ -63,13 +57,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
         return
       }
 
-      const { error } = await supabase
-        .from("projects")
-        .delete()
-        .eq("id", projectId)
-
-      if (error) throw error
-
+      await projectService.deleteProject(projectId)
       toast.success("Project deleted successfully")
       // We don't need to navigate here as the parent will handle it
     } catch (error) {

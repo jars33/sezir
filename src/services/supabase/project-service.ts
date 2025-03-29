@@ -30,7 +30,7 @@ export const projectService = {
   async getAllProjects(): Promise<Project[]> {
     const { data, error } = await supabase
       .from("projects")
-      .select("id, name, number")
+      .select("id, name, number, status, start_date, end_date, team_id, user_id")
       .order("number");
 
     if (error) throw error;
@@ -40,7 +40,7 @@ export const projectService = {
   /**
    * Get a project by ID
    */
-  async getProjectById(id: string): Promise<any> {
+  async getProjectById(id: string): Promise<Project | null> {
     const { data, error } = await supabase
       .from("projects")
       .select("*")
@@ -54,7 +54,7 @@ export const projectService = {
   /**
    * Create a new project
    */
-  async createProject(project: ProjectCreate): Promise<any> {
+  async createProject(project: ProjectCreate): Promise<Project> {
     const { data, error } = await supabase
       .from("projects")
       .insert(project)
@@ -68,7 +68,7 @@ export const projectService = {
   /**
    * Update a project
    */
-  async updateProject(id: string, project: ProjectUpdate): Promise<any> {
+  async updateProject(id: string, project: ProjectUpdate): Promise<Project> {
     const { data, error } = await supabase
       .from("projects")
       .update(project)
