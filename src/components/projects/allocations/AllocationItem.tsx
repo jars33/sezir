@@ -11,6 +11,7 @@ export function AllocationItem({ allocation, onClick }: AllocationItemProps) {
     <div
       onClick={() => onClick(allocation)}
       className="p-2 min-h-[50px] bg-blue-50 border border-blue-100 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors"
+      role="button"
     >
       <div className="text-sm font-medium text-center">
         {allocation.project_assignments.team_members.name}
