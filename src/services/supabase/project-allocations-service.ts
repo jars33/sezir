@@ -57,7 +57,7 @@ export const projectAllocationsService = {
     return data;
   },
 
-  async getExistingAssignment(projectId: string, teamMemberId: string) {
+  async getExistingAssignment(projectId: string, teamMemberId: string): Promise<{id: string} | null> {
     const { data, error } = await supabase
       .from("project_assignments")
       .select("id")

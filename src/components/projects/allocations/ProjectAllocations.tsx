@@ -1,3 +1,4 @@
+
 import { useState } from "react"
 import { format, startOfMonth, setMonth, getYear } from "date-fns"
 import { PlusCircle } from "lucide-react"
@@ -69,7 +70,7 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
     allocation: string
   }) => {
     try {
-      const { data: existingAssignment, error: assignmentError } = await projectAllocationsService.getExistingAssignment(
+      const existingAssignment = await projectAllocationsService.getExistingAssignment(
         projectId,
         values.teamMemberId
       );
