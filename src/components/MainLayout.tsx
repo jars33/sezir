@@ -3,7 +3,7 @@ import { Outlet, useNavigate, Link, useLocation } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { supabase } from "@/integrations/supabase/client"
 import { useAuth } from "./AuthProvider"
-import { Calendar, Users, LayoutDashboard, Hash, Languages, Moon, Sun, MenuIcon } from "lucide-react"
+import { Calendar, Users, LayoutDashboard, Hash, Languages, Moon, Sun, MenuIcon, UserCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Sidebar } from "@/components/ui/sidebar"
 import { useTheme } from "next-themes"
@@ -16,12 +16,14 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 
 export default function MainLayout() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { session, loading } = useAuth()
+  const { session, loading, profile } = useAuth()
   const { theme, setTheme } = useTheme()
   const [showDecimals, setShowDecimals] = useLocalStorage<boolean>("showDecimals", true)
   const { currentLanguage, changeLanguage, languages } = useLanguage()
@@ -45,6 +47,10 @@ export default function MainLayout() {
     navigate("/auth")
     return null
   }
+
+  const userInitials = profile ? 
+    `${profile.first_name?.[0] || ''}${profile.last_name?.[0] || ''}` : 
+    session.user?.email?.[0].toUpperCase() || 'U'
 
   return (
     <div className="min-h-screen flex w-full">
@@ -129,13 +135,28 @@ export default function MainLayout() {
                 <Moon className="h-4 w-4" />
               )}
             </Button>
-            <Button 
-              variant="ghost" 
-              onClick={handleSignOut}
-              className="text-foreground hover:bg-accent hover:text-accent-foreground"
-            >
-              {t('common.signOut')}
-            </Button>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback>
+                      {userInitials}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => navigate("/profile")}>
+                  <UserCircle className="mr-2 h-4 w-4" />
+                  {t('common.profile')}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut}>
+                  {t('common.signOut')}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </header>
         <main className="flex-1 p-4">
