@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useNavigate, useLocation } from "react-router-dom"
-import { LayoutDashboard, Users, Folders, Network, MenuIcon, ChevronLeft, UserCircle } from "lucide-react"
+import { LayoutDashboard, Users, Folders, Network, MenuIcon, ChevronLeft } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { useState } from "react"
 import { useLocalStorage } from "@/hooks/use-local-storage"
@@ -76,14 +76,6 @@ export function Sidebar({ className }: SidebarProps) {
               >
                 <Folders className="mr-2 h-4 w-4" />
                 {t('common.projects')}
-              </Button>
-              <Button
-                variant={location.pathname === "/profile" ? "secondary" : "ghost"}
-                className="w-full justify-start"
-                onClick={() => navigate("/profile")}
-              >
-                <UserCircle className="mr-2 h-4 w-4" />
-                {t('common.profile')}
               </Button>
             </div>
           </div>
