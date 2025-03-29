@@ -2,12 +2,14 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Project } from "@/components/team/timeline/useProjectsData";
 
+export type ProjectStatus = "planned" | "in_progress" | "completed" | "cancelled";
+
 export interface ProjectCreate {
   number: string;
   name: string;
   start_date: string | null;
   end_date: string | null;
-  status: string;
+  status: ProjectStatus;
   team_id: string | null;
   user_id: string;
 }
@@ -17,7 +19,7 @@ export interface ProjectUpdate {
   name?: string;
   start_date?: string | null;
   end_date?: string | null;
-  status?: string;
+  status?: ProjectStatus;
   team_id?: string | null;
 }
 
