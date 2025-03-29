@@ -11,6 +11,7 @@ interface TimelineItem {
   month: string
   amount: number
   description?: string
+  isNew?: boolean
 }
 
 interface AllocationItem {

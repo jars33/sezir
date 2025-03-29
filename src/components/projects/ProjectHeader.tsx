@@ -38,7 +38,7 @@ export function ProjectHeader({
           {projectNumber} - {projectName}
         </h1>
         <p className="text-sm text-gray-500">
-          Status: {projectStatus.replace("_", " ")}
+          Status: {projectStatus?.replace("_", " ") || "planned"}
         </p>
       </div>
       <div className="flex space-x-2 self-end md:col-start-3 md:justify-end md:self-center">

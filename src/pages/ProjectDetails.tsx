@@ -66,7 +66,7 @@ export default function ProjectDetails() {
       <ProjectHeader
         projectNumber={project.number}
         projectName={project.name}
-        projectStatus={project.status}
+        projectStatus={project.status || "planned"} 
         hasPermission={hasPermission}
         onEditClick={() => setEditDialogOpen(true)}
         onDeleteClick={() => setDeleteDialogOpen(true)}

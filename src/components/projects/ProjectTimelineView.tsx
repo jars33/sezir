@@ -1,95 +1,134 @@
 
-import { useState } from "react"
-import { toast } from "sonner"
 import { Card, CardContent } from "@/components/ui/card"
-import { ProjectDialog } from "@/components/ProjectDialog"
-import { DeleteProjectDialog } from "@/components/projects/DeleteProjectDialog"
-import { TimelineView } from "./timeline/TimelineView"
-import { useProjectDetails } from "./timeline/hooks/useProjectDetails"
-import { useProjectPermissions } from "./timeline/hooks/useProjectPermissions"
-import { projectService } from "@/services/supabase"
-import type { ProjectFormSchema } from "@/components/projects/project-schema"
+import { TimelineHeader } from "./timeline/TimelineHeader"
+import { TimelineSummary } from "./timeline/TimelineSummary"
+import { TimelineMonthsGrid } from "./timeline/grid/TimelineMonthsGrid"
+import { TimelineActions } from "./timeline/TimelineActions"
+import { TimelineAllocationManager } from "./timeline/allocation/TimelineAllocationManager"
+import { useTimelineCalculations } from "./timeline/TimelineCalculations"
+import { useTimelineData } from "./timeline/useTimelineData"
+import { useTimelineState } from "./timeline/useTimelineState"
+import { useTimelineProfitability } from "./timeline/hooks/useTimelineProfitability"
+import { useQueryClient } from "@tanstack/react-query"
 
 interface ProjectTimelineViewProps {
   projectId: string
 }
 
 export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
-  const [editDialogOpen, setEditDialogOpen] = useState(false)
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  // Get timeline data and state
+  const { revenues, variableCosts, allocations, isLoading, refetchTimelineData } = useTimelineData(projectId)
+  const {
+    year,
+    startDate,
+    addRevenueDate,
+    addVariableCostDate,
+    selectedRevenue,
+    selectedVariableCost,
+    deleteRevenue,
+    deleteVariableCost,
+    selectedAllocation,
+    allocationDialogOpen,
+    setAddRevenueDate,
+    setAddVariableCostDate,
+    setSelectedRevenue,
+    setSelectedVariableCost,
+    setDeleteRevenue,
+    setDeleteVariableCost,
+    setSelectedAllocation,
+    setAllocationDialogOpen,
+    handlePreviousYear,
+    handleNextYear,
+    handleRevenueSeleсtion,
+    handleAllocationSelection,
+    handleAddAllocation
+  } = useTimelineState()
 
-  const { data: project, isLoading: isLoadingProject } = useProjectDetails(projectId)
-  const { data: hasPermission = false, isLoading: isLoadingPermission } = useProjectPermissions(
-    projectId,
-    project?.user_id,
-    project?.team_id
+  // Calculate timeline data
+  const { totalProfit } = useTimelineCalculations(
+    revenues,
+    variableCosts,
+    allocations,
+    year
   )
 
-  const handleEditProject = async (values: ProjectFormSchema) => {
-    try {
-      if (!hasPermission) {
-        toast.error("You don't have permission to edit this project")
-        return
-      }
+  const { calculateAccumulatedProfitUpToMonth } = useTimelineProfitability(
+    revenues,
+    variableCosts,
+    allocations,
+    year
+  )
 
-      const projectData = {
-        number: values.number,
-        name: values.name,
-        start_date: values.start_date || null,
-        end_date: values.end_date || null,
-        status: values.status,
-        team_id: values.team_id === "no-team" ? null : values.team_id,
-      }
+  const queryClient = useQueryClient()
 
-      await projectService.updateProject(projectId, projectData)
-      setEditDialogOpen(false)
-      toast.success("Project updated successfully")
-    } catch (error) {
-      toast.error("Failed to update project")
-      console.error(error)
-    }
+  // Handle cost updates
+  const handleVariableCostUpdate = async () => {
+    queryClient.invalidateQueries({ queryKey: ["project-variable-costs", projectId] })
+    queryClient.invalidateQueries({ queryKey: ["project-revenues", projectId] })
+    await refetchTimelineData()
   }
 
-  const handleDeleteProject = async () => {
-    try {
-      if (!hasPermission) {
-        toast.error("You don't have permission to delete this project")
-        return
-      }
-
-      await projectService.deleteProject(projectId)
-      toast.success("Project deleted successfully")
-      // We don't need to navigate here as the parent will handle it
-    } catch (error) {
-      toast.error("Failed to delete project")
-      console.error(error)
-    }
-  }
-
-  if (isLoadingProject || isLoadingPermission) {
+  if (isLoading) {
     return <div className="p-4">Loading...</div>
   }
 
-  if (!project) {
-    return <div className="p-4">Project not found</div>
-  }
-
   return (
-    <div className="space-y-6">
-      <TimelineView projectId={projectId} />
-
-      <ProjectDialog
-        project={project}
-        open={editDialogOpen}
-        onOpenChange={setEditDialogOpen}
-        onSubmit={handleEditProject}
+    <Card>
+      <TimelineHeader
+        onAddRevenue={() => setAddRevenueDate(new Date())}
+        onAddVariableCost={() => setAddVariableCostDate(new Date())}
+        onAddAllocation={handleAddAllocation}
+        onPreviousYear={handlePreviousYear}
+        onNextYear={handleNextYear}
+        totalProfit={totalProfit}
+        startDate={startDate}
       />
+      <CardContent className="space-y-6">
+        <TimelineSummary
+          year={year}
+          revenues={revenues}
+          variableCosts={variableCosts}
+          allocations={allocations}
+        />
+        
+        <TimelineMonthsGrid
+          startDate={startDate}
+          revenues={revenues}
+          variableCosts={variableCosts}
+          allocations={allocations}
+          onSelectRevenue={handleRevenueSeleсtion}
+          onSelectVariableCost={setSelectedVariableCost}
+          onSelectAllocation={handleAllocationSelection}
+          calculateAccumulatedProfitUpToMonth={calculateAccumulatedProfitUpToMonth}
+          year={year}
+        />
 
-      <DeleteProjectDialog
-        open={deleteDialogOpen}
-        onOpenChange={setDeleteDialogOpen}
-        onConfirm={handleDeleteProject}
-      />
-    </div>
+        <TimelineActions
+          projectId={projectId}
+          addRevenueDate={addRevenueDate}
+          addVariableCostDate={addVariableCostDate}
+          selectedRevenue={selectedRevenue}
+          selectedVariableCost={selectedVariableCost}
+          deleteRevenue={deleteRevenue}
+          deleteVariableCost={deleteVariableCost}
+          setAddRevenueDate={setAddRevenueDate}
+          setAddVariableCostDate={setAddVariableCostDate}
+          setSelectedRevenue={setSelectedRevenue}
+          setSelectedVariableCost={setSelectedVariableCost}
+          setDeleteRevenue={setDeleteRevenue}
+          setDeleteVariableCost={setDeleteVariableCost}
+          onVariableCostUpdate={handleVariableCostUpdate}
+        />
+
+        <TimelineAllocationManager
+          projectId={projectId}
+          selectedAllocation={selectedAllocation}
+          allocationDialogOpen={allocationDialogOpen}
+          setAllocationDialogOpen={setAllocationDialogOpen}
+          setSelectedAllocation={setSelectedAllocation}
+          refetchTimelineData={refetchTimelineData}
+        />
+      </CardContent>
+    </Card>
   )
 }
