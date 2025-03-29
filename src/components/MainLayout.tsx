@@ -3,7 +3,7 @@ import { Outlet, useNavigate, Link, useLocation } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { supabase } from "@/integrations/supabase/client"
 import { useAuth } from "./AuthProvider"
-import { Calendar, Users, LayoutDashboard, Hash, Languages, Moon, Sun, MenuIcon, User } from "lucide-react"
+import { Calendar, Users, LayoutDashboard, Hash, Languages, Moon, Sun, MenuIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Sidebar } from "@/components/ui/sidebar"
 import { useTheme } from "next-themes"
@@ -17,8 +17,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useAccounts } from "@/hooks/use-accounts"
-import { useEffect } from "react"
 
 export default function MainLayout() {
   const navigate = useNavigate()
@@ -29,7 +27,6 @@ export default function MainLayout() {
   const { currentLanguage, changeLanguage, languages } = useLanguage()
   const { t } = useTranslation()
   const [sidebarCollapsed, setSidebarCollapsed] = useLocalStorage<boolean>("sidebar-collapsed", false)
-  const { currentAccount, loading: accountsLoading } = useAccounts()
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
@@ -39,18 +36,6 @@ export default function MainLayout() {
   const handleToggleDecimals = () => {
     setShowDecimals(!showDecimals)
   }
-
-  useEffect(() => {
-    // Check if we have a current account
-    if (!accountsLoading && !currentAccount) {
-      // If not logged in yet, let the auth flow handle it
-      if (!session) return
-      
-      // If logged in but no accounts, redirect to create a new account
-      // This could be improved with a proper onboarding flow
-      console.log("No current account found, user needs to set up an account")
-    }
-  }, [accountsLoading, currentAccount, session])
 
   if (loading) {
     return <div>{t('common.loading')}</div>
@@ -144,16 +129,6 @@ export default function MainLayout() {
                 <Moon className="h-4 w-4" />
               )}
             </Button>
-
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate("/profile")}
-              className="text-foreground"
-            >
-              <User className="h-4 w-4" />
-            </Button>
-
             <Button 
               variant="ghost" 
               onClick={handleSignOut}

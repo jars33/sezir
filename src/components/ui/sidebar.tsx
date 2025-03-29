@@ -9,7 +9,6 @@ import { LayoutDashboard, Users, Folders, Network, MenuIcon, ChevronLeft } from 
 import { useTranslation } from "react-i18next"
 import { useState } from "react"
 import { useLocalStorage } from "@/hooks/use-local-storage"
-import { AccountSwitcher } from "@/components/accounts/AccountSwitcher"
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -31,7 +30,7 @@ export function Sidebar({ className }: SidebarProps) {
       >
         <div className="space-y-4 py-4 h-full flex flex-col">
           <div className="px-3 py-2 flex-1">
-            <div className="flex justify-between items-center mb-2">
+            <div className="flex justify-between items-center mb-6">
               <h2 className="text-lg font-semibold">{t('common.appName')}</h2>
               
               {/* Collapse sidebar button */}
@@ -43,11 +42,6 @@ export function Sidebar({ className }: SidebarProps) {
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-            </div>
-            
-            {/* Account Switcher */}
-            <div className="mb-4 mt-2">
-              <AccountSwitcher />
             </div>
             
             <div className="space-y-1">

@@ -57,13 +57,6 @@ export const routes: RouteObject[] = [
         element: <TeamMemberDetails />,
       },
       {
-        path: "profile",
-        element: <div className="container mx-auto py-8">
-          <h1 className="text-2xl font-bold mb-4">Profile</h1>
-          <p>This is where you will manage your profile and accounts.</p>
-        </div>,
-      },
-      {
         path: "*",
         element: <NotFound />,
       },

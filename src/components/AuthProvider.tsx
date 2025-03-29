@@ -1,9 +1,7 @@
-
 import { createContext, useContext, useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Session } from "@supabase/supabase-js"
 import { supabase } from "@/integrations/supabase/client"
-import { userAccountsService } from "@/services/supabase/user-accounts-service"
 
 type AuthContextType = {
   session: Session | null
@@ -21,20 +19,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate()
 
   useEffect(() => {
-    // First, check if there's a current account set
-    const initializeSupabase = async () => {
-      try {
-        // Get initial session
-        const { data: { session } } = await supabase.auth.getSession()
-        setSession(session)
-      } catch (error) {
-        console.error("Error initializing authentication:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    initializeSupabase()
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session)
+      setLoading(false)
+    })
 
     // Listen for auth changes
     const {
