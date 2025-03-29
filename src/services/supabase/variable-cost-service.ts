@@ -1,24 +1,34 @@
 
 import { supabase } from "@/integrations/supabase/client";
 
+export interface VariableCost {
+  id: string;
+  project_id: string;
+  month: string;
+  amount: number;
+  description?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export const variableCostService = {
-  /**
-   * Get all variable costs for a project
-   */
-  async getProjectVariableCosts(projectId: string): Promise<any[]> {
+  async getProjectVariableCosts(projectId: string): Promise<VariableCost[]> {
     const { data, error } = await supabase
       .from("project_variable_costs")
       .select("*")
-      .eq("project_id", projectId);
+      .eq("project_id", projectId)
+      .order("month");
 
     if (error) throw error;
     return data;
   },
 
-  /**
-   * Create a new variable cost
-   */
-  async createVariableCost(projectId: string, month: string, amount: number, description: string | null): Promise<any> {
+  async createVariableCost(
+    projectId: string, 
+    month: string, 
+    amount: number, 
+    description: string
+  ): Promise<VariableCost> {
     const { data, error } = await supabase
       .from("project_variable_costs")
       .insert({
@@ -27,16 +37,19 @@ export const variableCostService = {
         amount: amount,
         description: description
       })
-      .select();
+      .select()
+      .single();
 
     if (error) throw error;
     return data;
   },
 
-  /**
-   * Update a variable cost
-   */
-  async updateVariableCost(id: string, month: string, amount: number, description: string | null): Promise<any> {
+  async updateVariableCost(
+    id: string, 
+    month: string, 
+    amount: number, 
+    description: string
+  ): Promise<VariableCost> {
     const { data, error } = await supabase
       .from("project_variable_costs")
       .update({
@@ -44,16 +57,14 @@ export const variableCostService = {
         amount: amount,
         description: description
       })
-      .eq('id', id)
-      .select();
+      .eq("id", id)
+      .select()
+      .single();
 
     if (error) throw error;
     return data;
   },
 
-  /**
-   * Delete a variable cost
-   */
   async deleteVariableCost(id: string): Promise<void> {
     const { error } = await supabase
       .from("project_variable_costs")

@@ -2,9 +2,9 @@
 import { useQuery } from "@tanstack/react-query"
 import { format } from "date-fns"
 import { useToast } from "@/hooks/use-toast"
-import { supabase } from "@/integrations/supabase/client"
 import { ProjectAllocationDialog } from "../../allocations/ProjectAllocationDialog"
 import { useManagedTeamMembers } from "@/hooks/use-managed-team-members"
+import { allocationService } from "@/services/supabase"
 import type { AllocationItem } from "../actions/types"
 
 interface TimelineAllocationManagerProps {
@@ -33,87 +33,29 @@ export function TimelineAllocationManager({
     allocation: string
   }) => {
     try {
-      const { data: existingAssignment, error: assignmentError } = await supabase
-        .from("project_assignments")
-        .select("id")
-        .eq("project_id", projectId)
-        .eq("team_member_id", values.teamMemberId)
-        .maybeSingle()
+      await allocationService.createAllocation(
+        projectId,
+        values.teamMemberId,
+        values.month,
+        parseInt(values.allocation)
+      );
 
-      let assignmentId: string
-
-      if (!existingAssignment) {
-        const { data: newAssignment, error: createError } = await supabase
-          .from("project_assignments")
-          .insert({
-            project_id: projectId,
-            team_member_id: values.teamMemberId,
-            start_date: format(values.month, "yyyy-MM-dd"),
-          })
-          .select("id")
-          .single()
-
-        if (createError) throw createError
-        if (!newAssignment) throw new Error("Failed to create assignment")
-        
-        assignmentId = newAssignment.id
-      } else {
-        assignmentId = existingAssignment.id
-      }
-
-      const monthStr = format(new Date(values.month), "yyyy-MM-dd")
-
-      const { data: existingAllocation, error: checkError } = await supabase
-        .from("project_member_allocations")
-        .select("id")
-        .eq("project_assignment_id", assignmentId)
-        .eq("month", monthStr)
-        .maybeSingle()
-
-      if (checkError) throw checkError
-
-      if (existingAllocation) {
-        const { error: updateError } = await supabase
-          .from("project_member_allocations")
-          .update({
-            allocation_percentage: parseInt(values.allocation),
-          })
-          .eq("id", existingAllocation.id)
-
-        if (updateError) throw updateError
-
-        toast({
-          title: "Success",
-          description: "Team member allocation updated successfully",
-        })
-      } else {
-        const { error: insertError } = await supabase
-          .from("project_member_allocations")
-          .insert({
-            project_assignment_id: assignmentId,
-            month: monthStr,
-            allocation_percentage: parseInt(values.allocation),
-          })
-
-        if (insertError) throw insertError
-
-        toast({
-          title: "Success",
-          description: "Team member allocation added successfully",
-        })
-      }
-
-      setAllocationDialogOpen(false)
-      setSelectedAllocation(null)
+      toast({
+        title: "Success",
+        description: "Team member allocation added successfully",
+      });
       
-      await refetchTimelineData()
+      setAllocationDialogOpen(false);
+      setSelectedAllocation(null);
+      
+      await refetchTimelineData();
     } catch (error: any) {
-      console.error("Error managing allocation:", error)
+      console.error("Error managing allocation:", error);
       toast({
         variant: "destructive",
         title: "Error",
         description: error.message,
-      })
+      });
     }
   }
 

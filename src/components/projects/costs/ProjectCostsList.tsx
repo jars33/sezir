@@ -1,3 +1,4 @@
+
 import { useState } from "react"
 import {
   Table,
@@ -7,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { MoreHorizontal, Edit, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -21,7 +22,7 @@ import {
 import { ProjectVariableCostDialog } from "./ProjectVariableCostDialog"
 import { DeleteCostDialog, CostItem } from "./DeleteCostDialog"
 import { toast } from "sonner"
-import { supabase } from "@/integrations/supabase/client"
+import { variableCostService } from "@/services/supabase"
 
 interface ProjectCostsListProps {
   projectId: string
@@ -36,15 +37,11 @@ export function ProjectCostsList({ projectId }: ProjectCostsListProps) {
   const { data: costs, isLoading } = useQuery({
     queryKey: ["project-variable-costs", projectId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("project_variable_costs")
-        .select("*")
-        .eq("project_id", projectId)
-        .order("month")
-
-      if (error) throw error
-
-      return data as CostItem[]
+      try {
+        return await variableCostService.getProjectVariableCosts(projectId);
+      } catch (error) {
+        throw error;
+      }
     },
   })
 

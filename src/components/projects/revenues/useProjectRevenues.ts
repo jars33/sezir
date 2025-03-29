@@ -1,7 +1,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
+import { revenueService } from "@/services/supabase"
 
 interface ProjectRevenue {
   id: string
@@ -18,53 +18,28 @@ export function useProjectRevenues(projectId: string) {
   const { data: revenues, isLoading } = useQuery({
     queryKey: ["project-revenues", projectId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("project_revenues")
-        .select("*")
-        .eq("project_id", projectId)
-        .order("month", { ascending: false })
-
-      if (error) {
+      try {
+        const data = await revenueService.getProjectRevenues(projectId)
+        return data as ProjectRevenue[]
+      } catch (error) {
         toast.error("Failed to load revenues")
         throw error
       }
-
-      return data as ProjectRevenue[]
     },
   })
 
   const createRevenueMutation = useMutation({
     mutationFn: async (values: { month: string; amount: string }) => {
-      // First check if there's an existing revenue for this month
-      const { data: existingRevenue, error: checkError } = await supabase
-        .from("project_revenues")
-        .select("*")
-        .eq("project_id", projectId)
-        .eq("month", values.month + "-01")
-        .maybeSingle()
-
-      if (checkError) throw checkError
-
-      if (existingRevenue) {
-        // If there's an existing revenue, update it by adding the new amount
-        const newAmount = parseFloat(existingRevenue.amount.toString()) + parseFloat(values.amount)
-        const { error } = await supabase
-          .from("project_revenues")
-          .update({ amount: newAmount })
-          .eq("id", existingRevenue.id)
-
-        if (error) throw error
-      } else {
-        // If there's no existing revenue, create a new one
-        const { error } = await supabase
-          .from("project_revenues")
-          .insert([{
-            project_id: projectId,
-            month: values.month + "-01",
-            amount: parseFloat(values.amount),
-          }])
-
-        if (error) throw error
+      const formattedMonth = values.month + "-01";
+      
+      try {
+        await revenueService.createRevenue(
+          projectId, 
+          formattedMonth, 
+          parseFloat(values.amount)
+        );
+      } catch (error) {
+        throw error;
       }
     },
     onSuccess: () => {
@@ -78,15 +53,17 @@ export function useProjectRevenues(projectId: string) {
 
   const updateRevenueMutation = useMutation({
     mutationFn: async (values: { id: string; month: string; amount: string }) => {
-      const { error } = await supabase
-        .from("project_revenues")
-        .update({
-          month: values.month + "-01",
-          amount: parseFloat(values.amount),
-        })
-        .eq("id", values.id)
-
-      if (error) throw error
+      const formattedMonth = values.month + "-01";
+      
+      try {
+        await revenueService.updateRevenue(
+          values.id, 
+          formattedMonth, 
+          parseFloat(values.amount)
+        );
+      } catch (error) {
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["project-revenues"] })
@@ -99,12 +76,11 @@ export function useProjectRevenues(projectId: string) {
 
   const deleteRevenueMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from("project_revenues")
-        .delete()
-        .eq("id", id)
-
-      if (error) throw error
+      try {
+        await revenueService.deleteRevenue(id);
+      } catch (error) {
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["project-revenues"] })

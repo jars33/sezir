@@ -4,7 +4,7 @@ import { format, parseISO } from "date-fns"
 import { ProjectRevenueDialog } from "../../revenues/ProjectRevenueDialog"
 import { DeleteCostDialog } from "../../costs/DeleteCostDialog"
 import type { TimelineItem } from "./types"
-import { supabase } from "@/integrations/supabase/client"
+import { revenueService } from "@/services/supabase"
 import { toast } from "sonner"
 
 interface RevenueActionsProps {
@@ -33,15 +33,11 @@ export function RevenueActions({
       // Ensure we have a valid date format by appending day (01)
       const formattedMonth = `${month}-01` 
       
-      const { error } = await supabase
-        .from("project_revenues")
-        .insert({
-          project_id: projectId,
-          month: formattedMonth,
-          amount: Number(amount),
-        })
-
-      if (error) throw error
+      await revenueService.createRevenue(
+        projectId,
+        formattedMonth,
+        Number(amount)
+      );
 
       toast.success("Revenue added successfully")
       setAddRevenueDate(null)
@@ -59,15 +55,11 @@ export function RevenueActions({
       // Ensure we have a valid date format by appending day (01)
       const formattedMonth = `${month}-01`
       
-      const { error } = await supabase
-        .from("project_revenues")
-        .update({
-          month: formattedMonth,
-          amount: Number(amount),
-        })
-        .eq("id", selectedRevenue.id)
-
-      if (error) throw error
+      await revenueService.updateRevenue(
+        selectedRevenue.id,
+        formattedMonth,
+        Number(amount)
+      );
 
       toast.success("Revenue updated successfully")
       setSelectedRevenue(null)
@@ -82,12 +74,7 @@ export function RevenueActions({
     if (!deleteRevenue) return
 
     try {
-      const { error } = await supabase
-        .from("project_revenues")
-        .delete()
-        .eq("id", deleteRevenue.id)
-
-      if (error) throw error
+      await revenueService.deleteRevenue(deleteRevenue.id);
 
       toast.success("Revenue deleted successfully")
       setDeleteRevenue(null)

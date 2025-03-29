@@ -1,11 +1,17 @@
 
 import { supabase } from "@/integrations/supabase/client";
 
+export interface Revenue {
+  id: string;
+  project_id: string;
+  month: string;
+  amount: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export const revenueService = {
-  /**
-   * Get all revenues for a project
-   */
-  async getProjectRevenues(projectId: string): Promise<any[]> {
+  async getProjectRevenues(projectId: string): Promise<Revenue[]> {
     const { data, error } = await supabase
       .from("project_revenues")
       .select("*")
@@ -16,25 +22,7 @@ export const revenueService = {
     return data;
   },
 
-  /**
-   * Check if a revenue exists for a month
-   */
-  async checkExistingRevenue(projectId: string, month: string): Promise<any> {
-    const { data, error } = await supabase
-      .from("project_revenues")
-      .select("*")
-      .eq("project_id", projectId)
-      .eq("month", month)
-      .maybeSingle();
-
-    if (error) throw error;
-    return data;
-  },
-
-  /**
-   * Create a new revenue
-   */
-  async createRevenue(projectId: string, month: string, amount: number): Promise<any> {
+  async createRevenue(projectId: string, month: string, amount: number): Promise<Revenue> {
     const { data, error } = await supabase
       .from("project_revenues")
       .insert([{
@@ -42,16 +30,14 @@ export const revenueService = {
         month: month,
         amount: amount,
       }])
-      .select();
+      .select()
+      .single();
 
     if (error) throw error;
     return data;
   },
 
-  /**
-   * Update a revenue
-   */
-  async updateRevenue(id: string, month: string, amount: number): Promise<any> {
+  async updateRevenue(id: string, month: string, amount: number): Promise<Revenue> {
     const { data, error } = await supabase
       .from("project_revenues")
       .update({
@@ -59,29 +45,13 @@ export const revenueService = {
         amount: amount,
       })
       .eq("id", id)
-      .select();
+      .select()
+      .single();
 
     if (error) throw error;
     return data;
   },
 
-  /**
-   * Update a revenue amount only
-   */
-  async updateRevenueAmount(id: string, amount: number): Promise<any> {
-    const { data, error } = await supabase
-      .from("project_revenues")
-      .update({ amount: amount })
-      .eq("id", id)
-      .select();
-
-    if (error) throw error;
-    return data;
-  },
-
-  /**
-   * Delete a revenue
-   */
   async deleteRevenue(id: string): Promise<void> {
     const { error } = await supabase
       .from("project_revenues")

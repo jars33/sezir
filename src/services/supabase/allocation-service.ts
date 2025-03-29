@@ -2,106 +2,145 @@
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 
-export const allocationService = {
-  /**
-   * Get allocations for a team member on a project
-   */
-  async getAllocationsForMember(memberId: string, selectedYear: number): Promise<any[]> {
-    const startDate = format(new Date(selectedYear, 0, 1), 'yyyy-MM-dd');
-    const endDate = format(new Date(selectedYear, 11, 31), 'yyyy-MM-dd');
+export interface Allocation {
+  id: string;
+  project_assignment_id: string;
+  month: string;
+  allocation_percentage: number;
+  created_at?: string;
+  updated_at?: string;
+}
 
+export interface AllocationWithDetails extends Allocation {
+  team_member_name: string;
+  team_member_id: string;
+  salary_cost: number;
+}
+
+export const allocationService = {
+  async getProjectAllocations(projectId: string): Promise<any[]> {
     const { data, error } = await supabase
       .from("project_member_allocations")
       .select(`
         id,
         month,
         allocation_percentage,
+        project_assignment_id,
         project_assignments!inner (
-          project:projects(
+          id,
+          team_members!inner (
             id,
-            name,
-            number
+            name
           )
         )
       `)
-      .eq("project_assignments.team_member_id", memberId)
-      .gte("month", startDate)
-      .lte("month", endDate)
-      .order("month");
+      .eq("project_assignments.project_id", projectId);
 
     if (error) throw error;
-    return data;
+
+    // For each allocation, get the valid salary for that month
+    const allocationsWithSalaries = await Promise.all(
+      (data || []).map(async (allocation) => {
+        const { data: salaryData } = await supabase
+          .from("salary_history")
+          .select("amount")
+          .eq("team_member_id", allocation.project_assignments.team_members.id)
+          .lte("start_date", allocation.month)
+          .or(`end_date.is.null,end_date.gte.${allocation.month}`)
+          .order("start_date", { ascending: false })
+          .maybeSingle();
+
+        // If no salary data is found or there's an error, use 0 as the salary
+        const monthlySalary = salaryData?.amount || 0;
+        const salary_cost = (monthlySalary * allocation.allocation_percentage) / 100;
+
+        return {
+          id: allocation.id,
+          month: allocation.month,
+          allocation_percentage: allocation.allocation_percentage,
+          team_member_name: allocation.project_assignments.team_members.name,
+          team_member_id: allocation.project_assignments.team_members.id,
+          project_assignment_id: allocation.project_assignment_id,
+          salary_cost
+        };
+      })
+    );
+
+    return allocationsWithSalaries;
   },
 
-  /**
-   * Create allocation for a team member on a project
-   */
-  async createOrUpdateAssignment(projectId: string, teamMemberId: string, startDate: string): Promise<string> {
+  async createAllocation(
+    projectId: string,
+    teamMemberId: string,
+    month: Date,
+    allocationPercentage: number
+  ): Promise<Allocation> {
+    // First, check if there's an existing assignment for this team member and project
     const { data: existingAssignment, error: assignmentError } = await supabase
       .from("project_assignments")
       .select("id")
-      .eq("team_member_id", teamMemberId)
       .eq("project_id", projectId)
+      .eq("team_member_id", teamMemberId)
       .maybeSingle();
 
     if (assignmentError) throw assignmentError;
 
-    if (existingAssignment) {
-      return existingAssignment.id;
-    } else {
+    let assignmentId: string;
+
+    if (!existingAssignment) {
+      // If there's no existing assignment, create one
       const { data: newAssignment, error: createError } = await supabase
         .from("project_assignments")
         .insert({
-          team_member_id: teamMemberId,
           project_id: projectId,
-          start_date: startDate,
+          team_member_id: teamMemberId,
+          start_date: format(month, "yyyy-MM-dd"),
         })
-        .select()
+        .select("id")
         .single();
 
       if (createError) throw createError;
       if (!newAssignment) throw new Error("Failed to create assignment");
       
-      return newAssignment.id;
+      assignmentId = newAssignment.id;
+    } else {
+      assignmentId = existingAssignment.id;
     }
-  },
 
-  /**
-   * Create allocation for a team member on a project
-   */
-  async createAllocation(assignmentId: string, month: string, percentage: number): Promise<any> {
-    const { data, error: allocationError } = await supabase
+    const monthStr = format(month, "yyyy-MM-dd");
+
+    // Create the allocation
+    const { data, error } = await supabase
       .from("project_member_allocations")
       .insert({
         project_assignment_id: assignmentId,
-        month: month,
-        allocation_percentage: percentage,
+        month: monthStr,
+        allocation_percentage: allocationPercentage,
       })
-      .select();
-
-    if (allocationError) throw allocationError;
-    return data;
-  },
-
-  /**
-   * Update allocation for a team member on a project
-   */
-  async updateAllocation(id: string, percentage: number): Promise<any> {
-    const { data, error } = await supabase
-      .from("project_member_allocations")
-      .update({
-        allocation_percentage: percentage,
-      })
-      .eq("id", id)
-      .select();
+      .select()
+      .single();
 
     if (error) throw error;
     return data;
   },
 
-  /**
-   * Delete allocation
-   */
+  async updateAllocation(
+    id: string, 
+    allocationPercentage: number
+  ): Promise<Allocation> {
+    const { data, error } = await supabase
+      .from("project_member_allocations")
+      .update({
+        allocation_percentage: allocationPercentage,
+      })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
   async deleteAllocation(id: string): Promise<void> {
     const { error } = await supabase
       .from("project_member_allocations")

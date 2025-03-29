@@ -7,3 +7,4 @@ export * from './salary-service';
 export * from './revenue-service';
 export * from './variable-cost-service';
 export * from './auth-service';
+export * from './team-members-service';

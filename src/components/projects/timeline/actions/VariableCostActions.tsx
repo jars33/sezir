@@ -3,8 +3,8 @@ import React from "react"
 import { format, parseISO } from "date-fns"
 import { ProjectVariableCostDialog } from "../../costs/ProjectVariableCostDialog"
 import { DeleteCostDialog } from "../../costs/DeleteCostDialog"
-import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
+import { variableCostService } from "@/services/supabase"
 import type { TimelineItem } from "./types"
 
 interface VariableCostActionsProps {
@@ -53,16 +53,12 @@ export function VariableCostActions({
 
   const handleAddVariableCost = async (values: { month: string; amount: string; description: string }) => {
     try {
-      const { error } = await supabase
-        .from("project_variable_costs")
-        .insert({
-          project_id: projectId,
-          month: values.month + "-01",
-          amount: Number(values.amount),
-          description: values.description
-        })
-
-      if (error) throw error
+      await variableCostService.createVariableCost(
+        projectId,
+        values.month + "-01",
+        Number(values.amount),
+        values.description
+      );
       
       toast.success("Variable cost added successfully")
       await handleVariableCostSuccess()
@@ -76,16 +72,12 @@ export function VariableCostActions({
     try {
       if (!selectedVariableCost) return
 
-      const { error } = await supabase
-        .from("project_variable_costs")
-        .update({
-          month: values.month + "-01",
-          amount: Number(values.amount),
-          description: values.description
-        })
-        .eq('id', selectedVariableCost.id)
-
-      if (error) throw error
+      await variableCostService.updateVariableCost(
+        selectedVariableCost.id,
+        values.month + "-01",
+        Number(values.amount),
+        values.description
+      );
       
       toast.success("Variable cost updated successfully")
       await handleVariableCostSuccess()
