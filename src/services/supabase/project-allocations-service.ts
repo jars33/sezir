@@ -57,6 +57,34 @@ export const projectAllocationsService = {
     return data;
   },
 
+  async getExistingAssignment(projectId: string, teamMemberId: string) {
+    const { data, error } = await supabase
+      .from("project_assignments")
+      .select("id")
+      .eq("project_id", projectId)
+      .eq("team_member_id", teamMemberId)
+      .maybeSingle();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async createAssignment(projectId: string, teamMemberId: string, startDate: Date) {
+    const { data, error } = await supabase
+      .from("project_assignments")
+      .insert({
+        project_id: projectId,
+        team_member_id: teamMemberId,
+        start_date: format(startDate, "yyyy-MM-dd"),
+      })
+      .select("id")
+      .single();
+
+    if (error) throw error;
+    if (!data) throw new Error("Failed to create assignment");
+    return data;
+  },
+
   async checkExistingAllocation(assignmentId: string, monthStr: string): Promise<{id: string} | null> {
     const { data, error } = await supabase
       .from("project_member_allocations")

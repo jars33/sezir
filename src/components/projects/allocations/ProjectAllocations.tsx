@@ -10,6 +10,7 @@ import { useProjectYear } from "@/hooks/use-project-year"
 import { useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 import { teamMembersService, ServiceTeamMember } from "@/services/supabase"
+import { projectAllocationsService } from "@/services/supabase/project-allocations-service"
 
 interface ProjectAllocationsProps {
   projectId: string
@@ -58,33 +59,7 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
       console.log('Fetching allocations for period:', yearStart, 'to', yearEnd)
       console.log('Project ID:', projectId)
 
-      const { data, error } = await supabase
-        .from("project_member_allocations")
-        .select(`
-          id,
-          month,
-          allocation_percentage,
-          project_assignments!inner (
-            id,
-            project_id,
-            team_members!inner (
-              id,
-              name
-            )
-          )
-        `)
-        .eq("project_assignments.project_id", projectId)
-        .gte("month", yearStart)
-        .lte("month", yearEnd)
-        .order("month")
-
-      if (error) {
-        console.error('Error fetching allocations:', error)
-        throw error
-      }
-
-      console.log('Fetched allocations:', data)
-      return data as AllocationData[]
+      return projectAllocationsService.getProjectAllocations(projectId, yearStart, yearEnd);
     },
   })
 
@@ -94,97 +69,76 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
     allocation: string
   }) => {
     try {
-      const { data: existingAssignment, error: assignmentError } = await supabase
-        .from("project_assignments")
-        .select("id")
-        .eq("project_id", projectId)
-        .eq("team_member_id", values.teamMemberId)
-        .maybeSingle()
+      const { data: existingAssignment, error: assignmentError } = await projectAllocationsService.getExistingAssignment(
+        projectId,
+        values.teamMemberId
+      );
 
-      let assignmentId: string
+      let assignmentId: string;
 
       if (!existingAssignment) {
-        const { data: newAssignment, error: createError } = await supabase
-          .from("project_assignments")
-          .insert({
-            project_id: projectId,
-            team_member_id: values.teamMemberId,
-            start_date: format(values.month, "yyyy-MM-dd"),
-          })
-          .select("id")
-          .single()
-
-        if (createError) throw createError
-        if (!newAssignment) throw new Error("Failed to create assignment")
+        const newAssignment = await projectAllocationsService.createAssignment(
+          projectId,
+          values.teamMemberId,
+          values.month
+        );
         
-        assignmentId = newAssignment.id
+        assignmentId = newAssignment.id;
       } else {
-        assignmentId = existingAssignment.id
+        assignmentId = existingAssignment.id;
       }
 
-      const monthStr = format(startOfMonth(values.month), "yyyy-MM-dd")
+      const monthStr = format(startOfMonth(values.month), "yyyy-MM-dd");
 
-      const { data: existingAllocation, error: checkError } = await supabase
-        .from("project_member_allocations")
-        .select("id")
-        .eq("project_assignment_id", assignmentId)
-        .eq("month", monthStr)
-        .maybeSingle()
-
-      if (checkError) throw checkError
+      const existingAllocation = await projectAllocationsService.checkExistingAllocation(
+        assignmentId, 
+        monthStr
+      );
 
       if (existingAllocation) {
-        const { error: updateError } = await supabase
-          .from("project_member_allocations")
-          .update({
-            allocation_percentage: parseInt(values.allocation),
-          })
-          .eq("id", existingAllocation.id)
-
-        if (updateError) throw updateError
+        await projectAllocationsService.updateAllocation(
+          existingAllocation.id,
+          parseInt(values.allocation)
+        );
 
         toast({
           title: t('common.success'),
           description: "Team member allocation updated successfully",
-        })
+        });
       } else {
-        const { error: insertError } = await supabase
-          .from("project_member_allocations")
-          .insert({
-            project_assignment_id: assignmentId,
-            month: monthStr,
-            allocation_percentage: parseInt(values.allocation),
-          })
-
-        if (insertError) throw insertError
+        await projectAllocationsService.createAllocation(
+          assignmentId,
+          monthStr,
+          parseInt(values.allocation)
+        );
 
         toast({
           title: t('common.success'),
           description: "Team member allocation added successfully",
-        })
+        });
       }
 
-      queryClient.invalidateQueries({ queryKey: ["project-allocations"] })
-      setDialogOpen(false)
-      setSelectedAllocation(null)
+      queryClient.invalidateQueries({ queryKey: ["project-allocations"] });
+      setDialogOpen(false);
+      setSelectedAllocation(null);
     } catch (error: any) {
-      console.error("Error managing allocation:", error)
+      console.error("Error managing allocation:", error);
       toast({
         variant: "destructive",
         title: t('common.error'),
         description: error.message,
-      })
+      });
     }
   }
 
   const handleAllocationClick = (allocation: AllocationData) => {
-    setSelectedAllocation(allocation)
-    setDialogOpen(true)
+    setSelectedAllocation(allocation);
+    setDialogOpen(true);
   }
 
   const months = Array.from({ length: 12 }, (_, i) => {
-    return new Date(year, i, 1)
-  })
+    return new Date(year, i, 1);
+  });
 
   return (
     <Card>
