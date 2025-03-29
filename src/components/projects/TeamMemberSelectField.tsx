@@ -9,10 +9,11 @@ import {
 } from "@/components/ui/select"
 import type { Control } from "react-hook-form"
 import { useTranslation } from "react-i18next"
+import { ServiceTeamMember } from "@/services/supabase/team-members-service"
 
 interface TeamMemberSelectFieldProps {
   control: Control<any>
-  teamMembers: Array<{ id: string; name: string }>
+  teamMembers: ServiceTeamMember[]
   disabled?: boolean
 }
 

@@ -2,7 +2,6 @@ import { useState } from "react"
 import { format, startOfMonth, setMonth, getYear } from "date-fns"
 import { PlusCircle } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
-import { supabase } from "@/integrations/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ProjectAllocationDialog } from "./ProjectAllocationDialog"
@@ -10,6 +9,7 @@ import { useToast } from "@/hooks/use-toast"
 import { useProjectYear } from "@/hooks/use-project-year"
 import { useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
+import { teamMembersService, ServiceTeamMember } from "@/services/supabase"
 
 interface ProjectAllocationsProps {
   projectId: string
@@ -45,14 +45,7 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
   const { data: teamMembers } = useQuery({
     queryKey: ["team-members"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("team_members")
-        .select("id, name")
-        .eq("left_company", false)
-        .order("name")
-
-      if (error) throw error
-      return data
+      return teamMembersService.getTeamMembers();
     },
   })
 
