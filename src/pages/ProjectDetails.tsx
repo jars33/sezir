@@ -61,6 +61,17 @@ export default function ProjectDetails() {
     return <div className="p-4">Project not found</div>;
   }
 
+  // Ensure all required fields are provided to ProjectDialog
+  const projectForDialog = {
+    id: project.id,
+    number: project.number,
+    name: project.name,
+    status: project.status || "planned", // Provide default if status is undefined
+    start_date: project.start_date,
+    end_date: project.end_date,
+    team_id: project.team_id
+  };
+
   return (
     <div className="p-4">
       <ProjectHeader
@@ -77,7 +88,7 @@ export default function ProjectDetails() {
       </div>
 
       <ProjectDialog
-        project={project}
+        project={projectForDialog}
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}
         onSubmit={handleEditProject}
