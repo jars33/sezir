@@ -1,5 +1,5 @@
 
-import { render, screen } from '@/utils/test-utils';
+import { render, screen, fireEvent } from '@/utils/test-utils';
 import { AllocationItem } from '../AllocationItem';
 
 const mockAllocation = {
@@ -32,12 +32,9 @@ describe('AllocationItem', () => {
   it('calls onClick when clicked', () => {
     render(<AllocationItem allocation={mockAllocation} onClick={mockOnClick} />);
     
-    const item = screen.getByText('John Doe').closest('div[role="button"]');
-    if (item) {
-      item.click();
-    } else {
-      screen.getByText('John Doe').parentElement?.click();
-    }
+    // Using fireEvent instead of directly calling click()
+    const item = screen.getByRole('button');
+    fireEvent.click(item);
     
     expect(mockOnClick).toHaveBeenCalledTimes(1);
     expect(mockOnClick).toHaveBeenCalledWith(mockAllocation);
