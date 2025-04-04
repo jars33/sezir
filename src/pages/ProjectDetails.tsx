@@ -87,7 +87,7 @@ export default function ProjectDetails() {
 
       <Tabs defaultValue="timeline" className="mt-6">
         <TabsList>
-          <TabsTrigger value="timeline">{t('project.timeline')}</TabsTrigger>
+          <TabsTrigger value="timeline">{t('common.timeline')}</TabsTrigger>
           <TabsTrigger value="budget">{t('project.budgetComparison')}</TabsTrigger>
         </TabsList>
         

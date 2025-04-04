@@ -1,6 +1,7 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useParams } from "react-router-dom";
 import { useBudgetComparison } from "@/hooks/use-budget-comparison";
 import { BudgetList } from "@/components/budget/BudgetList";
 import { BudgetDetails } from "@/components/budget/BudgetDetails";
@@ -8,6 +9,7 @@ import { toast } from "sonner";
 
 const BudgetComparison = () => {
   const { t } = useTranslation();
+  const { id: projectId } = useParams();
   const { 
     budgetItems, 
     companies, 
@@ -22,7 +24,7 @@ const BudgetComparison = () => {
     saveBudget,
     loadBudget,
     setCurrentBudgetId
-  } = useBudgetComparison();
+  } = useBudgetComparison(projectId);
 
   const [showNewBudget, setShowNewBudget] = useState(false);
   
@@ -83,6 +85,7 @@ const BudgetComparison = () => {
         onSave={handleSave}
         isNew={showNewBudget}
         budgetName={showNewBudget ? "" : budgets.find(b => b.id === currentBudgetId)?.name}
+        projectId={projectId}
       />
     </div>
   );

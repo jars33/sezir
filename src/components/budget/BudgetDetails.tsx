@@ -19,6 +19,7 @@ interface BudgetDetailsProps {
   onSave: (name: string) => void;
   isNew?: boolean;
   budgetName?: string;
+  projectId?: string;
 }
 
 export const BudgetDetails: React.FC<BudgetDetailsProps> = ({
@@ -32,7 +33,8 @@ export const BudgetDetails: React.FC<BudgetDetailsProps> = ({
   onAddBudgetItem,
   onSave,
   isNew = true,
-  budgetName = ""
+  budgetName = "",
+  projectId
 }) => {
   const { t } = useTranslation();
   
@@ -55,6 +57,7 @@ export const BudgetDetails: React.FC<BudgetDetailsProps> = ({
         onImport={handleImportFromCSV}
         isNew={isNew}
         budgetName={budgetName}
+        projectId={projectId}
       />
 
       <Card>

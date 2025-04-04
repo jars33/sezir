@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Download, Upload, Save } from "lucide-react";
+import { ArrowLeft, Save, Download, Upload } from "lucide-react";
 
 interface BudgetHeaderProps {
   onBack: () => void;
@@ -12,6 +12,7 @@ interface BudgetHeaderProps {
   onImport: () => void;
   isNew?: boolean;
   budgetName?: string;
+  projectId?: string;
 }
 
 export const BudgetHeader: React.FC<BudgetHeaderProps> = ({
@@ -20,49 +21,47 @@ export const BudgetHeader: React.FC<BudgetHeaderProps> = ({
   onExport,
   onImport,
   isNew = true,
-  budgetName = ""
+  budgetName = "",
+  projectId
 }) => {
   const { t } = useTranslation();
-  const [newBudgetName, setNewBudgetName] = useState(budgetName);
-  
+  const [name, setName] = useState(budgetName);
+
   const handleSave = () => {
-    if (newBudgetName.trim()) {
-      onSave(newBudgetName.trim());
+    if (name.trim()) {
+      onSave(name.trim());
     }
   };
-  
+
   return (
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-2">
-        <Button variant="ghost" size="sm" onClick={onBack}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          {t('common.back')}
+    <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" onClick={onBack}>
+          <ArrowLeft className="h-5 w-5" />
         </Button>
-        
-        {isNew && (
-          <div className="flex items-center gap-2">
-            <Input 
-              placeholder={t('budget.enterBudgetName')} 
-              value={newBudgetName}
-              onChange={(e) => setNewBudgetName(e.target.value)}
-              className="max-w-xs"
-            />
-            <Button onClick={handleSave} disabled={!newBudgetName.trim()}>
-              <Save className="h-4 w-4 mr-2" />
-              {t('common.save')}
-            </Button>
-          </div>
+        {isNew ? (
+          <Input
+            placeholder={t('budget.enterBudgetName')}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full md:w-80"
+          />
+        ) : (
+          <h2 className="text-2xl font-semibold">{budgetName}</h2>
         )}
-        
-        {!isNew && <h2 className="text-2xl font-bold">{budgetName}</h2>}
       </div>
-      
-      <div className="flex gap-2">
-        <Button variant="outline" size="sm" onClick={onExport}>
+      <div className="flex items-center gap-2">
+        {isNew && (
+          <Button onClick={handleSave} disabled={!name.trim()}>
+            <Save className="h-4 w-4 mr-2" />
+            {t('common.save')}
+          </Button>
+        )}
+        <Button variant="outline" onClick={onExport}>
           <Download className="h-4 w-4 mr-2" />
           {t('common.export')}
         </Button>
-        <Button variant="outline" size="sm" onClick={onImport}>
+        <Button variant="outline" onClick={onImport}>
           <Upload className="h-4 w-4 mr-2" />
           {t('common.import')}
         </Button>

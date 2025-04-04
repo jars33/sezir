@@ -4,11 +4,9 @@ import { BudgetComparison } from "@/types/budget";
 import { budgetComparisonService } from "@/services/supabase/budget-comparison-service";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
-import { useParams } from "react-router-dom";
 
-export function useBudgetData() {
+export function useBudgetData(projectId?: string) {
   const { t } = useTranslation();
-  const { id: projectId } = useParams();
   const [budgets, setBudgets] = useState<BudgetComparison[]>([]);
   const [currentBudgetId, setCurrentBudgetId] = useState<string | undefined>();
   const [isLoading, setIsLoading] = useState(false);
@@ -28,9 +26,7 @@ export function useBudgetData() {
       }
     };
     
-    if (projectId) {
-      loadBudgets();
-    }
+    loadBudgets();
   }, [projectId, t]);
   
   const saveBudget = async (name: string, data: any) => {

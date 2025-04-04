@@ -8,7 +8,7 @@ import { useBudgetCompanies } from "./budget/use-budget-companies";
 import { useBudgetData } from "./budget/use-budget-data";
 import { useBudgetSampleData } from "./budget/use-budget-sample-data";
 
-export function useBudgetComparison() {
+export function useBudgetComparison(projectId?: string) {
   const { t } = useTranslation();
   const { createSampleCompanies, createSampleItems } = useBudgetSampleData();
   const { 
@@ -32,7 +32,7 @@ export function useBudgetComparison() {
     saveBudget: saveToDatabase,
     loadBudget: loadFromDatabase,
     setCurrentBudgetId
-  } = useBudgetData();
+  } = useBudgetData(projectId);
   
   // Initialize with empty arrays for new budget
   useEffect(() => {
