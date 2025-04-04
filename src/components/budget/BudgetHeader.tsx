@@ -44,7 +44,7 @@ export const BudgetHeader: React.FC<BudgetHeaderProps> = ({
   const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>(projectId);
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoadingProjects, setIsLoadingProjects] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(isNew);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -86,54 +86,39 @@ export const BudgetHeader: React.FC<BudgetHeaderProps> = ({
           <ArrowLeft className="h-5 w-5" />
         </Button>
         
-        {isNew ? (
-          <div className="flex flex-col md:flex-row gap-3 w-full">
-            {isLoadingProjects ? (
-              <Skeleton className="h-10 w-60" />
-            ) : (
-              <Select 
-                value={selectedProjectId} 
-                onValueChange={(value) => setSelectedProjectId(value)}
-              >
-                <SelectTrigger className="w-full md:w-60">
-                  <SelectValue placeholder={t('budget.selectProject')} />
-                </SelectTrigger>
-                <SelectContent>
-                  {projects.map((project) => (
-                    <SelectItem key={project.id} value={project.id}>
-                      {project.number} - {project.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          </div>
-        ) : (
-          <div className="flex flex-col">
-            <h2 className="text-2xl font-semibold">{budgetName}</h2>
-            {isEditing ? (
-              <div className="mt-2">
-                {isLoadingProjects ? (
-                  <Skeleton className="h-10 w-60" />
-                ) : (
-                  <Select 
-                    value={selectedProjectId} 
-                    onValueChange={(value) => setSelectedProjectId(value)}
-                  >
-                    <SelectTrigger className="w-full md:w-60">
-                      <SelectValue placeholder={t('budget.selectProject')} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {projects.map((project) => (
-                        <SelectItem key={project.id} value={project.id}>
-                          {project.number} - {project.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              </div>
-            ) : (
+        <div className="flex flex-col">
+          {isNew || isEditing ? (
+            <div className="flex flex-col space-y-2">
+              <Input
+                placeholder={t('budget.budgetName')}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full md:w-60"
+              />
+              {isLoadingProjects ? (
+                <Skeleton className="h-10 w-60" />
+              ) : (
+                <Select 
+                  value={selectedProjectId} 
+                  onValueChange={(value) => setSelectedProjectId(value)}
+                >
+                  <SelectTrigger className="w-full md:w-60">
+                    <SelectValue placeholder={t('budget.selectProject')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">{t('budget.noProject')}</SelectItem>
+                    {projects.map((project) => (
+                      <SelectItem key={project.id} value={project.id}>
+                        {project.number} - {project.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+          ) : (
+            <>
+              <h2 className="text-2xl font-semibold">{budgetName}</h2>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">
                   {selectedProject ? (
@@ -154,9 +139,9 @@ export const BudgetHeader: React.FC<BudgetHeaderProps> = ({
                   <Edit className="h-4 w-4" />
                 </Button>
               </div>
-            )}
-          </div>
-        )}
+            </>
+          )}
+        </div>
       </div>
       <div className="flex items-center gap-2">
         <Button 

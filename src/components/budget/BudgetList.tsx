@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,12 +8,17 @@ import { Input } from "@/components/ui/input";
 import { Plus, FileSpreadsheet, Calendar } from "lucide-react";
 import { BudgetComparison } from "@/types/budget";
 import { formatCurrency } from "@/lib/utils";
+import { projectService } from "@/services/supabase/project-service";
 
 interface BudgetListProps {
   budgets: BudgetComparison[];
   onCreateNew: () => void;
   onSelectBudget: (id: string) => void;
   isLoading: boolean;
+}
+
+interface ProjectMap {
+  [key: string]: string;
 }
 
 export const BudgetList: React.FC<BudgetListProps> = ({
@@ -24,11 +29,32 @@ export const BudgetList: React.FC<BudgetListProps> = ({
 }) => {
   const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = React.useState("");
+  const [projects, setProjects] = useState<ProjectMap>({});
+  
+  // Load projects to map project IDs to names
+  useEffect(() => {
+    const loadProjects = async () => {
+      try {
+        const allProjects = await projectService.getAllProjects();
+        const projectMap: ProjectMap = {};
+        allProjects.forEach(project => {
+          projectMap[project.id] = `${project.number} - ${project.name}`;
+        });
+        setProjects(projectMap);
+      } catch (error) {
+        console.error("Error loading projects:", error);
+      }
+    };
+    
+    loadProjects();
+  }, []);
   
   const filteredBudgets = searchTerm 
     ? budgets.filter(budget => 
         budget.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        (budget.description || "").toLowerCase().includes(searchTerm.toLowerCase())
+        (budget.description || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (budget.projectId && projects[budget.projectId] && 
+         projects[budget.projectId].toLowerCase().includes(searchTerm.toLowerCase()))
       )
     : budgets;
   
@@ -59,6 +85,7 @@ export const BudgetList: React.FC<BudgetListProps> = ({
                 <TableRow>
                   <TableHead>{t('common.name')}</TableHead>
                   <TableHead>{t('common.description')}</TableHead>
+                  <TableHead>{t('common.project')}</TableHead>
                   <TableHead>{t('common.createdAt')}</TableHead>
                   <TableHead>{t('common.actions')}</TableHead>
                 </TableRow>
@@ -68,6 +95,7 @@ export const BudgetList: React.FC<BudgetListProps> = ({
                   <TableRow key={budget.id} className="cursor-pointer hover:bg-gray-50" onClick={() => onSelectBudget(budget.id)}>
                     <TableCell className="font-medium">{budget.name}</TableCell>
                     <TableCell>{budget.description || "-"}</TableCell>
+                    <TableCell>{budget.projectId ? projects[budget.projectId] || "-" : "-"}</TableCell>
                     <TableCell>{new Date(budget.createdAt).toLocaleDateString()}</TableCell>
                     <TableCell>
                       <Button variant="ghost" size="sm" onClick={(e) => {
