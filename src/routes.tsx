@@ -10,6 +10,7 @@ import Teams from "@/pages/Teams"
 import TeamDetails from "@/pages/TeamDetails"
 import TeamMemberDetails from "@/pages/TeamMemberDetails"
 import NotFound from "@/pages/NotFound"
+import BudgetComparison from "@/pages/BudgetComparison"
 
 export const routes: RouteObject[] = [
   {
@@ -55,6 +56,10 @@ export const routes: RouteObject[] = [
       {
         path: "team/:id",
         element: <TeamMemberDetails />,
+      },
+      {
+        path: "budget-comparison",
+        element: <BudgetComparison />,
       },
       {
         path: "*",
