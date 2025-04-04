@@ -153,6 +153,53 @@ export function useBudgetItems(initialItems: BudgetComparisonItem[] = []) {
     }));
   };
   
+  // Add the ability to delete budget items
+  const deleteBudgetItem = (itemId: string) => {
+    // Get the item to be deleted
+    const itemToDelete = budgetItems.find(item => item.id === itemId);
+    if (!itemToDelete) return;
+
+    // Find all child items that should be deleted as well
+    const childPrefix = itemToDelete.code + ".";
+    
+    // Filter out the item and all its children
+    setBudgetItems(items => items.filter(item => 
+      item.id !== itemId && !item.code.startsWith(childPrefix)
+    ));
+  };
+  
+  // Calculate category totals for all companies
+  const getCategoryTotals = () => {
+    const categoryTotals: Record<string, Record<string, number>> = {};
+    
+    // Get all categories
+    const categories = budgetItems.filter(item => item.isCategory);
+    
+    categories.forEach(category => {
+      const childPrefix = category.code + ".";
+      
+      // Find all direct children of this category that aren't categories themselves
+      const directChildren = budgetItems.filter(item => 
+        !item.isCategory && 
+        item.code.startsWith(childPrefix) &&
+        !item.code.substring(childPrefix.length).includes(".")
+      );
+      
+      // Calculate totals per company for this category
+      const totals: Record<string, number> = {};
+      
+      directChildren.forEach(child => {
+        Object.entries(child.prices).forEach(([companyId, price]) => {
+          totals[companyId] = (totals[companyId] || 0) + price;
+        });
+      });
+      
+      categoryTotals[category.id] = totals;
+    });
+    
+    return categoryTotals;
+  };
+  
   return {
     budgetItems,
     setBudgetItems,
@@ -160,6 +207,8 @@ export function useBudgetItems(initialItems: BudgetComparisonItem[] = []) {
     updateItemObservation,
     addBudgetItem,
     updateItemsForCompanyRemoval,
-    recalculateItemStats
+    recalculateItemStats,
+    deleteBudgetItem,
+    getCategoryTotals
   };
 }

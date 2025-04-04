@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
@@ -6,24 +7,29 @@ import { Input } from "@/components/ui/input";
 import { PriceCell } from "./PriceCell";
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { X, Trash2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface BudgetTableProps {
   items: BudgetComparisonItem[];
   companies: Company[];
+  categoryTotals: Record<string, Record<string, number>>;
   onUpdateItem: (itemId: string, companyId: string, price: number) => void;
   onUpdateObservation: (itemId: string, observation: string) => void;
   onRemoveCompany: (id: string) => void;
+  onDeleteItem: (id: string) => void;
 }
 
 export const BudgetTable: React.FC<BudgetTableProps> = ({
   items,
   companies,
+  categoryTotals,
   onUpdateItem,
   onUpdateObservation,
-  onRemoveCompany
+  onRemoveCompany,
+  onDeleteItem
 }) => {
   const { t } = useTranslation();
   
@@ -42,7 +48,7 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
     <Table className="min-w-full border-collapse">
       <TableHeader className="bg-muted sticky top-0 z-10">
         <TableRow>
-          <TableHead className="w-24 border border-border">{t('budget.itemCode')}</TableHead>
+          <TableHead className="w-12 border border-border">{t('budget.itemCode')}</TableHead>
           <TableHead className="w-64 border border-border">{t('budget.itemDescription')}</TableHead>
           
           {companies.map((company) => (
@@ -70,63 +76,96 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
           <TableHead className="w-28 border border-border bg-secondary/10 text-center">
             {t('budget.observations')}
           </TableHead>
+          <TableHead className="w-10 border border-border bg-secondary/10 text-center">
+            {t('common.actions')}
+          </TableHead>
         </TableRow>
       </TableHeader>
 
       <TableBody>
         {items.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={6 + companies.length} className="text-center py-8">
+            <TableCell colSpan={7 + companies.length} className="text-center py-8">
               {t('budget.noItemsAdded')}
             </TableCell>
           </TableRow>
         ) : (
-          items.map((item) => (
-            <TableRow key={item.id} className={item.isCategory ? "bg-muted/50 font-bold" : ""}>
-              <TableCell className="border border-border text-center">
-                {item.code}
-              </TableCell>
-              <TableCell className="border border-border font-medium">
-                <div className="flex items-center gap-2">
-                  <span className={item.isCategory ? "ml-0" : "ml-4"}>
-                    {item.description}
-                  </span>
-                </div>
-              </TableCell>
+          items.map((item) => {
+            const isCategoryWithValues = item.isCategory && categoryTotals[item.id];
+            
+            return (
+              <TableRow key={item.id} className={item.isCategory ? "bg-muted/50 font-bold" : ""}>
+                <TableCell className="border border-border text-center">
+                  {item.code}
+                </TableCell>
+                <TableCell className="border border-border font-medium">
+                  <div className="flex items-center gap-2">
+                    <span className={item.isCategory ? "ml-0" : "ml-4"}>
+                      {item.description}
+                    </span>
+                  </div>
+                </TableCell>
 
-              {companies.map((company) => {
-                const price = item.prices[company.id] || 0;
-                
-                return (
-                  <TableCell key={`${item.id}-${company.id}`} className="border border-border p-0">
-                    <PriceCell 
-                      price={price} 
-                      average={item.averagePrice}
-                      stdDev={item.standardDeviation || 0}
-                      onChange={(value) => onUpdateItem(item.id, company.id, value)}
-                      isCategory={item.isCategory}
+                {companies.map((company) => {
+                  const price = item.prices[company.id] || 0;
+                  const categoryTotal = isCategoryWithValues ? categoryTotals[item.id][company.id] || 0 : 0;
+                  
+                  return (
+                    <TableCell key={`${item.id}-${company.id}`} className="border border-border p-0">
+                      {isCategoryWithValues && categoryTotal > 0 ? (
+                        <div className="text-right p-2 bg-secondary/5">
+                          {formatCurrency(categoryTotal)}
+                        </div>
+                      ) : (
+                        <PriceCell 
+                          price={price} 
+                          average={item.averagePrice}
+                          stdDev={item.standardDeviation || 0}
+                          onChange={(value) => onUpdateItem(item.id, company.id, value)}
+                          isCategory={item.isCategory}
+                        />
+                      )}
+                    </TableCell>
+                  );
+                })}
+
+                <TableCell className="border border-border text-right">
+                  {item.lowestPrice > 0 ? formatCurrency(item.lowestPrice) : ""}
+                </TableCell>
+                <TableCell className="border border-border text-right">
+                  {item.averagePrice > 0 ? formatCurrency(item.averagePrice) : ""}
+                </TableCell>
+                <TableCell className="border border-border">
+                  {!item.isCategory && (
+                    <Input
+                      value={item.observations || ""}
+                      onChange={(e) => onUpdateObservation(item.id, e.target.value)}
+                      className="w-full"
                     />
-                  </TableCell>
-                );
-              })}
-
-              <TableCell className="border border-border text-right">
-                {item.lowestPrice > 0 ? formatCurrency(item.lowestPrice) : ""}
-              </TableCell>
-              <TableCell className="border border-border text-right">
-                {item.averagePrice > 0 ? formatCurrency(item.averagePrice) : ""}
-              </TableCell>
-              <TableCell className="border border-border">
-                {!item.isCategory && (
-                  <Input
-                    value={item.observations || ""}
-                    onChange={(e) => onUpdateObservation(item.id, e.target.value)}
-                    className="w-full"
-                  />
-                )}
-              </TableCell>
-            </TableRow>
-          ))
+                  )}
+                </TableCell>
+                <TableCell className="border border-border p-0 text-center">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                          onClick={() => onDeleteItem(item.id)}
+                        >
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{t('common.delete')}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </TableCell>
+              </TableRow>
+            );
+          })
         )}
 
         {items.length > 0 && (
@@ -147,6 +186,7 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
               );
             })}
 
+            <TableCell className="border border-border"></TableCell>
             <TableCell className="border border-border"></TableCell>
             <TableCell className="border border-border"></TableCell>
             <TableCell className="border border-border"></TableCell>

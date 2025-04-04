@@ -10,13 +10,17 @@ import { BudgetTable } from "./BudgetTable";
 interface BudgetDetailsProps {
   items: BudgetComparisonItem[];
   companies: Company[];
+  categoryTotals: Record<string, Record<string, number>>;
   onBack: () => void;
   onAddCompany: (name: string) => void;
   onRemoveCompany: (id: string) => void;
   onUpdateItem: (itemId: string, companyId: string, price: number) => void;
   onUpdateObservation: (itemId: string, observation: string) => void;
   onAddBudgetItem: (parentCode: string | null, description: string, isCategory: boolean) => void;
+  onDeleteItem: (id: string) => void;
   onSave: (name: string) => void;
+  onExport: () => void;
+  onImport: () => void;
   isNew?: boolean;
   budgetName?: string;
   projectId?: string;
@@ -25,36 +29,30 @@ interface BudgetDetailsProps {
 export const BudgetDetails: React.FC<BudgetDetailsProps> = ({
   items,
   companies,
+  categoryTotals,
   onBack,
   onAddCompany,
   onRemoveCompany,
   onUpdateItem,
   onUpdateObservation,
   onAddBudgetItem,
+  onDeleteItem,
   onSave,
+  onExport,
+  onImport,
   isNew = true,
   budgetName = "",
   projectId
 }) => {
   const { t } = useTranslation();
-  
-  const handleExportToCSV = () => {
-    // CSV export functionality would be implemented here
-    console.log("Exporting to CSV...");
-  };
-
-  const handleImportFromCSV = () => {
-    // CSV import functionality would be implemented here
-    console.log("Importing from CSV...");
-  };
 
   return (
     <div className="space-y-6">
       <BudgetHeader
         onBack={onBack}
         onSave={onSave}
-        onExport={handleExportToCSV}
-        onImport={handleImportFromCSV}
+        onExport={onExport}
+        onImport={onImport}
         isNew={isNew}
         budgetName={budgetName}
         projectId={projectId}
@@ -74,9 +72,11 @@ export const BudgetDetails: React.FC<BudgetDetailsProps> = ({
             <BudgetTable
               items={items}
               companies={companies}
+              categoryTotals={categoryTotals}
               onUpdateItem={onUpdateItem}
               onUpdateObservation={onUpdateObservation}
               onRemoveCompany={onRemoveCompany}
+              onDeleteItem={onDeleteItem}
             />
           </div>
         </CardContent>

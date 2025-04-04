@@ -49,6 +49,11 @@ export const BudgetHeader: React.FC<BudgetHeaderProps> = ({
         ) : (
           <h2 className="text-2xl font-semibold">{budgetName}</h2>
         )}
+        {projectId && (
+          <span className="text-sm text-muted-foreground">
+            {t('budget.linkedToProject')} #{projectId}
+          </span>
+        )}
       </div>
       <div className="flex items-center gap-2">
         {isNew && (
