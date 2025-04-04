@@ -53,7 +53,7 @@ export const budgetComparisonsService = {
         return [];
       }
       
-      return (data as any[]).map(item => ({
+      return (data || []).map(item => ({
         id: item.id,
         name: item.name,
         description: item.description || undefined,
