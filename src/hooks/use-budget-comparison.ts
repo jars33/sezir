@@ -21,7 +21,8 @@ export function useBudgetComparison(projectId?: string) {
     budgetItems, 
     setBudgetItems, 
     updateItem, 
-    updateItemObservation, 
+    updateItemObservation,
+    updateItemDescription,
     addBudgetItem,
     updateItemsForCompanyRemoval,
     deleteBudgetItem
@@ -107,6 +108,7 @@ export function useBudgetComparison(projectId?: string) {
     removeCompany: handleRemoveCompany,
     updateItem,
     updateItemObservation,
+    updateItemDescription,
     addBudgetItem,
     deleteBudgetItem,
     saveBudget,

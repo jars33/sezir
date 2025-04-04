@@ -21,6 +21,7 @@ const BudgetComparison = () => {
     removeCompany, 
     updateItem, 
     updateItemObservation,
+    updateItemDescription,
     addBudgetItem,
     deleteBudgetItem,
     saveBudget,
@@ -150,12 +151,13 @@ const BudgetComparison = () => {
         onRemoveCompany={removeCompany}
         onUpdateItem={updateItem}
         onUpdateObservation={updateItemObservation}
+        onUpdateDescription={updateItemDescription}
         onAddBudgetItem={addBudgetItem}
         onDeleteItem={deleteBudgetItem}
         onSave={handleSave}
         onExport={handleExportToCSV}
         onImport={handleImportFromCSV}
-        isNew={!currentBudgetId} // Set isNew based on currentBudgetId instead of showNewBudget
+        isNew={!currentBudgetId}
         budgetName={!currentBudgetId ? "" : budgets.find(b => b.id === currentBudgetId)?.name}
         projectId={projectId || budgets.find(b => b.id === currentBudgetId)?.projectId}
         onUpdateProject={handleUpdateProject}

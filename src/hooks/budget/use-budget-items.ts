@@ -84,6 +84,20 @@ export function useBudgetItems(initialItems: BudgetComparisonItem[] = []) {
       });
     });
   };
+
+  const updateItemDescription = (itemId: string, description: string) => {
+    setBudgetItems(items => {
+      return items.map(item => {
+        if (item.id === itemId) {
+          return {
+            ...item,
+            description
+          };
+        }
+        return item;
+      });
+    });
+  };
   
   const addBudgetItem = (
     parentCode: string | null, 
@@ -205,6 +219,7 @@ export function useBudgetItems(initialItems: BudgetComparisonItem[] = []) {
     setBudgetItems,
     updateItem,
     updateItemObservation,
+    updateItemDescription,
     addBudgetItem,
     updateItemsForCompanyRemoval,
     recalculateItemStats,

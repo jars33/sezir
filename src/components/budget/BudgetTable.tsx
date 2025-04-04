@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { BudgetComparisonItem, Company } from "@/types/budget";
@@ -7,9 +7,10 @@ import { Input } from "@/components/ui/input";
 import { PriceCell } from "./PriceCell";
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { X, Pencil, Check } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 
 interface BudgetTableProps {
   items: BudgetComparisonItem[];
@@ -19,6 +20,7 @@ interface BudgetTableProps {
   onUpdateObservation: (itemId: string, observation: string) => void;
   onRemoveCompany: (id: string) => void;
   onDeleteItem: (id: string) => void;
+  onUpdateDescription: (itemId: string, description: string) => void;
 }
 
 export const BudgetTable: React.FC<BudgetTableProps> = ({
@@ -28,9 +30,26 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
   onUpdateItem,
   onUpdateObservation,
   onRemoveCompany,
-  onDeleteItem
+  onDeleteItem,
+  onUpdateDescription
 }) => {
   const { t } = useTranslation();
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [editingDescription, setEditingDescription] = useState<string>("");
+  
+  const handleEditDescription = (itemId: string, currentDescription: string) => {
+    setEditingItemId(itemId);
+    setEditingDescription(currentDescription);
+  };
+  
+  const handleSaveDescription = (itemId: string) => {
+    onUpdateDescription(itemId, editingDescription);
+    setEditingItemId(null);
+  };
+  
+  const handleCancelEdit = () => {
+    setEditingItemId(null);
+  };
   
   if (companies.length === 0) {
     return (
@@ -88,6 +107,7 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
         ) : (
           items.map((item) => {
             const isCategoryWithValues = item.isCategory && categoryTotals[item.id];
+            const isEditing = editingItemId === item.id;
             
             return (
               <TableRow key={item.id} className={item.isCategory ? "bg-muted/50 font-bold" : ""}>
@@ -96,17 +116,58 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
                 </TableCell>
                 <TableCell className="border border-border font-medium">
                   <div className="flex items-center justify-between gap-2">
-                    <span className={item.isCategory ? "ml-0" : "ml-4"}>
-                      {item.description}
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 w-8 p-0"
-                      onClick={() => onDeleteItem(item.id)}
-                    >
-                      <X className="h-4 w-4 text-gray-500" />
-                    </Button>
+                    {isEditing ? (
+                      <div className="flex-1 flex gap-2">
+                        <Textarea 
+                          value={editingDescription}
+                          onChange={(e) => setEditingDescription(e.target.value)}
+                          className="min-h-[30px] py-1 text-base"
+                          rows={2}
+                        />
+                        <div className="flex flex-col">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleSaveDescription(item.id)}
+                            className="h-7 w-7"
+                          >
+                            <Check className="h-4 w-4 text-green-500" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={handleCancelEdit}
+                            className="h-7 w-7"
+                          >
+                            <X className="h-4 w-4 text-red-500" />
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <span className={item.isCategory ? "ml-0" : "ml-4"}>
+                          {item.description}
+                        </span>
+                        <div className="flex gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEditDescription(item.id, item.description)}
+                            className="h-8 w-8 p-0"
+                          >
+                            <Pencil className="h-4 w-4 text-gray-500" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 p-0"
+                            onClick={() => onDeleteItem(item.id)}
+                          >
+                            <X className="h-4 w-4 text-gray-500" />
+                          </Button>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </TableCell>
 

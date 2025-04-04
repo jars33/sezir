@@ -62,6 +62,25 @@ export const budgetItemsService = {
     }
   },
 
+  async updateItemDescription(itemId: string, description: string): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('budget_items')
+        .update({ description })
+        .eq('id', itemId);
+        
+      if (error) {
+        console.error("Error updating budget item description:", error);
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error("Error in updateItemDescription:", error);
+      return false;
+    }
+  },
+
   async deleteItemsByBudgetId(budgetComparisonId: string): Promise<boolean> {
     try {
       const { error } = await supabase
