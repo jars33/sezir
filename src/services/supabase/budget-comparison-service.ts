@@ -45,7 +45,7 @@ export const budgetComparisonService = {
       
       // Create a mapping between company names and their new IDs
       const companyNameToIdMap = new Map();
-      insertedCompanies.forEach(company => {
+      insertedCompanies.forEach((company: any) => {
         companyNameToIdMap.set(company.name, company.id);
       });
 
@@ -70,7 +70,7 @@ export const budgetComparisonService = {
       
       // Create a mapping between item codes and their new IDs
       const itemCodeToIdMap = new Map();
-      insertedItems.forEach(item => {
+      insertedItems.forEach((item: any) => {
         itemCodeToIdMap.set(item.code, item.id);
       });
       
@@ -128,7 +128,7 @@ export const budgetComparisonService = {
       return [];
     }
     
-    return data.map(item => ({
+    return (data as any[]).map(item => ({
       id: item.id,
       name: item.name,
       description: item.description || undefined,
@@ -150,7 +150,7 @@ export const budgetComparisonService = {
         return null;
       }
       
-      const companies: Company[] = companiesData.map(company => ({
+      const companies: Company[] = (companiesData as any[]).map(company => ({
         id: company.id,
         name: company.name
       }));
@@ -186,7 +186,7 @@ export const budgetComparisonService = {
       // 4. Organize prices by item and company
       const itemPrices: Record<string, Record<string, number>> = {};
       
-      pricesData.forEach(priceEntry => {
+      (pricesData as any[]).forEach(priceEntry => {
         const itemId = priceEntry.budget_item_id;
         const companyId = priceEntry.company_id;
         const price = priceEntry.price;
@@ -199,7 +199,7 @@ export const budgetComparisonService = {
       });
       
       // 5. Create BudgetComparisonItem objects with stats
-      const items: BudgetComparisonItem[] = itemsData.map(item => {
+      const items: BudgetComparisonItem[] = (itemsData as any[]).map(item => {
         // Get prices for this item
         const prices = itemPrices[item.id] || {};
         
