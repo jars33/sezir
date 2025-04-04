@@ -45,7 +45,7 @@ export const budgetComparisonService = {
       
       // Create a mapping between company names and their new IDs
       const companyNameToIdMap = new Map();
-      insertedCompanies.forEach((company: any) => {
+      (insertedCompanies as any[]).forEach((company: any) => {
         companyNameToIdMap.set(company.name, company.id);
       });
 
@@ -53,7 +53,7 @@ export const budgetComparisonService = {
       const itemsToInsert = data.items.map(item => ({
         code: item.code,
         description: item.description,
-        item_type: item.isCategory ? 'category' : 'item',
+        item_type: item.isCategory ? 'category' : 'item' as 'category' | 'item',
         budget_comparison_id: budgetId,
         observations: item.observations
       }));
@@ -70,7 +70,7 @@ export const budgetComparisonService = {
       
       // Create a mapping between item codes and their new IDs
       const itemCodeToIdMap = new Map();
-      insertedItems.forEach((item: any) => {
+      (insertedItems as any[]).forEach((item: any) => {
         itemCodeToIdMap.set(item.code, item.id);
       });
       
