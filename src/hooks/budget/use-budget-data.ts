@@ -35,18 +35,41 @@ export function useBudgetData(projectId?: string) {
       // Make sure we're using a valid projectId
       const projectIdToUse = selectedProjectId || undefined;
       
-      const budgetId = await budgetComparisonService.saveBudgetComparison(name, data, projectIdToUse);
+      const budgetId = await budgetComparisonService.saveBudgetComparison(
+        name, 
+        data, 
+        projectIdToUse, 
+        currentBudgetId // Pass the current budget ID for updates
+      );
       
       if (budgetId) {
-        const newBudget: BudgetComparison = {
-          id: budgetId,
-          name,
-          projectId: projectIdToUse,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        };
-        
-        setBudgets(prevBudgets => [newBudget, ...prevBudgets]);
+        // If we're updating an existing budget
+        if (currentBudgetId) {
+          // Update the budget in the list
+          setBudgets(prevBudgets => 
+            prevBudgets.map(budget => 
+              budget.id === budgetId 
+                ? { 
+                    ...budget, 
+                    name, 
+                    projectId: projectIdToUse,
+                    updatedAt: new Date().toISOString() 
+                  } 
+                : budget
+            )
+          );
+        } else {
+          // Add the new budget to the list
+          const newBudget: BudgetComparison = {
+            id: budgetId,
+            name,
+            projectId: projectIdToUse,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          };
+          
+          setBudgets(prevBudgets => [newBudget, ...prevBudgets]);
+        }
         return budgetId;
       }
       return null;

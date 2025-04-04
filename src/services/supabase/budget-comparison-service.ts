@@ -1,3 +1,4 @@
+
 import { BudgetComparisonItem, Company, BudgetComparison } from "@/types/budget";
 import { budgetComparisonsService } from "./budget-comparisons-service";
 import { budgetCompaniesService } from "./budget-companies-service";
@@ -11,13 +12,31 @@ export interface BudgetComparisonData {
 }
 
 export const budgetComparisonService = {
-  async saveBudgetComparison(name: string, data: BudgetComparisonData, projectId?: string): Promise<string | null> {
+  async saveBudgetComparison(name: string, data: BudgetComparisonData, projectId?: string, existingBudgetId?: string): Promise<string | null> {
     try {
-      // 1. Create the budget comparison
-      const budgetId = await budgetComparisonsService.createBudgetComparison(name, projectId);
-      if (!budgetId) return null;
+      let budgetId: string;
+
+      // Check if we're updating an existing budget or creating a new one
+      if (existingBudgetId) {
+        // Update the existing budget name and project
+        const updated = await budgetComparisonsService.updateBudgetComparison(existingBudgetId, name, projectId);
+        if (!updated) {
+          console.error("Failed to update budget comparison");
+          return null;
+        }
+        budgetId = existingBudgetId;
+
+        // First, delete existing companies, items and prices
+        await budgetCompaniesService.deleteCompaniesByBudgetId(budgetId);
+        await budgetItemsService.deleteItemsByBudgetId(budgetId);
+        // Prices will be deleted cascade through items
+      } else {
+        // Create a new budget comparison
+        budgetId = await budgetComparisonsService.createBudgetComparison(name, projectId);
+        if (!budgetId) return null;
+      }
       
-      // 2. Create companies - only if there are companies to create
+      // Create companies - only if there are companies to create
       const insertedCompanies = data.companies.length > 0 
         ? await budgetCompaniesService.createCompanies(
             budgetId, 
@@ -38,7 +57,7 @@ export const budgetComparisonService = {
         });
       }
 
-      // 3. Create budget items - only if there are items to create
+      // Create budget items - only if there are items to create
       if (data.items.length > 0) {
         const insertedItems = await budgetItemsService.createItems(
           budgetId,
@@ -61,7 +80,7 @@ export const budgetComparisonService = {
           itemCodeToIdMap.set(item.code, item.id);
         });
         
-        // 4. Create price entries - only if there are prices to create
+        // Create price entries - only if there are prices to create
         const pricesToInsert: { budget_item_id: string, company_id: string, price: number }[] = [];
         
         for (const item of data.items) {

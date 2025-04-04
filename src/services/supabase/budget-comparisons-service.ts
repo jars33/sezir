@@ -45,6 +45,34 @@ export const budgetComparisonsService = {
     }
   },
   
+  async updateBudgetComparison(id: string, name: string, projectId?: string, description?: string): Promise<boolean> {
+    try {
+      const updateData: any = {
+        name: name,
+        project_id: projectId || null
+      };
+      
+      if (description) {
+        updateData.description = description;
+      }
+      
+      const { error } = await supabase
+        .from('budget_comparisons')
+        .update(updateData)
+        .eq('id', id);
+
+      if (error) {
+        console.error("Error updating budget comparison:", error);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error("Error in updateBudgetComparison:", error);
+      return false;
+    }
+  },
+  
   async getAllBudgetComparisons(projectId?: string): Promise<BudgetComparisonBasic[]> {
     try {
       let query = supabase

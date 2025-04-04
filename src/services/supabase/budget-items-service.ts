@@ -60,5 +60,24 @@ export const budgetItemsService = {
       console.error("Error in getItemsByBudgetId:", error);
       return null;
     }
+  },
+
+  async deleteItemsByBudgetId(budgetComparisonId: string): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('budget_items')
+        .delete()
+        .eq('budget_comparison_id', budgetComparisonId);
+        
+      if (error) {
+        console.error("Error deleting budget items:", error);
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error("Error in deleteItemsByBudgetId:", error);
+      return false;
+    }
   }
 };

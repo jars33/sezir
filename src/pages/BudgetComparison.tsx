@@ -37,6 +37,8 @@ const BudgetComparison = () => {
   
   const handleCreateNew = () => {
     setShowNewBudget(true);
+    // Reset current budget ID when creating a new budget
+    setCurrentBudgetId(undefined);
   };
   
   const handleSave = async (name: string, selectedProjectId?: string) => {
@@ -153,8 +155,8 @@ const BudgetComparison = () => {
         onSave={handleSave}
         onExport={handleExportToCSV}
         onImport={handleImportFromCSV}
-        isNew={showNewBudget}
-        budgetName={showNewBudget ? "" : budgets.find(b => b.id === currentBudgetId)?.name}
+        isNew={!currentBudgetId} // Set isNew based on currentBudgetId instead of showNewBudget
+        budgetName={!currentBudgetId ? "" : budgets.find(b => b.id === currentBudgetId)?.name}
         projectId={projectId || budgets.find(b => b.id === currentBudgetId)?.projectId}
         onUpdateProject={handleUpdateProject}
       />

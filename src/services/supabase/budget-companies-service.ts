@@ -48,5 +48,24 @@ export const budgetCompaniesService = {
       console.error("Error in getCompaniesByBudgetId:", error);
       return null;
     }
+  },
+
+  async deleteCompaniesByBudgetId(budgetComparisonId: string): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('budget_companies')
+        .delete()
+        .eq('budget_comparison_id', budgetComparisonId);
+        
+      if (error) {
+        console.error("Error deleting companies:", error);
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error("Error in deleteCompaniesByBudgetId:", error);
+      return false;
+    }
   }
 };
