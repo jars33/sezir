@@ -4,9 +4,11 @@ import { BudgetComparison } from "@/types/budget";
 import { budgetComparisonService } from "@/services/supabase/budget-comparison-service";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { useParams } from "react-router-dom";
 
 export function useBudgetData() {
   const { t } = useTranslation();
+  const { id: projectId } = useParams();
   const [budgets, setBudgets] = useState<BudgetComparison[]>([]);
   const [currentBudgetId, setCurrentBudgetId] = useState<string | undefined>();
   const [isLoading, setIsLoading] = useState(false);
@@ -16,7 +18,7 @@ export function useBudgetData() {
     const loadBudgets = async () => {
       setIsLoading(true);
       try {
-        const data = await budgetComparisonService.getBudgetComparisons();
+        const data = await budgetComparisonService.getBudgetComparisons(projectId);
         setBudgets(data);
       } catch (error) {
         console.error("Failed to load budgets:", error);
@@ -26,23 +28,26 @@ export function useBudgetData() {
       }
     };
     
-    loadBudgets();
-  }, [t]);
+    if (projectId) {
+      loadBudgets();
+    }
+  }, [projectId, t]);
   
   const saveBudget = async (name: string, data: any) => {
     try {
       setIsLoading(true);
-      const budgetId = await budgetComparisonService.saveBudgetComparison(name, data);
+      const budgetId = await budgetComparisonService.saveBudgetComparison(name, data, projectId);
       
       if (budgetId) {
         const newBudget: BudgetComparison = {
           id: budgetId,
           name,
+          projectId: projectId,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         };
         
-        setBudgets([...budgets, newBudget]);
+        setBudgets([newBudget, ...budgets]);
         return budgetId;
       }
       return null;

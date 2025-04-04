@@ -11,6 +11,8 @@ import { useProjectManagement } from "@/hooks/use-project-management";
 import { projectService } from "@/services/supabase";
 import { useProjectPermissions } from "@/components/projects/timeline/hooks/useProjectPermissions";
 import { useTranslation } from "react-i18next";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import BudgetComparison from "@/pages/BudgetComparison";
 
 export default function ProjectDetails() {
   const { id } = useParams();
@@ -83,9 +85,20 @@ export default function ProjectDetails() {
         onDeleteClick={() => setDeleteDialogOpen(true)}
       />
 
-      <div className="mt-6">
-        <ProjectTimelineView projectId={project.id} />
-      </div>
+      <Tabs defaultValue="timeline" className="mt-6">
+        <TabsList>
+          <TabsTrigger value="timeline">{t('project.timeline')}</TabsTrigger>
+          <TabsTrigger value="budget">{t('project.budgetComparison')}</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="timeline">
+          <ProjectTimelineView projectId={project.id} />
+        </TabsContent>
+        
+        <TabsContent value="budget">
+          <BudgetComparison />
+        </TabsContent>
+      </Tabs>
 
       <ProjectDialog
         project={projectForDialog}

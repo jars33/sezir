@@ -6,18 +6,20 @@ export interface BudgetComparisonBasic {
   id: string;
   name: string;
   description?: string;
+  projectId?: string;
   createdAt: string;
   updatedAt: string;
 }
 
 export const budgetComparisonsService = {
-  async createBudgetComparison(name: string, description?: string): Promise<string | null> {
+  async createBudgetComparison(name: string, projectId?: string, description?: string): Promise<string | null> {
     try {
       const { data, error } = await supabase
         .from('budget_comparisons')
         .insert({
           name: name,
-          description: description || `Budget comparison for ${name}`
+          description: description || `Budget comparison for ${name}`,
+          project_id: projectId
         })
         .select('id')
         .single();
@@ -34,12 +36,17 @@ export const budgetComparisonsService = {
     }
   },
   
-  async getAllBudgetComparisons(): Promise<BudgetComparisonBasic[]> {
+  async getAllBudgetComparisons(projectId?: string): Promise<BudgetComparisonBasic[]> {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('budget_comparisons')
-        .select('id, name, description, created_at, updated_at')
-        .order('updated_at', { ascending: false });
+        .select('id, name, description, project_id, created_at, updated_at');
+        
+      if (projectId) {
+        query = query.eq('project_id', projectId);
+      }
+      
+      const { data, error } = await query.order('updated_at', { ascending: false });
         
       if (error) {
         console.error("Error fetching budget comparisons:", error);
@@ -50,6 +57,7 @@ export const budgetComparisonsService = {
         id: item.id,
         name: item.name,
         description: item.description || undefined,
+        projectId: item.project_id || undefined,
         createdAt: item.created_at,
         updatedAt: item.updated_at
       }));

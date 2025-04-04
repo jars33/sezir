@@ -11,10 +11,10 @@ export interface BudgetComparisonData {
 }
 
 export const budgetComparisonService = {
-  async saveBudgetComparison(name: string, data: BudgetComparisonData): Promise<string | null> {
+  async saveBudgetComparison(name: string, data: BudgetComparisonData, projectId?: string): Promise<string | null> {
     try {
       // 1. Create the budget comparison
-      const budgetId = await budgetComparisonsService.createBudgetComparison(name);
+      const budgetId = await budgetComparisonsService.createBudgetComparison(name, projectId);
       if (!budgetId) return null;
       
       // 2. Create companies
@@ -31,52 +31,56 @@ export const budgetComparisonService = {
       });
 
       // 3. Create budget items
-      const insertedItems = await budgetItemsService.createItems(
-        budgetId,
-        data.items.map(item => ({
-          code: item.code,
-          description: item.description,
-          isCategory: item.isCategory,
-          observations: item.observations
-        }))
-      );
-      if (!insertedItems) return null;
-      
-      // Create a mapping between item codes and their new IDs
-      const itemCodeToIdMap = new Map();
-      insertedItems.forEach(item => {
-        itemCodeToIdMap.set(item.code, item.id);
-      });
-      
-      // 4. Create price entries
-      const pricesToInsert: { budget_item_id: string, company_id: string, price: number }[] = [];
-      
-      for (const item of data.items) {
-        const itemId = itemCodeToIdMap.get(item.code);
-        if (!itemId) continue;
+      if (data.items.length > 0) {
+        const insertedItems = await budgetItemsService.createItems(
+          budgetId,
+          data.items.map(item => ({
+            code: item.code,
+            description: item.description,
+            isCategory: item.isCategory,
+            observations: item.observations
+          }))
+        );
+        if (!insertedItems) return null;
         
-        // Add prices for each company
-        for (const [companyId, price] of Object.entries(item.prices)) {
-          const company = data.companies.find(c => c.id === companyId);
-          if (!company) continue;
+        // Create a mapping between item codes and their new IDs
+        const itemCodeToIdMap = new Map();
+        insertedItems.forEach(item => {
+          itemCodeToIdMap.set(item.code, item.id);
+        });
+        
+        // 4. Create price entries
+        const pricesToInsert: { budget_item_id: string, company_id: string, price: number }[] = [];
+        
+        for (const item of data.items) {
+          const itemId = itemCodeToIdMap.get(item.code);
+          if (!itemId) continue;
           
-          const newCompanyId = companyNameToIdMap.get(company.name);
-          if (!newCompanyId) continue;
-          
-          if (price > 0) {
-            pricesToInsert.push({
-              budget_item_id: itemId,
-              company_id: newCompanyId,
-              price: price
-            });
+          // Add prices for each company
+          for (const [companyId, price] of Object.entries(item.prices)) {
+            const company = data.companies.find(c => c.id === companyId);
+            if (!company) continue;
+            
+            const newCompanyId = companyNameToIdMap.get(company.name);
+            if (!newCompanyId) continue;
+            
+            if (price > 0) {
+              pricesToInsert.push({
+                budget_item_id: itemId,
+                company_id: newCompanyId,
+                price: price
+              });
+            }
           }
         }
-      }
-      
-      const pricesCreated = await budgetPricesService.createPrices(pricesToInsert);
-      if (!pricesCreated) {
-        console.error("Error creating prices");
-        // Continue anyway, as we have created the main budget entities
+        
+        if (pricesToInsert.length > 0) {
+          const pricesCreated = await budgetPricesService.createPrices(pricesToInsert);
+          if (!pricesCreated) {
+            console.error("Error creating prices");
+            // Continue anyway, as we have created the main budget entities
+          }
+        }
       }
       
       return budgetId;
@@ -86,8 +90,8 @@ export const budgetComparisonService = {
     }
   },
   
-  async getBudgetComparisons(): Promise<BudgetComparison[]> {
-    return budgetComparisonsService.getAllBudgetComparisons();
+  async getBudgetComparisons(projectId?: string): Promise<BudgetComparison[]> {
+    return budgetComparisonsService.getAllBudgetComparisons(projectId);
   },
   
   async getBudgetComparison(id: string): Promise<BudgetComparisonData | null> {

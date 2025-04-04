@@ -158,7 +158,8 @@
     "overheadDescription": "This percentage will be applied to all projects started in",
     "saveSettings": "Save Settings",
     "year": "Year",
-    "financials": "Financials"
+    "financials": "Financials",
+    "budgetComparison": "Budget Comparison"
   },
   "dialog": {
     "areYouSure": "Are you sure?",

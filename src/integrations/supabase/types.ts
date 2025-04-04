@@ -47,6 +47,7 @@ export type Database = {
           description: string | null
           id: string
           name: string
+          project_id: string | null
           updated_at: string
           user_id: string | null
         }
@@ -55,6 +56,7 @@ export type Database = {
           description?: string | null
           id?: string
           name: string
+          project_id?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -63,10 +65,19 @@ export type Database = {
           description?: string | null
           id?: string
           name?: string
+          project_id?: string | null
           updated_at?: string
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "budget_comparisons_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       budget_items: {
         Row: {
