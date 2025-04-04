@@ -56,6 +56,11 @@ export function useBudgetComparison(projectId?: string) {
     const projectIdToUse = selectedProjectId || projectId;
     console.log("Saving budget:", name, {companies, items: budgetItems}, "projectId:", projectIdToUse);
     
+    // Make sure we have valid data to save
+    if (companies.length === 0 && budgetItems.length === 0) {
+      console.log("Creating a budget with no data");
+    }
+    
     return saveToDatabase(name, {
       companies,
       items: budgetItems

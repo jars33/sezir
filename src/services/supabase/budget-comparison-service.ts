@@ -1,4 +1,3 @@
-
 import { BudgetComparisonItem, Company, BudgetComparison } from "@/types/budget";
 import { budgetComparisonsService } from "./budget-comparisons-service";
 import { budgetCompaniesService } from "./budget-companies-service";
@@ -18,20 +17,28 @@ export const budgetComparisonService = {
       const budgetId = await budgetComparisonsService.createBudgetComparison(name, projectId);
       if (!budgetId) return null;
       
-      // 2. Create companies
-      const insertedCompanies = await budgetCompaniesService.createCompanies(
-        budgetId, 
-        data.companies.map(company => ({ name: company.name }))
-      );
-      if (!insertedCompanies) return null;
+      // 2. Create companies - only if there are companies to create
+      const insertedCompanies = data.companies.length > 0 
+        ? await budgetCompaniesService.createCompanies(
+            budgetId, 
+            data.companies.map(company => ({ name: company.name }))
+          )
+        : [];
+      
+      if (data.companies.length > 0 && !insertedCompanies) {
+        console.error("Failed to create companies");
+        return budgetId; // Still return the budgetId to allow for updating later
+      }
       
       // Create a mapping between company names and their new IDs
       const companyNameToIdMap = new Map();
-      insertedCompanies.forEach(company => {
-        companyNameToIdMap.set(company.name, company.id);
-      });
+      if (insertedCompanies && insertedCompanies.length > 0) {
+        insertedCompanies.forEach(company => {
+          companyNameToIdMap.set(company.name, company.id);
+        });
+      }
 
-      // 3. Create budget items
+      // 3. Create budget items - only if there are items to create
       if (data.items.length > 0) {
         const insertedItems = await budgetItemsService.createItems(
           budgetId,
@@ -42,7 +49,11 @@ export const budgetComparisonService = {
             observations: item.observations
           }))
         );
-        if (!insertedItems) return null;
+        
+        if (!insertedItems) {
+          console.error("Failed to create budget items");
+          return budgetId; // Still return the budgetId to allow for updating later
+        }
         
         // Create a mapping between item codes and their new IDs
         const itemCodeToIdMap = new Map();
@@ -50,7 +61,7 @@ export const budgetComparisonService = {
           itemCodeToIdMap.set(item.code, item.id);
         });
         
-        // 4. Create price entries
+        // 4. Create price entries - only if there are prices to create
         const pricesToInsert: { budget_item_id: string, company_id: string, price: number }[] = [];
         
         for (const item of data.items) {

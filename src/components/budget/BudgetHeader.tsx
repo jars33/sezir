@@ -68,8 +68,6 @@ export const BudgetHeader: React.FC<BudgetHeaderProps> = ({
   }, [projectId]);
 
   const handleSave = () => {
-    if (!selectedProjectId) return;
-    
     // Use the project name as the budget name if no name is provided
     const budgetName = name || projects.find(p => p.id === selectedProjectId)?.name || "New Budget";
     onSave(budgetName, selectedProjectId);
@@ -161,15 +159,12 @@ export const BudgetHeader: React.FC<BudgetHeaderProps> = ({
         )}
       </div>
       <div className="flex items-center gap-2">
-        {(isNew || isEditing) && (
-          <Button 
-            onClick={handleSave} 
-            disabled={!selectedProjectId}
-          >
-            <Save className="h-4 w-4 mr-2" />
-            {t('common.save')}
-          </Button>
-        )}
+        <Button 
+          onClick={handleSave} 
+        >
+          <Save className="h-4 w-4 mr-2" />
+          {t('common.save')}
+        </Button>
         <Button variant="outline" onClick={onExport}>
           <Download className="h-4 w-4 mr-2" />
           {t('common.export')}
