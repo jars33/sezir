@@ -43,11 +43,11 @@ const BudgetComparison = () => {
     setCurrentBudgetId(undefined);
   };
   
-  const handleSave = async (name: string, selectedProjectId?: string) => {
+  const handleSave = async (description: string, selectedProjectId?: string) => {
     // If 'none' is selected, set to undefined
     const projectIdToSave = selectedProjectId === 'none' ? undefined : selectedProjectId;
     
-    const budgetId = await saveBudget(name, projectIdToSave);
+    const budgetId = await saveBudget(description, projectIdToSave);
     if (budgetId) {
       setShowNewBudget(false);
       setCurrentBudgetId(budgetId);
@@ -160,7 +160,7 @@ const BudgetComparison = () => {
         onExport={handleExportToCSV}
         onImport={handleImportFromCSV}
         isNew={!currentBudgetId}
-        budgetName={!currentBudgetId ? "" : budgets.find(b => b.id === currentBudgetId)?.name}
+        budgetDescription={!currentBudgetId ? "" : budgets.find(b => b.id === currentBudgetId)?.description}
         projectId={projectId || budgets.find(b => b.id === currentBudgetId)?.projectId}
         onUpdateProject={handleUpdateProject}
       />

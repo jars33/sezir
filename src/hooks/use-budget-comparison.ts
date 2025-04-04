@@ -70,17 +70,17 @@ export function useBudgetComparison(projectId?: string) {
     }
   };
   
-  const saveBudget = async (name: string, selectedProjectId?: string) => {
+  const saveBudget = async (description: string, selectedProjectId?: string) => {
     // Use the selected project ID if provided, otherwise use the one from the URL
     const projectIdToUse = selectedProjectId || projectId;
-    console.log("Saving budget:", name, {companies, items: budgetItems}, "projectId:", projectIdToUse);
+    console.log("Saving budget:", description, {companies, items: budgetItems}, "projectId:", projectIdToUse);
     
     // Make sure we have valid data to save
     if (companies.length === 0 && budgetItems.length === 0) {
       console.log("Creating a budget with no data");
     }
     
-    return saveToDatabase(name, {
+    return saveToDatabase(description, {
       companies,
       items: budgetItems
     }, projectIdToUse);

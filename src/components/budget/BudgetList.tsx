@@ -5,9 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { Plus, FileSpreadsheet, Calendar } from "lucide-react";
+import { Plus, FileSpreadsheet } from "lucide-react";
 import { BudgetComparison } from "@/types/budget";
-import { formatCurrency } from "@/lib/utils";
 import { projectService } from "@/services/supabase/project-service";
 
 interface BudgetListProps {
@@ -51,7 +50,6 @@ export const BudgetList: React.FC<BudgetListProps> = ({
   
   const filteredBudgets = searchTerm 
     ? budgets.filter(budget => 
-        budget.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
         (budget.description || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
         (budget.projectId && projects[budget.projectId] && 
          projects[budget.projectId].toLowerCase().includes(searchTerm.toLowerCase()))
@@ -83,28 +81,17 @@ export const BudgetList: React.FC<BudgetListProps> = ({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{t('common.name')}</TableHead>
                   <TableHead>{t('common.description')}</TableHead>
                   <TableHead>{t('common.project')}</TableHead>
                   <TableHead>{t('common.createdAt')}</TableHead>
-                  <TableHead>{t('common.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredBudgets.map((budget) => (
                   <TableRow key={budget.id} className="cursor-pointer hover:bg-gray-50" onClick={() => onSelectBudget(budget.id)}>
-                    <TableCell className="font-medium">{budget.name}</TableCell>
-                    <TableCell>{budget.description || "-"}</TableCell>
+                    <TableCell className="font-medium">{budget.description || "-"}</TableCell>
                     <TableCell>{budget.projectId ? projects[budget.projectId] || "-" : "-"}</TableCell>
                     <TableCell>{new Date(budget.createdAt).toLocaleDateString()}</TableCell>
-                    <TableCell>
-                      <Button variant="ghost" size="sm" onClick={(e) => {
-                        e.stopPropagation();
-                        onSelectBudget(budget.id);
-                      }}>
-                        <FileSpreadsheet className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

@@ -1,32 +1,20 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Save, Download, Upload, Edit } from "lucide-react";
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AlertTriangle, ArrowLeft, Download, Save, Upload } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { projectService } from "@/services/supabase/project-service";
-import { Skeleton } from "@/components/ui/skeleton";
-
-interface Project {
-  id: string;
-  name: string;
-  number: string;
-}
 
 interface BudgetHeaderProps {
   onBack: () => void;
-  onSave: (name: string, projectId?: string) => void;
-  onExport: () => void;
-  onImport: () => void;
+  onSave: (description: string, projectId?: string) => void;
+  onExport?: () => void;
+  onImport?: () => void;
   isNew?: boolean;
-  budgetName?: string;
+  budgetDescription?: string;
   projectId?: string;
 }
 
@@ -36,129 +24,115 @@ export const BudgetHeader: React.FC<BudgetHeaderProps> = ({
   onExport,
   onImport,
   isNew = true,
-  budgetName = "",
+  budgetDescription = "",
   projectId
 }) => {
   const { t } = useTranslation();
-  const [name, setName] = useState(budgetName);
-  const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>(projectId);
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [isLoadingProjects, setIsLoadingProjects] = useState(false);
-  const [isEditing, setIsEditing] = useState(isNew);
-
-  useEffect(() => {
-    const fetchProjects = async () => {
-      setIsLoadingProjects(true);
-      try {
-        const projectsData = await projectService.getAllProjects();
-        setProjects(projectsData);
-      } catch (error) {
-        console.error("Error fetching projects:", error);
-      } finally {
-        setIsLoadingProjects(false);
-      }
-    };
-
-    fetchProjects();
-  }, []);
-
-  useEffect(() => {
-    // Update selected project id when projectId prop changes
-    setSelectedProjectId(projectId);
-  }, [projectId]);
-
-  const handleSave = () => {
-    // Use the project name as the budget name if no name is provided
-    const budgetName = name || projects.find(p => p.id === selectedProjectId)?.name || "New Budget";
-    onSave(budgetName, selectedProjectId);
+  const [description, setDescription] = useState(budgetDescription);
+  const [selectedProjectId, setSelectedProjectId] = useState<string>(projectId || "none");
+  const [isSaving, setIsSaving] = useState(false);
+  
+  // Fetch projects from the API
+  const { data: projects, isLoading: isLoadingProjects } = useQuery({
+    queryKey: ["projects"],
+    queryFn: async () => {
+      const data = await projectService.getAllProjects();
+      return data;
+    },
+  });
+  
+  const handleSave = async () => {
+    if (!description) {
+      // TODO: Add validation error UI
+      return;
+    }
     
-    if (!isNew) {
-      setIsEditing(false);
+    setIsSaving(true);
+    
+    try {
+      const projectIdToSave = selectedProjectId === "none" ? undefined : selectedProjectId;
+      await onSave(description, projectIdToSave);
+    } finally {
+      setIsSaving(false);
     }
   };
-
-  const selectedProject = projects.find(p => p.id === selectedProjectId);
-
+  
   return (
-    <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={onBack}>
-          <ArrowLeft className="h-5 w-5" />
+    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex items-center gap-2">
+        <Button variant="ghost" onClick={onBack} title={t('common.back')}>
+          <ArrowLeft className="h-4 w-4" />
         </Button>
-        
-        <div className="flex flex-col">
-          {isNew || isEditing ? (
-            <div className="flex flex-col space-y-2">
-              <Input
-                placeholder={t('budget.budgetName')}
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full md:w-60"
-              />
-              {isLoadingProjects ? (
-                <Skeleton className="h-10 w-60" />
-              ) : (
-                <Select 
-                  value={selectedProjectId} 
-                  onValueChange={(value) => setSelectedProjectId(value)}
-                >
-                  <SelectTrigger className="w-full md:w-60">
-                    <SelectValue placeholder={t('budget.selectProject')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">{t('budget.noProject')}</SelectItem>
-                    {projects.map((project) => (
-                      <SelectItem key={project.id} value={project.id}>
-                        {project.number} - {project.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            </div>
-          ) : (
-            <>
-              <h2 className="text-2xl font-semibold">{budgetName}</h2>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">
-                  {selectedProject ? (
-                    <>
-                      {t('budget.linkedToProject')} #{selectedProject.number} - {selectedProject.name}
-                    </>
-                  ) : (
-                    t('budget.noLinkedProject')
-                  )}
-                </span>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-6 w-6"
-                  onClick={() => setIsEditing(true)}
-                  title={t('common.edit')}
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
-              </div>
-            </>
+        <h1 className="text-xl font-semibold">
+          {isNew ? t('budget.createBudget') : t('budget.editBudget')}
+        </h1>
+      </div>
+      
+      <div className="flex flex-col md:flex-row gap-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <Input
+            placeholder={t('budget.enterBudgetDescription')}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="min-w-[200px]"
+          />
+          
+          <Select 
+            value={selectedProjectId} 
+            onValueChange={setSelectedProjectId}
+          >
+            <SelectTrigger className="min-w-[150px]">
+              <SelectValue placeholder={t('budget.selectProject')} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">{t('budget.noProject')}</SelectItem>
+              {projects?.map((project) => (
+                <SelectItem key={project.id} value={project.id}>
+                  {project.number} - {project.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex gap-2">
+          <Button 
+            onClick={handleSave} 
+            disabled={!description || isSaving}
+            className="whitespace-nowrap"
+          >
+            <Save className="h-4 w-4 mr-2" />
+            {t('common.save')}
+          </Button>
+          
+          {onExport && (
+            <Button 
+              variant="outline" 
+              onClick={onExport}
+              title={t('common.export')}
+            >
+              <Download className="h-4 w-4" />
+            </Button>
+          )}
+
+          {onImport && (
+            <Button 
+              variant="outline" 
+              onClick={onImport}
+              title={t('common.import')}
+            >
+              <Upload className="h-4 w-4" />
+            </Button>
           )}
         </div>
       </div>
-      <div className="flex items-center gap-2">
-        <Button 
-          onClick={handleSave} 
-        >
-          <Save className="h-4 w-4 mr-2" />
-          {t('common.save')}
-        </Button>
-        <Button variant="outline" onClick={onExport}>
-          <Download className="h-4 w-4 mr-2" />
-          {t('common.export')}
-        </Button>
-        <Button variant="outline" onClick={onImport}>
-          <Upload className="h-4 w-4 mr-2" />
-          {t('common.import')}
-        </Button>
-      </div>
+      
+      {!description && (
+        <div className="flex items-center gap-2 text-yellow-600 text-sm mt-1">
+          <AlertTriangle className="h-4 w-4" />
+          {t('budget.descriptionRequired')}
+        </div>
+      )}
     </div>
   );
 };

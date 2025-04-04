@@ -44,12 +44,12 @@ export function useBudgetData(projectId?: string) {
     }
   };
   
-  const saveBudget = async (name: string, data: BudgetComparisonData, selectedProjectId?: string) => {
+  const saveBudget = async (description: string, data: BudgetComparisonData, selectedProjectId?: string) => {
     setIsLoading(true);
     
     try {
       const budgetId = await budgetSaveService.saveBudgetComparison(
-        name, 
+        description, 
         data, 
         selectedProjectId,
         currentBudgetId
@@ -61,7 +61,7 @@ export function useBudgetData(projectId?: string) {
           const currentDate = new Date().toISOString();
           const newBudget: BudgetComparison = {
             id: budgetId,
-            name,
+            description,
             projectId: selectedProjectId,
             createdAt: currentDate,
             updatedAt: currentDate
@@ -75,7 +75,7 @@ export function useBudgetData(projectId?: string) {
             budget.id === budgetId
               ? { 
                   ...budget, 
-                  name, 
+                  description, 
                   projectId: selectedProjectId,
                   updatedAt: currentDate
                 }

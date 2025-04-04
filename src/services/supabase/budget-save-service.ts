@@ -13,7 +13,7 @@ export const budgetSaveService = {
    * Saves a budget comparison (creates new or updates existing)
    */
   async saveBudgetComparison(
-    name: string, 
+    description: string, 
     data: BudgetComparisonData, 
     projectId?: string, 
     existingBudgetId?: string
@@ -23,10 +23,10 @@ export const budgetSaveService = {
 
       // Check if we're updating an existing budget or creating a new one
       if (existingBudgetId) {
-        // Update the existing budget name and project
+        // Update the existing budget description and project
         const updated = await budgetComparisonsService.updateBudgetComparison(
           existingBudgetId, 
-          name, 
+          description, 
           projectId
         );
         
@@ -43,7 +43,7 @@ export const budgetSaveService = {
         // Prices will be deleted cascade through items
       } else {
         // Create a new budget comparison
-        budgetId = await budgetComparisonsService.createBudgetComparison(name, projectId);
+        budgetId = await budgetComparisonsService.createBudgetComparison(description, projectId);
         if (!budgetId) return null;
       }
       
