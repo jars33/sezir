@@ -231,7 +231,7 @@
     "reply": "Responder"
   },
   "budget": {
-    "comparisonTitle": "Comparação Orçamental",
+    "comparisonTitle": "Orçamentos",
     "createNew": "Criar Novo Orçamento",
     "enterBudgetName": "Inserir nome do orçamento...",
     "budgetSaved": "Orçamento guardado com sucesso",
@@ -244,7 +244,7 @@
     "addBudgetItem": "Adicionar Item",
     "parentItem": "Item Pai",
     "itemDescription": "Descrição do Item",
-    "isCategory": "É Categoria",
+    "isCategory": "Categoria",
     "noParent": "Sem item pai (nível superior)",
     "itemCode": "Código",
     "itemDescription": "Descrição",
