@@ -12,4 +12,3 @@ export * from './team-member-allocations-service';
 export * from './teams-service';
 export * from './salary-handling-service';
 export * from './project-allocations-service';
-export * from './calculations-service';
