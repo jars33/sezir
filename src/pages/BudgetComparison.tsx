@@ -25,7 +25,8 @@ const BudgetComparison = () => {
     deleteBudgetItem,
     saveBudget,
     loadBudget,
-    setCurrentBudgetId
+    setCurrentBudgetId,
+    updateBudgetProject
   } = useBudgetComparison(projectId);
 
   const [showNewBudget, setShowNewBudget] = useState(false);
@@ -49,6 +50,17 @@ const BudgetComparison = () => {
       toast.success(t('budget.budgetSaved'));
     } else {
       toast.error(t('budget.errorSavingBudget'));
+    }
+  };
+
+  const handleUpdateProject = async (newProjectId: string) => {
+    if (!currentBudgetId) return;
+    
+    const updated = await updateBudgetProject(currentBudgetId, newProjectId);
+    if (updated) {
+      toast.success(t('budget.projectUpdated'));
+    } else {
+      toast.error(t('budget.errorUpdatingProject'));
     }
   };
   
@@ -144,6 +156,7 @@ const BudgetComparison = () => {
         isNew={showNewBudget}
         budgetName={showNewBudget ? "" : budgets.find(b => b.id === currentBudgetId)?.name}
         projectId={projectId || budgets.find(b => b.id === currentBudgetId)?.projectId}
+        onUpdateProject={handleUpdateProject}
       />
     </div>
   );

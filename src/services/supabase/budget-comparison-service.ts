@@ -4,6 +4,7 @@ import { budgetComparisonsService } from "./budget-comparisons-service";
 import { budgetCompaniesService } from "./budget-companies-service";
 import { budgetItemsService } from "./budget-items-service";
 import { budgetPricesService } from "./budget-prices-service";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface BudgetComparisonData {
   companies: Company[];
@@ -168,6 +169,25 @@ export const budgetComparisonService = {
     } catch (error) {
       console.error("Error in getBudgetComparison:", error);
       return null;
+    }
+  },
+
+  async updateBudgetProject(budgetId: string, projectId: string): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('budget_comparisons')
+        .update({ project_id: projectId || null })
+        .eq('id', budgetId);
+
+      if (error) {
+        console.error("Error updating budget project:", error);
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error("Error in updateBudgetProject:", error);
+      return false;
     }
   }
 };

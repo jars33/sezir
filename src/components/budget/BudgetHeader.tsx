@@ -44,6 +44,7 @@ export const BudgetHeader: React.FC<BudgetHeaderProps> = ({
   const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>(projectId);
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoadingProjects, setIsLoadingProjects] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -61,15 +62,24 @@ export const BudgetHeader: React.FC<BudgetHeaderProps> = ({
     fetchProjects();
   }, []);
 
+  useEffect(() => {
+    // Update selected project id when projectId prop changes
+    setSelectedProjectId(projectId);
+  }, [projectId]);
+
   const handleSave = () => {
     if (!selectedProjectId) return;
     
     // Use the project name as the budget name if no name is provided
     const budgetName = name || projects.find(p => p.id === selectedProjectId)?.name || "New Budget";
     onSave(budgetName, selectedProjectId);
+    
+    if (!isNew) {
+      setIsEditing(false);
+    }
   };
 
-  const selectedProject = projects.find(p => p.id === projectId || p.id === selectedProjectId);
+  const selectedProject = projects.find(p => p.id === selectedProjectId);
 
   return (
     <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
@@ -103,16 +113,54 @@ export const BudgetHeader: React.FC<BudgetHeaderProps> = ({
         ) : (
           <div className="flex flex-col">
             <h2 className="text-2xl font-semibold">{budgetName}</h2>
-            {selectedProject && (
-              <span className="text-sm text-muted-foreground">
-                {t('budget.linkedToProject')} #{selectedProject.number} - {selectedProject.name}
-              </span>
+            {isEditing ? (
+              <div className="mt-2">
+                {isLoadingProjects ? (
+                  <Skeleton className="h-10 w-60" />
+                ) : (
+                  <Select 
+                    value={selectedProjectId} 
+                    onValueChange={(value) => setSelectedProjectId(value)}
+                  >
+                    <SelectTrigger className="w-full md:w-60">
+                      <SelectValue placeholder={t('budget.selectProject')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {projects.map((project) => (
+                        <SelectItem key={project.id} value={project.id}>
+                          {project.number} - {project.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">
+                  {selectedProject ? (
+                    <>
+                      {t('budget.linkedToProject')} #{selectedProject.number} - {selectedProject.name}
+                    </>
+                  ) : (
+                    t('budget.noLinkedProject')
+                  )}
+                </span>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-6 px-2 text-xs"
+                  onClick={() => setIsEditing(true)}
+                >
+                  {t('common.change')}
+                </Button>
+              </div>
             )}
           </div>
         )}
       </div>
       <div className="flex items-center gap-2">
-        {isNew && (
+        {(isNew || isEditing) && (
           <Button 
             onClick={handleSave} 
             disabled={!selectedProjectId}

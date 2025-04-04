@@ -79,6 +79,31 @@ export function useBudgetData(projectId?: string) {
       setIsLoading(false);
     }
   };
+
+  const updateBudgetProject = async (budgetId: string, newProjectId: string) => {
+    try {
+      setIsLoading(true);
+      const success = await budgetComparisonService.updateBudgetProject(budgetId, newProjectId);
+      
+      if (success) {
+        // Update local state with new project ID
+        setBudgets(prevBudgets => 
+          prevBudgets.map(budget => 
+            budget.id === budgetId 
+              ? { ...budget, projectId: newProjectId || undefined } 
+              : budget
+          )
+        );
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Failed to update budget project:", error);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
   
   return {
     budgets,
@@ -86,6 +111,7 @@ export function useBudgetData(projectId?: string) {
     isLoading,
     saveBudget,
     loadBudget,
-    setCurrentBudgetId
+    setCurrentBudgetId,
+    updateBudgetProject
   };
 }

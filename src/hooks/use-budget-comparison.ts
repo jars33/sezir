@@ -32,7 +32,8 @@ export function useBudgetComparison(projectId?: string) {
     isLoading,
     saveBudget: saveToDatabase,
     loadBudget: loadFromDatabase,
-    setCurrentBudgetId
+    setCurrentBudgetId,
+    updateBudgetProject: updateProjectInDatabase
   } = useBudgetData(projectId);
   
   // Initialize with empty arrays for new budget
@@ -69,6 +70,27 @@ export function useBudgetComparison(projectId?: string) {
       setBudgetItems(data.items);
     }
   };
+
+  const updateBudgetProject = async (budgetId: string, newProjectId: string) => {
+    const updated = await updateProjectInDatabase(budgetId, newProjectId);
+    
+    if (updated) {
+      // Update the local budgets list with the new project ID
+      const updatedBudgets = budgets.map(budget => {
+        if (budget.id === budgetId) {
+          return {
+            ...budget,
+            projectId: newProjectId || undefined
+          };
+        }
+        return budget;
+      });
+      
+      // No need to explicitly set the budgets state as it will be handled by the useBudgetData hook
+    }
+    
+    return updated;
+  };
   
   return {
     budgetItems,
@@ -84,6 +106,7 @@ export function useBudgetComparison(projectId?: string) {
     deleteBudgetItem,
     saveBudget,
     loadBudget,
-    setCurrentBudgetId
+    setCurrentBudgetId,
+    updateBudgetProject
   };
 }

@@ -24,6 +24,7 @@ interface BudgetDetailsProps {
   isNew?: boolean;
   budgetName?: string;
   projectId?: string;
+  onUpdateProject?: (projectId: string) => void;
 }
 
 export const BudgetDetails: React.FC<BudgetDetailsProps> = ({
@@ -42,15 +43,26 @@ export const BudgetDetails: React.FC<BudgetDetailsProps> = ({
   onImport,
   isNew = true,
   budgetName = "",
-  projectId
+  projectId,
+  onUpdateProject
 }) => {
   const { t } = useTranslation();
+
+  // Handle save with potential project update
+  const handleSave = (name: string, newProjectId?: string) => {
+    // If this is an existing budget and the project changed, update it
+    if (!isNew && newProjectId !== projectId && onUpdateProject) {
+      onUpdateProject(newProjectId || "");
+    }
+    
+    onSave(name, newProjectId);
+  };
 
   return (
     <div className="space-y-6">
       <BudgetHeader
         onBack={onBack}
-        onSave={onSave}
+        onSave={handleSave}
         onExport={onExport}
         onImport={onImport}
         isNew={isNew}
