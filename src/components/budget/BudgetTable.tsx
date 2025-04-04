@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
@@ -6,6 +5,10 @@ import { BudgetComparisonItem, Company } from "@/types/budget";
 import { Input } from "@/components/ui/input";
 import { PriceCell } from "./PriceCell";
 import { formatCurrency } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 interface BudgetTableProps {
   items: BudgetComparisonItem[];
@@ -23,6 +26,17 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
   onRemoveCompany
 }) => {
   const { t } = useTranslation();
+  
+  if (companies.length === 0) {
+    return (
+      <Alert>
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          {t('budget.noCompaniesAdded')}
+        </AlertDescription>
+      </Alert>
+    );
+  }
   
   return (
     <Table className="min-w-full border-collapse">
@@ -60,80 +74,85 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
       </TableHeader>
 
       <TableBody>
-        {items.map((item) => (
-          <TableRow key={item.id} className={item.isCategory ? "bg-muted/50 font-bold" : ""}>
-            <TableCell className="border border-border text-center">
-              {item.code}
+        {items.length === 0 ? (
+          <TableRow>
+            <TableCell colSpan={6 + companies.length} className="text-center py-8">
+              {t('budget.noItemsAdded')}
             </TableCell>
-            <TableCell className="border border-border font-medium">
-              <div className="flex items-center gap-2">
-                <span className={item.isCategory ? "ml-0" : "ml-4"}>
-                  {item.description}
-                </span>
-              </div>
-            </TableCell>
+          </TableRow>
+        ) : (
+          items.map((item) => (
+            <TableRow key={item.id} className={item.isCategory ? "bg-muted/50 font-bold" : ""}>
+              <TableCell className="border border-border text-center">
+                {item.code}
+              </TableCell>
+              <TableCell className="border border-border font-medium">
+                <div className="flex items-center gap-2">
+                  <span className={item.isCategory ? "ml-0" : "ml-4"}>
+                    {item.description}
+                  </span>
+                </div>
+              </TableCell>
 
+              {companies.map((company) => {
+                const price = item.prices[company.id] || 0;
+                
+                return (
+                  <TableCell key={`${item.id}-${company.id}`} className="border border-border p-0">
+                    <PriceCell 
+                      price={price} 
+                      average={item.averagePrice}
+                      stdDev={item.standardDeviation || 0}
+                      onChange={(value) => onUpdateItem(item.id, company.id, value)}
+                      isCategory={item.isCategory}
+                    />
+                  </TableCell>
+                );
+              })}
+
+              <TableCell className="border border-border text-right">
+                {item.lowestPrice > 0 ? formatCurrency(item.lowestPrice) : ""}
+              </TableCell>
+              <TableCell className="border border-border text-right">
+                {item.averagePrice > 0 ? formatCurrency(item.averagePrice) : ""}
+              </TableCell>
+              <TableCell className="border border-border">
+                {!item.isCategory && (
+                  <Input
+                    value={item.observations || ""}
+                    onChange={(e) => onUpdateObservation(item.id, e.target.value)}
+                    className="w-full"
+                  />
+                )}
+              </TableCell>
+            </TableRow>
+          ))
+        )}
+
+        {items.length > 0 && (
+          <TableRow className="bg-muted font-bold">
+            <TableCell className="border border-border" colSpan={2}>
+              {t('common.total')}
+            </TableCell>
+            
             {companies.map((company) => {
-              const price = item.prices[company.id] || 0;
+              const total = items
+                .filter(item => !item.isCategory)
+                .reduce((sum, item) => sum + (item.prices[company.id] || 0), 0);
               
               return (
-                <TableCell key={`${item.id}-${company.id}`} className="border border-border p-0">
-                  <PriceCell 
-                    price={price} 
-                    average={item.averagePrice}
-                    stdDev={item.standardDeviation || 0}
-                    onChange={(value) => onUpdateItem(item.id, company.id, value)}
-                    isCategory={item.isCategory}
-                  />
+                <TableCell key={`total-${company.id}`} className="border border-border text-right font-bold">
+                  {formatCurrency(total)}
                 </TableCell>
               );
             })}
 
-            <TableCell className="border border-border text-right">
-              {item.lowestPrice > 0 ? formatCurrency(item.lowestPrice) : ""}
-            </TableCell>
-            <TableCell className="border border-border text-right">
-              {item.averagePrice > 0 ? formatCurrency(item.averagePrice) : ""}
-            </TableCell>
-            <TableCell className="border border-border">
-              {!item.isCategory && (
-                <Input
-                  value={item.observations || ""}
-                  onChange={(e) => onUpdateObservation(item.id, e.target.value)}
-                  className="w-full"
-                />
-              )}
-            </TableCell>
+            <TableCell className="border border-border"></TableCell>
+            <TableCell className="border border-border"></TableCell>
+            <TableCell className="border border-border"></TableCell>
           </TableRow>
-        ))}
-
-        {/* Total row */}
-        <TableRow className="bg-muted font-bold">
-          <TableCell className="border border-border" colSpan={2}>
-            {t('common.total')}
-          </TableCell>
-          
-          {companies.map((company) => {
-            const total = items
-              .filter(item => !item.isCategory)
-              .reduce((sum, item) => sum + (item.prices[company.id] || 0), 0);
-            
-            return (
-              <TableCell key={`total-${company.id}`} className="border border-border text-right font-bold">
-                {formatCurrency(total)}
-              </TableCell>
-            );
-          })}
-
-          <TableCell className="border border-border"></TableCell>
-          <TableCell className="border border-border"></TableCell>
-          <TableCell className="border border-border"></TableCell>
-        </TableRow>
+        )}
       </TableBody>
     </Table>
   );
 };
-
-// Adding import that was missed
-import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";

@@ -34,14 +34,12 @@ export function useBudgetComparison() {
     setCurrentBudgetId
   } = useBudgetData();
   
-  // Initialize with sample companies when creating a new budget
+  // Initialize with empty arrays for new budget
   useEffect(() => {
     if (!currentBudgetId && companies.length === 0) {
-      // Add default companies for a new budget
-      setCompanies(createSampleCompanies());
-      
-      // Start with empty items list rather than sample items
-      setBudgetItems(createSampleItems());
+      // Start with empty companies and items lists
+      setCompanies([]);
+      setBudgetItems([]);
     }
   }, [currentBudgetId, companies.length]);
   

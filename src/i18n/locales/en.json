@@ -217,5 +217,30 @@
     "unstar": "Unstar",
     "selectMessageToView": "Select a message to view",
     "reply": "Reply"
+  },
+  "budget": {
+    "comparisonTitle": "Budget Comparison",
+    "createNew": "Create New Budget",
+    "enterBudgetName": "Enter budget name...",
+    "budgetSaved": "Budget saved successfully",
+    "errorSavingBudget": "Error saving budget",
+    "errorLoadingBudgets": "Error loading budgets",
+    "errorLoadingBudget": "Error loading budget",
+    "companiesComparison": "Companies Comparison",
+    "addCompany": "Add Company",
+    "companyName": "Company Name",
+    "addBudgetItem": "Add Budget Item",
+    "parentItem": "Parent Item",
+    "itemDescription": "Item Description",
+    "isCategory": "Is Category",
+    "noParent": "No parent (top level)",
+    "itemCode": "Code",
+    "itemDescription": "Description",
+    "lowestPrice": "Lowest Price",
+    "avgPrice": "Average Price",
+    "observations": "Observations",
+    "no_item_selected": "No item selected",
+    "noCompaniesAdded": "No companies added. Add a company to start the budget comparison.",
+    "noItemsAdded": "No budget items added. Add items to start the comparison."
   }
 }

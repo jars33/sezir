@@ -216,5 +216,30 @@
     "unstar": "Remover destaque",
     "selectMessageToView": "Selecione uma mensagem para visualizar",
     "reply": "Responder"
+  },
+  "budget": {
+    "comparisonTitle": "Comparação Orçamental",
+    "createNew": "Criar Novo Orçamento",
+    "enterBudgetName": "Inserir nome do orçamento...",
+    "budgetSaved": "Orçamento guardado com sucesso",
+    "errorSavingBudget": "Erro ao guardar orçamento",
+    "errorLoadingBudgets": "Erro ao carregar orçamentos",
+    "errorLoadingBudget": "Erro ao carregar orçamento",
+    "companiesComparison": "Comparação de Empresas",
+    "addCompany": "Adicionar Empresa",
+    "companyName": "Nome da Empresa",
+    "addBudgetItem": "Adicionar Item",
+    "parentItem": "Item Pai",
+    "itemDescription": "Descrição do Item",
+    "isCategory": "É Categoria",
+    "noParent": "Sem item pai (nível superior)",
+    "itemCode": "Código",
+    "itemDescription": "Descrição",
+    "lowestPrice": "Menor Preço",
+    "avgPrice": "Preço Médio",
+    "observations": "Observações",
+    "no_item_selected": "Nenhum item selecionado",
+    "noCompaniesAdded": "Nenhuma empresa adicionada. Adicione uma empresa para iniciar a comparação orçamental.",
+    "noItemsAdded": "Nenhum item adicionado. Adicione itens para iniciar a comparação."
   }
 }
