@@ -245,7 +245,7 @@
     "addNewItem": "Adicionar Novo Item",
     "parentItem": "Item Pai",
     "itemDescription": "Descrição do Item",
-    "isCategory": "É Categoria",
+    "isCategory": "Categoria",
     "parentCategory": "Categoria Pai",
     "noParent": "Sem item pai (nível superior)",
     "itemCode": "Código",
