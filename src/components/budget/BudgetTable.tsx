@@ -109,6 +109,20 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
             const isCategoryWithValues = item.isCategory && categoryTotals[item.id];
             const isEditing = editingItemId === item.id;
             
+            // Calculate lowest and average prices for category totals
+            let categoryLowestPrice = 0;
+            let categoryAveragePrice = 0;
+            
+            if (isCategoryWithValues) {
+              const totals = categoryTotals[item.id];
+              const priceValues = Object.values(totals).filter(p => p > 0);
+              
+              if (priceValues.length > 0) {
+                categoryLowestPrice = Math.min(...priceValues);
+                categoryAveragePrice = priceValues.reduce((sum, price) => sum + price, 0) / priceValues.length;
+              }
+            }
+            
             return (
               <TableRow key={item.id} className={item.isCategory ? "bg-muted/50 font-bold" : ""}>
                 <TableCell className="border border-border text-center">
@@ -195,10 +209,18 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
                 })}
 
                 <TableCell className="border border-border text-right">
-                  {item.lowestPrice > 0 ? formatCurrency(item.lowestPrice) : ""}
+                  {isCategoryWithValues && categoryLowestPrice > 0 
+                    ? formatCurrency(categoryLowestPrice)
+                    : item.lowestPrice > 0 
+                      ? formatCurrency(item.lowestPrice) 
+                      : ""}
                 </TableCell>
                 <TableCell className="border border-border text-right">
-                  {item.averagePrice > 0 ? formatCurrency(item.averagePrice) : ""}
+                  {isCategoryWithValues && categoryAveragePrice > 0
+                    ? formatCurrency(categoryAveragePrice)
+                    : item.averagePrice > 0 
+                      ? formatCurrency(item.averagePrice) 
+                      : ""}
                 </TableCell>
                 <TableCell className="border border-border">
                   <Input
