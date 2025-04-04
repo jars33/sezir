@@ -1,7 +1,15 @@
 
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { 
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetFooter,
+  SheetTrigger,
+  SheetClose
+} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,15 +43,15 @@ export const AddBudgetItemDialog: React.FC<AddBudgetItemDialogProps> = ({ items,
   };
   
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
         {children}
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>{t('budget.addNewItem')}</DialogTitle>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
+      </SheetTrigger>
+      <SheetContent side="right" className="w-full sm:max-w-md">
+        <SheetHeader>
+          <SheetTitle>{t('budget.addNewItem')}</SheetTitle>
+        </SheetHeader>
+        <div className="grid gap-6 py-6">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="description" className="text-right">
               {t('common.description')}
@@ -59,12 +67,15 @@ export const AddBudgetItemDialog: React.FC<AddBudgetItemDialogProps> = ({ items,
             <Label htmlFor="isCategory" className="text-right">
               {t('budget.isCategory')}
             </Label>
-            <div className="col-span-3">
+            <div className="col-span-3 flex items-center space-x-2">
               <Switch
                 id="isCategory"
                 checked={isCategory}
                 onCheckedChange={setIsCategory}
               />
+              <span className="text-sm text-muted-foreground">
+                {isCategory ? t('common.yes') : t('common.no')}
+              </span>
             </div>
           </div>
           
@@ -73,8 +84,8 @@ export const AddBudgetItemDialog: React.FC<AddBudgetItemDialogProps> = ({ items,
               <Label className="text-right pt-2">
                 {t('budget.parentCategory')}
               </Label>
-              <div className="col-span-3 border rounded max-h-40 overflow-hidden">
-                <ScrollArea className="h-40">
+              <div className="col-span-3 border rounded max-h-60 overflow-hidden">
+                <ScrollArea className="h-60 w-full">
                   <div className="p-2">
                     <div 
                       className={`p-2 cursor-pointer mb-1 rounded ${!selectedParentCode ? 'bg-primary/10 font-medium' : 'hover:bg-muted'}`}
@@ -97,15 +108,15 @@ export const AddBudgetItemDialog: React.FC<AddBudgetItemDialogProps> = ({ items,
             </div>
           )}
         </div>
-        <div className="flex justify-end gap-2">
-          <Button variant="ghost" onClick={() => setOpen(false)}>
-            {t('common.cancel')}
-          </Button>
+        <SheetFooter>
+          <SheetClose asChild>
+            <Button variant="outline">{t('common.cancel')}</Button>
+          </SheetClose>
           <Button onClick={handleAddItem} disabled={!description.trim()}>
             {t('common.add')}
           </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   );
 };
