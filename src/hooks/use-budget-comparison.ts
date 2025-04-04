@@ -15,7 +15,8 @@ export function useBudgetComparison(projectId?: string) {
     companies, 
     setCompanies, 
     addCompany, 
-    removeCompany 
+    removeCompany,
+    updateCompanyName: updateCompanyNameInState
   } = useBudgetCompanies([]);
   const { 
     budgetItems, 
@@ -34,7 +35,8 @@ export function useBudgetComparison(projectId?: string) {
     saveBudget: saveToDatabase,
     loadBudget: loadFromDatabase,
     setCurrentBudgetId,
-    updateBudgetProject: updateProjectInDatabase
+    updateBudgetProject: updateProjectInDatabase,
+    updateCompanyName: updateCompanyNameInDatabase
   } = useBudgetData(projectId);
   
   // Initialize with empty arrays for new budget
@@ -50,6 +52,22 @@ export function useBudgetComparison(projectId?: string) {
   const handleRemoveCompany = (companyId: string) => {
     removeCompany(companyId);
     updateItemsForCompanyRemoval(companyId);
+  };
+
+  // Handle updating a company name
+  const updateCompanyName = async (companyId: string, name: string) => {
+    // First update in local state
+    updateCompanyNameInState(companyId, name);
+    
+    // If there's a current budget, update in the database
+    if (currentBudgetId) {
+      const updated = await updateCompanyNameInDatabase(currentBudgetId, companyId, name);
+      if (updated) {
+        toast.success(t('budget.companyNameUpdated'));
+      } else {
+        toast.error(t('budget.errorUpdatingCompanyName'));
+      }
+    }
   };
   
   const saveBudget = async (name: string, selectedProjectId?: string) => {
@@ -109,6 +127,7 @@ export function useBudgetComparison(projectId?: string) {
     updateItem,
     updateItemObservation,
     updateItemDescription,
+    updateCompanyName,
     addBudgetItem,
     deleteBudgetItem,
     saveBudget,

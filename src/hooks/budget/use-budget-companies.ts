@@ -12,19 +12,28 @@ export function useBudgetCompanies(initialCompanies: Company[] = []) {
       name
     };
     
-    setCompanies([...companies, newCompany]);
-    return newCompany;
+    setCompanies(prev => [...prev, newCompany]);
   };
   
-  const removeCompany = (companyId: string) => {
-    setCompanies(companies.filter(c => c.id !== companyId));
-    return companyId;
+  const removeCompany = (id: string) => {
+    setCompanies(prev => prev.filter(company => company.id !== id));
+  };
+
+  const updateCompanyName = (id: string, name: string) => {
+    setCompanies(prev => 
+      prev.map(company => 
+        company.id === id 
+          ? { ...company, name } 
+          : company
+      )
+    );
   };
   
   return {
     companies,
     setCompanies,
     addCompany,
-    removeCompany
+    removeCompany,
+    updateCompanyName
   };
 }

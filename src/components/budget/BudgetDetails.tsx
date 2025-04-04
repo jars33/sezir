@@ -17,6 +17,7 @@ interface BudgetDetailsProps {
   onUpdateItem: (itemId: string, companyId: string, price: number) => void;
   onUpdateObservation: (itemId: string, observation: string) => void;
   onUpdateDescription: (itemId: string, description: string) => void;
+  onUpdateCompanyName?: (companyId: string, name: string) => void;
   onAddBudgetItem: (parentCode: string | null, description: string, isCategory: boolean) => void;
   onDeleteItem: (id: string) => void;
   onSave: (name: string, projectId?: string) => void;
@@ -38,6 +39,7 @@ export const BudgetDetails: React.FC<BudgetDetailsProps> = ({
   onUpdateItem,
   onUpdateObservation,
   onUpdateDescription,
+  onUpdateCompanyName,
   onAddBudgetItem,
   onDeleteItem,
   onSave,
@@ -90,6 +92,7 @@ export const BudgetDetails: React.FC<BudgetDetailsProps> = ({
               onUpdateItem={onUpdateItem}
               onUpdateObservation={onUpdateObservation}
               onUpdateDescription={onUpdateDescription}
+              onUpdateCompanyName={onUpdateCompanyName}
               onRemoveCompany={onRemoveCompany}
               onDeleteItem={onDeleteItem}
             />

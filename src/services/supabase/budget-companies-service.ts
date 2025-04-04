@@ -50,6 +50,25 @@ export const budgetCompaniesService = {
     }
   },
 
+  async updateCompanyName(companyId: string, name: string): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('budget_companies')
+        .update({ name })
+        .eq('id', companyId);
+        
+      if (error) {
+        console.error("Error updating company name:", error);
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error("Error in updateCompanyName:", error);
+      return false;
+    }
+  },
+
   async deleteCompaniesByBudgetId(budgetComparisonId: string): Promise<boolean> {
     try {
       const { error } = await supabase

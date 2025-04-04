@@ -1,130 +1,122 @@
 
 import { useState, useEffect } from "react";
+import { BudgetComparisonData } from "@/services/supabase/budget-utils/types";
 import { BudgetComparison } from "@/types/budget";
-import { budgetComparisonService } from "@/services/supabase/budget-comparison-service";
-import { toast } from "sonner";
-import { useTranslation } from "react-i18next";
+import { budgetDataService } from "@/services/supabase/budget-data-service";
+import { budgetSaveService } from "@/services/supabase/budget-save-service";
+import { budgetCompaniesService } from "@/services/supabase/budget-companies-service";
 
 export function useBudgetData(projectId?: string) {
-  const { t } = useTranslation();
   const [budgets, setBudgets] = useState<BudgetComparison[]>([]);
   const [currentBudgetId, setCurrentBudgetId] = useState<string | undefined>();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
-  // Load budgets on first render
+  // Load budgets when the component mounts or project ID changes
   useEffect(() => {
-    const loadBudgets = async () => {
-      setIsLoading(true);
-      try {
-        const data = await budgetComparisonService.getBudgetComparisons(projectId);
-        setBudgets(data);
-      } catch (error) {
-        console.error("Failed to load budgets:", error);
-        toast.error(t('budget.errorLoadingBudgets'));
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
     loadBudgets();
-  }, [projectId, t]);
+  }, [projectId]);
   
-  const saveBudget = async (name: string, data: any, selectedProjectId?: string) => {
+  const loadBudgets = async () => {
+    setIsLoading(true);
+    
     try {
-      setIsLoading(true);
-      // Make sure we're using a valid projectId
-      const projectIdToUse = selectedProjectId || undefined;
-      
-      const budgetId = await budgetComparisonService.saveBudgetComparison(
+      const data = await budgetDataService.getBudgetComparisons(projectId);
+      setBudgets(data);
+    } catch (error) {
+      console.error("Error loading budgets:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const loadBudget = async (id: string) => {
+    setIsLoading(true);
+    setCurrentBudgetId(id);
+    
+    try {
+      const data = await budgetDataService.getBudgetComparisonData(id);
+      return data;
+    } catch (error) {
+      console.error("Error loading budget data:", error);
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const saveBudget = async (name: string, data: BudgetComparisonData, selectedProjectId?: string) => {
+    setIsLoading(true);
+    
+    try {
+      const budgetId = await budgetSaveService.saveBudgetComparison(
         name, 
         data, 
-        projectIdToUse, 
-        currentBudgetId // Pass the current budget ID for updates
+        selectedProjectId,
+        currentBudgetId
       );
       
       if (budgetId) {
-        // If we're updating an existing budget
-        if (currentBudgetId) {
-          // Update the budget in the list
-          setBudgets(prevBudgets => 
-            prevBudgets.map(budget => 
-              budget.id === budgetId 
-                ? { 
-                    ...budget, 
-                    name, 
-                    projectId: projectIdToUse,
-                    updatedAt: new Date().toISOString() 
-                  } 
-                : budget
-            )
-          );
-        } else {
-          // Add the new budget to the list
+        // If this is a new budget, add it to the list
+        if (!currentBudgetId) {
           const newBudget: BudgetComparison = {
             id: budgetId,
             name,
-            projectId: projectIdToUse,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
+            projectId: selectedProjectId
           };
           
-          setBudgets(prevBudgets => [newBudget, ...prevBudgets]);
+          setBudgets(prev => [...prev, newBudget]);
+        } else {
+          // Update the budget in the list
+          setBudgets(prev => prev.map(budget => 
+            budget.id === budgetId
+              ? { ...budget, name, projectId: selectedProjectId }
+              : budget
+          ));
         }
-        return budgetId;
+        
+        setCurrentBudgetId(budgetId);
       }
-      return null;
+      
+      return budgetId;
     } catch (error) {
-      console.error("Failed to save budget:", error);
-      toast.error(t('budget.errorSavingBudget'));
+      console.error("Error saving budget:", error);
       return null;
     } finally {
       setIsLoading(false);
     }
   };
   
-  const loadBudget = async (budgetId: string) => {
+  const updateBudgetProject = async (budgetId: string, newProjectId: string) => {
+    setIsLoading(true);
+    
     try {
-      setIsLoading(true);
-      const data = await budgetComparisonService.getBudgetComparison(budgetId);
+      const updated = await budgetDataService.updateBudgetProject(budgetId, newProjectId);
       
-      if (data) {
-        setCurrentBudgetId(budgetId);
-        return data;
-      } else {
-        toast.error(t('budget.errorLoadingBudget'));
-        return null;
+      if (updated) {
+        // Update the budget in the list
+        setBudgets(prev => prev.map(budget => 
+          budget.id === budgetId
+            ? { ...budget, projectId: newProjectId || undefined }
+            : budget
+        ));
       }
+      
+      return updated;
     } catch (error) {
-      console.error("Failed to load budget:", error);
-      toast.error(t('budget.errorLoadingBudget'));
-      return null;
+      console.error("Error updating budget project:", error);
+      return false;
     } finally {
       setIsLoading(false);
     }
   };
 
-  const updateBudgetProject = async (budgetId: string, newProjectId: string) => {
+  const updateCompanyName = async (budgetId: string, companyId: string, name: string) => {
     try {
-      setIsLoading(true);
-      const success = await budgetComparisonService.updateBudgetProject(budgetId, newProjectId);
-      
-      if (success) {
-        // Update local state with new project ID
-        setBudgets(prevBudgets => 
-          prevBudgets.map(budget => 
-            budget.id === budgetId 
-              ? { ...budget, projectId: newProjectId || undefined } 
-              : budget
-          )
-        );
-        return true;
-      }
-      return false;
+      const updated = await budgetCompaniesService.updateCompanyName(companyId, name);
+      return updated;
     } catch (error) {
-      console.error("Failed to update budget project:", error);
+      console.error("Error updating company name:", error);
       return false;
-    } finally {
-      setIsLoading(false);
     }
   };
   
@@ -132,9 +124,10 @@ export function useBudgetData(projectId?: string) {
     budgets,
     currentBudgetId,
     isLoading,
-    saveBudget,
     loadBudget,
+    saveBudget,
     setCurrentBudgetId,
-    updateBudgetProject
+    updateBudgetProject,
+    updateCompanyName
   };
 }

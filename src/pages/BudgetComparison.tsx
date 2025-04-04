@@ -22,6 +22,7 @@ const BudgetComparison = () => {
     updateItem, 
     updateItemObservation,
     updateItemDescription,
+    updateCompanyName,
     addBudgetItem,
     deleteBudgetItem,
     saveBudget,
@@ -152,6 +153,7 @@ const BudgetComparison = () => {
         onUpdateItem={updateItem}
         onUpdateObservation={updateItemObservation}
         onUpdateDescription={updateItemDescription}
+        onUpdateCompanyName={updateCompanyName}
         onAddBudgetItem={addBudgetItem}
         onDeleteItem={deleteBudgetItem}
         onSave={handleSave}

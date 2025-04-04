@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { PriceCell } from "./PriceCell";
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { X, Pencil, Check } from "lucide-react";
+import { X, Check } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,6 +21,7 @@ interface BudgetTableProps {
   onRemoveCompany: (id: string) => void;
   onDeleteItem: (id: string) => void;
   onUpdateDescription: (itemId: string, description: string) => void;
+  onUpdateCompanyName?: (companyId: string, name: string) => void;
 }
 
 export const BudgetTable: React.FC<BudgetTableProps> = ({
@@ -31,11 +32,14 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
   onUpdateObservation,
   onRemoveCompany,
   onDeleteItem,
-  onUpdateDescription
+  onUpdateDescription,
+  onUpdateCompanyName
 }) => {
   const { t } = useTranslation();
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [editingDescription, setEditingDescription] = useState<string>("");
+  const [editingCompanyId, setEditingCompanyId] = useState<string | null>(null);
+  const [editingCompanyName, setEditingCompanyName] = useState<string>("");
   
   const handleEditDescription = (itemId: string, currentDescription: string) => {
     setEditingItemId(itemId);
@@ -49,6 +53,24 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
   
   const handleCancelEdit = () => {
     setEditingItemId(null);
+  };
+  
+  const handleEditCompanyName = (companyId: string, currentName: string) => {
+    if (onUpdateCompanyName) {
+      setEditingCompanyId(companyId);
+      setEditingCompanyName(currentName);
+    }
+  };
+  
+  const handleSaveCompanyName = (companyId: string) => {
+    if (onUpdateCompanyName && editingCompanyName.trim() !== "") {
+      onUpdateCompanyName(companyId, editingCompanyName);
+    }
+    setEditingCompanyId(null);
+  };
+  
+  const handleCancelCompanyEdit = () => {
+    setEditingCompanyId(null);
   };
   
   if (companies.length === 0) {
@@ -72,15 +94,55 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
           {companies.map((company) => (
             <TableHead key={company.id} className="w-32 border border-border bg-primary/10 text-center">
               <div className="flex justify-between items-center">
-                {company.name}
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-5 w-5"
-                  onClick={() => onRemoveCompany(company.id)}
-                >
-                  <X className="h-3 w-3" />
-                </Button>
+                {editingCompanyId === company.id ? (
+                  <div className="flex items-center justify-between w-full pr-1">
+                    <Input
+                      value={editingCompanyName}
+                      onChange={(e) => setEditingCompanyName(e.target.value)}
+                      className="w-full h-6 py-0 px-1 text-xs"
+                      autoFocus
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleSaveCompanyName(company.id);
+                        if (e.key === 'Escape') handleCancelCompanyEdit();
+                      }}
+                    />
+                    <div className="flex gap-1">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-5 w-5"
+                        onClick={() => handleSaveCompanyName(company.id)}
+                      >
+                        <Check className="h-3 w-3" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-5 w-5"
+                        onClick={handleCancelCompanyEdit}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <span 
+                      className="flex-grow cursor-pointer"
+                      onClick={() => onUpdateCompanyName && handleEditCompanyName(company.id, company.name)}
+                    >
+                      {company.name}
+                    </span>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-5 w-5"
+                      onClick={() => onRemoveCompany(company.id)}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </>
+                )}
               </div>
             </TableHead>
           ))}
@@ -137,6 +199,15 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
                           onChange={(e) => setEditingDescription(e.target.value)}
                           className="min-h-[30px] py-1 text-base"
                           rows={2}
+                          autoFocus
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                              handleSaveDescription(item.id);
+                            }
+                            if (e.key === 'Escape') {
+                              handleCancelEdit();
+                            }
+                          }}
                         />
                         <div className="flex flex-col">
                           <Button
@@ -159,27 +230,20 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
                       </div>
                     ) : (
                       <>
-                        <span className={item.isCategory ? "ml-0" : "ml-4"}>
+                        <span 
+                          className={`${item.isCategory ? "ml-0" : "ml-4"} cursor-pointer flex-grow`}
+                          onClick={() => handleEditDescription(item.id, item.description)}
+                        >
                           {item.description}
                         </span>
-                        <div className="flex gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleEditDescription(item.id, item.description)}
-                            className="h-8 w-8 p-0"
-                          >
-                            <Pencil className="h-4 w-4 text-gray-500" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 p-0"
-                            onClick={() => onDeleteItem(item.id)}
-                          >
-                            <X className="h-4 w-4 text-gray-500" />
-                          </Button>
-                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 p-0"
+                          onClick={() => onDeleteItem(item.id)}
+                        >
+                          <X className="h-4 w-4 text-gray-500" />
+                        </Button>
                       </>
                     )}
                   </div>
