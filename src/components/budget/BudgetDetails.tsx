@@ -18,12 +18,11 @@ interface BudgetDetailsProps {
   onUpdateObservation: (itemId: string, observation: string) => void;
   onAddBudgetItem: (parentCode: string | null, description: string, isCategory: boolean) => void;
   onDeleteItem: (id: string) => void;
-  onSave: (name: string, description: string, projectId?: string) => void;
+  onSave: (name: string, projectId?: string) => void;
   onExport: () => void;
   onImport: () => void;
   isNew?: boolean;
   budgetName?: string;
-  budgetDescription?: string;
   projectId?: string;
   onUpdateProject?: (projectId: string) => void;
 }
@@ -44,20 +43,19 @@ export const BudgetDetails: React.FC<BudgetDetailsProps> = ({
   onImport,
   isNew = true,
   budgetName = "",
-  budgetDescription = "",
   projectId,
   onUpdateProject
 }) => {
   const { t } = useTranslation();
 
   // Handle save with potential project update
-  const handleSave = (name: string, description: string, newProjectId?: string) => {
+  const handleSave = (name: string, newProjectId?: string) => {
     // If this is an existing budget and the project changed, update it
     if (!isNew && newProjectId !== projectId && onUpdateProject) {
       onUpdateProject(newProjectId || "");
     }
     
-    onSave(name, description, newProjectId);
+    onSave(name, newProjectId);
   };
 
   return (
@@ -69,7 +67,6 @@ export const BudgetDetails: React.FC<BudgetDetailsProps> = ({
         onImport={onImport}
         isNew={isNew}
         budgetName={budgetName}
-        budgetDescription={budgetDescription}
         projectId={projectId}
       />
 

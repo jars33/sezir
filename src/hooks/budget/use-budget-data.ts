@@ -1,131 +1,130 @@
 
 import { useState, useEffect } from "react";
-import { BudgetComparison, Company, BudgetComparisonItem } from "@/types/budget";
+import { BudgetComparison } from "@/types/budget";
 import { budgetComparisonService } from "@/services/supabase/budget-comparison-service";
-import { v4 as uuidv4 } from "uuid";
+import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 
 export function useBudgetData(projectId?: string) {
   const { t } = useTranslation();
   const [budgets, setBudgets] = useState<BudgetComparison[]>([]);
-  const [currentBudgetId, setCurrentBudgetId] = useState<string | undefined>(undefined);
-  const [isLoading, setIsLoading] = useState(true);
+  const [currentBudgetId, setCurrentBudgetId] = useState<string | undefined>();
+  const [isLoading, setIsLoading] = useState(false);
   
-  // Load budget list on initial render
+  // Load budgets on first render
   useEffect(() => {
     const loadBudgets = async () => {
       setIsLoading(true);
       try {
-        const allBudgets = await budgetComparisonService.getBudgetComparisons(projectId);
-        setBudgets(allBudgets);
+        const data = await budgetComparisonService.getBudgetComparisons(projectId);
+        setBudgets(data);
       } catch (error) {
-        console.error("Error loading budgets:", error);
+        console.error("Failed to load budgets:", error);
+        toast.error(t('budget.errorLoadingBudgets'));
       } finally {
         setIsLoading(false);
       }
     };
     
     loadBudgets();
-  }, [projectId]);
+  }, [projectId, t]);
   
-  // Save or update a budget
-  const saveBudget = async (
-    name: string, 
-    description: string,
-    data: { companies: Company[]; items: BudgetComparisonItem[] },
-    selectedProjectId?: string
-  ): Promise<string | null> => {
+  const saveBudget = async (name: string, data: any, selectedProjectId?: string) => {
     try {
+      setIsLoading(true);
+      // Make sure we're using a valid projectId
+      const projectIdToUse = selectedProjectId || undefined;
+      
       const budgetId = await budgetComparisonService.saveBudgetComparison(
-        name,
-        description,
-        data,
-        selectedProjectId,
-        currentBudgetId
+        name, 
+        data, 
+        projectIdToUse, 
+        currentBudgetId // Pass the current budget ID for updates
       );
       
       if (budgetId) {
-        // If this is a new budget, add it to the list
-        if (!currentBudgetId) {
-          const now = new Date().toISOString();
+        // If we're updating an existing budget
+        if (currentBudgetId) {
+          // Update the budget in the list
+          setBudgets(prevBudgets => 
+            prevBudgets.map(budget => 
+              budget.id === budgetId 
+                ? { 
+                    ...budget, 
+                    name, 
+                    projectId: projectIdToUse,
+                    updatedAt: new Date().toISOString() 
+                  } 
+                : budget
+            )
+          );
+        } else {
+          // Add the new budget to the list
           const newBudget: BudgetComparison = {
             id: budgetId,
             name,
-            description,
-            projectId: selectedProjectId,
-            createdAt: now,
-            updatedAt: now
+            projectId: projectIdToUse,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
           };
           
-          setBudgets(prev => [...prev, newBudget]);
-        } else {
-          // Update existing budget in the list
-          setBudgets(prev => prev.map(budget => {
-            if (budget.id === budgetId) {
-              return {
-                ...budget,
-                name,
-                description,
-                projectId: selectedProjectId,
-                updatedAt: new Date().toISOString()
-              };
-            }
-            return budget;
-          }));
+          setBudgets(prevBudgets => [newBudget, ...prevBudgets]);
         }
-        
         return budgetId;
       }
       return null;
     } catch (error) {
-      console.error("Error saving budget:", error);
+      console.error("Failed to save budget:", error);
+      toast.error(t('budget.errorSavingBudget'));
       return null;
+    } finally {
+      setIsLoading(false);
     }
   };
   
-  // Load a budget by ID
   const loadBudget = async (budgetId: string) => {
     try {
       setIsLoading(true);
-      const budgetData = await budgetComparisonService.getBudgetComparison(budgetId);
+      const data = await budgetComparisonService.getBudgetComparison(budgetId);
       
-      if (budgetData) {
+      if (data) {
         setCurrentBudgetId(budgetId);
-        return budgetData;
+        return data;
+      } else {
+        toast.error(t('budget.errorLoadingBudget'));
+        return null;
       }
-      
-      return null;
     } catch (error) {
-      console.error("Error loading budget:", error);
+      console.error("Failed to load budget:", error);
+      toast.error(t('budget.errorLoadingBudget'));
       return null;
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Update project ID for a budget
   const updateBudgetProject = async (budgetId: string, newProjectId: string) => {
     try {
-      const updated = await budgetComparisonService.updateBudgetProject(budgetId, newProjectId);
+      setIsLoading(true);
+      const success = await budgetComparisonService.updateBudgetProject(budgetId, newProjectId);
       
-      if (updated) {
-        // Update the project ID in the budgets list
-        setBudgets(prev => prev.map(budget => {
-          if (budget.id === budgetId) {
-            return {
-              ...budget,
-              projectId: newProjectId || undefined,
-              updatedAt: new Date().toISOString()
-            };
-          }
-          return budget;
-        }));
+      if (success) {
+        // Update local state with new project ID
+        setBudgets(prevBudgets => 
+          prevBudgets.map(budget => 
+            budget.id === budgetId 
+              ? { ...budget, projectId: newProjectId || undefined } 
+              : budget
+          )
+        );
+        return true;
       }
-      
-      return updated;
-    } catch (error) {
-      console.error("Error updating budget project:", error);
       return false;
+    } catch (error) {
+      console.error("Failed to update budget project:", error);
+      return false;
+    } finally {
+      setIsLoading(false);
     }
   };
   

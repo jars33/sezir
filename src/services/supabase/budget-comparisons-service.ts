@@ -2,66 +2,70 @@
 import { supabase } from "@/integrations/supabase/client";
 import { BudgetComparison } from "@/types/budget";
 
-interface BudgetComparisonCreateData {
+export interface BudgetComparisonBasic {
+  id: string;
   name: string;
   description?: string;
-  project_id?: string | null;
-}
-
-interface BudgetComparisonUpdateData {
-  name?: string;
-  description?: string;
-  project_id?: string | null;
+  projectId?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export const budgetComparisonsService = {
-  /**
-   * Creates a new budget comparison record
-   */
-  async createBudgetComparison(data: BudgetComparisonCreateData): Promise<string | null> {
+  async createBudgetComparison(name: string, projectId?: string, description?: string): Promise<string | null> {
     try {
-      const { data: newBudget, error } = await supabase
-        .from('budget_comparisons')
-        .insert({
-          name: data.name,
-          description: data.description || null,
-          project_id: data.project_id || null,
-          user_id: (await supabase.auth.getUser()).data.user?.id || null
-        })
-        .select('id')
-        .single();
-        
-      if (error) {
-        console.error("Error creating budget comparison:", error);
+      // Get the current authenticated user's ID
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        console.error("User not authenticated");
         return null;
       }
       
-      return newBudget?.id || null;
+      const { data, error } = await supabase
+        .from('budget_comparisons')
+        .insert({
+          name: name,
+          description: description || `Budget comparison for ${name}`,
+          project_id: projectId,
+          user_id: user.id
+        })
+        .select('id')
+        .single();
+
+      if (error || !data) {
+        console.error("Error creating budget comparison:", error);
+        return null;
+      }
+
+      return data.id;
     } catch (error) {
       console.error("Error in createBudgetComparison:", error);
       return null;
     }
   },
   
-  /**
-   * Updates an existing budget comparison record
-   */
-  async updateBudgetComparison(id: string, data: BudgetComparisonUpdateData): Promise<boolean> {
+  async updateBudgetComparison(id: string, name: string, projectId?: string, description?: string): Promise<boolean> {
     try {
+      const updateData: any = {
+        name: name,
+        project_id: projectId || null
+      };
+      
+      if (description) {
+        updateData.description = description;
+      }
+      
       const { error } = await supabase
         .from('budget_comparisons')
-        .update({
-          name: data.name,
-          description: data.description,
-          project_id: data.project_id
-        })
+        .update(updateData)
         .eq('id', id);
-        
+
       if (error) {
         console.error("Error updating budget comparison:", error);
         return false;
       }
-      
+
       return true;
     } catch (error) {
       console.error("Error in updateBudgetComparison:", error);
@@ -69,61 +73,34 @@ export const budgetComparisonsService = {
     }
   },
   
-  /**
-   * Retrieves all budget comparisons, optionally filtered by project
-   */
-  async getAllBudgetComparisons(projectId?: string): Promise<BudgetComparison[]> {
+  async getAllBudgetComparisons(projectId?: string): Promise<BudgetComparisonBasic[]> {
     try {
       let query = supabase
         .from('budget_comparisons')
-        .select('id, name, description, project_id, created_at, updated_at')
-        .order('created_at', { ascending: false });
-      
+        .select('id, name, description, project_id, created_at, updated_at');
+        
       if (projectId) {
         query = query.eq('project_id', projectId);
       }
       
-      const { data, error } = await query;
-      
+      const { data, error } = await query.order('updated_at', { ascending: false });
+        
       if (error) {
         console.error("Error fetching budget comparisons:", error);
         return [];
       }
       
-      // Map database field names to camelCase
       return (data || []).map(item => ({
         id: item.id,
         name: item.name,
-        description: item.description,
-        projectId: item.project_id,
+        description: item.description || undefined,
+        projectId: item.project_id || undefined,
         createdAt: item.created_at,
         updatedAt: item.updated_at
       }));
     } catch (error) {
       console.error("Error in getAllBudgetComparisons:", error);
       return [];
-    }
-  },
-  
-  /**
-   * Deletes a budget comparison by ID
-   */
-  async deleteBudgetComparison(id: string): Promise<boolean> {
-    try {
-      const { error } = await supabase
-        .from('budget_comparisons')
-        .delete()
-        .eq('id', id);
-        
-      if (error) {
-        console.error("Error deleting budget comparison:", error);
-        return false;
-      }
-      
-      return true;
-    } catch (error) {
-      console.error("Error in deleteBudgetComparison:", error);
-      return false;
     }
   }
 };

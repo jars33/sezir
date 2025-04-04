@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Save, Download, Upload, Edit } from "lucide-react";
 import { 
   Select,
@@ -23,12 +22,11 @@ interface Project {
 
 interface BudgetHeaderProps {
   onBack: () => void;
-  onSave: (name: string, description: string, projectId?: string) => void;
+  onSave: (name: string, projectId?: string) => void;
   onExport: () => void;
   onImport: () => void;
   isNew?: boolean;
   budgetName?: string;
-  budgetDescription?: string;
   projectId?: string;
 }
 
@@ -39,12 +37,10 @@ export const BudgetHeader: React.FC<BudgetHeaderProps> = ({
   onImport,
   isNew = true,
   budgetName = "",
-  budgetDescription = "",
   projectId
 }) => {
   const { t } = useTranslation();
   const [name, setName] = useState(budgetName);
-  const [description, setDescription] = useState(budgetDescription);
   const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>(projectId);
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoadingProjects, setIsLoadingProjects] = useState(false);
@@ -70,16 +66,11 @@ export const BudgetHeader: React.FC<BudgetHeaderProps> = ({
     // Update selected project id when projectId prop changes
     setSelectedProjectId(projectId);
   }, [projectId]);
-  
-  useEffect(() => {
-    // Update description state when budgetDescription prop changes
-    setDescription(budgetDescription);
-  }, [budgetDescription]);
 
   const handleSave = () => {
     // Use the project name as the budget name if no name is provided
     const budgetName = name || projects.find(p => p.id === selectedProjectId)?.name || "New Budget";
-    onSave(budgetName, description, selectedProjectId);
+    onSave(budgetName, selectedProjectId);
     
     if (!isNew) {
       setIsEditing(false);
@@ -103,13 +94,6 @@ export const BudgetHeader: React.FC<BudgetHeaderProps> = ({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full md:w-60"
-              />
-              <Textarea
-                placeholder={t('budget.budgetDescription')}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="w-full md:w-60"
-                rows={2}
               />
               {isLoadingProjects ? (
                 <Skeleton className="h-10 w-60" />
@@ -135,10 +119,7 @@ export const BudgetHeader: React.FC<BudgetHeaderProps> = ({
           ) : (
             <>
               <h2 className="text-2xl font-semibold">{budgetName}</h2>
-              {budgetDescription && (
-                <p className="text-sm text-muted-foreground mt-1">{budgetDescription}</p>
-              )}
-              <div className="flex items-center gap-2 mt-1">
+              <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">
                   {selectedProject ? (
                     <>

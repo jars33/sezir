@@ -1,132 +1,173 @@
 
-import { supabase } from "@/integrations/supabase/client";
 import { BudgetComparisonData } from "./budget-utils/types";
+import { budgetComparisonsService } from "./budget-comparisons-service";
 import { budgetCompaniesService } from "./budget-companies-service";
 import { budgetItemsService } from "./budget-items-service";
 import { budgetPricesService } from "./budget-prices-service";
-import { budgetComparisonsService } from "./budget-comparisons-service";
 
+/**
+ * Service for saving budget comparison data
+ */
 export const budgetSaveService = {
   /**
    * Saves a budget comparison (creates new or updates existing)
    */
   async saveBudgetComparison(
-    name: string,
-    description: string,
-    data: BudgetComparisonData,
-    projectId?: string,
+    name: string, 
+    data: BudgetComparisonData, 
+    projectId?: string, 
     existingBudgetId?: string
   ): Promise<string | null> {
     try {
-      let budgetId = existingBudgetId;
-      
-      // Start a transaction
-      const { data: transaction, error: txError } = await supabase.rpc('begin_transaction');
-      if (txError) throw txError;
-      
-      try {
-        // 1. Create or update the budget comparison record
-        if (existingBudgetId) {
-          // Update existing budget
-          await budgetComparisonsService.updateBudgetComparison(existingBudgetId, { 
-            name, 
-            description, 
-            project_id: projectId || null 
-          });
-        } else {
-          // Create a new budget comparison
-          budgetId = await budgetComparisonsService.createBudgetComparison({
-            name,
-            description,
-            project_id: projectId || null
-          });
-          
-          if (!budgetId) throw new Error("Failed to create budget comparison record");
-        }
-        
-        // If it's an existing budget, delete all previous items, companies and prices
-        if (existingBudgetId) {
-          await budgetPricesService.deletePricesByBudgetId(existingBudgetId);
-          await budgetItemsService.deleteItemsByBudgetId(existingBudgetId);
-          await budgetCompaniesService.deleteCompaniesByBudgetId(existingBudgetId);
-        }
-        
-        // 2. Save companies
-        const companies = await budgetCompaniesService.createCompanies(
-          budgetId as string, 
-          data.companies.map(company => ({ name: company.name }))
+      let budgetId: string;
+
+      // Check if we're updating an existing budget or creating a new one
+      if (existingBudgetId) {
+        // Update the existing budget name and project
+        const updated = await budgetComparisonsService.updateBudgetComparison(
+          existingBudgetId, 
+          name, 
+          projectId
         );
         
-        if (!companies || companies.length !== data.companies.length) {
-          throw new Error("Failed to save companies");
+        if (!updated) {
+          console.error("Failed to update budget comparison");
+          return null;
         }
         
-        // Create a map of local IDs to database IDs for companies
-        const companyIdMap = new Map<string, string>();
-        for (let i = 0; i < data.companies.length; i++) {
-          companyIdMap.set(data.companies[i].id, companies[i].id);
-        }
-        
-        // 3. Save items
-        const items = await budgetItemsService.createItems(
-          budgetId as string,
-          data.items.map(item => ({
-            code: item.code,
-            description: item.description,
-            isCategory: item.isCategory,
-            observations: item.observations
-          }))
-        );
-        
-        if (!items || items.length !== data.items.length) {
-          throw new Error("Failed to save items");
-        }
-        
-        // Create a map of local IDs to database IDs for items
-        const itemIdMap = new Map<string, string>();
-        for (let i = 0; i < data.items.length; i++) {
-          itemIdMap.set(data.items[i].id, items[i].id);
-        }
-        
-        // 4. Save prices
-        const pricesToSave = [];
-        
-        for (const item of data.items) {
-          const itemId = itemIdMap.get(item.id);
-          if (!itemId) continue;
-          
-          for (const [companyId, price] of Object.entries(item.prices)) {
-            const databaseCompanyId = companyIdMap.get(companyId);
-            if (!databaseCompanyId || price <= 0) continue;
-            
-            pricesToSave.push({
-              budget_item_id: itemId,
-              company_id: databaseCompanyId,
-              price: price
-            });
-          }
-        }
-        
-        if (pricesToSave.length > 0) {
-          const savedPrices = await budgetPricesService.createPrices(pricesToSave);
-          if (!savedPrices) {
-            throw new Error("Failed to save prices");
-          }
-        }
-        
-        // Commit the transaction
-        await supabase.rpc('commit_transaction');
-        
-        return budgetId;
-      } catch (innerError) {
-        // Rollback on error
-        console.error("Transaction error:", innerError);
-        await supabase.rpc('rollback_transaction');
-        throw innerError;
+        budgetId = existingBudgetId;
+
+        // First, delete existing companies, items and prices
+        await budgetCompaniesService.deleteCompaniesByBudgetId(budgetId);
+        await budgetItemsService.deleteItemsByBudgetId(budgetId);
+        // Prices will be deleted cascade through items
+      } else {
+        // Create a new budget comparison
+        budgetId = await budgetComparisonsService.createBudgetComparison(name, projectId);
+        if (!budgetId) return null;
       }
+      
+      // Create companies - only if there are companies to create
+      const insertedCompanies = data.companies.length > 0 
+        ? await budgetCompaniesService.createCompanies(
+            budgetId, 
+            data.companies.map(company => ({ name: company.name }))
+          )
+        : [];
+      
+      if (data.companies.length > 0 && !insertedCompanies) {
+        console.error("Failed to create companies");
+        return budgetId; // Still return the budgetId to allow for updating later
+      }
+      
+      // Create a mapping between company names and their new IDs
+      const companyNameToIdMap = this._createCompanyNameToIdMap(insertedCompanies);
+      
+      // Create budget items and prices if needed
+      if (data.items.length > 0) {
+        await this._processItems(budgetId, data, companyNameToIdMap);
+      }
+      
+      return budgetId;
     } catch (error) {
       console.error("Error in saveBudgetComparison:", error);
       return null;
     }
+  },
+  
+  /**
+   * Creates a mapping from company names to their IDs
+   */
+  _createCompanyNameToIdMap(insertedCompanies: any[] | null): Map<string, string> {
+    const companyNameToIdMap = new Map<string, string>();
+    
+    if (insertedCompanies && insertedCompanies.length > 0) {
+      insertedCompanies.forEach(company => {
+        companyNameToIdMap.set(company.name, company.id);
+      });
+    }
+    
+    return companyNameToIdMap;
+  },
+  
+  /**
+   * Processes items and their prices
+   */
+  async _processItems(
+    budgetId: string, 
+    data: BudgetComparisonData, 
+    companyNameToIdMap: Map<string, string>
+  ): Promise<void> {
+    // Create budget items
+    const insertedItems = await budgetItemsService.createItems(
+      budgetId,
+      data.items.map(item => ({
+        code: item.code,
+        description: item.description,
+        isCategory: item.isCategory,
+        observations: item.observations
+      }))
+    );
+    
+    if (!insertedItems) {
+      console.error("Failed to create budget items");
+      return;
+    }
+    
+    // Create a mapping between item codes and their new IDs
+    const itemCodeToIdMap = new Map<string, string>();
+    insertedItems.forEach(item => {
+      itemCodeToIdMap.set(item.code, item.id);
+    });
+    
+    // Create price entries
+    const pricesToInsert = this._preparePricesForInsertion(
+      data, 
+      itemCodeToIdMap, 
+      companyNameToIdMap
+    );
+    
+    if (pricesToInsert.length > 0) {
+      const pricesCreated = await budgetPricesService.createPrices(pricesToInsert);
+      if (!pricesCreated) {
+        console.error("Error creating prices");
+        // Continue anyway, as we have created the main budget entities
+      }
+    }
+  },
+  
+  /**
+   * Prepares price data for insertion
+   */
+  _preparePricesForInsertion(
+    data: BudgetComparisonData, 
+    itemCodeToIdMap: Map<string, string>, 
+    companyNameToIdMap: Map<string, string>
+  ): { budget_item_id: string, company_id: string, price: number }[] {
+    const pricesToInsert: { budget_item_id: string, company_id: string, price: number }[] = [];
+    
+    for (const item of data.items) {
+      const itemId = itemCodeToIdMap.get(item.code);
+      if (!itemId) continue;
+      
+      // Add prices for each company
+      for (const [companyId, price] of Object.entries(item.prices)) {
+        const company = data.companies.find(c => c.id === companyId);
+        if (!company) continue;
+        
+        const newCompanyId = companyNameToIdMap.get(company.name);
+        if (!newCompanyId) continue;
+        
+        if (price > 0) {
+          pricesToInsert.push({
+            budget_item_id: itemId,
+            company_id: newCompanyId,
+            price: price
+          });
+        }
+      }
+    }
+    
+    return pricesToInsert;
   }
 };

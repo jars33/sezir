@@ -41,11 +41,11 @@ const BudgetComparison = () => {
     setCurrentBudgetId(undefined);
   };
   
-  const handleSave = async (name: string, description: string, selectedProjectId?: string) => {
+  const handleSave = async (name: string, selectedProjectId?: string) => {
     // If 'none' is selected, set to undefined
     const projectIdToSave = selectedProjectId === 'none' ? undefined : selectedProjectId;
     
-    const budgetId = await saveBudget(name, description, projectIdToSave);
+    const budgetId = await saveBudget(name, projectIdToSave);
     if (budgetId) {
       setShowNewBudget(false);
       setCurrentBudgetId(budgetId);
@@ -123,9 +123,6 @@ const BudgetComparison = () => {
   
   const categoryTotals = calculateCategoryTotals();
 
-  // Find the current budget if one is selected
-  const currentBudget = budgets.find(b => b.id === currentBudgetId);
-
   // Show list if no budget is selected or creating a new one
   if (!showNewBudget && !currentBudgetId) {
     return (
@@ -158,10 +155,9 @@ const BudgetComparison = () => {
         onSave={handleSave}
         onExport={handleExportToCSV}
         onImport={handleImportFromCSV}
-        isNew={!currentBudgetId}
-        budgetName={!currentBudgetId ? "" : currentBudget?.name}
-        budgetDescription={!currentBudgetId ? "" : currentBudget?.description}
-        projectId={projectId || currentBudget?.projectId}
+        isNew={!currentBudgetId} // Set isNew based on currentBudgetId instead of showNewBudget
+        budgetName={!currentBudgetId ? "" : budgets.find(b => b.id === currentBudgetId)?.name}
+        projectId={projectId || budgets.find(b => b.id === currentBudgetId)?.projectId}
         onUpdateProject={handleUpdateProject}
       />
     </div>
