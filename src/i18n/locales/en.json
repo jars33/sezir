@@ -36,6 +36,7 @@
     "createdAt": "Created At",
     "actions": "Actions",
     "noResultsFound": "No results found",
+    "change": "Change",
     "months": {
       "jan": "Jan",
       "feb": "Feb",
@@ -261,6 +262,10 @@
     "addItem": "Add Item",
     "comparison": "Budget Comparison",
     "createNewBudget": "Create New Budget",
-    "noItemsAddedMessage": "No items added. Add items to start the comparison."
+    "noItemsAddedMessage": "No items added. Add items to start the comparison.",
+    "linkedToProject": "Linked to project",
+    "noLinkedProject": "No linked project",
+    "selectProject": "Select a project",
+    "projectUpdated": "Project association updated"
   }
 }

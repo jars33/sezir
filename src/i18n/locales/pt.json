@@ -36,6 +36,7 @@
     "createdAt": "Data de Criação",
     "actions": "Ações",
     "noResultsFound": "Nenhum resultado encontrado",
+    "change": "Alterar",
     "months": {
       "jan": "Jan",
       "feb": "Fev",
@@ -260,6 +261,10 @@
     "addItem": "Adicionar Item",
     "comparison": "Orçamentos",
     "createNewBudget": "Criar Novo Orçamento",
-    "noItemsAddedMessage": "Nenhum item adicionado. Adicione itens para iniciar a comparação."
+    "noItemsAddedMessage": "Nenhum item adicionado. Adicione itens para iniciar a comparação.",
+    "linkedToProject": "Associado ao projeto",
+    "noLinkedProject": "Sem projeto associado",
+    "selectProject": "Selecione um projeto",
+    "projectUpdated": "Associação a projeto atualizada"
   }
 }

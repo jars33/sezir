@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Save, Download, Upload } from "lucide-react";
+import { ArrowLeft, Save, Download, Upload, Edit } from "lucide-react";
 import { 
   Select,
   SelectContent,
@@ -148,11 +148,12 @@ export const BudgetHeader: React.FC<BudgetHeaderProps> = ({
                 </span>
                 <Button 
                   variant="ghost" 
-                  size="sm" 
-                  className="h-6 px-2 text-xs"
+                  size="icon" 
+                  className="h-6 w-6"
                   onClick={() => setIsEditing(true)}
+                  title={t('common.edit')}
                 >
-                  {t('common.change')}
+                  <Edit className="h-4 w-4" />
                 </Button>
               </div>
             )}
