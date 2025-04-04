@@ -14,12 +14,21 @@ export interface BudgetComparisonBasic {
 export const budgetComparisonsService = {
   async createBudgetComparison(name: string, projectId?: string, description?: string): Promise<string | null> {
     try {
+      // Get the current authenticated user's ID
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        console.error("User not authenticated");
+        return null;
+      }
+      
       const { data, error } = await supabase
         .from('budget_comparisons')
         .insert({
           name: name,
           description: description || `Budget comparison for ${name}`,
-          project_id: projectId
+          project_id: projectId,
+          user_id: user.id
         })
         .select('id')
         .single();

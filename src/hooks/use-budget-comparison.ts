@@ -51,6 +51,8 @@ export function useBudgetComparison(projectId?: string) {
   };
   
   const saveBudget = async (name: string) => {
+    console.log("Saving budget:", name, {companies, items: budgetItems}, "projectId:", projectId);
+    
     return saveToDatabase(name, {
       companies,
       items: budgetItems

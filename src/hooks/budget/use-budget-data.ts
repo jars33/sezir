@@ -43,7 +43,7 @@ export function useBudgetData(projectId?: string) {
           updatedAt: new Date().toISOString()
         };
         
-        setBudgets([newBudget, ...budgets]);
+        setBudgets(prevBudgets => [newBudget, ...prevBudgets]);
         return budgetId;
       }
       return null;
