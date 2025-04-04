@@ -32,13 +32,16 @@ export function useBudgetData(projectId?: string) {
   const saveBudget = async (name: string, data: any, selectedProjectId?: string) => {
     try {
       setIsLoading(true);
-      const budgetId = await budgetComparisonService.saveBudgetComparison(name, data, selectedProjectId);
+      // Make sure we're using a valid projectId
+      const projectIdToUse = selectedProjectId || undefined;
+      
+      const budgetId = await budgetComparisonService.saveBudgetComparison(name, data, projectIdToUse);
       
       if (budgetId) {
         const newBudget: BudgetComparison = {
           id: budgetId,
           name,
-          projectId: selectedProjectId,
+          projectId: projectIdToUse,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         };

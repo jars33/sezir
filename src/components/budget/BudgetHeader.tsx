@@ -62,9 +62,11 @@ export const BudgetHeader: React.FC<BudgetHeaderProps> = ({
   }, []);
 
   const handleSave = () => {
-    if (name.trim()) {
-      onSave(name.trim(), selectedProjectId);
-    }
+    if (!selectedProjectId) return;
+    
+    // Use the project name as the budget name if no name is provided
+    const budgetName = name || projects.find(p => p.id === selectedProjectId)?.name || "New Budget";
+    onSave(budgetName, selectedProjectId);
   };
 
   const selectedProject = projects.find(p => p.id === projectId || p.id === selectedProjectId);
@@ -78,13 +80,6 @@ export const BudgetHeader: React.FC<BudgetHeaderProps> = ({
         
         {isNew ? (
           <div className="flex flex-col md:flex-row gap-3 w-full">
-            <Input
-              placeholder={t('budget.enterBudgetName')}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full md:w-60"
-            />
-            
             {isLoadingProjects ? (
               <Skeleton className="h-10 w-60" />
             ) : (
@@ -96,7 +91,6 @@ export const BudgetHeader: React.FC<BudgetHeaderProps> = ({
                   <SelectValue placeholder={t('budget.selectProject')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">{t('common.none')}</SelectItem>
                   {projects.map((project) => (
                     <SelectItem key={project.id} value={project.id}>
                       {project.number} - {project.name}
@@ -119,7 +113,10 @@ export const BudgetHeader: React.FC<BudgetHeaderProps> = ({
       </div>
       <div className="flex items-center gap-2">
         {isNew && (
-          <Button onClick={handleSave} disabled={!name.trim()}>
+          <Button 
+            onClick={handleSave} 
+            disabled={!selectedProjectId}
+          >
             <Save className="h-4 w-4 mr-2" />
             {t('common.save')}
           </Button>
