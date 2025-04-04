@@ -83,7 +83,7 @@ export function Sidebar({ className }: SidebarProps) {
                 onClick={() => navigate("/budget-comparison")}
               >
                 <Calculator className="mr-2 h-4 w-4" />
-                {t('common.budgetComparison')}
+                {t('budget.comparison')}
               </Button>
             </div>
           </div>

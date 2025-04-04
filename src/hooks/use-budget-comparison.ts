@@ -1,7 +1,8 @@
 
-import { useState, useEffect } from "react";
-import { BudgetComparisonItem, Company } from "@/types/budget";
+import { useState, useEffect, useMemo } from "react";
+import { BudgetComparisonItem, Company, BudgetComparison } from "@/types/budget";
 import { v4 as uuidv4 } from "uuid";
+import { budgetComparisonService } from "@/services/supabase/budget-comparison-service";
 
 // Sample initial data to populate the table with common budget item categories
 const initialCategories: Partial<BudgetComparisonItem>[] = [
@@ -57,6 +58,9 @@ export function useBudgetComparison() {
   ]);
   
   const [budgetItems, setBudgetItems] = useState<BudgetComparisonItem[]>([]);
+  const [budgets, setBudgets] = useState<BudgetComparison[]>([]);
+  const [currentBudgetId, setCurrentBudgetId] = useState<string | undefined>();
+  const [isLoading, setIsLoading] = useState(false);
   
   // Initialize with sample data
   useEffect(() => {
@@ -68,10 +72,26 @@ export function useBudgetComparison() {
       prices: {},
       lowestPrice: 0,
       middlePrice: 0,
-      averagePrice: 0
+      averagePrice: 0,
+      standardDeviation: 0
     }));
     
     setBudgetItems(initialItems);
+    
+    // Load budgets
+    const loadBudgets = async () => {
+      setIsLoading(true);
+      try {
+        const data = await budgetComparisonService.getBudgetComparisons();
+        setBudgets(data);
+      } catch (error) {
+        console.error("Failed to load budgets:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadBudgets();
   }, []);
   
   const addCompany = (name: string) => {
@@ -91,24 +111,41 @@ export function useBudgetComparison() {
       const newPrices = { ...item.prices };
       delete newPrices[companyId];
       
-      // Recalculate statistics
-      const priceValues = Object.values(newPrices).filter(p => p > 0);
-      const lowestPrice = priceValues.length > 0 ? Math.min(...priceValues) : 0;
-      const middlePrice = priceValues.length > 0 
-        ? priceValues.sort((a, b) => a - b)[Math.floor(priceValues.length / 2)] 
-        : 0;
-      const averagePrice = priceValues.length > 0 
-        ? priceValues.reduce((sum, price) => sum + price, 0) / priceValues.length 
-        : 0;
-        
-      return {
+      return recalculateItemStats({
         ...item,
-        prices: newPrices,
-        lowestPrice,
-        middlePrice,
-        averagePrice
-      };
+        prices: newPrices
+      });
     }));
+  };
+  
+  // Helper function to calculate item statistics
+  const recalculateItemStats = (item: BudgetComparisonItem): BudgetComparisonItem => {
+    const priceValues = Object.values(item.prices).filter(p => p > 0);
+    
+    // Calculate basic stats
+    const lowestPrice = priceValues.length > 0 ? Math.min(...priceValues) : 0;
+    const middlePrice = priceValues.length > 0 
+      ? priceValues.sort((a, b) => a - b)[Math.floor(priceValues.length / 2)] 
+      : 0;
+    const averagePrice = priceValues.length > 0 
+      ? priceValues.reduce((sum, price) => sum + price, 0) / priceValues.length 
+      : 0;
+    
+    // Calculate standard deviation
+    let standardDeviation = 0;
+    if (priceValues.length > 1) {
+      const variance = priceValues.reduce((sum, price) => 
+        sum + Math.pow(price - averagePrice, 2), 0) / priceValues.length;
+      standardDeviation = Math.sqrt(variance);
+    }
+    
+    return {
+      ...item,
+      lowestPrice,
+      middlePrice,
+      averagePrice,
+      standardDeviation
+    };
   };
   
   const updateItem = (itemId: string, companyId: string, price: number) => {
@@ -119,21 +156,23 @@ export function useBudgetComparison() {
           const newPrices = { ...item.prices, [companyId]: price };
           
           // Calculate stats based on updated prices
-          const priceValues = Object.values(newPrices).filter(p => p > 0);
-          const lowestPrice = priceValues.length > 0 ? Math.min(...priceValues) : 0;
-          const middlePrice = priceValues.length > 0 
-            ? priceValues.sort((a, b) => a - b)[Math.floor(priceValues.length / 2)] 
-            : 0;
-          const averagePrice = priceValues.length > 0 
-            ? priceValues.reduce((sum, price) => sum + price, 0) / priceValues.length 
-            : 0;
-          
+          return recalculateItemStats({
+            ...item,
+            prices: newPrices
+          });
+        }
+        return item;
+      });
+    });
+  };
+  
+  const updateItemObservation = (itemId: string, observation: string) => {
+    setBudgetItems(items => {
+      return items.map(item => {
+        if (item.id === itemId) {
           return {
             ...item,
-            prices: newPrices,
-            lowestPrice,
-            middlePrice,
-            averagePrice
+            observations: observation
           };
         }
         return item;
@@ -176,7 +215,8 @@ export function useBudgetComparison() {
       prices: {},
       lowestPrice: 0,
       middlePrice: 0,
-      averagePrice: 0
+      averagePrice: 0,
+      standardDeviation: 0
     };
     
     // Insert at appropriate position based on code ordering
@@ -211,12 +251,64 @@ export function useBudgetComparison() {
     return 0;
   };
   
+  const saveBudget = async (name: string) => {
+    try {
+      setIsLoading(true);
+      const budgetId = await budgetComparisonService.saveBudgetComparison(name, {
+        companies,
+        items: budgetItems
+      });
+      
+      if (budgetId) {
+        const newBudget: BudgetComparison = {
+          id: budgetId,
+          name,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        
+        setBudgets([...budgets, newBudget]);
+        return budgetId;
+      }
+      return null;
+    } catch (error) {
+      console.error("Failed to save budget:", error);
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const loadBudget = async (budgetId: string) => {
+    try {
+      setIsLoading(true);
+      const data = await budgetComparisonService.getBudgetComparison(budgetId);
+      
+      if (data) {
+        setCompanies(data.companies);
+        setBudgetItems(data.items);
+        setCurrentBudgetId(budgetId);
+      }
+    } catch (error) {
+      console.error("Failed to load budget:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
   return {
     budgetItems,
     companies,
+    budgets,
+    currentBudgetId,
+    isLoading,
     addCompany,
     removeCompany,
     updateItem,
-    addBudgetItem
+    updateItemObservation,
+    addBudgetItem,
+    saveBudget,
+    loadBudget,
+    setCurrentBudgetId
   };
 }
