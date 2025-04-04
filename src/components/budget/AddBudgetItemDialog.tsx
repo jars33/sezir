@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -42,6 +42,7 @@ export const AddBudgetItemDialog: React.FC<AddBudgetItemDialogProps> = ({ items,
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{t('budget.addNewItem')}</DialogTitle>
+          <DialogDescription>{t('budget.addItem')}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">

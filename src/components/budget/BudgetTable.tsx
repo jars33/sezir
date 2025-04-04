@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface BudgetTableProps {
   items: BudgetComparisonItem[];
@@ -76,16 +75,13 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
           <TableHead className="w-28 border border-border bg-secondary/10 text-center">
             {t('budget.observations')}
           </TableHead>
-          <TableHead className="w-10 border border-border bg-secondary/10 text-center">
-            {t('common.actions')}
-          </TableHead>
         </TableRow>
       </TableHeader>
 
       <TableBody>
         {items.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={7 + companies.length} className="text-center py-8">
+            <TableCell colSpan={6 + companies.length} className="text-center py-8">
               {t('budget.noItemsAdded')}
             </TableCell>
           </TableRow>
@@ -99,10 +95,18 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
                   {item.code}
                 </TableCell>
                 <TableCell className="border border-border font-medium">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-between gap-2">
                     <span className={item.isCategory ? "ml-0" : "ml-4"}>
                       {item.description}
                     </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0"
+                      onClick={() => onDeleteItem(item.id)}
+                    >
+                      <X className="h-4 w-4 text-gray-500" />
+                    </Button>
                   </div>
                 </TableCell>
 
@@ -130,39 +134,17 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
                 })}
 
                 <TableCell className="border border-border text-right">
-                  {/* Show lowest price for both categories and regular items */}
                   {item.lowestPrice > 0 ? formatCurrency(item.lowestPrice) : ""}
                 </TableCell>
                 <TableCell className="border border-border text-right">
-                  {/* Show average price for both categories and regular items */}
                   {item.averagePrice > 0 ? formatCurrency(item.averagePrice) : ""}
                 </TableCell>
                 <TableCell className="border border-border">
-                  {/* Allow observations for both categories and regular items */}
                   <Input
                     value={item.observations || ""}
                     onChange={(e) => onUpdateObservation(item.id, e.target.value)}
                     className="w-full"
                   />
-                </TableCell>
-                <TableCell className="border border-border p-0 text-center">
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0"
-                          onClick={() => onDeleteItem(item.id)}
-                        >
-                          <X className="h-4 w-4 text-red-500" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{t('common.delete')}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
                 </TableCell>
               </TableRow>
             );
@@ -187,7 +169,6 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
               );
             })}
 
-            <TableCell className="border border-border"></TableCell>
             <TableCell className="border border-border"></TableCell>
             <TableCell className="border border-border"></TableCell>
             <TableCell className="border border-border"></TableCell>
