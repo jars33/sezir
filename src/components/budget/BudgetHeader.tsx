@@ -63,9 +63,6 @@ export const BudgetHeader: React.FC<BudgetHeaderProps> = ({
         <Button variant="ghost" onClick={onBack} title={t('common.back')}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <h1 className="text-xl font-semibold">
-          {isNew ? t('budget.createBudget') : t('budget.editBudget')}
-        </h1>
       </div>
       
       <div className="flex flex-col md:flex-row gap-2">
