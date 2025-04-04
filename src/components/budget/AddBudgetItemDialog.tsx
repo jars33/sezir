@@ -12,10 +12,9 @@ import { BudgetComparisonItem } from "@/types/budget";
 interface AddBudgetItemDialogProps {
   items: BudgetComparisonItem[];
   onAddItem: (parentCode: string | null, description: string, isCategory: boolean) => void;
-  children?: React.ReactNode;
 }
 
-export const AddBudgetItemDialog: React.FC<AddBudgetItemDialogProps> = ({ items, onAddItem, children }) => {
+export const AddBudgetItemDialog: React.FC<AddBudgetItemDialogProps> = ({ items, onAddItem }) => {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [description, setDescription] = useState("");
@@ -37,11 +36,9 @@ export const AddBudgetItemDialog: React.FC<AddBudgetItemDialogProps> = ({ items,
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {children || (
-          <Button variant="outline">
-            {t('budget.addItem')}
-          </Button>
-        )}
+        <Button variant="outline">
+          {t('budget.addItem')}
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>

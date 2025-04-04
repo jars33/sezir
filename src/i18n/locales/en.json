@@ -1,3 +1,4 @@
+
 {
   "common": {
     "appName": "sezir.io",
@@ -35,7 +36,6 @@
     "createdAt": "Created At",
     "actions": "Actions",
     "noResultsFound": "No results found",
-    "none": "None",
     "months": {
       "jan": "Jan",
       "feb": "Feb",
@@ -243,11 +243,9 @@
     "addCompany": "Add Company",
     "companyName": "Company Name",
     "addBudgetItem": "Add Budget Item",
-    "addNewItem": "Add New Item",
     "parentItem": "Parent Item",
     "itemDescription": "Item Description",
     "isCategory": "Is Category",
-    "parentCategory": "Parent Category",
     "noParent": "No parent (top level)",
     "itemCode": "Code",
     "itemDescription": "Description",
