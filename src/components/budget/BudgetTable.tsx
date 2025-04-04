@@ -1,11 +1,11 @@
 
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Table, TableHeader, TableBody } from "@/components/ui/table";
+import { Table, TableHeader as UITableHeader, TableBody } from "@/components/ui/table";
 import { BudgetComparisonItem, Company } from "@/types/budget";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
-import { TableHeader } from "./table/TableHeader";
+import { TableHeader as BudgetTableHeader } from "./table/TableHeader";
 import { BudgetItemRow } from "./table/BudgetItemRow";
 import { TotalsRow } from "./table/TotalsRow";
 import { calculateCategoryTotals } from "./table/categoryCalculations";
@@ -48,13 +48,13 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
   
   return (
     <Table className="min-w-full border-collapse">
-      <TableHeader className="bg-muted sticky top-0 z-10">
-        <TableHeader 
+      <UITableHeader className="bg-muted sticky top-0 z-10">
+        <BudgetTableHeader 
           companies={companies}
           onRemoveCompany={onRemoveCompany}
           onUpdateCompanyName={onUpdateCompanyName}
         />
-      </TableHeader>
+      </UITableHeader>
 
       <TableBody>
         {items.length === 0 ? (
