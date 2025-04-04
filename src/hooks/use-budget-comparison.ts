@@ -50,13 +50,15 @@ export function useBudgetComparison(projectId?: string) {
     updateItemsForCompanyRemoval(companyId);
   };
   
-  const saveBudget = async (name: string) => {
-    console.log("Saving budget:", name, {companies, items: budgetItems}, "projectId:", projectId);
+  const saveBudget = async (name: string, selectedProjectId?: string) => {
+    // Use the selected project ID if provided, otherwise use the one from the URL
+    const projectIdToUse = selectedProjectId || projectId;
+    console.log("Saving budget:", name, {companies, items: budgetItems}, "projectId:", projectIdToUse);
     
     return saveToDatabase(name, {
       companies,
       items: budgetItems
-    });
+    }, projectIdToUse);
   };
   
   const loadBudget = async (budgetId: string) => {

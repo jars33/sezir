@@ -18,7 +18,7 @@ interface BudgetDetailsProps {
   onUpdateObservation: (itemId: string, observation: string) => void;
   onAddBudgetItem: (parentCode: string | null, description: string, isCategory: boolean) => void;
   onDeleteItem: (id: string) => void;
-  onSave: (name: string) => void;
+  onSave: (name: string, projectId?: string) => void;
   onExport: () => void;
   onImport: () => void;
   isNew?: boolean;

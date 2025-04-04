@@ -150,7 +150,7 @@ export const budgetComparisonService = {
           id: item.id,
           code: item.code,
           description: item.description,
-          isCategory: item.isCategory,
+          isCategory: item.item_type === 'category',
           parentId: undefined, // Handle parent-child relationship if needed
           prices,
           observations: item.observations || undefined,
