@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { AddBudgetItemDialog } from "./AddBudgetItemDialog";
 import { AddCompanyDialog } from "./AddCompanyDialog";
 import { BudgetComparisonItem } from "@/types/budget";
-import { PlusIcon } from "lucide-react";
 
 interface BudgetActionsProps {
   onAddCompany: (name: string) => void;
@@ -26,7 +25,11 @@ export const BudgetActions: React.FC<BudgetActionsProps> = ({
         <AddBudgetItemDialog 
           items={items}
           onAddItem={onAddBudgetItem}
-        />
+        >
+          <Button variant="default">
+            {t('budget.addItem')}
+          </Button>
+        </AddBudgetItemDialog>
       </div>
       <AddCompanyDialog onAddCompany={onAddCompany} />
     </div>

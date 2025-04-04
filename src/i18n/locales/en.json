@@ -1,3 +1,4 @@
+
 {
   "common": {
     "appName": "sezir.io",
@@ -23,6 +24,18 @@
     "success": "Success",
     "error": "Error",
     "details": "Details",
+    "back": "Back",
+    "export": "Export",
+    "import": "Import",
+    "save": "Save",
+    "add": "Add",
+    "cancel": "Cancel",
+    "search": "Search",
+    "name": "Name",
+    "description": "Description",
+    "createdAt": "Created At",
+    "actions": "Actions",
+    "noResultsFound": "No results found",
     "months": {
       "jan": "Jan",
       "feb": "Feb",
@@ -241,6 +254,13 @@
     "observations": "Observations",
     "no_item_selected": "No item selected",
     "noCompaniesAdded": "No companies added. Add a company to start the budget comparison.",
-    "noItemsAdded": "No budget items added. Add items to start the comparison."
+    "noItemsAdded": "No budget items added. Add items to start the comparison.",
+    "allBudgetComparisons": "All Budget Comparisons",
+    "noBudgetsYet": "You don't have any budget comparisons yet.",
+    "addNewCompany": "Add New Company",
+    "addItem": "Add Item",
+    "comparison": "Budget Comparison",
+    "createNewBudget": "Create New Budget",
+    "noItemsAddedMessage": "No items added. Add items to start the comparison."
   }
 }
