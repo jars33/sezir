@@ -58,18 +58,27 @@ export function useBudgetData(projectId?: string) {
       if (budgetId) {
         // If this is a new budget, add it to the list
         if (!currentBudgetId) {
+          const currentDate = new Date().toISOString();
           const newBudget: BudgetComparison = {
             id: budgetId,
             name,
-            projectId: selectedProjectId
+            projectId: selectedProjectId,
+            createdAt: currentDate,
+            updatedAt: currentDate
           };
           
           setBudgets(prev => [...prev, newBudget]);
         } else {
           // Update the budget in the list
+          const currentDate = new Date().toISOString();
           setBudgets(prev => prev.map(budget => 
             budget.id === budgetId
-              ? { ...budget, name, projectId: selectedProjectId }
+              ? { 
+                  ...budget, 
+                  name, 
+                  projectId: selectedProjectId,
+                  updatedAt: currentDate
+                }
               : budget
           ));
         }
@@ -93,10 +102,15 @@ export function useBudgetData(projectId?: string) {
       const updated = await budgetDataService.updateBudgetProject(budgetId, newProjectId);
       
       if (updated) {
+        const currentDate = new Date().toISOString();
         // Update the budget in the list
         setBudgets(prev => prev.map(budget => 
           budget.id === budgetId
-            ? { ...budget, projectId: newProjectId || undefined }
+            ? { 
+                ...budget, 
+                projectId: newProjectId || undefined,
+                updatedAt: currentDate
+              }
             : budget
         ));
       }
