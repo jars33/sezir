@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { calculationsService } from "@/services/supabase";
-import { YearTeamFilter } from "@/components/dashboard/YearTeamFilter";
+import YearTeamFilter from "@/components/dashboard/YearTeamFilter";
 import { useTranslation } from "react-i18next";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
