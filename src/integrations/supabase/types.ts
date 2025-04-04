@@ -9,6 +9,158 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      budget_companies: {
+        Row: {
+          budget_comparison_id: string | null
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          budget_comparison_id?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          budget_comparison_id?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_companies_budget_comparison_id_fkey"
+            columns: ["budget_comparison_id"]
+            isOneToOne: false
+            referencedRelation: "budget_comparisons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      budget_comparisons: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      budget_items: {
+        Row: {
+          budget_comparison_id: string | null
+          code: string
+          created_at: string
+          description: string
+          id: string
+          item_type: Database["public"]["Enums"]["budget_item_type"]
+          observations: string | null
+          parent_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          budget_comparison_id?: string | null
+          code: string
+          created_at?: string
+          description: string
+          id?: string
+          item_type?: Database["public"]["Enums"]["budget_item_type"]
+          observations?: string | null
+          parent_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          budget_comparison_id?: string | null
+          code?: string
+          created_at?: string
+          description?: string
+          id?: string
+          item_type?: Database["public"]["Enums"]["budget_item_type"]
+          observations?: string | null
+          parent_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_items_budget_comparison_id_fkey"
+            columns: ["budget_comparison_id"]
+            isOneToOne: false
+            referencedRelation: "budget_comparisons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "budget_items_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "budget_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      budget_prices: {
+        Row: {
+          budget_item_id: string
+          company_id: string
+          created_at: string
+          id: string
+          price: number
+          updated_at: string
+        }
+        Insert: {
+          budget_item_id: string
+          company_id: string
+          created_at?: string
+          id?: string
+          price?: number
+          updated_at?: string
+        }
+        Update: {
+          budget_item_id?: string
+          company_id?: string
+          created_at?: string
+          id?: string
+          price?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_prices_budget_item_id_fkey"
+            columns: ["budget_item_id"]
+            isOneToOne: false
+            referencedRelation: "budget_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "budget_prices_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "budget_companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           content: string
@@ -497,6 +649,7 @@ export type Database = {
       }
     }
     Enums: {
+      budget_item_type: "category" | "item"
       employee_type: "contract" | "external"
       project_status: "planned" | "in_progress" | "completed" | "cancelled"
     }

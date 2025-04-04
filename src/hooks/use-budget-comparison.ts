@@ -1,8 +1,10 @@
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { BudgetComparisonItem, Company, BudgetComparison } from "@/types/budget";
 import { v4 as uuidv4 } from "uuid";
 import { budgetComparisonService } from "@/services/supabase/budget-comparison-service";
+import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 // Sample initial data to populate the table with common budget item categories
 const initialCategories: Partial<BudgetComparisonItem>[] = [
@@ -49,36 +51,15 @@ const initialCategories: Partial<BudgetComparisonItem>[] = [
 ];
 
 export function useBudgetComparison() {
-  const [companies, setCompanies] = useState<Company[]>([
-    { id: uuidv4(), name: "BRITOLI" },
-    { id: uuidv4(), name: "NORTON" },
-    { id: uuidv4(), name: "AOC" },
-    { id: uuidv4(), name: "NVE" },
-    { id: uuidv4(), name: "ATLANTINIVEL" }
-  ]);
-  
+  const { t } = useTranslation();
+  const [companies, setCompanies] = useState<Company[]>([]);
   const [budgetItems, setBudgetItems] = useState<BudgetComparisonItem[]>([]);
   const [budgets, setBudgets] = useState<BudgetComparison[]>([]);
   const [currentBudgetId, setCurrentBudgetId] = useState<string | undefined>();
   const [isLoading, setIsLoading] = useState(false);
   
-  // Initialize with sample data
+  // Load budgets on first render
   useEffect(() => {
-    const initialItems: BudgetComparisonItem[] = initialCategories.map(cat => ({
-      id: uuidv4(),
-      code: cat.code || '',
-      description: cat.description || '',
-      isCategory: cat.isCategory || false,
-      prices: {},
-      lowestPrice: 0,
-      middlePrice: 0,
-      averagePrice: 0,
-      standardDeviation: 0
-    }));
-    
-    setBudgetItems(initialItems);
-    
-    // Load budgets
     const loadBudgets = async () => {
       setIsLoading(true);
       try {
@@ -86,13 +67,41 @@ export function useBudgetComparison() {
         setBudgets(data);
       } catch (error) {
         console.error("Failed to load budgets:", error);
+        toast.error(t('budget.errorLoadingBudgets'));
       } finally {
         setIsLoading(false);
       }
     };
     
     loadBudgets();
-  }, []);
+  }, [t]);
+  
+  // Initialize with sample data when creating a new budget
+  useEffect(() => {
+    if (!currentBudgetId && companies.length === 0) {
+      // Add default companies for a new budget
+      setCompanies([
+        { id: uuidv4(), name: "BRITOLI" },
+        { id: uuidv4(), name: "NORTON" },
+        { id: uuidv4(), name: "AOC" }
+      ]);
+      
+      // Add default items
+      const initialItems: BudgetComparisonItem[] = initialCategories.map(cat => ({
+        id: uuidv4(),
+        code: cat.code || '',
+        description: cat.description || '',
+        isCategory: cat.isCategory || false,
+        prices: {},
+        lowestPrice: 0,
+        middlePrice: 0,
+        averagePrice: 0,
+        standardDeviation: 0
+      }));
+      
+      setBudgetItems(initialItems);
+    }
+  }, [currentBudgetId, companies.length]);
   
   const addCompany = (name: string) => {
     const newCompany: Company = {
@@ -273,6 +282,7 @@ export function useBudgetComparison() {
       return null;
     } catch (error) {
       console.error("Failed to save budget:", error);
+      toast.error(t('budget.errorSavingBudget'));
       return null;
     } finally {
       setIsLoading(false);
@@ -288,9 +298,12 @@ export function useBudgetComparison() {
         setCompanies(data.companies);
         setBudgetItems(data.items);
         setCurrentBudgetId(budgetId);
+      } else {
+        toast.error(t('budget.errorLoadingBudget'));
       }
     } catch (error) {
       console.error("Failed to load budget:", error);
+      toast.error(t('budget.errorLoadingBudget'));
     } finally {
       setIsLoading(false);
     }
