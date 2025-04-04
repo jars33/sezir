@@ -13,3 +13,7 @@ export * from './teams-service';
 export * from './salary-handling-service';
 export * from './project-allocations-service';
 export * from './budget-comparison-service';
+export * from './budget-companies-service';
+export * from './budget-items-service';
+export * from './budget-prices-service';
+export * from './budget-comparisons-service';

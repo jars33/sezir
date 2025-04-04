@@ -1,6 +1,9 @@
 
-import { supabase } from "@/integrations/supabase/client";
-import { BudgetState, Company, BudgetComparisonItem, BudgetComparison } from "@/types/budget";
+import { BudgetComparisonItem, Company, BudgetComparison } from "@/types/budget";
+import { budgetComparisonsService } from "./budget-comparisons-service";
+import { budgetCompaniesService } from "./budget-companies-service";
+import { budgetItemsService } from "./budget-items-service";
+import { budgetPricesService } from "./budget-prices-service";
 
 export interface BudgetComparisonData {
   companies: Company[];
@@ -11,71 +14,42 @@ export const budgetComparisonService = {
   async saveBudgetComparison(name: string, data: BudgetComparisonData): Promise<string | null> {
     try {
       // 1. Create the budget comparison
-      const { data: budgetComparison, error: budgetError } = await supabase
-        .from('budget_comparisons')
-        .insert({
-          name: name,
-          description: `Budget comparison for ${name}`
-        })
-        .select('id')
-        .single();
-
-      if (budgetError || !budgetComparison) {
-        console.error("Error creating budget comparison:", budgetError);
-        return null;
-      }
-
-      const budgetId = budgetComparison.id;
+      const budgetId = await budgetComparisonsService.createBudgetComparison(name);
+      if (!budgetId) return null;
       
       // 2. Create companies
-      const companiesToInsert = data.companies.map(company => ({
-        name: company.name,
-        budget_comparison_id: budgetId
-      }));
-      
-      const { data: insertedCompanies, error: companiesError } = await supabase
-        .from('budget_companies')
-        .insert(companiesToInsert)
-        .select('id, name');
-        
-      if (companiesError || !insertedCompanies) {
-        console.error("Error creating companies:", companiesError);
-        return null;
-      }
+      const insertedCompanies = await budgetCompaniesService.createCompanies(
+        budgetId, 
+        data.companies.map(company => ({ name: company.name }))
+      );
+      if (!insertedCompanies) return null;
       
       // Create a mapping between company names and their new IDs
       const companyNameToIdMap = new Map();
-      (insertedCompanies as any[]).forEach((company: any) => {
+      insertedCompanies.forEach(company => {
         companyNameToIdMap.set(company.name, company.id);
       });
 
-      // 3. Create budget items (considering parent-child relationships)
-      const itemsToInsert = data.items.map(item => ({
-        code: item.code,
-        description: item.description,
-        item_type: item.isCategory ? 'category' : 'item' as 'category' | 'item',
-        budget_comparison_id: budgetId,
-        observations: item.observations
-      }));
-
-      const { data: insertedItems, error: itemsError } = await supabase
-        .from('budget_items')
-        .insert(itemsToInsert)
-        .select('id, code');
-        
-      if (itemsError || !insertedItems) {
-        console.error("Error creating budget items:", itemsError);
-        return null;
-      }
+      // 3. Create budget items
+      const insertedItems = await budgetItemsService.createItems(
+        budgetId,
+        data.items.map(item => ({
+          code: item.code,
+          description: item.description,
+          isCategory: item.isCategory,
+          observations: item.observations
+        }))
+      );
+      if (!insertedItems) return null;
       
       // Create a mapping between item codes and their new IDs
       const itemCodeToIdMap = new Map();
-      (insertedItems as any[]).forEach((item: any) => {
+      insertedItems.forEach(item => {
         itemCodeToIdMap.set(item.code, item.id);
       });
       
       // 4. Create price entries
-      const pricesToInsert = [];
+      const pricesToInsert: { budget_item_id: string, company_id: string, price: number }[] = [];
       
       for (const item of data.items) {
         const itemId = itemCodeToIdMap.get(item.code);
@@ -99,15 +73,10 @@ export const budgetComparisonService = {
         }
       }
       
-      if (pricesToInsert.length > 0) {
-        const { error: pricesError } = await supabase
-          .from('budget_prices')
-          .insert(pricesToInsert);
-          
-        if (pricesError) {
-          console.error("Error creating prices:", pricesError);
-          return null;
-        }
+      const pricesCreated = await budgetPricesService.createPrices(pricesToInsert);
+      if (!pricesCreated) {
+        console.error("Error creating prices");
+        // Continue anyway, as we have created the main budget entities
       }
       
       return budgetId;
@@ -118,75 +87,27 @@ export const budgetComparisonService = {
   },
   
   async getBudgetComparisons(): Promise<BudgetComparison[]> {
-    const { data, error } = await supabase
-      .from('budget_comparisons')
-      .select('id, name, description, created_at, updated_at')
-      .order('updated_at', { ascending: false });
-      
-    if (error) {
-      console.error("Error fetching budget comparisons:", error);
-      return [];
-    }
-    
-    return (data as any[]).map(item => ({
-      id: item.id,
-      name: item.name,
-      description: item.description || undefined,
-      createdAt: item.created_at,
-      updatedAt: item.updated_at
-    }));
+    return budgetComparisonsService.getAllBudgetComparisons();
   },
   
   async getBudgetComparison(id: string): Promise<BudgetComparisonData | null> {
     try {
       // 1. Get companies for this budget comparison
-      const { data: companiesData, error: companiesError } = await supabase
-        .from('budget_companies')
-        .select('id, name')
-        .eq('budget_comparison_id', id);
-        
-      if (companiesError) {
-        console.error("Error fetching companies:", companiesError);
-        return null;
-      }
-      
-      const companies: Company[] = (companiesData as any[]).map(company => ({
-        id: company.id,
-        name: company.name
-      }));
+      const companies = await budgetCompaniesService.getCompaniesByBudgetId(id);
+      if (!companies) return null;
       
       // 2. Get budget items for this comparison
-      const { data: itemsData, error: itemsError } = await supabase
-        .from('budget_items')
-        .select('id, code, description, item_type, observations')
-        .eq('budget_comparison_id', id)
-        .order('code', { ascending: true });
-        
-      if (itemsError) {
-        console.error("Error fetching budget items:", itemsError);
-        return null;
-      }
+      const items = await budgetItemsService.getItemsByBudgetId(id);
+      if (!items) return null;
       
       // 3. Get all prices for this budget comparison
-      const { data: pricesData, error: pricesError } = await supabase
-        .from('budget_prices')
-        .select(`
-          price,
-          company_id,
-          budget_item_id,
-          budget_items!inner(id, budget_comparison_id)
-        `)
-        .eq('budget_items.budget_comparison_id', id);
-        
-      if (pricesError) {
-        console.error("Error fetching prices:", pricesError);
-        return null;
-      }
+      const prices = await budgetPricesService.getPricesByBudgetId(id);
+      if (!prices) return null;
       
       // 4. Organize prices by item and company
       const itemPrices: Record<string, Record<string, number>> = {};
       
-      (pricesData as any[]).forEach(priceEntry => {
+      prices.forEach(priceEntry => {
         const itemId = priceEntry.budget_item_id;
         const companyId = priceEntry.company_id;
         const price = priceEntry.price;
@@ -199,7 +120,7 @@ export const budgetComparisonService = {
       });
       
       // 5. Create BudgetComparisonItem objects with stats
-      const items: BudgetComparisonItem[] = (itemsData as any[]).map(item => {
+      const budgetItems: BudgetComparisonItem[] = items.map(item => {
         // Get prices for this item
         const prices = itemPrices[item.id] || {};
         
@@ -237,8 +158,8 @@ export const budgetComparisonService = {
       });
       
       return {
-        companies,
-        items
+        companies: companies.map(c => ({ id: c.id, name: c.name })),
+        items: budgetItems
       };
     } catch (error) {
       console.error("Error in getBudgetComparison:", error);

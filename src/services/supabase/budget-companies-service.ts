@@ -1,0 +1,52 @@
+
+import { supabase } from "@/integrations/supabase/client";
+
+export interface BudgetCompany {
+  id: string;
+  name: string;
+}
+
+export const budgetCompaniesService = {
+  async createCompanies(budgetComparisonId: string, companies: { name: string }[]): Promise<BudgetCompany[] | null> {
+    try {
+      const companiesToInsert = companies.map(company => ({
+        name: company.name,
+        budget_comparison_id: budgetComparisonId
+      }));
+      
+      const { data, error } = await supabase
+        .from('budget_companies')
+        .insert(companiesToInsert)
+        .select('id, name');
+        
+      if (error || !data) {
+        console.error("Error creating companies:", error);
+        return null;
+      }
+      
+      return data as any[];
+    } catch (error) {
+      console.error("Error in createCompanies:", error);
+      return null;
+    }
+  },
+  
+  async getCompaniesByBudgetId(budgetComparisonId: string): Promise<BudgetCompany[] | null> {
+    try {
+      const { data, error } = await supabase
+        .from('budget_companies')
+        .select('id, name')
+        .eq('budget_comparison_id', budgetComparisonId);
+        
+      if (error) {
+        console.error("Error fetching companies:", error);
+        return null;
+      }
+      
+      return data as any[];
+    } catch (error) {
+      console.error("Error in getCompaniesByBudgetId:", error);
+      return null;
+    }
+  }
+};
