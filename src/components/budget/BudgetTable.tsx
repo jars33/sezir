@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { PriceCell } from "./PriceCell";
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { X, Trash2 } from "lucide-react";
+import { X } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -130,19 +130,20 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
                 })}
 
                 <TableCell className="border border-border text-right">
+                  {/* Show lowest price for both categories and regular items */}
                   {item.lowestPrice > 0 ? formatCurrency(item.lowestPrice) : ""}
                 </TableCell>
                 <TableCell className="border border-border text-right">
+                  {/* Show average price for both categories and regular items */}
                   {item.averagePrice > 0 ? formatCurrency(item.averagePrice) : ""}
                 </TableCell>
                 <TableCell className="border border-border">
-                  {!item.isCategory && (
-                    <Input
-                      value={item.observations || ""}
-                      onChange={(e) => onUpdateObservation(item.id, e.target.value)}
-                      className="w-full"
-                    />
-                  )}
+                  {/* Allow observations for both categories and regular items */}
+                  <Input
+                    value={item.observations || ""}
+                    onChange={(e) => onUpdateObservation(item.id, e.target.value)}
+                    className="w-full"
+                  />
                 </TableCell>
                 <TableCell className="border border-border p-0 text-center">
                   <TooltipProvider>
@@ -154,7 +155,7 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
                           className="h-8 w-8 p-0"
                           onClick={() => onDeleteItem(item.id)}
                         >
-                          <Trash2 className="h-4 w-4 text-red-500" />
+                          <X className="h-4 w-4 text-red-500" />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>
