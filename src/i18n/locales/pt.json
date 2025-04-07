@@ -133,7 +133,7 @@
     "userAccountCreated": " e conta de utilizador criada",
     "saveError": "Falha ao salvar membro da equipa",
     "allocation": {
-      "title": "Adicionar Alocação de Membro",
+      "title": "Alocação",
       "edit": "Editar Alocação de Membro",
       "description": "Adicionar alocação para um mês ou período",
       "period": "Período",
