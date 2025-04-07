@@ -5,12 +5,14 @@ import {
   calculateProjectProfitability,
   calculateResourceUtilization,
   generateChartData,
+  generateDashboardChartData,
   calculateProjectMargins,
   calculateUtilizationProfitability,
   generateForecastData,
   calculateCostBreakdown,
   generateCashFlowData,
-  generateYearComparisonData
+  generateYearComparisonData,
+  useProjectSettings
 } from "./calculations"
 
 /**
@@ -50,6 +52,10 @@ export const useMetricsCalculator = (
 
   const { teamMembers, projects, projectRevenues, variableCosts, overheadCosts, allocations } = data
   const { selectedYear, yearStart, yearEnd } = filters
+  
+  // Get the overhead percentage for the selected year
+  const { getOverheadPercentage } = useProjectSettings()
+  const overheadPercentage = getOverheadPercentage(selectedYear)
 
   // 1. Active Projects - projects that are active during the selected year
   const activeProjects = projects?.filter(project => {
@@ -95,13 +101,14 @@ export const useMetricsCalculator = (
     yearEnd
   )
   
-  // 5. Generate chart data using extracted function
-  const chartData = generateChartData(
+  // 5. Generate chart data using extracted function WITH overhead percentage
+  const chartData = generateDashboardChartData(
     selectedYear,
     projectRevenues,
     variableCosts,
     overheadCosts,
-    allocations
+    allocations,
+    overheadPercentage
   )
   
   // 6. Calculate project margins

@@ -12,27 +12,30 @@ import {
 } from 'recharts';
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from "react-i18next";
+import { useProjectSettings } from "@/hooks/use-project-settings";
 
 interface RevenueTabProps {
   chartData: any[];
   isLoading: boolean;
+  selectedYear: number;
 }
 
-export function RevenueTab({ chartData, isLoading }: RevenueTabProps) {
+export function RevenueTab({ chartData, isLoading, selectedYear }: RevenueTabProps) {
   const { t } = useTranslation();
-
-  // Calculate profit data for each month
-  const chartDataWithProfit = chartData?.map(item => ({
-    ...item,
-    profit: item.revenue - item.cost
-  }));
+  const { getOverheadPercentage } = useProjectSettings();
+  const overheadPercentage = getOverheadPercentage(selectedYear);
 
   return (
     <Card className="w-full">
       <div className="p-6">
-        <h2 className="text-lg font-medium text-foreground mb-4">
-          {t('dashboard.charts.revenueCostProfit')}
-        </h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-medium text-foreground">
+            {t('dashboard.charts.revenueCostProfit')}
+          </h2>
+          <div className="text-sm text-muted-foreground">
+            {t('costs.overhead')}: {overheadPercentage}%
+          </div>
+        </div>
         <div className="h-80 w-full">
           {isLoading ? (
             <div className="h-full w-full flex items-center justify-center">
@@ -41,7 +44,7 @@ export function RevenueTab({ chartData, isLoading }: RevenueTabProps) {
           ) : (
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
-                data={chartDataWithProfit}
+                data={chartData}
                 margin={{
                   top: 20,
                   right: 30,
@@ -76,16 +79,16 @@ export function RevenueTab({ chartData, isLoading }: RevenueTabProps) {
                 />
                 <Legend 
                   formatter={(value) => {
-                    if (value === "Revenue") return t('dashboard.charts.revenue');
-                    if (value === "Cost") return t('dashboard.charts.cost');
-                    if (value === "Profit") return t('dashboard.charts.profit');
+                    if (value === "revenue") return t('dashboard.charts.revenue');
+                    if (value === "cost") return t('dashboard.charts.cost');
+                    if (value === "profit") return t('dashboard.charts.profit');
                     return value;
                   }}
                 />
                 <Line 
                   type="monotone"
                   dataKey="revenue" 
-                  name="Revenue" 
+                  name="revenue" 
                   stroke="#4CAF50" 
                   strokeWidth={2}
                   activeDot={{ r: 6 }}
@@ -93,7 +96,7 @@ export function RevenueTab({ chartData, isLoading }: RevenueTabProps) {
                 <Line 
                   type="monotone"
                   dataKey="cost" 
-                  name="Cost" 
+                  name="cost" 
                   stroke="#F97316" 
                   strokeWidth={2}
                   activeDot={{ r: 6 }}
@@ -101,7 +104,7 @@ export function RevenueTab({ chartData, isLoading }: RevenueTabProps) {
                 <Line 
                   type="monotone"
                   dataKey="profit" 
-                  name="Profit" 
+                  name="profit" 
                   stroke="#8B5CF6" 
                   strokeWidth={2}
                   activeDot={{ r: 6 }}

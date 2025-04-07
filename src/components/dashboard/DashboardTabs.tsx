@@ -11,9 +11,10 @@ import { useTranslation } from "react-i18next";
 interface DashboardTabsProps {
   metrics: any;
   isLoading: boolean;
+  selectedYear: number;
 }
 
-export function DashboardTabs({ metrics, isLoading }: DashboardTabsProps) {
+export function DashboardTabs({ metrics, isLoading, selectedYear }: DashboardTabsProps) {
   const { t } = useTranslation();
   
   return (
@@ -32,6 +33,7 @@ export function DashboardTabs({ metrics, isLoading }: DashboardTabsProps) {
         <RevenueTab 
           chartData={metrics.chartData} 
           isLoading={isLoading} 
+          selectedYear={selectedYear}
         />
       </TabsContent>
       

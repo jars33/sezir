@@ -1,6 +1,7 @@
+
 import { calculateProjectProfitability } from './profitability'
 import { calculateResourceUtilization } from './utilization'
-import { generateChartData } from './chart-data'
+import { generateChartData, generateDashboardChartData } from './chart-data'
 import { calculateProjectMargins } from './project-margins'
 import { calculateUtilizationProfitability } from './utilization-profitability'
 import { generateForecastData } from './forecast-data'
@@ -15,6 +16,7 @@ export {
   calculateProjectProfitability,
   calculateResourceUtilization,
   generateChartData,
+  generateDashboardChartData,
   calculateProjectMargins,
   calculateUtilizationProfitability,
   generateForecastData,

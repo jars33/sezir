@@ -38,7 +38,11 @@ const Dashboard = () => {
 
       <StatsCards stats={stats} isLoading={isLoading} />
 
-      <DashboardTabs metrics={metrics} isLoading={isLoading} />
+      <DashboardTabs 
+        metrics={metrics} 
+        isLoading={isLoading} 
+        selectedYear={selectedYear}
+      />
     </div>
   );
 };

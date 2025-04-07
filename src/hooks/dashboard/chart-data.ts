@@ -1,5 +1,6 @@
 
 import i18next from "i18next"
+import { useProjectSettings } from "../use-project-settings"
 
 // Helper for generating chart data
 export function generateChartData(
@@ -31,32 +32,75 @@ export function generateChartData(
       }
     })
     
-    let monthlyCost = 0
+    let monthlyVariableCost = 0
     variableCosts?.forEach(cost => {
       if (cost.month.startsWith(monthStr)) {
-        monthlyCost += Number(cost.amount)
+        monthlyVariableCost += Number(cost.amount)
       }
     })
     
+    // Add explicit overhead costs
+    let monthlyExplicitOverheadCost = 0
     overheadCosts?.forEach(cost => {
       if (cost.month.startsWith(monthStr)) {
-        monthlyCost += Number(cost.amount)
+        monthlyExplicitOverheadCost += Number(cost.amount)
       }
     })
     
     // Add allocation costs
+    let monthlySalaryCost = 0
     allocations?.forEach(allocation => {
       if (allocation.month.startsWith(monthStr) && allocation.salary_cost) {
-        monthlyCost += Number(allocation.salary_cost)
+        monthlySalaryCost += Number(allocation.salary_cost)
       }
     })
+    
+    // Total cost includes variable costs, explicit overhead costs, and salary costs
+    const monthlyCost = monthlyVariableCost + monthlyExplicitOverheadCost + monthlySalaryCost
     
     chartData.push({
       month: name,
       revenue: monthlyRevenue,
-      cost: monthlyCost
+      cost: monthlyCost,
+      variableCost: monthlyVariableCost,
+      overheadCost: monthlyExplicitOverheadCost,
+      salaryCost: monthlySalaryCost
     })
   })
 
   return chartData
+}
+
+// Function specifically for dashboard that includes calculated overhead based on project settings
+export function generateDashboardChartData(
+  selectedYear: number,
+  projectRevenues: any[],
+  variableCosts: any[],
+  overheadCosts: any[],
+  allocations: any[],
+  overheadPercentage: number
+) {
+  const baseChartData = generateChartData(
+    selectedYear,
+    projectRevenues,
+    variableCosts,
+    overheadCosts,
+    allocations
+  )
+  
+  // Apply the overhead percentage to each month's variable costs
+  return baseChartData.map(monthData => {
+    // Calculate the calculated overhead based on the percentage
+    const calculatedOverhead = (monthData.variableCost * overheadPercentage) / 100
+    
+    // Update the cost to include the calculated overhead
+    const totalCost = monthData.cost + calculatedOverhead
+    
+    return {
+      ...monthData,
+      calculatedOverhead,
+      cost: totalCost,
+      profit: monthData.revenue - totalCost
+    }
+  })
 }
