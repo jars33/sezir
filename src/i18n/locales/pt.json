@@ -173,7 +173,7 @@
     "overheadDescription": "Esta percentagem será aplicada a todos os projetos iniciados em",
     "saveSettings": "Guardar Configurações",
     "year": "Ano",
-    "financials": "Finanças"
+    "financials": "Finanças",
     "budgetComparison": "Orçamentos"
   },
   "dialog": {
@@ -267,6 +267,9 @@
     "linkedToProject": "Associado ao projeto",
     "noLinkedProject": "Sem projeto associado",
     "selectProject": "Selecione um projeto",
-    "projectUpdated": "Associação a projeto atualizada"
+    "projectUpdated": "Associação a projeto atualizada",
+    "enterBudgetDescription": "Inserir descrição do orçamento...",
+    "descriptionRequired": "A descrição é obrigatória",
+    "noProject": "Sem projeto"
   }
 }
