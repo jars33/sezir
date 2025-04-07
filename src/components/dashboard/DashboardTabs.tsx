@@ -12,9 +12,10 @@ interface DashboardTabsProps {
   metrics: any;
   isLoading: boolean;
   selectedYear: number;
+  overheadPercentage: number;
 }
 
-export function DashboardTabs({ metrics, isLoading, selectedYear }: DashboardTabsProps) {
+export function DashboardTabs({ metrics, isLoading, selectedYear, overheadPercentage }: DashboardTabsProps) {
   const { t } = useTranslation();
   
   return (
@@ -34,6 +35,7 @@ export function DashboardTabs({ metrics, isLoading, selectedYear }: DashboardTab
           chartData={metrics.chartData} 
           isLoading={isLoading} 
           selectedYear={selectedYear}
+          overheadPercentage={overheadPercentage}
         />
       </TabsContent>
       

@@ -11,8 +11,7 @@ import {
   generateForecastData,
   calculateCostBreakdown,
   generateCashFlowData,
-  generateYearComparisonData,
-  useProjectSettings
+  generateYearComparisonData
 } from "./calculations"
 
 /**
@@ -32,7 +31,8 @@ export const useMetricsCalculator = (
     yearStart: Date;
     yearEnd: Date;
   },
-  isLoading: boolean
+  isLoading: boolean,
+  overheadPercentage: number
 ): DashboardMetrics => {
   if (isLoading) {
     return {
@@ -52,10 +52,6 @@ export const useMetricsCalculator = (
 
   const { teamMembers, projects, projectRevenues, variableCosts, overheadCosts, allocations } = data
   const { selectedYear, yearStart, yearEnd } = filters
-  
-  // Get the overhead percentage for the selected year
-  const { getOverheadPercentage } = useProjectSettings()
-  const overheadPercentage = getOverheadPercentage(selectedYear)
 
   // 1. Active Projects - projects that are active during the selected year
   const activeProjects = projects?.filter(project => {

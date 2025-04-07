@@ -11,7 +11,7 @@ const Dashboard = () => {
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   
-  const { metrics, isLoading } = useDashboardMetrics({
+  const { metrics, isLoading, overheadPercentage } = useDashboardMetrics({
     year: selectedYear,
     teamId: selectedTeam
   });
@@ -42,6 +42,7 @@ const Dashboard = () => {
         metrics={metrics} 
         isLoading={isLoading} 
         selectedYear={selectedYear}
+        overheadPercentage={overheadPercentage}
       />
     </div>
   );

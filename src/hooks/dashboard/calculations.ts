@@ -9,9 +9,6 @@ import { calculateCostBreakdown } from './cost-breakdown'
 import { generateCashFlowData } from './cash-flow'
 import { generateYearComparisonData } from './year-comparison'
 
-// Import the updated useProjectSettings hook
-import { useProjectSettings } from '../use-project-settings'
-
 export {
   calculateProjectProfitability,
   calculateResourceUtilization,
@@ -22,6 +19,5 @@ export {
   generateForecastData,
   calculateCostBreakdown,
   generateCashFlowData,
-  generateYearComparisonData,
-  useProjectSettings
+  generateYearComparisonData
 }

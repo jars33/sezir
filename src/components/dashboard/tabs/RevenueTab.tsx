@@ -12,18 +12,16 @@ import {
 } from 'recharts';
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from "react-i18next";
-import { useProjectSettings } from "@/hooks/use-project-settings";
 
 interface RevenueTabProps {
   chartData: any[];
   isLoading: boolean;
   selectedYear: number;
+  overheadPercentage: number;
 }
 
-export function RevenueTab({ chartData, isLoading, selectedYear }: RevenueTabProps) {
+export function RevenueTab({ chartData, isLoading, selectedYear, overheadPercentage }: RevenueTabProps) {
   const { t } = useTranslation();
-  const { getOverheadPercentage } = useProjectSettings();
-  const overheadPercentage = getOverheadPercentage(selectedYear);
 
   return (
     <Card className="w-full">
