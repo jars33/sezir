@@ -30,6 +30,7 @@ export function useBudgetComparison(projectId?: string) {
   } = useBudgetItems([]);
   const { 
     budgets,
+    setBudgets,
     currentBudgetId,
     isLoading,
     saveBudget: saveToDatabase,
@@ -133,6 +134,7 @@ export function useBudgetComparison(projectId?: string) {
     saveBudget,
     loadBudget,
     setCurrentBudgetId,
-    updateBudgetProject
+    updateBudgetProject,
+    setBudgets
   };
 }

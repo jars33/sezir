@@ -136,6 +136,7 @@ export function useBudgetData(projectId?: string) {
   
   return {
     budgets,
+    setBudgets,
     currentBudgetId,
     isLoading,
     loadBudget,

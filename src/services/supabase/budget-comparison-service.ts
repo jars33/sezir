@@ -3,6 +3,7 @@ import { BudgetComparison } from "@/types/budget";
 import { BudgetComparisonData } from "./budget-utils/types";
 import { budgetSaveService } from "./budget-save-service";
 import { budgetDataService } from "./budget-data-service";
+import { budgetComparisonsService } from "./budget-comparisons-service";
 
 /**
  * Main service for budget comparison operations
@@ -39,5 +40,12 @@ export const budgetComparisonService = {
    */
   async updateBudgetProject(budgetId: string, projectId: string): Promise<boolean> {
     return budgetDataService.updateBudgetProject(budgetId, projectId);
+  },
+  
+  /**
+   * Deletes a budget comparison and all related data
+   */
+  async deleteBudgetComparison(budgetId: string): Promise<boolean> {
+    return budgetComparisonsService.deleteBudgetComparison(budgetId);
   }
 };

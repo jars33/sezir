@@ -6,6 +6,7 @@ import { useBudgetComparison } from "@/hooks/use-budget-comparison";
 import { BudgetList } from "@/components/budget/BudgetList";
 import { BudgetDetails } from "@/components/budget/BudgetDetails";
 import { toast } from "sonner";
+import { budgetComparisonService } from "@/services/supabase/budget-comparison-service";
 
 const BudgetComparison = () => {
   const { t } = useTranslation();
@@ -28,7 +29,8 @@ const BudgetComparison = () => {
     saveBudget,
     loadBudget,
     setCurrentBudgetId,
-    updateBudgetProject
+    updateBudgetProject,
+    setBudgets
   } = useBudgetComparison(projectId);
 
   const [showNewBudget, setShowNewBudget] = useState(false);
@@ -91,6 +93,28 @@ const BudgetComparison = () => {
     toast.info(t('common.importing'));
   };
   
+  const handleDeleteBudget = async (budgetId: string) => {
+    try {
+      const success = await budgetComparisonService.deleteBudgetComparison(budgetId);
+      if (success) {
+        // Update the budgets list by removing the deleted budget
+        setBudgets(currentBudgets => currentBudgets.filter(b => b.id !== budgetId));
+        
+        // If the currently selected budget is the one being deleted, reset it
+        if (currentBudgetId === budgetId) {
+          setCurrentBudgetId(undefined);
+        }
+        
+        toast.success(t('budget.deletedSuccess'));
+      } else {
+        toast.error(t('budget.errorDeleting'));
+      }
+    } catch (error) {
+      console.error('Error deleting budget:', error);
+      toast.error(t('budget.errorDeleting'));
+    }
+  };
+  
   // Calculate category totals
   const calculateCategoryTotals = () => {
     const categoryTotals: Record<string, Record<string, number>> = {};
@@ -134,6 +158,7 @@ const BudgetComparison = () => {
           budgets={budgets}
           onCreateNew={handleCreateNew}
           onSelectBudget={handleSelectBudget}
+          onDeleteBudget={handleDeleteBudget}
           isLoading={isLoading}
         />
       </div>

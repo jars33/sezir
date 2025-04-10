@@ -67,6 +67,47 @@ export const budgetComparisonsService = {
     }
   },
   
+  async deleteBudgetComparison(id: string): Promise<boolean> {
+    try {
+      // First delete related data from budget_prices, budget_items, and budget_companies
+      await supabase
+        .from('budget_prices')
+        .delete()
+        .in('budget_item_id', function(builder) {
+          return builder
+            .select('id')
+            .from('budget_items')
+            .eq('budget_comparison_id', id);
+        });
+      
+      await supabase
+        .from('budget_items')
+        .delete()
+        .eq('budget_comparison_id', id);
+        
+      await supabase
+        .from('budget_companies')
+        .delete()
+        .eq('budget_comparison_id', id);
+      
+      // Finally, delete the budget comparison itself
+      const { error } = await supabase
+        .from('budget_comparisons')
+        .delete()
+        .eq('id', id);
+      
+      if (error) {
+        console.error("Error deleting budget comparison:", error);
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error("Error in deleteBudgetComparison:", error);
+      return false;
+    }
+  },
+  
   async getAllBudgetComparisons(projectId?: string): Promise<BudgetComparisonBasic[]> {
     try {
       let query = supabase
