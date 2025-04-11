@@ -1,4 +1,3 @@
-
 import { Outlet, useNavigate, Link, useLocation } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { supabase } from "@/integrations/supabase/client"
