@@ -70,25 +70,54 @@ export const budgetComparisonsService = {
   async deleteBudgetComparison(id: string): Promise<boolean> {
     try {
       // First delete related data from budget_prices, budget_items, and budget_companies
-      await supabase
-        .from('budget_prices')
-        .delete()
-        .in('budget_item_id', function(builder) {
-          return builder
-            .select('id')
-            .from('budget_items')
-            .eq('budget_comparison_id', id);
-        });
+      // Get budget item IDs that belong to this comparison
+      const { data: budgetItems, error: itemsError } = await supabase
+        .from('budget_items')
+        .select('id')
+        .eq('budget_comparison_id', id);
       
-      await supabase
+      if (itemsError) {
+        console.error("Error getting budget items:", itemsError);
+        return false;
+      }
+      
+      // Extract item IDs into an array
+      const itemIds = (budgetItems || []).map(item => item.id);
+      
+      // Delete prices related to these items if there are any items
+      if (itemIds.length > 0) {
+        const { error: pricesError } = await supabase
+          .from('budget_prices')
+          .delete()
+          .in('budget_item_id', itemIds);
+        
+        if (pricesError) {
+          console.error("Error deleting budget prices:", pricesError);
+          return false;
+        }
+      }
+      
+      // Delete budget items
+      const { error: itemsDeleteError } = await supabase
         .from('budget_items')
         .delete()
         .eq('budget_comparison_id', id);
-        
-      await supabase
+      
+      if (itemsDeleteError) {
+        console.error("Error deleting budget items:", itemsDeleteError);
+        return false;
+      }
+      
+      // Delete budget companies
+      const { error: companiesError } = await supabase
         .from('budget_companies')
         .delete()
         .eq('budget_comparison_id', id);
+      
+      if (companiesError) {
+        console.error("Error deleting budget companies:", companiesError);
+        return false;
+      }
       
       // Finally, delete the budget comparison itself
       const { error } = await supabase

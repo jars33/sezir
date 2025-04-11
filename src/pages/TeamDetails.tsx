@@ -1,4 +1,3 @@
-
 import * as React from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
@@ -78,7 +77,6 @@ export default function TeamDetails() {
     },
   })
 
-  // Query to fetch all available team members for manager selection
   const { data: availableManagers } = useQuery({
     queryKey: ["team-members-available"],
     queryFn: async () => {
@@ -153,6 +151,21 @@ export default function TeamDetails() {
     },
   })
 
+  const { data: linkedProjects } = useQuery({
+    queryKey: ["team-projects", id],
+    queryFn: async () => {
+      if (!id || id === "new") return []
+      const { data, error } = await supabase
+        .from("projects")
+        .select("id, name, number")
+        .eq("team_id", id)
+
+      if (error) throw error
+      return data || []
+    },
+    enabled: !!id && id !== "new",
+  })
+
   async function onSubmit(values: TeamFormValues) {
     try {
       const { error } = team 
@@ -194,7 +207,18 @@ export default function TeamDetails() {
     if (!id || id === "new") return
 
     try {
-      // First delete any team memberships
+      if (linkedProjects && linkedProjects.length > 0) {
+        toast({
+          variant: "destructive",
+          title: t('common.error'),
+          description: t('team.cannotDeleteTeamWithProjects', {
+            count: linkedProjects.length,
+            defaultValue: `Cannot delete team: There are {{count}} projects linked to this team. Please reassign or remove these projects first.`
+          }),
+        })
+        return
+      }
+
       const { error: membershipError } = await supabase
         .from("team_memberships")
         .delete()
@@ -202,7 +226,6 @@ export default function TeamDetails() {
       
       if (membershipError) throw membershipError
 
-      // Then delete the team
       const { error: teamError } = await supabase
         .from("teams")
         .delete()
@@ -334,8 +357,6 @@ export default function TeamDetails() {
                 </FormItem>
               )}
             />
-
-            {/* Remove the Update/Create Team button from here */}
           </form>
         </Form>
 
@@ -382,7 +403,6 @@ export default function TeamDetails() {
           </div>
         )}
         
-        {/* Add the button at the bottom of the page */}
         <div className="pt-4">
           <Button type="button" onClick={form.handleSubmit(onSubmit)}>
             {id === "new" ? t('team.createTeam') : t('team.updateTeam')}
