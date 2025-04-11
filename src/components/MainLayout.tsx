@@ -70,11 +70,11 @@ export default function MainLayout() {
                   <MenuIcon className="h-4 w-4" />
                 </Button>
                 
-                <div className="ml-2">
+                <div className="ml-2 h-8">
                   <img 
                     src="/lovable-uploads/b8c78d50-2e4a-4d50-9496-81fe7cd078bf.png" 
                     alt="Sezir.io Logo" 
-                    className="h-10 w-auto" 
+                    className="h-full w-auto object-contain" 
                   />
                 </div>
               </>

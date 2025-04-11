@@ -32,11 +32,13 @@ export function Sidebar({ className }: SidebarProps) {
           <div className="px-3 py-2 flex-1">
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-center">
-                <img 
-                  src="/lovable-uploads/b8c78d50-2e4a-4d50-9496-81fe7cd078bf.png" 
-                  alt="Sezir.io Logo" 
-                  className="h-12 w-auto" 
-                />
+                <div className="w-auto h-8">
+                  <img 
+                    src="/lovable-uploads/b8c78d50-2e4a-4d50-9496-81fe7cd078bf.png" 
+                    alt="Sezir.io Logo" 
+                    className="h-full w-auto object-contain" 
+                  />
+                </div>
               </div>
               
               {/* Collapse sidebar button */}
