@@ -72,7 +72,7 @@ export default function MainLayout() {
                 
                 <div className="ml-2">
                   <img 
-                    src="/lovable-uploads/6044e875-acd5-49d6-910b-1a0eab2a42d0.png" 
+                    src="/lovable-uploads/b8c78d50-2e4a-4d50-9496-81fe7cd078bf.png" 
                     alt="Sezir.io Logo" 
                     className="h-10 w-auto" 
                   />
