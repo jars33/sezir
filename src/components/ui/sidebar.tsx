@@ -35,7 +35,7 @@ export function Sidebar({ className }: SidebarProps) {
                 <img 
                   src="/lovable-uploads/6044e875-acd5-49d6-910b-1a0eab2a42d0.png" 
                   alt="Sezir.io Logo" 
-                  className="h-8 mr-2" 
+                  className="h-12 w-auto" 
                 />
               </div>
               

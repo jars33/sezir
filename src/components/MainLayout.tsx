@@ -74,7 +74,7 @@ export default function MainLayout() {
                   <img 
                     src="/lovable-uploads/6044e875-acd5-49d6-910b-1a0eab2a42d0.png" 
                     alt="Sezir.io Logo" 
-                    className="h-8" 
+                    className="h-10 w-auto" 
                   />
                 </div>
               </>
