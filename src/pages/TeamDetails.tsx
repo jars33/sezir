@@ -37,6 +37,7 @@ import type { TeamMember } from "@/types/team-member"
 import { Plus, Trash2 } from "lucide-react"
 import { DeleteTeamDialog } from "@/components/team/DeleteTeamDialog"
 import { useTranslation } from "react-i18next"
+import { teamsService } from "@/services/supabase/teams-service"
 
 const teamFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -207,32 +208,8 @@ export default function TeamDetails() {
     if (!id || id === "new") return
 
     try {
-      if (linkedProjects && linkedProjects.length > 0) {
-        toast({
-          variant: "destructive",
-          title: t('common.error'),
-          description: t('team.cannotDeleteTeamWithProjects', {
-            count: linkedProjects.length,
-            defaultValue: `Cannot delete team: There are {{count}} projects linked to this team. Please reassign or remove these projects first.`
-          }),
-        })
-        return
-      }
-
-      const { error: membershipError } = await supabase
-        .from("team_memberships")
-        .delete()
-        .eq("team_id", id)
+      await teamsService.deleteTeam(id);
       
-      if (membershipError) throw membershipError
-
-      const { error: teamError } = await supabase
-        .from("teams")
-        .delete()
-        .eq("id", id)
-      
-      if (teamError) throw teamError
-
       navigate("/teams")
       toast({
         title: t('common.success'),
@@ -414,6 +391,7 @@ export default function TeamDetails() {
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
         onConfirm={handleDeleteTeam}
+        projectCount={linkedProjects?.length || 0}
       />
     </div>
   )
