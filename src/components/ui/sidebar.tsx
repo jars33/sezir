@@ -31,7 +31,13 @@ export function Sidebar({ className }: SidebarProps) {
         <div className="space-y-4 py-4 h-full flex flex-col">
           <div className="px-3 py-2 flex-1">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-lg font-semibold">{t('common.appName')}</h2>
+              <div className="flex items-center">
+                <img 
+                  src="/lovable-uploads/6044e875-acd5-49d6-910b-1a0eab2a42d0.png" 
+                  alt="Sezir.io Logo" 
+                  className="h-8 mr-2" 
+                />
+              </div>
               
               {/* Collapse sidebar button */}
               <Button
