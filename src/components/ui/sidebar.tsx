@@ -9,7 +9,6 @@ import { LayoutDashboard, Users, Folders, Network, MenuIcon, ChevronLeft, Calcul
 import { useTranslation } from "react-i18next"
 import { useState } from "react"
 import { useLocalStorage } from "@/hooks/use-local-storage"
-import { useTheme } from "next-themes"
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -18,7 +17,6 @@ export function Sidebar({ className }: SidebarProps) {
   const location = useLocation()
   const { t } = useTranslation()
   const [sidebarCollapsed, setSidebarCollapsed] = useLocalStorage<boolean>("sidebar-collapsed", false)
-  const { theme } = useTheme()
 
   return (
     <div className="relative">
@@ -34,20 +32,12 @@ export function Sidebar({ className }: SidebarProps) {
           <div className="px-3 py-2 flex-1">
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-center">
-                <div className="h-8">
-                  {theme === "dark" ? (
-                    <img 
-                      src="/lovable-uploads/0bbb87f4-bfe9-4adc-b201-8dc69fcfc2e9.png" 
-                      alt="Sezir.io Logo" 
-                      className="h-full w-auto object-contain" 
-                    />
-                  ) : (
-                    <img 
-                      src="/lovable-uploads/56b2a03e-105e-47bd-acf7-deaee6d4fb46.png" 
-                      alt="Sezir.io Logo" 
-                      className="h-full w-auto object-contain" 
-                    />
-                  )}
+                <div className="w-auto h-8">
+                  <img 
+                    src="/lovable-uploads/b8c78d50-2e4a-4d50-9496-81fe7cd078bf.png" 
+                    alt="Sezir.io Logo" 
+                    className="h-full w-auto object-contain" 
+                  />
                 </div>
               </div>
               
