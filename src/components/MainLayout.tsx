@@ -1,3 +1,4 @@
+
 import { Outlet, useNavigate, Link, useLocation } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { supabase } from "@/integrations/supabase/client"
@@ -71,11 +72,11 @@ export default function MainLayout() {
                 
                 <div className="ml-2 flex items-center space-x-2">
                   <img 
-                    src="/lovable-uploads/28aa1447-47a8-4f52-abde-86d3df8b24c6.png" 
+                    src="/lovable-uploads/08232775-65f4-4f8f-b237-1ed079d98e99.png" 
                     alt="Sezir.io Logo" 
                     className="h-8 w-8 object-contain" 
                   />
-                  <span className="text-lg font-semibold font-sans">Sezir.io</span>
+                  <span className="text-lg font-bold font-brand tracking-tight text-primary">Sezir.io</span>
                 </div>
               </>
             )}
