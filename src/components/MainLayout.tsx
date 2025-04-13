@@ -70,20 +70,13 @@ export default function MainLayout() {
                   <MenuIcon className="h-4 w-4" />
                 </Button>
                 
-                <div className="ml-2 h-8">
-                  {theme === "dark" ? (
-                    <img 
-                      src="/lovable-uploads/0bbb87f4-bfe9-4adc-b201-8dc69fcfc2e9.png" 
-                      alt="Sezir.io Logo" 
-                      className="h-full w-auto object-contain" 
-                    />
-                  ) : (
-                    <img 
-                      src="/lovable-uploads/56b2a03e-105e-47bd-acf7-deaee6d4fb46.png" 
-                      alt="Sezir.io Logo" 
-                      className="h-full w-auto object-contain" 
-                    />
-                  )}
+                <div className="ml-2 flex items-center space-x-2">
+                  <img 
+                    src="/lovable-uploads/d2b102f7-377d-4f58-82e3-2e9cf2585fb0.png" 
+                    alt="Sezir.io Logo" 
+                    className="h-8 w-8 object-contain" 
+                  />
+                  <span className="text-lg font-semibold">Sezir.io</span>
                 </div>
               </>
             )}

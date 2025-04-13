@@ -33,22 +33,13 @@ export function Sidebar({ className }: SidebarProps) {
         <div className="space-y-4 py-4 h-full flex flex-col">
           <div className="px-3 py-2 flex-1">
             <div className="flex justify-between items-center mb-6">
-              <div className="flex items-center">
-                <div className="h-8">
-                  {theme === "dark" ? (
-                    <img 
-                      src="/lovable-uploads/0bbb87f4-bfe9-4adc-b201-8dc69fcfc2e9.png" 
-                      alt="Sezir.io Logo" 
-                      className="h-full w-auto object-contain" 
-                    />
-                  ) : (
-                    <img 
-                      src="/lovable-uploads/56b2a03e-105e-47bd-acf7-deaee6d4fb46.png" 
-                      alt="Sezir.io Logo" 
-                      className="h-full w-auto object-contain" 
-                    />
-                  )}
-                </div>
+              <div className="flex items-center space-x-2">
+                <img 
+                  src="/lovable-uploads/d2b102f7-377d-4f58-82e3-2e9cf2585fb0.png" 
+                  alt="Sezir.io Logo" 
+                  className="h-8 w-8 object-contain" 
+                />
+                <span className="text-lg font-semibold">Sezir.io</span>
               </div>
               
               {/* Collapse sidebar button */}
