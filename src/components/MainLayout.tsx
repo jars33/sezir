@@ -76,7 +76,7 @@ export default function MainLayout() {
                     alt="Sezir.io Logo" 
                     className="h-8 w-8 object-contain" 
                   />
-                  <span className="text-lg font-bold font-brand tracking-tight text-primary">Sezir.io</span>
+                  <span className="text-lg font-bold font-brand tracking-tight text-black leading-none flex items-center">Sezir.io</span>
                 </div>
               </>
             )}
