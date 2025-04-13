@@ -72,11 +72,11 @@ export default function MainLayout() {
                 
                 <div className="ml-2 flex items-center space-x-2">
                   <img 
-                    src="/lovable-uploads/08232775-65f4-4f8f-b237-1ed079d98e99.png" 
+                    src="/lovable-uploads/87a57fae-add9-43b0-bcd8-a0f28b70ea02.png" 
                     alt="Sezir.io Logo" 
                     className="h-8 w-8 object-contain" 
                   />
-                  <span className="text-lg font-bold font-brand tracking-tight text-black leading-none flex items-center">Sezir.io</span>
+                  <span className="text-lg font-bold font-brand tracking-tight text-black h-8 flex items-center">Sezir.io</span>
                 </div>
               </>
             )}
