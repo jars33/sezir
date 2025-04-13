@@ -1,4 +1,3 @@
-
 "use client"
 
 import { cn } from "@/lib/utils"
@@ -22,7 +21,6 @@ export function Sidebar({ className }: SidebarProps) {
 
   return (
     <div className="relative">
-      {/* Sidebar with content */}
       <div 
         className={cn(
           "transition-all duration-300 ease-in-out fixed left-0 top-0 bottom-0 z-10 bg-background border-r", 
@@ -35,11 +33,11 @@ export function Sidebar({ className }: SidebarProps) {
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-center space-x-2">
                 <img 
-                  src="/lovable-uploads/d2b102f7-377d-4f58-82e3-2e9cf2585fb0.png" 
+                  src="/lovable-uploads/28aa1447-47a8-4f52-abde-86d3df8b24c6.png" 
                   alt="Sezir.io Logo" 
                   className="h-8 w-8 object-contain" 
                 />
-                <span className="text-lg font-semibold">Sezir.io</span>
+                <span className="text-lg font-semibold font-sans">Sezir.io</span>
               </div>
               
               {/* Collapse sidebar button */}
