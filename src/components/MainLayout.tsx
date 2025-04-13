@@ -71,11 +71,19 @@ export default function MainLayout() {
                 </Button>
                 
                 <div className="ml-2 h-8">
-                  <img 
-                    src="/lovable-uploads/b8c78d50-2e4a-4d50-9496-81fe7cd078bf.png" 
-                    alt="Sezir.io Logo" 
-                    className="h-full w-auto object-contain" 
-                  />
+                  {theme === "dark" ? (
+                    <img 
+                      src="/lovable-uploads/0bbb87f4-bfe9-4adc-b201-8dc69fcfc2e9.png" 
+                      alt="Sezir.io Logo" 
+                      className="h-full w-auto object-contain" 
+                    />
+                  ) : (
+                    <img 
+                      src="/lovable-uploads/56b2a03e-105e-47bd-acf7-deaee6d4fb46.png" 
+                      alt="Sezir.io Logo" 
+                      className="h-full w-auto object-contain" 
+                    />
+                  )}
                 </div>
               </>
             )}
