@@ -38,7 +38,7 @@ export function Sidebar({ className }: SidebarProps) {
                   alt="Sezir.io Logo" 
                   className="h-8 w-8 object-contain" 
                 />
-                <span className="text-lg font-bold font-brand tracking-tight text-black leading-none flex items-center">Sezir.io</span>
+                <span className="text-lg font-bold font-brand tracking-tight text-black dark:text-white leading-none flex items-center h-8">Sezir.io</span>
               </div>
               
               {/* Collapse sidebar button */}
