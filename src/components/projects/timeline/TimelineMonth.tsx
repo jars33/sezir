@@ -16,7 +16,6 @@ import {
   Calculator,
 } from "lucide-react"
 import { useTranslation } from "react-i18next"
-import { useLocalStorage } from "@/hooks/use-local-storage"
 
 interface TimelineMonthProps {
   month: Date
@@ -29,6 +28,7 @@ interface TimelineMonthProps {
   onSelectOverheadCost: (cost: any) => void
   onSelectAllocation: (allocation: any) => void
   accumulatedProfit: number
+  showDecimals?: boolean
 }
 
 export function TimelineMonth({
@@ -42,9 +42,9 @@ export function TimelineMonth({
   onSelectOverheadCost,
   onSelectAllocation,
   accumulatedProfit,
+  showDecimals = true,
 }: TimelineMonthProps) {
   const { t } = useTranslation()
-  const [showDecimals] = useLocalStorage<boolean>("showDecimals", true)
   
   const totalRevenues = revenues.reduce((sum, r) => sum + Number(r.amount), 0)
   const totalVariableCosts = variableCosts.reduce(

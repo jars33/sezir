@@ -6,7 +6,6 @@ import type { TimelineItem, AllocationItem } from "../actions/types"
 import { useProjectSettings } from "@/hooks/use-project-settings"
 import { useTranslation } from "react-i18next"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { useLocalStorage } from "@/hooks/use-local-storage"
 
 interface TimelineMonthsGridProps {
   startDate: Date
@@ -18,6 +17,7 @@ interface TimelineMonthsGridProps {
   onSelectAllocation: (allocation: AllocationItem) => void
   calculateAccumulatedProfitUpToMonth: (targetMonth: Date) => number
   year: number
+  showDecimals?: boolean
 }
 
 export function TimelineMonthsGrid({
@@ -29,7 +29,8 @@ export function TimelineMonthsGrid({
   onSelectVariableCost,
   onSelectAllocation,
   calculateAccumulatedProfitUpToMonth,
-  year
+  year,
+  showDecimals = true
 }: TimelineMonthsGridProps) {
   const { t } = useTranslation()
   const { getOverheadPercentage } = useProjectSettings()
@@ -37,7 +38,6 @@ export function TimelineMonthsGrid({
   const [isDragging, setIsDragging] = useState(false)
   const [startX, setStartX] = useState(0)
   const [scrollLeft, setScrollLeft] = useState(0)
-  const [showDecimals] = useLocalStorage<boolean>("showDecimals", true)
   
   // Generate an array of 12 months starting from startDate
   const months = useMemo(() => 
@@ -130,6 +130,7 @@ export function TimelineMonthsGrid({
                 onSelectOverheadCost={() => {}}
                 onSelectAllocation={onSelectAllocation}
                 accumulatedProfit={calculateAccumulatedProfitUpToMonth(month)}
+                showDecimals={showDecimals}
               />
             )
           })}

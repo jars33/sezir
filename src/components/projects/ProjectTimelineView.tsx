@@ -52,7 +52,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
     year
   )
 
-  const { calculateAccumulatedProfitUpToMonth } = useTimelineProfitability(
+  const { calculateAccumulatedProfitUpToMonth, showDecimals } = useTimelineProfitability(
     revenues,
     variableCosts,
     allocations,
@@ -101,6 +101,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
           onSelectAllocation={handleAllocationSelection}
           calculateAccumulatedProfitUpToMonth={calculateAccumulatedProfitUpToMonth}
           year={year}
+          showDecimals={showDecimals}
         />
 
         <TimelineActions

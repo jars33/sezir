@@ -1,5 +1,5 @@
 
-import { useCallback } from "react"
+import { useCallback, useMemo } from "react"
 import { format } from "date-fns"
 import { useProjectSettings } from "@/hooks/use-project-settings"
 import type { TimelineItem, AllocationItem } from "../actions/types"
@@ -12,7 +12,20 @@ export function useTimelineProfitability(
   year: number
 ) {
   const { getOverheadPercentage } = useProjectSettings()
-  const [showDecimals] = useLocalStorage<boolean>("showDecimals", true)
+  // Use useMemo to conditionally access localStorage only when component is mounted
+  const showDecimalsValue = useMemo(() => {
+    try {
+      // Safe way to access localStorage that won't cause React initialization errors
+      if (typeof window !== 'undefined') {
+        const storedValue = window.localStorage.getItem("showDecimals")
+        return storedValue ? JSON.parse(storedValue) : true
+      }
+      return true
+    } catch (error) {
+      console.error("Error reading from localStorage:", error)
+      return true
+    }
+  }, [])
   
   // Calculate accumulated profit up to a specific month
   const calculateAccumulatedProfitUpToMonth = useCallback((targetMonth: Date) => {
@@ -40,6 +53,7 @@ export function useTimelineProfitability(
   }, [revenues, variableCosts, allocations, year, getOverheadPercentage])
 
   return {
-    calculateAccumulatedProfitUpToMonth
+    calculateAccumulatedProfitUpToMonth,
+    showDecimals: showDecimalsValue
   }
 }
