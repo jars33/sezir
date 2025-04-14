@@ -22,3 +22,13 @@
 [data-radix-scroll-area-viewport] {
   width: 100% !important;
 }
+
+/* Make the viewport draggable */
+.scrollable-viewport {
+  cursor: grab;
+  user-select: none;
+}
+
+.scrollable-viewport:active {
+  cursor: grabbing;
+}
