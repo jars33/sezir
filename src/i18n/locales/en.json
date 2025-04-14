@@ -190,7 +190,7 @@
     "deleteCost": "Delete Cost",
     "actions": "Cost Actions",
     "entry": "entry",
-    "cost": "cost",
+    "cost": "Cost",
     "deleteWarning": "This action cannot be undone. This will permanently delete the {type} {entryType}.",
     "costBreakdown": "Cost Breakdown",
     "totalCosts": "Total Costs",
