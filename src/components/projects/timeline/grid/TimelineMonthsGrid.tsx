@@ -32,7 +32,7 @@ export function TimelineMonthsGrid({
 }: TimelineMonthsGridProps) {
   const { t } = useTranslation()
   const { getOverheadPercentage } = useProjectSettings()
-  const scrollRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [startX, setStartX] = useState(0)
   const [scrollLeft, setScrollLeft] = useState(0)
@@ -43,42 +43,59 @@ export function TimelineMonthsGrid({
     [startDate]
   )
   
-  // Mouse handlers for drag to scroll
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (!scrollRef.current) return
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!containerRef.current) return
     
     setIsDragging(true)
-    setStartX(e.pageX - scrollRef.current.offsetLeft)
-    setScrollLeft(scrollRef.current.scrollLeft)
-  }, [])
+    setStartX(e.clientX)
+    setScrollLeft(containerRef.current.scrollLeft)
+    
+    // Change cursor to grabbing
+    if (containerRef.current) {
+      containerRef.current.style.cursor = 'grabbing'
+    }
+  }
   
-  const handleMouseLeave = useCallback(() => {
+  const handleMouseUp = () => {
     setIsDragging(false)
-  }, [])
+    
+    // Restore cursor
+    if (containerRef.current) {
+      containerRef.current.style.cursor = 'grab'
+    }
+  }
   
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(false)
-  }, [])
+  const handleMouseLeave = () => {
+    if (isDragging) {
+      setIsDragging(false)
+      
+      // Restore cursor
+      if (containerRef.current) {
+        containerRef.current.style.cursor = 'grab'
+      }
+    }
+  }
   
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!isDragging || !scrollRef.current) return
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDragging || !containerRef.current) return
     
     e.preventDefault()
-    const x = e.pageX - scrollRef.current.offsetLeft
-    const walk = (x - startX) * 1.5 // Scroll speed multiplier
-    scrollRef.current.scrollLeft = scrollLeft - walk
-  }, [isDragging, startX, scrollLeft])
+    const x = e.clientX
+    const distance = x - startX
+    containerRef.current.scrollLeft = scrollLeft - distance
+  }
 
   return (
-    <ScrollArea className="h-full w-full">
-      <div 
-        className="min-w-[2400px]"
-        ref={scrollRef}
-        onMouseDown={handleMouseDown}
-        onMouseLeave={handleMouseLeave}
-        onMouseUp={handleMouseUp}
-        onMouseMove={handleMouseMove}
-      >
+    <div 
+      className="overflow-auto w-full" 
+      ref={containerRef}
+      style={{ cursor: 'grab' }}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseLeave}
+      onMouseMove={handleMouseMove}
+    >
+      <div className="min-w-[2400px]">
         <div className="grid grid-cols-12 gap-px bg-gray-200 rounded-lg overflow-hidden">
           {months.map((month) => {
             const monthStr = format(month, "yyyy-MM")
@@ -115,6 +132,6 @@ export function TimelineMonthsGrid({
           })}
         </div>
       </div>
-    </ScrollArea>
+    </div>
   )
 }

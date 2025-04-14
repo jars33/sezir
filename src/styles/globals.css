@@ -23,12 +23,12 @@
   width: 100% !important;
 }
 
-/* Make the viewport draggable */
-.scrollable-viewport {
+/* Draggable timeline styles */
+.draggable {
   cursor: grab;
   user-select: none;
 }
 
-.scrollable-viewport:active {
+.draggable:active {
   cursor: grabbing;
 }

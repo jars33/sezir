@@ -8,7 +8,6 @@ import { useAllocationData } from "./timeline/useAllocationData"
 import { useAllocationSubmit } from "./timeline/useAllocationSubmit"
 import type { TeamMember } from "@/types/team-member"
 import { useTranslation } from "react-i18next"
-import { ScrollArea } from "@/components/ui/scroll-area"
 
 interface TeamMemberTimelineProps {
   member: TeamMember
@@ -20,7 +19,7 @@ export function TeamMemberTimeline({ member, selectedYear, onEditMember }: TeamM
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const currentDate = new Date()
   const { t } = useTranslation()
-  const scrollRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [startX, setStartX] = useState(0)
   const [scrollLeft, setScrollLeft] = useState(0)
@@ -32,31 +31,47 @@ export function TeamMemberTimeline({ member, selectedYear, onEditMember }: TeamM
     return new Date(selectedYear, i, 1)
   })
   
-  // Mouse handlers for drag to scroll
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (!scrollRef.current) return
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!containerRef.current) return
     
     setIsDragging(true)
-    setStartX(e.pageX - scrollRef.current.offsetLeft)
-    setScrollLeft(scrollRef.current.scrollLeft)
-  }, [])
+    setStartX(e.clientX)
+    setScrollLeft(containerRef.current.scrollLeft)
+    
+    // Change cursor to grabbing
+    if (containerRef.current) {
+      containerRef.current.style.cursor = 'grabbing'
+    }
+  }
   
-  const handleMouseLeave = useCallback(() => {
+  const handleMouseUp = () => {
     setIsDragging(false)
-  }, [])
+    
+    // Restore cursor
+    if (containerRef.current) {
+      containerRef.current.style.cursor = 'grab'
+    }
+  }
   
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(false)
-  }, [])
+  const handleMouseLeave = () => {
+    if (isDragging) {
+      setIsDragging(false)
+      
+      // Restore cursor
+      if (containerRef.current) {
+        containerRef.current.style.cursor = 'grab'
+      }
+    }
+  }
   
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!isDragging || !scrollRef.current) return
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDragging || !containerRef.current) return
     
     e.preventDefault()
-    const x = e.pageX - scrollRef.current.offsetLeft
-    const walk = (x - startX) * 1.5 // Scroll speed multiplier
-    scrollRef.current.scrollLeft = scrollLeft - walk
-  }, [isDragging, startX, scrollLeft])
+    const x = e.clientX
+    const distance = x - startX
+    containerRef.current.scrollLeft = scrollLeft - distance
+  }
 
   return (
     <Card className="mb-3">
@@ -67,15 +82,16 @@ export function TeamMemberTimeline({ member, selectedYear, onEditMember }: TeamM
       />
       
       <CardContent className="pb-3 pt-0">
-        <ScrollArea className="h-full w-full">
-          <div 
-            className="min-w-[2400px]"
-            ref={scrollRef}
-            onMouseDown={handleMouseDown}
-            onMouseLeave={handleMouseLeave}
-            onMouseUp={handleMouseUp}
-            onMouseMove={handleMouseMove}
-          >
+        <div 
+          className="overflow-auto w-full"
+          ref={containerRef}
+          style={{ cursor: 'grab' }}
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseLeave}
+          onMouseMove={handleMouseMove}
+        >
+          <div className="min-w-[2400px]">
             <div className="grid grid-cols-[repeat(12,_1fr)] gap-px bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
               {months.map((month) => (
                 <MonthAllocation 
@@ -87,7 +103,7 @@ export function TeamMemberTimeline({ member, selectedYear, onEditMember }: TeamM
               ))}
             </div>
           </div>
-        </ScrollArea>
+        </div>
       </CardContent>
 
       <TeamMemberAllocationDialog
