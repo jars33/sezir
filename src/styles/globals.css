@@ -11,3 +11,14 @@
   width: 100%;
   overflow-x: auto;
 }
+
+/* Make scroll containers take full available width */
+.scroll-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Ensure Radix UI ScrollArea shows horizontal scrollbar */
+[data-radix-scroll-area-viewport] {
+  width: 100% !important;
+}

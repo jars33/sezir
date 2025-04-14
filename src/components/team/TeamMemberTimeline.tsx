@@ -37,7 +37,7 @@ export function TeamMemberTimeline({ member, selectedYear, onEditMember }: TeamM
       />
       
       <CardContent className="pb-3 pt-0">
-        <ScrollArea className="h-full">
+        <ScrollArea className="h-full w-full">
           <div className="min-w-[2400px]">
             <div className="grid grid-cols-[repeat(12,_1fr)] gap-px bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
               {months.map((month) => (
