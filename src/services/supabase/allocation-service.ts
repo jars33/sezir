@@ -84,7 +84,10 @@ export const allocationService = {
         .eq("team_member_id", teamMemberId)
         .maybeSingle();
 
-      if (assignmentError) throw assignmentError;
+      if (assignmentError) {
+        console.error("Error checking existing assignment:", assignmentError);
+        throw new Error(`Assignment check failed: ${assignmentError.message}`);
+      }
 
       let assignmentId: string;
 
@@ -102,6 +105,9 @@ export const allocationService = {
 
         if (createError) {
           console.error("Error creating assignment:", createError);
+          if (createError.message.includes("policy")) {
+            throw new Error("Permission error: You don't have access to create this assignment.");
+          }
           throw createError;
         }
         
@@ -124,7 +130,10 @@ export const allocationService = {
         .eq("month", monthStr)
         .maybeSingle();
 
-      if (checkError) throw checkError;
+      if (checkError) {
+        console.error("Error checking existing allocation:", checkError);
+        throw new Error(`Allocation check failed: ${checkError.message}`);
+      }
 
       if (existingAllocation) {
         // Update existing allocation
@@ -135,7 +144,14 @@ export const allocationService = {
           .select()
           .single();
 
-        if (updateError) throw updateError;
+        if (updateError) {
+          console.error("Error updating allocation:", updateError);
+          if (updateError.message.includes("policy")) {
+            throw new Error("Permission error: You don't have access to update this allocation.");
+          }
+          throw updateError;
+        }
+        
         return updatedAllocation;
       } else {
         // Create new allocation
@@ -149,7 +165,14 @@ export const allocationService = {
           .select()
           .single();
 
-        if (error) throw error;
+        if (error) {
+          console.error("Error creating allocation:", error);
+          if (error.message.includes("policy")) {
+            throw new Error("Permission error: You don't have access to create this allocation.");
+          }
+          throw error;
+        }
+        
         return data;
       }
     } catch (error) {
@@ -171,7 +194,13 @@ export const allocationService = {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      if (error.message.includes("policy")) {
+        throw new Error("Permission error: You don't have access to update this allocation.");
+      }
+      throw error;
+    }
+    
     return data;
   },
 
@@ -181,6 +210,11 @@ export const allocationService = {
       .delete()
       .eq("id", id);
 
-    if (error) throw error;
+    if (error) {
+      if (error.message.includes("policy")) {
+        throw new Error("Permission error: You don't have access to delete this allocation.");
+      }
+      throw error;
+    }
   }
 };

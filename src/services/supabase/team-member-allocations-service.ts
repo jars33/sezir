@@ -48,7 +48,10 @@ export const teamMemberAllocationsService = {
         .eq("project_id", projectId)
         .maybeSingle();
 
-      if (assignmentError) throw assignmentError;
+      if (assignmentError) {
+        console.error("Error checking for existing assignment:", assignmentError);
+        throw assignmentError;
+      }
 
       if (existingAssignment) {
         return existingAssignment.id;
@@ -67,7 +70,10 @@ export const teamMemberAllocationsService = {
           .eq("id", projectId)
           .single();
           
-        if (projectError) throw projectError;
+        if (projectError) {
+          console.error("Error fetching project details:", projectError);
+          throw projectError;
+        }
         
         // Create new assignment 
         const { data: newAssignment, error: createError } = await supabase
@@ -82,6 +88,9 @@ export const teamMemberAllocationsService = {
 
         if (createError) {
           console.error("Error creating assignment:", createError);
+          if (createError.message.includes("policy")) {
+            throw new Error("Permission error: You don't have access to create this assignment.");
+          }
           throw createError;
         }
         
@@ -103,21 +112,59 @@ export const teamMemberAllocationsService = {
     allocationPercentage: number
   ): Promise<any> {
     try {
-      const { data, error: allocationError } = await supabase
+      const monthStr = format(month, 'yyyy-MM-dd');
+      
+      // Check if an allocation already exists for this month and assignment
+      const { data: existingAllocation, error: checkError } = await supabase
         .from("project_member_allocations")
-        .insert({
-          project_assignment_id: assignmentId,
-          month: format(month, 'yyyy-MM-dd'),
-          allocation_percentage: allocationPercentage,
-        })
-        .select();
-
-      if (allocationError) {
-        console.error("Error creating allocation:", allocationError);
-        throw allocationError;
+        .select("id")
+        .eq("project_assignment_id", assignmentId)
+        .eq("month", monthStr)
+        .maybeSingle();
+        
+      if (checkError) {
+        console.error("Error checking for existing allocation:", checkError);
+        throw checkError;
       }
       
-      return data;
+      if (existingAllocation) {
+        // Update existing allocation
+        const { data, error: updateError } = await supabase
+          .from("project_member_allocations")
+          .update({ allocation_percentage: allocationPercentage })
+          .eq("id", existingAllocation.id)
+          .select();
+          
+        if (updateError) {
+          console.error("Error updating allocation:", updateError);
+          if (updateError.message.includes("policy")) {
+            throw new Error("Permission error: You don't have access to update this allocation.");
+          }
+          throw updateError;
+        }
+        
+        return data;
+      } else {
+        // Create new allocation
+        const { data, error: allocationError } = await supabase
+          .from("project_member_allocations")
+          .insert({
+            project_assignment_id: assignmentId,
+            month: format(month, 'yyyy-MM-dd'),
+            allocation_percentage: allocationPercentage,
+          })
+          .select();
+
+        if (allocationError) {
+          console.error("Error creating allocation:", allocationError);
+          if (allocationError.message.includes("policy")) {
+            throw new Error("Permission error: You don't have access to create this allocation.");
+          }
+          throw allocationError;
+        }
+        
+        return data;
+      }
     } catch (error) {
       console.error("Error in createAllocation:", error);
       throw error;

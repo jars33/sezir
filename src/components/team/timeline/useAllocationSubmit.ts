@@ -31,12 +31,16 @@ export function useAllocationSubmit(
       );
 
       await onSuccess();
+      
+      toast.success("Allocation added successfully");
     } catch (error: any) {
       console.error("Error submitting allocation:", error)
       
       // Provide more specific error messages based on the error
       if (error.message?.includes("row-level security policy")) {
         toast.error("Permission error: You don't have access to create this allocation.");
+      } else if (error.message?.includes("Permission error")) {
+        toast.error(error.message);
       } else {
         toast.error("Failed to add allocation. Please try again.");
       }

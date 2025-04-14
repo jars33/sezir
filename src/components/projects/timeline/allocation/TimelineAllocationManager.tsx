@@ -59,11 +59,11 @@ export function TimelineAllocationManager({
       console.error("Error managing allocation:", error)
       
       // Provide more specific error messages based on the error
-      if (error.message?.includes("row-level security policy")) {
+      if (error.message?.includes("Permission error")) {
         toast({
           variant: "destructive",
           title: t('common.error'),
-          description: t('team.allocation.permissionError', 'Permission error: You don\'t have access to create this allocation.'),
+          description: error.message,
         })
       } else {
         toast({
