@@ -1,4 +1,3 @@
-
 {
   "common": {
     "appName": "sezir.io",
@@ -8,12 +7,12 @@
     "projects": "Projetos",
     "project": "Projecto",
     "signOut": "Terminar Sessão",
-    "loading": "A carregar...",
+    "loading": "Carregando...",
     "showDecimals": "Mostrar decimais",
     "language": "Idioma",
     "today": "Hoje",
     "noProjectsFound": "Nenhum projeto encontrado",
-    "timeline": "Cronologia",
+    "timeline": "Linha do tempo",
     "pageNotFound": "Oops! Página não encontrada",
     "returnToHome": "Voltar à Página Inicial",
     "previousYear": "Ano Anterior",
@@ -21,14 +20,14 @@
     "month": "Mês",
     "amount": "Montante",
     "edit": "Editar",
-    "delete": "Eliminar",
+    "delete": "Excluir",
     "success": "Sucesso",
     "error": "Erro",
     "details": "Detalhes",
     "back": "Voltar",
     "export": "Exportar",
     "import": "Importar",
-    "save": "Guardar",
+    "save": "Salvar",
     "add": "Adicionar",
     "cancel": "Cancelar",
     "search": "Pesquisar",
@@ -133,17 +132,17 @@
     "userAccountCreated": " e conta de utilizador criada",
     "saveError": "Falha ao salvar membro da equipa",
     "allocation": {
-      "title": "Alocação",
-      "edit": "Editar Alocação de Membro",
-      "description": "Adicionar alocação para um mês ou período",
+      "title": "Adicionar Alocação de Membro da Equipa",
+      "description": "Adicione alocação para um único mês ou um período",
       "period": "Período",
+      "project": "Projeto",
+      "startMonth": "Mês de Início",
+      "endMonth": "Mês de Fim",
       "month": "Mês",
-      "startMonth": "Mês Inicial",
-      "endMonth": "Mês Final",
       "percentage": "Percentagem de Alocação",
       "add": "Adicionar Alocação",
-      "update": "Atualizar Alocação",
-      "delete": "Eliminar Alocação"
+      "success": "Alocação adicionada com sucesso",
+      "error": "Erro ao adicionar alocação. Por favor, tente novamente."
     }
   },
   "project": {

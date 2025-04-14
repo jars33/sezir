@@ -1,8 +1,9 @@
 
-import { format } from "date-fns"
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Control } from "react-hook-form"
+import { format } from "date-fns"
+import { useTranslation } from "react-i18next"
 import type { AllocationFormValues } from "./allocation-form-schema"
 
 interface MonthSelectFieldsProps {
@@ -11,6 +12,8 @@ interface MonthSelectFieldsProps {
 }
 
 export function MonthSelectFields({ control, isPeriod }: MonthSelectFieldsProps) {
+  const { t } = useTranslation()
+
   return (
     <>
       <FormField
@@ -18,7 +21,7 @@ export function MonthSelectFields({ control, isPeriod }: MonthSelectFieldsProps)
         name="startMonth"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{isPeriod ? "Start Month" : "Month"}</FormLabel>
+            <FormLabel>{isPeriod ? t("allocation.startMonth") : t("allocation.month")}</FormLabel>
             <FormControl>
               <Input 
                 type="month" 
@@ -40,7 +43,7 @@ export function MonthSelectFields({ control, isPeriod }: MonthSelectFieldsProps)
           name="endMonth"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>End Month</FormLabel>
+              <FormLabel>{t("allocation.endMonth")}</FormLabel>
               <FormControl>
                 <Input 
                   type="month" 
