@@ -60,7 +60,16 @@ export const teamMemberAllocationsService = {
           throw new Error("User not authenticated");
         }
 
-        // Create new assignment with the current user ID for authorization
+        // Get the project details to verify ownership
+        const { data: project, error: projectError } = await supabase
+          .from("projects")
+          .select("user_id")
+          .eq("id", projectId)
+          .single();
+          
+        if (projectError) throw projectError;
+        
+        // Create new assignment 
         const { data: newAssignment, error: createError } = await supabase
           .from("project_assignments")
           .insert({

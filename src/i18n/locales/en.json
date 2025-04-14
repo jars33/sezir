@@ -1,4 +1,3 @@
-
 {
   "common": {
     "appName": "sezir.io",
@@ -38,6 +37,7 @@
     "actions": "Actions",
     "noResultsFound": "No results found",
     "change": "Change",
+    "submitting": "Submitting...",
     "months": {
       "jan": "Jan",
       "feb": "Feb",
@@ -143,7 +143,13 @@
       "percentage": "Allocation Percentage",
       "add": "Add Allocation",
       "update": "Update Allocation",
-      "delete": "Delete Allocation"
+      "delete": "Delete Allocation",
+      "added": "Team member allocation added successfully",
+      "updated": "Team member allocation updated successfully",
+      "deleted": "Team member allocation deleted successfully",
+      "error": "Failed to add allocation. Please try again.",
+      "permissionError": "Permission error: You don't have access to create this allocation.",
+      "success": "Allocation added successfully"
     }
   },
   "project": {

@@ -75,53 +75,80 @@ export const allocationService = {
     month: Date,
     allocationPercentage: number
   ): Promise<Allocation> {
-    // First, check if there's an existing assignment for this team member and project
-    const { data: existingAssignment, error: assignmentError } = await supabase
-      .from("project_assignments")
-      .select("id")
-      .eq("project_id", projectId)
-      .eq("team_member_id", teamMemberId)
-      .maybeSingle();
-
-    if (assignmentError) throw assignmentError;
-
-    let assignmentId: string;
-
-    if (!existingAssignment) {
-      // If there's no existing assignment, create one
-      const { data: newAssignment, error: createError } = await supabase
+    try {
+      // Get current user information for authorization context
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      if (userError) throw userError;
+      
+      if (!userData || !userData.user) {
+        throw new Error("User not authenticated");
+      }
+      
+      // First, check if there's an existing assignment for this team member and project
+      const { data: existingAssignment, error: assignmentError } = await supabase
         .from("project_assignments")
-        .insert({
-          project_id: projectId,
-          team_member_id: teamMemberId,
-          start_date: format(month, "yyyy-MM-dd"),
-        })
         .select("id")
+        .eq("project_id", projectId)
+        .eq("team_member_id", teamMemberId)
+        .maybeSingle();
+
+      if (assignmentError) throw assignmentError;
+
+      let assignmentId: string;
+
+      if (!existingAssignment) {
+        // If there's no existing assignment, create one with explicit user_id
+        const { data: project, error: projectError } = await supabase
+          .from("projects")
+          .select("user_id")
+          .eq("id", projectId)
+          .single();
+          
+        if (projectError) throw projectError;
+        
+        const { data: newAssignment, error: createError } = await supabase
+          .from("project_assignments")
+          .insert({
+            project_id: projectId,
+            team_member_id: teamMemberId,
+            start_date: format(month, "yyyy-MM-dd"),
+          })
+          .select("id")
+          .single();
+
+        if (createError) {
+          console.error("Error creating assignment:", createError);
+          throw createError;
+        }
+        
+        if (!newAssignment) {
+          throw new Error("Failed to create assignment");
+        }
+        
+        assignmentId = newAssignment.id;
+      } else {
+        assignmentId = existingAssignment.id;
+      }
+
+      const monthStr = format(month, "yyyy-MM-dd");
+
+      // Create the allocation
+      const { data, error } = await supabase
+        .from("project_member_allocations")
+        .insert({
+          project_assignment_id: assignmentId,
+          month: monthStr,
+          allocation_percentage: allocationPercentage,
+        })
+        .select()
         .single();
 
-      if (createError) throw createError;
-      if (!newAssignment) throw new Error("Failed to create assignment");
-      
-      assignmentId = newAssignment.id;
-    } else {
-      assignmentId = existingAssignment.id;
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error("Error in createAllocation:", error);
+      throw error;
     }
-
-    const monthStr = format(month, "yyyy-MM-dd");
-
-    // Create the allocation
-    const { data, error } = await supabase
-      .from("project_member_allocations")
-      .insert({
-        project_assignment_id: assignmentId,
-        month: monthStr,
-        allocation_percentage: allocationPercentage,
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
   },
 
   async updateAllocation(

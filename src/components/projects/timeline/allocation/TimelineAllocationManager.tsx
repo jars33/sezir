@@ -1,10 +1,9 @@
 
-import { useQuery } from "@tanstack/react-query"
-import { format } from "date-fns"
 import { useToast } from "@/hooks/use-toast"
 import { ProjectAllocationDialog } from "../../allocations/ProjectAllocationDialog"
 import { useManagedTeamMembers } from "@/hooks/use-managed-team-members"
 import { allocationService } from "@/services/supabase"
+import { useTranslation } from "react-i18next"
 import type { AllocationItem } from "../actions/types"
 
 interface TimelineAllocationManagerProps {
@@ -25,6 +24,7 @@ export function TimelineAllocationManager({
   refetchTimelineData
 }: TimelineAllocationManagerProps) {
   const { toast } = useToast()
+  const { t } = useTranslation()
   const { data: teamMembers = [] } = useManagedTeamMembers()
 
   const handleAllocationSubmit = async (values: {
@@ -41,8 +41,8 @@ export function TimelineAllocationManager({
       );
 
       toast({
-        title: "Success",
-        description: "Team member allocation added successfully",
+        title: t('common.success'),
+        description: t('team.allocation.added', 'Team member allocation added successfully'),
       });
       
       setAllocationDialogOpen(false);
@@ -51,11 +51,21 @@ export function TimelineAllocationManager({
       await refetchTimelineData();
     } catch (error: any) {
       console.error("Error managing allocation:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message,
-      });
+      
+      // Provide more specific error messages based on the error
+      if (error.message?.includes("row-level security policy")) {
+        toast({
+          variant: "destructive",
+          title: t('common.error'),
+          description: t('team.allocation.permissionError', 'Permission error: You don\'t have access to create this allocation.'),
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: t('common.error'),
+          description: error.message || t('team.allocation.error', 'Failed to add allocation'),
+        });
+      }
     }
   }
 
