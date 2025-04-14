@@ -2,7 +2,6 @@
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { allocationFormSchema, type AllocationFormValues } from "./allocation-form-schema"
-import { useTranslation } from "react-i18next"
 
 interface UseAllocationFormSubmitProps {
   onSubmit: (values: { projectId: string; month: Date; allocation: string }) => Promise<void>
@@ -10,8 +9,6 @@ interface UseAllocationFormSubmitProps {
 }
 
 export function useAllocationFormSubmit({ onSubmit, open }: UseAllocationFormSubmitProps) {
-  const { t } = useTranslation()
-  
   const form = useForm<AllocationFormValues>({
     resolver: zodResolver(allocationFormSchema),
     defaultValues: {
@@ -27,7 +24,7 @@ export function useAllocationFormSubmit({ onSubmit, open }: UseAllocationFormSub
     if (values.endMonth && endDate < startDate) {
       form.setError("endMonth", {
         type: "manual",
-        message: t('team.endMonthError'),
+        message: "End month must be after start month",
       })
       return
     }

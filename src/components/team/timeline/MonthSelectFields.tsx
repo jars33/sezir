@@ -2,17 +2,15 @@
 import { format } from "date-fns"
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import type { Control } from "react-hook-form"
-import { useTranslation } from "react-i18next"
+import { Control } from "react-hook-form"
+import type { AllocationFormValues } from "./allocation-form-schema"
 
 interface MonthSelectFieldsProps {
-  control: Control<any>
+  control: Control<AllocationFormValues>
   isPeriod: boolean
 }
 
 export function MonthSelectFields({ control, isPeriod }: MonthSelectFieldsProps) {
-  const { t } = useTranslation()
-
   return (
     <>
       <FormField
@@ -20,7 +18,7 @@ export function MonthSelectFields({ control, isPeriod }: MonthSelectFieldsProps)
         name="startMonth"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{isPeriod ? t('team.startMonth') : t('common.month')}</FormLabel>
+            <FormLabel>{isPeriod ? "Start Month" : "Month"}</FormLabel>
             <FormControl>
               <Input 
                 type="month" 
@@ -29,7 +27,6 @@ export function MonthSelectFields({ control, isPeriod }: MonthSelectFieldsProps)
                   field.onChange(date)
                 }}
                 value={field.value ? format(field.value, "yyyy-MM") : ""}
-                className="w-full"
               />
             </FormControl>
             <FormMessage />
@@ -43,7 +40,7 @@ export function MonthSelectFields({ control, isPeriod }: MonthSelectFieldsProps)
           name="endMonth"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t('team.endMonth')}</FormLabel>
+              <FormLabel>End Month</FormLabel>
               <FormControl>
                 <Input 
                   type="month" 
@@ -52,7 +49,6 @@ export function MonthSelectFields({ control, isPeriod }: MonthSelectFieldsProps)
                     field.onChange(date)
                   }}
                   value={field.value ? format(field.value, "yyyy-MM") : ""}
-                  className="w-full"
                 />
               </FormControl>
               <FormMessage />

@@ -125,7 +125,7 @@ export function ProjectAllocationDialog({
     if (isPeriod && endDate < startDate) {
       form.setError("endMonth", {
         type: "manual",
-        message: t('team.endMonthError'),
+        message: "End month must be after start month",
       })
       return
     }
@@ -165,11 +165,11 @@ export function ProjectAllocationDialog({
 
       if (error) throw error
 
-      toast.success(t('common.deleteSuccess'))
+      toast.success("Allocation deleted successfully")
       queryClient.invalidateQueries({ queryKey: ["project-allocations"] })
       onOpenChange(false)
     } catch (error: any) {
-      toast.error(t('common.deleteError'))
+      toast.error("Failed to delete allocation")
       console.error("Error deleting allocation:", error)
     } finally {
       setIsDeleting(false)
@@ -183,9 +183,9 @@ export function ProjectAllocationDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{isEditing ? t('team.editAllocation') : t('team.addMemberAllocation')}</DialogTitle>
+          <DialogTitle>{isEditing ? 'Edit' : 'Add'} Team Member Allocation</DialogTitle>
           <DialogDescription>
-            {isEditing ? t('team.editAllocationDescription') : t('team.addAllocationDescription')}
+            {isEditing ? 'Update allocation for this month' : 'Add allocation for a single month or a period'}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -201,7 +201,7 @@ export function ProjectAllocationDialog({
                   htmlFor="period"
                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
-                  {t('team.period')}
+                  Period
                 </label>
               </div>
             )}
@@ -217,7 +217,7 @@ export function ProjectAllocationDialog({
               name="startMonth"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{isPeriod ? t('team.startMonth') : t('common.month')}</FormLabel>
+                  <FormLabel>{isPeriod ? "Start Month" : "Month"}</FormLabel>
                   <FormControl>
                     <Input 
                       type="month" 
@@ -241,7 +241,7 @@ export function ProjectAllocationDialog({
                 name="endMonth"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('team.endMonth')}</FormLabel>
+                    <FormLabel>End Month</FormLabel>
                     <FormControl>
                       <Input 
                         type="month" 
@@ -264,7 +264,7 @@ export function ProjectAllocationDialog({
               name="allocation"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t('team.allocationPercentage')}</FormLabel>
+                  <FormLabel>Allocation Percentage</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
@@ -273,7 +273,7 @@ export function ProjectAllocationDialog({
                       step="1"
                       onChange={(e) => handleAllocationChange(e, field)}
                       value={field.value}
-                      placeholder={t('team.allocationPlaceholder')}
+                      placeholder="Enter a value between 0 and 100"
                     />
                   </FormControl>
                   <FormMessage />
@@ -288,11 +288,11 @@ export function ProjectAllocationDialog({
                   onClick={handleDelete}
                   disabled={isDeleting}
                 >
-                  {t('common.deleteAllocation')}
+                  Delete Allocation
                 </Button>
               )}
               <Button type="submit">
-                {isEditing ? t('common.update') : t('common.add')} {t('common.allocation')}
+                {isEditing ? 'Update' : 'Add'} Allocation
               </Button>
             </DialogFooter>
           </form>

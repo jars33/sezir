@@ -16,7 +16,6 @@ import { MonthSelectFields } from "./timeline/MonthSelectFields"
 import { AllocationPercentageField } from "./timeline/AllocationPercentageField"
 import { useProjectsData } from "./timeline/useProjectsData"
 import { useAllocationFormSubmit } from "./timeline/useAllocationFormSubmit"
-import { useTranslation } from "react-i18next"
 
 interface TeamMemberAllocationDialogProps {
   teamMemberId: string
@@ -34,7 +33,6 @@ export function TeamMemberAllocationDialog({
   const [isPeriod, setIsPeriod] = useState(false)
   const { data: projects = [] } = useProjectsData()
   const { form, handleSubmit } = useAllocationFormSubmit({ onSubmit, open })
-  const { t } = useTranslation()
   
   // Reset form when dialog opens/closes
   useEffect(() => {
@@ -51,9 +49,9 @@ export function TeamMemberAllocationDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{t('team.addMemberAllocation')}</DialogTitle>
+          <DialogTitle>Add Team Member Allocation</DialogTitle>
           <DialogDescription>
-            {t('team.addAllocationDescription')}
+            Add allocation for a single month or a period
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -68,7 +66,7 @@ export function TeamMemberAllocationDialog({
                 htmlFor="period"
                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
-                {t('team.period')}
+                Period
               </label>
             </div>
 
@@ -76,7 +74,7 @@ export function TeamMemberAllocationDialog({
             <MonthSelectFields control={form.control} isPeriod={isPeriod} />
             <AllocationPercentageField control={form.control} />
 
-            <Button type="submit">{t('common.addAllocation')}</Button>
+            <Button type="submit">Add Allocation</Button>
           </form>
         </Form>
       </DialogContent>
