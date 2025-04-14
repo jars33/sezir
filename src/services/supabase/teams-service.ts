@@ -60,6 +60,24 @@ export const teamsService = {
   },
 
   /**
+   * Get a mapping of team IDs to team names
+   */
+  async getTeamNames(): Promise<Record<string, string>> {
+    const { data, error } = await supabase
+      .from("teams")
+      .select("id, name");
+
+    if (error) throw error;
+    
+    const teamNames: Record<string, string> = {};
+    data?.forEach(team => {
+      teamNames[team.id] = team.name;
+    });
+    
+    return teamNames;
+  },
+
+  /**
    * Delete a team
    */
   async deleteTeam(id: string): Promise<void> {

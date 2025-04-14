@@ -79,12 +79,9 @@ export function useProjectSettings() {
         ...settings,
         overheadPercentageByYear: {
           ...settings.overheadPercentageByYear,
-          [year]: percentage,
+          [year]: Number(percentage),
         },
       });
-
-      // Format the percentage to ensure decimal precision is maintained
-      const formattedPercentage = parseFloat(percentage.toString()).toFixed(1);
 
       // Upsert to the database (insert if not exists, update if exists)
       const { error } = await supabase
@@ -92,8 +89,8 @@ export function useProjectSettings() {
         .upsert(
           [
             {
-              year: Number(year), // Explicitly convert to number
-              percentage: Number(formattedPercentage), // Convert to number
+              year: Number(year), 
+              percentage: Number(percentage), 
               user_id: session.user.id,
             }
           ],

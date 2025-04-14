@@ -36,12 +36,15 @@ const projectSettingsSchema = z.object({
     .max(100, "Percentage cannot exceed 100")
     .refine(
       (value) => {
-        // Check if the decimal part is valid (0, 0.5, or 0.0)
-        const decimalPart = value % 1;
-        return decimalPart === 0 || decimalPart === 0.5 || decimalPart === 0.1;
+        // Check if the decimal part has at most 1 decimal place
+        const decimalStr = value.toString();
+        const decimalPart = decimalStr.includes('.') ? 
+          decimalStr.split('.')[1] : '';
+        
+        return decimalPart.length <= 1;
       },
       {
-        message: "Decimal values must be in increments of 0.1 or 0.5",
+        message: "Decimal values must have at most 1 decimal place",
       }
     ),
 });
