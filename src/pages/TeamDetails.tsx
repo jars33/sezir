@@ -1,6 +1,7 @@
+
 import * as React from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -48,24 +49,12 @@ const teamFormSchema = z.object({
 
 type TeamFormValues = z.infer<typeof teamFormSchema>
 
-interface TeamMembership {
-  id: string
-  team_id: string
-  team_member_id: string
-  role: string
-  created_at: string
-  updated_at: string
-  team_members?: {
-    id: string
-    name: string
-  } | null
-}
-
 export default function TeamDetails() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { toast } = useToast()
   const { t } = useTranslation()
+  const queryClient = useQueryClient()
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false)
 
   const form = useForm<TeamFormValues>({
@@ -118,22 +107,30 @@ export default function TeamDetails() {
     }
   }, [team, form])
 
-  const { data: teamMembers, isLoading: isTeamMembersLoading } = useQuery<TeamMembership[]>({
+  // Updated query to properly fetch team members with their names
+  const { data: teamMembers, isLoading: isTeamMembersLoading } = useQuery({
     queryKey: ["team-members", id],
     queryFn: async () => {
       if (!id || id === "new") return []
+      
       const { data, error } = await supabase
         .from("team_memberships")
         .select(`
-          *,
-          team_members (
-            id,
-            name
-          )
+          id,
+          team_id,
+          team_member_id,
+          role,
+          created_at,
+          updated_at,
+          team_members:team_member_id(id, name)
         `)
         .eq("team_id", id)
 
-      if (error) throw error
+      if (error) {
+        console.error("Error fetching team memberships:", error)
+        throw error
+      }
+      
       return data || []
     },
     enabled: !!id && id !== "new",
@@ -189,6 +186,12 @@ export default function TeamDetails() {
             })
 
       if (error) throw error
+
+      // Invalidate relevant queries
+      queryClient.invalidateQueries({ queryKey: ["teams"] })
+      if (team?.id) {
+        queryClient.invalidateQueries({ queryKey: ["team", team.id] })
+      }
 
       navigate("/teams")
       toast({

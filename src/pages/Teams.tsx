@@ -6,8 +6,7 @@ import { useNavigate } from "react-router-dom"
 import { supabase } from "@/integrations/supabase/client"
 import { OrganizationChart } from "@/components/team/OrganizationChart"
 import { useToast } from "@/hooks/use-toast"
-import type { Team, TeamMembership, TeamNode } from "@/types/team"
-import type { TeamMember } from "@/types/team-member"
+import type { Team, TeamNode } from "@/types/team"
 import { useTranslation } from "react-i18next"
 
 export default function Teams() {
@@ -31,17 +30,21 @@ export default function Teams() {
         throw error
       }
 
+      // Update query to correctly join team member data
       const { data: memberships, error: membershipsError } = await supabase
         .from("team_memberships")
         .select(`
-          *,
-          team_members (
-            id,
-            name
-          )
+          id,
+          team_id,
+          team_member_id,
+          role,
+          team_members:team_member_id(id, name)
         `)
 
-      if (membershipsError) throw membershipsError
+      if (membershipsError) {
+        console.error("Error fetching team memberships:", membershipsError)
+        throw membershipsError
+      }
 
       // Build team hierarchy
       const buildTeamTree = (
@@ -51,25 +54,26 @@ export default function Teams() {
         return teamList
           .filter(team => team.parent_team_id === parentId)
           .map(team => {
-            const teamMemberships = (memberships || []).filter(
+            const teamMemberships = memberships?.filter(
               m => m.team_id === team.id
-            )
+            ) || []
             
-            const manager = teamMemberships.find(
+            // Find the manager
+            const managerMembership = teamMemberships.find(
               m => team.manager_id === m.team_member_id
-            )?.team_members
+            );
+            
+            const manager = managerMembership?.team_members || 
+              (team.manager_id ? { id: team.manager_id, name: "Unknown Manager" } : undefined);
 
             return {
               id: team.id,
               name: team.name,
-              manager: manager ? {
-                id: manager.id,
-                name: manager.name,
-              } : undefined,
+              manager: manager,
               children: buildTeamTree(teamList, team.id),
               members: teamMemberships.map(m => ({
                 id: m.team_member_id,
-                name: m.team_members.name,
+                name: m.team_members?.name || "Unknown Member",
                 role: m.role,
               })),
             }

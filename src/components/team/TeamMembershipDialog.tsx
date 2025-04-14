@@ -30,6 +30,7 @@ import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import type { TeamMember } from "@/types/team-member"
+import { teamMembersService } from "@/services/supabase/team-members-service"
 
 const teamMembershipFormSchema = z.object({
   team_member_id: z.string().min(1, "Team member is required"),
@@ -59,18 +60,7 @@ export function TeamMembershipDialog({ teamId, trigger }: TeamMembershipDialogPr
   const { data: teamMembers, isLoading } = useQuery({
     queryKey: ["team-members-available"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("team_members")
-        .select("*")
-        .eq("left_company", false)
-        .order("name")
-
-      if (error) {
-        console.error("Error fetching team members:", error)
-        throw error
-      }
-      
-      return data as TeamMember[]
+      return await teamMembersService.getTeamMembers();
     },
   })
 
