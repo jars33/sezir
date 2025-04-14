@@ -4,13 +4,12 @@ import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-// Default settings with overhead percentages by year
+// Default settings with more precise overhead percentages by year
 const defaultSettings = {
   overheadPercentageByYear: {
-    // Set some reasonable defaults
-    [new Date().getFullYear()]: 15.0, // 15% for current year
-    [new Date().getFullYear() + 1]: 15.0, // 15% for next year
-    [new Date().getFullYear() + 2]: 15.0, // 15% for the year after next
+    [new Date().getFullYear()]: 12.10, // More precise percentage
+    [new Date().getFullYear() + 1]: 12.10,
+    [new Date().getFullYear() + 2]: 12.10,
   },
 };
 
@@ -75,11 +74,14 @@ export function useProjectSettings() {
 
     try {
       // Update local state immediately for a responsive UI
+      // Ensure the percentage is stored with up to 2 decimal places
+      const formattedPercentage = Number(percentage.toFixed(2));
+      
       setSettings({
         ...settings,
         overheadPercentageByYear: {
           ...settings.overheadPercentageByYear,
-          [year]: Number(percentage),
+          [year]: formattedPercentage,
         },
       });
 
@@ -90,7 +92,7 @@ export function useProjectSettings() {
           [
             {
               year: Number(year), 
-              percentage: Number(percentage), 
+              percentage: formattedPercentage, 
               user_id: session.user.id,
             }
           ],
@@ -114,7 +116,7 @@ export function useProjectSettings() {
 
   // Function to get the overhead percentage for a specific year
   const getOverheadPercentage = useCallback((year: number): number => {
-    return settings.overheadPercentageByYear[year] || 15.0; // Default to 15% if not set
+    return settings.overheadPercentageByYear[year] || 12.10; // Default to 12.10% if not set
   }, [settings]);
 
   return {
