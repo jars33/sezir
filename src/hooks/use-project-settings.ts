@@ -42,7 +42,8 @@ export function useProjectSettings() {
 
       // Add db settings to our state
       data?.forEach((item) => {
-        dbSettings.overheadPercentageByYear[item.year] = Number(parseFloat(item.percentage).toFixed(1));
+        // Ensure item.year is treated as a number key for the object
+        dbSettings.overheadPercentageByYear[Number(item.year)] = Number(parseFloat(item.percentage).toFixed(1));
       });
 
       // Merge with defaults for any missing years
@@ -90,8 +91,8 @@ export function useProjectSettings() {
         .from("project_overhead_settings")
         .upsert(
           {
-            year,
-            percentage: formattedPercentage,
+            year: year, // Ensure this is a number
+            percentage: formattedPercentage, // This is a string after toFixed
             user_id: session.user.id,
           },
           {
