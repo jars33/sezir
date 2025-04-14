@@ -1,65 +1,82 @@
 
 import { supabase } from "@/integrations/supabase/client";
-
-export interface Team {
-  id: string;
-  name: string;
-  description?: string | null;
-  manager_id?: string | null;
-  parent_team_id?: string | null;
-}
+import type { Team, TeamMembership } from "@/types/team";
 
 export const teamsService = {
+  /**
+   * Get all teams
+   */
   async getTeams(): Promise<Team[]> {
     const { data, error } = await supabase
       .from("teams")
-      .select("id, name, description, manager_id, parent_team_id")
-      .order("name");
+      .select("*")
+      .order("name", { ascending: true });
 
     if (error) throw error;
-    return data;
+    return data as Team[];
   },
-  
-  async getTeamNames(): Promise<Record<string, string>> {
+
+  /**
+   * Get a team by ID
+   */
+  async getTeam(id: string): Promise<Team | null> {
+    if (!id || id === 'new') return null;
+    
     const { data, error } = await supabase
       .from("teams")
-      .select("id, name");
+      .select()
+      .eq("id", id)
+      .maybeSingle();
 
     if (error) throw error;
-
-    return data.reduce((acc, team) => {
-      acc[team.id] = team.name;
-      return acc;
-    }, {} as Record<string, string>);
+    return data as Team | null;
   },
 
-  async deleteTeam(id: string): Promise<void> {
-    try {
-      // First, unlink all projects from this team
-      const { error: unlinkError } = await supabase
-        .from("projects")
-        .update({ team_id: null })
-        .eq("team_id", id);
-      
-      if (unlinkError) throw unlinkError;
+  /**
+   * Get team memberships with member details
+   */
+  async getTeamMemberships(teamId: string): Promise<any[]> {
+    if (!teamId || teamId === 'new') return [];
+    
+    const { data, error } = await supabase
+      .from("team_memberships")
+      .select(`
+        id,
+        team_id,
+        team_member_id,
+        role,
+        created_at,
+        updated_at,
+        team_member:team_member_id(id, name)
+      `)
+      .eq("team_id", teamId);
 
-      // Delete team memberships
-      const { error: membershipError } = await supabase
-        .from("team_memberships")
-        .delete()
-        .eq("team_id", id);
-      
-      if (membershipError) throw membershipError;
-
-      // Delete the team
-      const { error: teamError } = await supabase
-        .from("teams")
-        .delete()
-        .eq("id", id);
-      
-      if (teamError) throw teamError;
-    } catch (error) {
+    if (error) {
+      console.error("Error fetching team memberships:", error);
       throw error;
     }
+    
+    return data || [];
+  },
+
+  /**
+   * Delete a team
+   */
+  async deleteTeam(id: string): Promise<void> {
+    // First delete team memberships
+    const { error: membershipError } = await supabase
+      .from("team_memberships")
+      .delete()
+      .eq("team_id", id);
+    
+    if (membershipError) throw membershipError;
+    
+    // Then delete the team
+    const { error } = await supabase
+      .from("teams")
+      .delete()
+      .eq("id", id);
+    
+    if (error) throw error;
   }
 };

@@ -85,14 +85,7 @@ export default function TeamDetails() {
     queryKey: ["team", id],
     queryFn: async () => {
       if (!id || id === "new") return null
-      const { data, error } = await supabase
-        .from("teams")
-        .select("*")
-        .eq("id", id)
-        .single()
-
-      if (error) throw error
-      return data
+      return await teamsService.getTeam(id)
     },
   })
 
@@ -107,31 +100,12 @@ export default function TeamDetails() {
     }
   }, [team, form])
 
-  // Updated query to properly fetch team members with their names
+  // Updated query to fetch team members with their names
   const { data: teamMembers, isLoading: isTeamMembersLoading } = useQuery({
     queryKey: ["team-members", id],
     queryFn: async () => {
       if (!id || id === "new") return []
-      
-      const { data, error } = await supabase
-        .from("team_memberships")
-        .select(`
-          id,
-          team_id,
-          team_member_id,
-          role,
-          created_at,
-          updated_at,
-          team_members:team_member_id(id, name)
-        `)
-        .eq("team_id", id)
-
-      if (error) {
-        console.error("Error fetching team memberships:", error)
-        throw error
-      }
-      
-      return data || []
+      return await teamsService.getTeamMemberships(id)
     },
     enabled: !!id && id !== "new",
   })
@@ -139,13 +113,7 @@ export default function TeamDetails() {
   const { data: teams } = useQuery({
     queryKey: ["teams"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("teams")
-        .select("*")
-        .order("name")
-
-      if (error) throw error
-      return data
+      return await teamsService.getTeams()
     },
   })
 
@@ -366,7 +334,7 @@ export default function TeamDetails() {
                 {teamMembers?.map((membership) => (
                   <TableRow key={membership.id}>
                     <TableCell>
-                      {membership.team_members?.name || t('team.unknownMember')}
+                      {membership.team_member?.name || t('team.unknownMember')}
                     </TableCell>
                     <TableCell className="capitalize">{membership.role}</TableCell>
                   </TableRow>

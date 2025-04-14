@@ -16,6 +16,10 @@ export type TeamMembership = {
   role: string
   created_at: string
   updated_at: string
+  team_member?: {
+    id: string
+    name: string
+  }
 }
 
 export type TeamNode = {
