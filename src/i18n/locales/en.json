@@ -133,7 +133,7 @@
     "userAccountCreated": " and user account created",
     "saveError": "Failed to save team member",
     "allocation": {
-      "title": "Add Team Member Allocation",
+      "title": "Allocation",
       "edit": "Edit Team Member Allocation",
       "description": "Add allocation for a single month or a period",
       "period": "Period",
