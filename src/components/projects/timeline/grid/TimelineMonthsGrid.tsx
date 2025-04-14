@@ -6,6 +6,7 @@ import type { TimelineItem, AllocationItem } from "../actions/types"
 import { useProjectSettings } from "@/hooks/use-project-settings"
 import { useTranslation } from "react-i18next"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { useLocalStorage } from "@/hooks/use-local-storage"
 
 interface TimelineMonthsGridProps {
   startDate: Date
@@ -36,6 +37,7 @@ export function TimelineMonthsGrid({
   const [isDragging, setIsDragging] = useState(false)
   const [startX, setStartX] = useState(0)
   const [scrollLeft, setScrollLeft] = useState(0)
+  const [showDecimals] = useLocalStorage<boolean>("showDecimals", true)
   
   // Generate an array of 12 months starting from startDate
   const months = useMemo(() => 
@@ -111,7 +113,8 @@ export function TimelineMonthsGrid({
               id: `overhead-${monthStr}`,
               month: monthStr,
               amount: overheadAmount,
-              description: `${overheadPercentage}% overhead`
+              percentage: overheadPercentage,
+              description: `${showDecimals ? overheadPercentage.toFixed(1) : Math.round(overheadPercentage)}% overhead`
             }] : []
             
             return (

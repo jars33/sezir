@@ -51,6 +51,8 @@ export function TimelineSummary({
     ).reduce((sum, c) => sum + Number(c.amount), 0)
     
     const overheadPercentage = getOverheadPercentage(year)
+    
+    // Calculate overhead costs without rounding
     const filteredOverheadCosts = (filteredVariableCosts * overheadPercentage) / 100
 
     const filteredSalaryCosts = allocations.filter(
@@ -72,7 +74,12 @@ export function TimelineSummary({
   }
 
   const formatAmount = (amount: number) => {
-    return showDecimals ? amount.toFixed(2) : Math.round(amount).toString()
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'EUR',
+      minimumFractionDigits: showDecimals ? 2 : 0,
+      maximumFractionDigits: showDecimals ? 2 : 0
+    }).format(amount);
   }
 
   const formatRentability = (rentability: number) => {
@@ -110,7 +117,7 @@ export function TimelineSummary({
                     ? "text-emerald-600 dark:text-emerald-400"
                     : "text-red-600 dark:text-red-400"
                 }`}>
-                  €{formatAmount(result.profit)}
+                  {formatAmount(result.profit)}
                 </div>
                 <div className={`text-sm ${
                   result.rentability >= 0 
@@ -137,7 +144,7 @@ export function TimelineSummary({
                     ? "text-emerald-600 dark:text-emerald-400"
                     : "text-red-600 dark:text-red-400"
                 }`}>
-                  €{formatAmount(result.profit)}
+                  {formatAmount(result.profit)}
                 </div>
                 <div className={`text-sm ${
                   result.rentability >= 0 
@@ -158,7 +165,7 @@ export function TimelineSummary({
               ? "text-emerald-600 dark:text-emerald-400"
               : "text-red-600 dark:text-red-400"
           }`}>
-            €{formatAmount(yearResult.profit)}
+            {formatAmount(yearResult.profit)}
           </div>
           <div className={`text-sm ${
             yearResult.rentability >= 0 
