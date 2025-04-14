@@ -8,9 +8,9 @@ import { toast } from "sonner";
 const defaultSettings = {
   overheadPercentageByYear: {
     // Set some reasonable defaults
-    [new Date().getFullYear()]: 15, // 15% for current year
-    [new Date().getFullYear() + 1]: 15, // 15% for next year
-    [new Date().getFullYear() + 2]: 15, // 15% for the year after next
+    [new Date().getFullYear()]: 15.0, // 15% for current year
+    [new Date().getFullYear() + 1]: 15.0, // 15% for next year
+    [new Date().getFullYear() + 2]: 15.0, // 15% for the year after next
   },
 };
 
@@ -42,7 +42,7 @@ export function useProjectSettings() {
 
       // Add db settings to our state
       data?.forEach((item) => {
-        dbSettings.overheadPercentageByYear[item.year] = Number(item.percentage);
+        dbSettings.overheadPercentageByYear[item.year] = Number(parseFloat(item.percentage).toFixed(1));
       });
 
       // Merge with defaults for any missing years
@@ -82,13 +82,16 @@ export function useProjectSettings() {
         },
       });
 
+      // Format the percentage to ensure decimal precision is maintained
+      const formattedPercentage = parseFloat(percentage.toString()).toFixed(1);
+
       // Upsert to the database (insert if not exists, update if exists)
       const { error } = await supabase
         .from("project_overhead_settings")
         .upsert(
           {
             year,
-            percentage,
+            percentage: formattedPercentage,
             user_id: session.user.id,
           },
           {
@@ -111,7 +114,7 @@ export function useProjectSettings() {
 
   // Function to get the overhead percentage for a specific year
   const getOverheadPercentage = useCallback((year: number): number => {
-    return settings.overheadPercentageByYear[year] || 15; // Default to 15% if not set
+    return settings.overheadPercentageByYear[year] || 15.0; // Default to 15% if not set
   }, [settings]);
 
   return {

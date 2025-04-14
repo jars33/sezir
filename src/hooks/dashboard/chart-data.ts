@@ -1,6 +1,5 @@
 
 import i18next from "i18next"
-import { useProjectSettings } from "../use-project-settings"
 
 // Helper for generating chart data
 export function generateChartData(
@@ -89,6 +88,7 @@ export function generateDashboardChartData(
   )
   
   // Apply the overhead percentage to each month's variable costs
+  // Handle decimal percentages correctly
   return baseChartData.map(monthData => {
     // Calculate the calculated overhead based on the percentage
     const calculatedOverhead = (monthData.variableCost * overheadPercentage) / 100

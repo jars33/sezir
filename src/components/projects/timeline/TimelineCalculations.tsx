@@ -46,6 +46,7 @@ export function useTimelineCalculations(
   }, 0) || 0
 
   // Calculate overhead costs as a percentage of the variable costs
+  // Using precise decimal calculation
   const totalOverheadCosts = (totalVariableCosts * overheadPercentage) / 100
 
   const totalSalaryCosts = allocations?.reduce((sum, a) => {

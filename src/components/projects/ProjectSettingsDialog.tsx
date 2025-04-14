@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { Settings } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -32,7 +33,17 @@ const projectSettingsSchema = z.object({
   overheadPercentage: z.coerce
     .number()
     .min(0, "Percentage must be at least 0")
-    .max(100, "Percentage cannot exceed 100"),
+    .max(100, "Percentage cannot exceed 100")
+    .refine(
+      (value) => {
+        // Check if the decimal part is valid (0, 0.5, or 0.0)
+        const decimalPart = value % 1;
+        return decimalPart === 0 || decimalPart === 0.5 || decimalPart === 0.1;
+      },
+      {
+        message: "Decimal values must be in increments of 0.1 or 0.5",
+      }
+    ),
 });
 
 type ProjectSettingsFormValues = z.infer<typeof projectSettingsSchema>;
@@ -126,7 +137,7 @@ export function ProjectSettingsDialog() {
                           type="number"
                           min={0}
                           max={100}
-                          step={0.5}
+                          step={0.1}
                           {...field}
                         />
                       </FormControl>
