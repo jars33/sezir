@@ -1,11 +1,12 @@
 
-import { useState, useRef, useCallback } from "react"
+import { useState, useRef, useCallback, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { TeamMemberAllocationDialog } from "./TeamMemberAllocationDialog"
 import { MonthAllocation } from "./timeline/MonthAllocation"
 import { TimelineHeader } from "./timeline/TimelineHeader"
 import { useAllocationData } from "./timeline/useAllocationData"
 import { useAllocationSubmit } from "./timeline/useAllocationSubmit"
+import { useSynchronizedScroll } from "@/hooks/use-synchronized-scroll"
 import type { TeamMember } from "@/types/team-member"
 import { useTranslation } from "react-i18next"
 
@@ -22,7 +23,7 @@ export function TeamMemberTimeline({ member, selectedYear, onEditMember }: TeamM
   const containerRef = useRef<HTMLDivElement>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [startX, setStartX] = useState(0)
-  const [scrollLeft, setScrollLeft] = useState(0)
+  const { scrollLeft, setScrollLeft, registerContainer } = useSynchronizedScroll()
   
   const { allocations, refetch } = useAllocationData(member.id, selectedYear)
   const { handleAllocationSubmit } = useAllocationSubmit(member.id, refetch)
@@ -31,12 +32,25 @@ export function TeamMemberTimeline({ member, selectedYear, onEditMember }: TeamM
     return new Date(selectedYear, i, 1)
   })
   
+  // Register the container for synchronized scrolling
+  useEffect(() => {
+    if (containerRef.current) {
+      registerContainer(containerRef.current);
+    }
+  }, [registerContainer]);
+  
+  // Update the container's scroll position when the shared scrollLeft changes
+  useEffect(() => {
+    if (containerRef.current && containerRef.current.scrollLeft !== scrollLeft) {
+      containerRef.current.scrollLeft = scrollLeft;
+    }
+  }, [scrollLeft]);
+  
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!containerRef.current) return
     
     setIsDragging(true)
     setStartX(e.clientX)
-    setScrollLeft(containerRef.current.scrollLeft)
     
     // Change cursor to grabbing
     if (containerRef.current) {
@@ -70,8 +84,20 @@ export function TeamMemberTimeline({ member, selectedYear, onEditMember }: TeamM
     e.preventDefault()
     const x = e.clientX
     const distance = x - startX
-    containerRef.current.scrollLeft = scrollLeft - distance
+    
+    // When dragging, update the scroll position of all containers through context
+    const newScrollPosition = containerRef.current.scrollLeft - distance;
+    setScrollLeft(newScrollPosition);
+    
+    // Reset the start X to the current position for smooth continuous scrolling
+    setStartX(x);
   }
+  
+  // Handle scroll event to update the shared scroll position
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    if (isDragging) return; // Ignore scroll events during drag
+    setScrollLeft(e.currentTarget.scrollLeft);
+  };
 
   return (
     <Card className="mb-3">
@@ -90,6 +116,7 @@ export function TeamMemberTimeline({ member, selectedYear, onEditMember }: TeamM
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseLeave}
           onMouseMove={handleMouseMove}
+          onScroll={handleScroll}
         >
           <div className="min-w-[2400px]">
             <div className="grid grid-cols-[repeat(12,_1fr)] gap-px bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">

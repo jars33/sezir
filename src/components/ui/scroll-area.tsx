@@ -6,21 +6,50 @@ import { cn } from "@/lib/utils"
 
 const ScrollArea = React.forwardRef<
   React.ElementRef<typeof ScrollAreaPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root>
->(({ className, children, ...props }, ref) => (
-  <ScrollAreaPrimitive.Root
-    ref={ref}
-    className={cn("relative overflow-hidden", className)}
-    {...props}
-  >
-    <ScrollAreaPrimitive.Viewport className="h-full w-full rounded-[inherit]">
-      {children}
-    </ScrollAreaPrimitive.Viewport>
-    <ScrollBar />
-    <ScrollBar orientation="horizontal" />
-    <ScrollAreaPrimitive.Corner />
-  </ScrollAreaPrimitive.Root>
-))
+  React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root> & { 
+    synchronized?: boolean;
+    onScrollPositionChange?: (position: number) => void;
+  }
+>(({ className, children, synchronized, onScrollPositionChange, ...props }, ref) => {
+  const viewportRef = React.useRef<HTMLDivElement>(null);
+
+  // Hook to handle synchronized scrolling
+  React.useEffect(() => {
+    if (!synchronized || !viewportRef.current) return;
+
+    const viewport = viewportRef.current;
+    
+    const handleScroll = () => {
+      if (onScrollPositionChange) {
+        onScrollPositionChange(viewport.scrollLeft);
+      }
+    };
+
+    viewport.addEventListener('scroll', handleScroll);
+    
+    return () => {
+      viewport.removeEventListener('scroll', handleScroll);
+    };
+  }, [synchronized, onScrollPositionChange]);
+
+  return (
+    <ScrollAreaPrimitive.Root
+      ref={ref}
+      className={cn("relative overflow-hidden", synchronized && "sync-scroll", className)}
+      {...props}
+    >
+      <ScrollAreaPrimitive.Viewport 
+        ref={viewportRef}
+        className="h-full w-full rounded-[inherit]"
+      >
+        {children}
+      </ScrollAreaPrimitive.Viewport>
+      <ScrollBar />
+      <ScrollBar orientation="horizontal" />
+      <ScrollAreaPrimitive.Corner />
+    </ScrollAreaPrimitive.Root>
+  );
+})
 ScrollArea.displayName = ScrollAreaPrimitive.Root.displayName
 
 const ScrollBar = React.forwardRef<

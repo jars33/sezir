@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useAuth } from "@/components/AuthProvider"
 import { useTranslation } from "react-i18next"
 import { useManagedTeamMembers } from "@/hooks/use-managed-team-members"
+import { SynchronizedScrollProvider } from "@/hooks/use-synchronized-scroll"
 import type { TeamMember } from "@/types/team-member"
 
 export default function Team() {
@@ -147,14 +148,16 @@ export default function Team() {
           </TabsContent>
 
           <TabsContent value="timeline" className="mt-2">
-            {members.map((member) => (
-              <TeamMemberTimeline 
-                key={member.id} 
-                member={member} 
-                selectedYear={selectedYear} 
-                onEditMember={handleEdit}
-              />
-            ))}
+            <SynchronizedScrollProvider>
+              {members.map((member) => (
+                <TeamMemberTimeline 
+                  key={member.id} 
+                  member={member} 
+                  selectedYear={selectedYear} 
+                  onEditMember={handleEdit}
+                />
+              ))}
+            </SynchronizedScrollProvider>
           </TabsContent>
         </Tabs>
       )}
