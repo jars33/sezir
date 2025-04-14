@@ -14,7 +14,7 @@ export function useAllocationSubmit(
   memberId: string, 
   onSuccess: (options?: RefetchOptions) => Promise<QueryObserverResult<AllocationData[], Error>>
 ) {
-  const handleAllocationSubmit = async (values: AllocationValues) => {
+  const handleAllocationSubmit = async (values: AllocationValues): Promise<void> => {
     try {
       // Create or get the assignment ID
       const assignmentId = await teamMemberAllocationsService.createAssignment(
@@ -31,7 +31,7 @@ export function useAllocationSubmit(
       );
 
       await onSuccess();
-      return true;
+      // Removed the return true statement as it causes the type mismatch
     } catch (error: any) {
       console.error("Error submitting allocation:", error)
       
