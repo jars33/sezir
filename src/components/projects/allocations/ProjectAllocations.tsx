@@ -54,7 +54,7 @@ export function ProjectAllocations({ projectId }: ProjectAllocationsProps) {
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Allocations</CardTitle>
       </CardHeader>
-      <CardContent className="overflow-x-auto">
+      <CardContent>
         <AllocationsGrid 
           months={months}
           allocations={allocations || []}

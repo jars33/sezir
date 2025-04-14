@@ -8,6 +8,7 @@ import { useAllocationData } from "./timeline/useAllocationData"
 import { useAllocationSubmit } from "./timeline/useAllocationSubmit"
 import type { TeamMember } from "@/types/team-member"
 import { useTranslation } from "react-i18next"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 interface TeamMemberTimelineProps {
   member: TeamMember
@@ -35,17 +36,21 @@ export function TeamMemberTimeline({ member, selectedYear, onEditMember }: TeamM
         onEditMember={onEditMember}
       />
       
-      <CardContent className="overflow-x-auto pb-3 pt-0">
-        <div className="grid grid-cols-[repeat(12,_minmax(120px,_1fr))] gap-px bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden min-w-[1440px]">
-          {months.map((month) => (
-            <MonthAllocation 
-              key={month.getTime()}
-              month={month}
-              allocations={allocations || []}
-              currentDate={currentDate}
-            />
-          ))}
-        </div>
+      <CardContent className="pb-3 pt-0">
+        <ScrollArea className="h-full">
+          <div className="min-w-[2400px]">
+            <div className="grid grid-cols-[repeat(12,_1fr)] gap-px bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
+              {months.map((month) => (
+                <MonthAllocation 
+                  key={month.getTime()}
+                  month={month}
+                  allocations={allocations || []}
+                  currentDate={currentDate}
+                />
+              ))}
+            </div>
+          </div>
+        </ScrollArea>
       </CardContent>
 
       <TeamMemberAllocationDialog

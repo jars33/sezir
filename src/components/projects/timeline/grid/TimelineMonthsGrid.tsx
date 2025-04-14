@@ -5,6 +5,7 @@ import { TimelineMonth } from "../TimelineMonth"
 import type { TimelineItem, AllocationItem } from "../actions/types"
 import { useProjectSettings } from "@/hooks/use-project-settings"
 import { useTranslation } from "react-i18next"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 interface TimelineMonthsGridProps {
   startDate: Date
@@ -39,8 +40,8 @@ export function TimelineMonthsGrid({
   )
 
   return (
-    <div className="overflow-x-auto">
-      <div className="min-w-[1200px]">
+    <ScrollArea className="h-full">
+      <div className="min-w-[2400px]">
         <div className="grid grid-cols-12 gap-px bg-gray-200 rounded-lg overflow-hidden">
           {months.map((month) => {
             const monthStr = format(month, "yyyy-MM")
@@ -77,6 +78,6 @@ export function TimelineMonthsGrid({
           })}
         </div>
       </div>
-    </div>
+    </ScrollArea>
   )
 }
