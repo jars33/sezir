@@ -38,6 +38,7 @@ export function useTimelineState() {
   // Event handlers for timeline interactions
   const handleRevenueSeleсtion = (revenue: TimelineItem) => {
     if (revenue.isNew === true) {
+      // Set the exact month when adding a new revenue
       setAddRevenueDate(new Date(revenue.month))
     } else {
       setSelectedRevenue(revenue)

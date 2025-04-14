@@ -85,6 +85,12 @@ export function RevenueActions({
     }
   }
 
+  // Format the revenue date for the dialog
+  const formatRevenueDate = () => {
+    if (!addRevenueDate) return "";
+    return format(addRevenueDate, 'yyyy-MM');
+  }
+
   // Format the month correctly for the display in the dialog
   const getFormattedMonth = (dateString: string) => {
     // If we have a full date format, extract just the year-month part
@@ -106,7 +112,7 @@ export function RevenueActions({
         onOpenChange={() => setAddRevenueDate(null)}
         onSubmit={handleAddRevenue}
         defaultValues={{
-          month: addRevenueDate ? format(addRevenueDate, 'yyyy-MM') : '',
+          month: formatRevenueDate(),
           amount: ''
         }}
       />

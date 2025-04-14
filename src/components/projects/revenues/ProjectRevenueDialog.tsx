@@ -71,7 +71,7 @@ export function ProjectRevenueDialog({
         setIsPeriod(false) // Reset period state when editing
       } else {
         form.reset({
-          month: "",
+          month: defaultValues?.month || "",
           endMonth: "",
           amount: "",
         })

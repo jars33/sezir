@@ -78,9 +78,11 @@ export function TimelineMonth({
       onSelectRevenue(revenues[0]);
     } 
     else {
+      // Create a new revenue item with the correct month format (YYYY-MM)
+      const formattedMonth = format(month, "yyyy-MM")
       onSelectRevenue({ 
         id: null, 
-        month: format(month, "yyyy-MM"),
+        month: formattedMonth,
         amount: "",
         isNew: true 
       });
