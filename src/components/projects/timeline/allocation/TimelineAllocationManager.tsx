@@ -4,6 +4,7 @@ import { ProjectAllocationDialog } from "../../allocations/ProjectAllocationDial
 import { useManagedTeamMembers } from "@/hooks/use-managed-team-members"
 import { allocationService } from "@/services/supabase"
 import { useTranslation } from "react-i18next"
+import { useState } from "react"
 import type { AllocationItem } from "../actions/types"
 
 interface TimelineAllocationManagerProps {
@@ -26,31 +27,36 @@ export function TimelineAllocationManager({
   const { toast } = useToast()
   const { t } = useTranslation()
   const { data: teamMembers = [] } = useManagedTeamMembers()
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleAllocationSubmit = async (values: {
     teamMemberId: string
     month: Date
     allocation: string
   }) => {
+    if (isSubmitting) return
+    
+    setIsSubmitting(true)
+    
     try {
       await allocationService.createAllocation(
         projectId,
         values.teamMemberId,
         values.month,
         parseInt(values.allocation)
-      );
+      )
 
       toast({
         title: t('common.success'),
         description: t('team.allocation.added', 'Team member allocation added successfully'),
-      });
+      })
       
-      setAllocationDialogOpen(false);
-      setSelectedAllocation(null);
+      setAllocationDialogOpen(false)
+      setSelectedAllocation(null)
       
-      await refetchTimelineData();
+      await refetchTimelineData()
     } catch (error: any) {
-      console.error("Error managing allocation:", error);
+      console.error("Error managing allocation:", error)
       
       // Provide more specific error messages based on the error
       if (error.message?.includes("row-level security policy")) {
@@ -58,14 +64,16 @@ export function TimelineAllocationManager({
           variant: "destructive",
           title: t('common.error'),
           description: t('team.allocation.permissionError', 'Permission error: You don\'t have access to create this allocation.'),
-        });
+        })
       } else {
         toast({
           variant: "destructive",
           title: t('common.error'),
           description: error.message || t('team.allocation.error', 'Failed to add allocation'),
-        });
+        })
       }
+    } finally {
+      setIsSubmitting(false)
     }
   }
 

@@ -31,7 +31,6 @@ export function useAllocationSubmit(
       );
 
       await onSuccess();
-      // Removed the return true statement as it causes the type mismatch
     } catch (error: any) {
       console.error("Error submitting allocation:", error)
       

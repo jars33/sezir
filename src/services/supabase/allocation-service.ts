@@ -76,15 +76,7 @@ export const allocationService = {
     allocationPercentage: number
   ): Promise<Allocation> {
     try {
-      // Get current user information for authorization context
-      const { data: userData, error: userError } = await supabase.auth.getUser();
-      if (userError) throw userError;
-      
-      if (!userData || !userData.user) {
-        throw new Error("User not authenticated");
-      }
-      
-      // First, check if there's an existing assignment for this team member and project
+      // Check if there's an existing assignment for this team member and project
       const { data: existingAssignment, error: assignmentError } = await supabase
         .from("project_assignments")
         .select("id")
@@ -97,15 +89,7 @@ export const allocationService = {
       let assignmentId: string;
 
       if (!existingAssignment) {
-        // If there's no existing assignment, create one with explicit user_id
-        const { data: project, error: projectError } = await supabase
-          .from("projects")
-          .select("user_id")
-          .eq("id", projectId)
-          .single();
-          
-        if (projectError) throw projectError;
-        
+        // If there's no existing assignment, create one
         const { data: newAssignment, error: createError } = await supabase
           .from("project_assignments")
           .insert({
@@ -132,19 +116,42 @@ export const allocationService = {
 
       const monthStr = format(month, "yyyy-MM-dd");
 
-      // Create the allocation
-      const { data, error } = await supabase
+      // Check if there's an existing allocation for this assignment and month
+      const { data: existingAllocation, error: checkError } = await supabase
         .from("project_member_allocations")
-        .insert({
-          project_assignment_id: assignmentId,
-          month: monthStr,
-          allocation_percentage: allocationPercentage,
-        })
-        .select()
-        .single();
+        .select("id")
+        .eq("project_assignment_id", assignmentId)
+        .eq("month", monthStr)
+        .maybeSingle();
 
-      if (error) throw error;
-      return data;
+      if (checkError) throw checkError;
+
+      if (existingAllocation) {
+        // Update existing allocation
+        const { data: updatedAllocation, error: updateError } = await supabase
+          .from("project_member_allocations")
+          .update({ allocation_percentage: allocationPercentage })
+          .eq("id", existingAllocation.id)
+          .select()
+          .single();
+
+        if (updateError) throw updateError;
+        return updatedAllocation;
+      } else {
+        // Create new allocation
+        const { data, error } = await supabase
+          .from("project_member_allocations")
+          .insert({
+            project_assignment_id: assignmentId,
+            month: monthStr,
+            allocation_percentage: allocationPercentage,
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        return data;
+      }
     } catch (error) {
       console.error("Error in createAllocation:", error);
       throw error;
