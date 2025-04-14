@@ -26,7 +26,8 @@ import {
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
 import { useTranslation } from "react-i18next"
-import type { Team, TeamMember } from "@/types"
+import type { Team } from "@/types/team"
+import type { TeamMember } from "@/types/team-member"
 
 const teamFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
