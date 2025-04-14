@@ -90,11 +90,13 @@ export function useProjectSettings() {
       const { error } = await supabase
         .from("project_overhead_settings")
         .upsert(
-          {
-            year: year, // Ensure this is a number
-            percentage: formattedPercentage, // This is a string after toFixed
-            user_id: session.user.id,
-          },
+          [
+            {
+              year: Number(year), // Explicitly convert to number
+              percentage: Number(formattedPercentage), // Convert to number
+              user_id: session.user.id,
+            }
+          ],
           {
             onConflict: "year, user_id",
           }
