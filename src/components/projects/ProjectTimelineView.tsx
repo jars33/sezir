@@ -12,7 +12,8 @@ import { useTimelineProfitability } from "./timeline/hooks/useTimelineProfitabil
 import { useQueryClient } from "@tanstack/react-query"
 import { SynchronizedScrollProvider } from "@/hooks/use-synchronized-scroll"
 import { useMemo } from "react"
-import { format } from "date-fns"
+import { format, getYear } from "date-fns"
+import { useProjectSettings } from "@/hooks/use-project-settings"
 
 interface ProjectTimelineViewProps {
   projectId: string
@@ -57,6 +58,9 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
     handleAddAllocation
   } = useTimelineState()
 
+  // Get project settings for overhead percentage
+  const { getOverheadPercentage } = useProjectSettings()
+
   // Calculate timeline data for current year
   const { totalProfit, totalRevenues } = useTimelineCalculations(
     revenues,
@@ -65,7 +69,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
     year
   )
   
-  // Calculate total project profit across all years
+  // Calculate total project profit across all years, including overhead
   const { totalProjectProfit, totalProjectRevenues } = useMemo(() => {
     // Calculate total revenues across all years
     const totalRevs = allProjectRevenues?.reduce((sum, r) => sum + Number(r.amount), 0) || 0;
@@ -76,14 +80,32 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
     // Calculate total salary costs across all years
     const totalSalaryCosts = allProjectAllocations?.reduce((sum, a) => sum + Number(a.salary_cost), 0) || 0;
     
-    // Calculate total profit
-    const totalProfit = totalRevs - totalVarCosts - totalSalaryCosts;
+    // Calculate overhead costs for each year separately, then sum them
+    let totalOverheadCosts = 0;
+    
+    // Group variable costs by year
+    const varCostsByYear = allProjectVariableCosts?.reduce((acc, cost) => {
+      const costYear = getYear(new Date(cost.month));
+      if (!acc[costYear]) acc[costYear] = 0;
+      acc[costYear] += Number(cost.amount);
+      return acc;
+    }, {} as Record<number, number>) || {};
+    
+    // Calculate overhead for each year based on that year's variable costs
+    Object.entries(varCostsByYear).forEach(([yearStr, yearCosts]) => {
+      const yearNum = parseInt(yearStr);
+      const yearOverheadPercentage = getOverheadPercentage(yearNum);
+      totalOverheadCosts += (yearCosts * yearOverheadPercentage) / 100;
+    });
+    
+    // Calculate total profit with overhead included
+    const totalProfit = totalRevs - totalVarCosts - totalSalaryCosts - totalOverheadCosts;
     
     return {
       totalProjectProfit: totalProfit,
       totalProjectRevenues: totalRevs
     };
-  }, [allProjectRevenues, allProjectVariableCosts, allProjectAllocations]);
+  }, [allProjectRevenues, allProjectVariableCosts, allProjectAllocations, getOverheadPercentage]);
 
   const { calculateAccumulatedProfitUpToMonth, showDecimals } = useTimelineProfitability(
     revenues,

@@ -1,5 +1,5 @@
 
-import { startOfYear, endOfYear, isWithinInterval } from "date-fns"
+import { startOfYear, endOfYear, isWithinInterval, getYear } from "date-fns"
 import { DashboardMetrics } from "./types"
 import {
   calculateProjectProfitability,

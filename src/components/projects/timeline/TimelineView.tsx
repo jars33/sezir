@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { TimelineHeader } from "./TimelineHeader"
@@ -9,9 +10,11 @@ import { useTimelineCalculations } from "./TimelineCalculations"
 import { useTimelineData } from "./useTimelineData"
 import { useTimelineProfitability } from "./hooks/useTimelineProfitability"
 import { useProjectYear } from "@/hooks/use-project-year"
-import { setMonth, startOfMonth, format } from "date-fns"
+import { setMonth, startOfMonth, format, getYear } from "date-fns"
 import { useQueryClient } from "@tanstack/react-query"
 import type { TimelineItem, AllocationItem } from "./actions/types"
+import { useProjectSettings } from "@/hooks/use-project-settings"
+import { SynchronizedScrollProvider } from "@/hooks/use-synchronized-scroll"
 
 interface TimelineViewProps {
   projectId: string
@@ -33,8 +36,18 @@ export function TimelineView({ projectId }: TimelineViewProps) {
   const [allocationDialogOpen, setAllocationDialogOpen] = useState(false)
 
   const queryClient = useQueryClient()
+  const { getOverheadPercentage } = useProjectSettings()
 
-  const { revenues, variableCosts, allocations, isLoading, refetchTimelineData } = useTimelineData(projectId)
+  const { 
+    revenues, 
+    variableCosts, 
+    allocations, 
+    allProjectRevenues, 
+    allProjectVariableCosts, 
+    allProjectAllocations, 
+    isLoading, 
+    refetchTimelineData 
+  } = useTimelineData(projectId)
 
   const { totalProfit: totalProfitCalc, totalRevenues } = useTimelineCalculations(
     revenues,
@@ -43,7 +56,45 @@ export function TimelineView({ projectId }: TimelineViewProps) {
     year
   )
 
-  const { calculateAccumulatedProfitUpToMonth } = useTimelineProfitability(
+  // Calculate total project profit across all years with overhead
+  const { totalProjectProfit, totalProjectRevenues } = useMemo(() => {
+    // Calculate total revenues across all years
+    const totalRevs = allProjectRevenues?.reduce((sum, r) => sum + Number(r.amount), 0) || 0;
+    
+    // Calculate total variable costs across all years
+    const totalVarCosts = allProjectVariableCosts?.reduce((sum, c) => sum + Number(c.amount), 0) || 0;
+    
+    // Calculate total salary costs across all years
+    const totalSalaryCosts = allProjectAllocations?.reduce((sum, a) => sum + Number(a.salary_cost), 0) || 0;
+    
+    // Calculate overhead costs for each year separately, then sum them
+    let totalOverheadCosts = 0;
+    
+    // Group variable costs by year
+    const varCostsByYear = allProjectVariableCosts?.reduce((acc, cost) => {
+      const costYear = getYear(new Date(cost.month));
+      if (!acc[costYear]) acc[costYear] = 0;
+      acc[costYear] += Number(cost.amount);
+      return acc;
+    }, {} as Record<number, number>) || {};
+    
+    // Calculate overhead for each year based on that year's variable costs
+    Object.entries(varCostsByYear).forEach(([yearStr, yearCosts]) => {
+      const yearNum = parseInt(yearStr);
+      const yearOverheadPercentage = getOverheadPercentage(yearNum);
+      totalOverheadCosts += (yearCosts * yearOverheadPercentage) / 100;
+    });
+    
+    // Calculate total profit
+    const totalProfit = totalRevs - totalVarCosts - totalSalaryCosts - totalOverheadCosts;
+    
+    return {
+      totalProjectProfit: totalProfit,
+      totalProjectRevenues: totalRevs
+    };
+  }, [allProjectRevenues, allProjectVariableCosts, allProjectAllocations, getOverheadPercentage]);
+
+  const { calculateAccumulatedProfitUpToMonth, showDecimals } = useTimelineProfitability(
     revenues,
     variableCosts,
     allocations,
@@ -94,8 +145,8 @@ export function TimelineView({ projectId }: TimelineViewProps) {
         onAddAllocation={handleAddAllocation}
         onPreviousYear={handlePreviousYear}
         onNextYear={handleNextYear}
-        totalProfit={totalProfitCalc}
-        totalRevenues={totalRevenues}
+        totalProjectProfit={totalProjectProfit}
+        totalProjectRevenues={totalProjectRevenues}
         startDate={startDate}
       />
       <CardContent className="space-y-6">
@@ -106,17 +157,20 @@ export function TimelineView({ projectId }: TimelineViewProps) {
           allocations={allocations}
         />
         
-        <TimelineMonthsGrid
-          startDate={startDate}
-          revenues={revenues}
-          variableCosts={variableCosts}
-          allocations={allocations}
-          onSelectRevenue={handleRevenueSeleсtion}
-          onSelectVariableCost={setSelectedVariableCost}
-          onSelectAllocation={handleAllocationSelection}
-          calculateAccumulatedProfitUpToMonth={calculateAccumulatedProfitUpToMonth}
-          year={year}
-        />
+        <SynchronizedScrollProvider>
+          <TimelineMonthsGrid
+            startDate={startDate}
+            revenues={revenues}
+            variableCosts={variableCosts}
+            allocations={allocations}
+            onSelectRevenue={handleRevenueSeleсtion}
+            onSelectVariableCost={setSelectedVariableCost}
+            onSelectAllocation={handleAllocationSelection}
+            calculateAccumulatedProfitUpToMonth={calculateAccumulatedProfitUpToMonth}
+            year={year}
+            showDecimals={showDecimals}
+          />
+        </SynchronizedScrollProvider>
 
         <TimelineActions
           projectId={projectId}
