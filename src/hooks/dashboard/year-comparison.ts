@@ -7,7 +7,8 @@ export function generateYearComparisonData(
   selectedYear: number,
   projectRevenues: any[],
   variableCosts: any[],
-  overheadCosts: any[],
+  overheadCosts: any[], // Keeping this for type consistency, but not using
+  allocations: any[], // Adding allocations parameter
   overheadPercentage: number = 15 // Add overhead percentage parameter
 ) {
   const yearComparisonData = []
@@ -44,7 +45,7 @@ export function generateYearComparisonData(
       }
     })
     
-    // Instead of explicit overhead costs, calculate based on the overhead percentage
+    // Calculate salary costs from allocations
     let salaryCost = 0
     allocations?.forEach(allocation => {
       const allocYear = getYear(new Date(allocation.month))

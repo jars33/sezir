@@ -1,4 +1,3 @@
-
 import { startOfYear, endOfYear, isWithinInterval, getYear } from "date-fns"
 import { DashboardMetrics } from "./types"
 import {
@@ -157,12 +156,13 @@ export const useMetricsCalculator = (
     overheadPercentage
   )
   
-  // 11. Generate year comparison data - Update to include overhead percentage
+  // 11. Generate year comparison data - Update to include overhead percentage and allocations
   const yearComparisonData = generateYearComparisonData(
     selectedYear,
     projectRevenues,
     variableCosts,
     overheadCosts,
+    allocations,
     overheadPercentage
   )
   
