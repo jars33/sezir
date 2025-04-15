@@ -27,7 +27,7 @@ export function TimelineDetailsTable({
 }: TimelineDetailsTableProps) {
   const { t } = useTranslation();
   const [showDecimals] = useLocalStorage<boolean>("showDecimals", true);
-  const { registerContainer, scrollLeft } = useSynchronizedScroll();
+  const { registerContainer, scrollLeft, setScrollLeft } = useSynchronizedScroll();
   const tableContainerRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
@@ -35,7 +35,7 @@ export function TimelineDetailsTable({
   }, [registerContainer]);
   
   useEffect(() => {
-    if (tableContainerRef.current) {
+    if (tableContainerRef.current && tableContainerRef.current.scrollLeft !== scrollLeft) {
       tableContainerRef.current.scrollLeft = scrollLeft;
     }
   }, [scrollLeft]);
@@ -65,6 +65,13 @@ export function TimelineDetailsTable({
         : "text-red-600 dark:text-red-400";
     } else {
       return "text-red-700 dark:text-red-400";
+    }
+  };
+  
+  // Handle scroll event
+  const handleScroll = () => {
+    if (tableContainerRef.current) {
+      setScrollLeft(tableContainerRef.current.scrollLeft);
     }
   };
   
@@ -130,7 +137,11 @@ export function TimelineDetailsTable({
   });
   
   return (
-    <div className="overflow-x-auto border rounded-lg" ref={tableContainerRef}>
+    <div 
+      className="overflow-x-auto border rounded-lg" 
+      ref={tableContainerRef}
+      onScroll={handleScroll}
+    >
       <div style={{ minWidth: "2400px" }}>
         <Table>
           <TableHeader>
