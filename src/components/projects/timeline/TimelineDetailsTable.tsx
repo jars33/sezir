@@ -54,6 +54,19 @@ export function TimelineDetailsTable({
     return `${showDecimals ? percentage.toFixed(1) : Math.round(percentage)}%`;
   };
   
+  const getValueColorClass = (value: number, isPositive: boolean) => {
+    if (value === 0) {
+      return "text-gray-400 dark:text-gray-500";
+    }
+    if (isPositive) {
+      return value >= 0 
+        ? "text-emerald-600 dark:text-emerald-400" 
+        : "text-red-600 dark:text-red-400";
+    } else {
+      return "text-red-700 dark:text-red-400";
+    }
+  };
+  
   const monthlyData = months.map(month => {
     const monthStr = format(month, "yyyy-MM");
     
@@ -138,7 +151,13 @@ export function TimelineDetailsTable({
                 </div>
               </TableCell>
               {monthlyData.map((data, index) => (
-                <TableCell key={index} className="text-right text-red-700 dark:text-red-400">
+                <TableCell 
+                  key={index} 
+                  className={cn(
+                    "text-right", 
+                    getValueColorClass(data.monthlyCosts, false)
+                  )}
+                >
                   {formatCurrency(data.monthlyCosts)}
                 </TableCell>
               ))}
@@ -149,7 +168,13 @@ export function TimelineDetailsTable({
                 {t('costs.accumulatedCosts')}
               </TableCell>
               {monthlyData.map((data, index) => (
-                <TableCell key={index} className="text-right text-red-700 dark:text-red-400">
+                <TableCell 
+                  key={index} 
+                  className={cn(
+                    "text-right",
+                    getValueColorClass(data.accumulatedCosts, false)
+                  )}
+                >
                   {formatCurrency(data.accumulatedCosts)}
                 </TableCell>
               ))}
@@ -163,7 +188,13 @@ export function TimelineDetailsTable({
                 </div>
               </TableCell>
               {monthlyData.map((data, index) => (
-                <TableCell key={index} className="text-right text-green-700 dark:text-green-400">
+                <TableCell 
+                  key={index}
+                  className={cn(
+                    "text-right",
+                    getValueColorClass(data.monthlyRevenues, false)
+                  )}
+                >
                   {formatCurrency(data.monthlyRevenues)}
                 </TableCell>
               ))}
@@ -174,7 +205,13 @@ export function TimelineDetailsTable({
                 {t('costs.accumulatedRevenues')}
               </TableCell>
               {monthlyData.map((data, index) => (
-                <TableCell key={index} className="text-right text-green-700 dark:text-green-400">
+                <TableCell 
+                  key={index} 
+                  className={cn(
+                    "text-right",
+                    getValueColorClass(data.accumulatedRevenues, false)
+                  )}
+                >
                   {formatCurrency(data.accumulatedRevenues)}
                 </TableCell>
               ))}
@@ -189,9 +226,7 @@ export function TimelineDetailsTable({
                   key={index} 
                   className={cn(
                     "text-right font-medium",
-                    data.monthlyProfit >= 0 
-                      ? "text-emerald-600 dark:text-emerald-400" 
-                      : "text-red-600 dark:text-red-400"
+                    getValueColorClass(data.monthlyProfit, true)
                   )}
                 >
                   {formatCurrency(data.monthlyProfit)}
@@ -208,9 +243,7 @@ export function TimelineDetailsTable({
                   key={index} 
                   className={cn(
                     "text-right font-medium",
-                    data.monthlyRentabilityPercentage >= 0 
-                      ? "text-emerald-600 dark:text-emerald-400" 
-                      : "text-red-600 dark:text-red-400"
+                    getValueColorClass(data.monthlyRentabilityPercentage, true)
                   )}
                 >
                   {formatPercentage(data.monthlyRentabilityPercentage)}
@@ -227,9 +260,7 @@ export function TimelineDetailsTable({
                   key={index} 
                   className={cn(
                     "text-right font-medium",
-                    data.accumulatedProfit >= 0 
-                      ? "text-emerald-600 dark:text-emerald-400" 
-                      : "text-red-600 dark:text-red-400"
+                    getValueColorClass(data.accumulatedProfit, true)
                   )}
                 >
                   {formatCurrency(data.accumulatedProfit)}
@@ -246,9 +277,7 @@ export function TimelineDetailsTable({
                   key={index} 
                   className={cn(
                     "text-right font-medium",
-                    data.accumulatedRentabilityPercentage >= 0 
-                      ? "text-emerald-600 dark:text-emerald-400" 
-                      : "text-red-600 dark:text-red-400"
+                    getValueColorClass(data.accumulatedRentabilityPercentage, true)
                   )}
                 >
                   {formatPercentage(data.accumulatedRentabilityPercentage)}
