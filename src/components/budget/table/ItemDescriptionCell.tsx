@@ -51,7 +51,7 @@ export const ItemDescriptionCell: React.FC<ItemDescriptionCellProps> = ({
 
   return (
     <TableCell 
-      className="border border-border relative w-72"  // Increased width to w-72
+      className="border border-border relative w-96"  // Increased width to w-96 to provide more space
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -76,15 +76,15 @@ export const ItemDescriptionCell: React.FC<ItemDescriptionCellProps> = ({
           </button>
         </div>
       ) : (
-        <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">  {/* Changed to gap-2 and flex to keep items inline */}
           <span 
             onClick={() => setIsEditing(true)}
-            className={`${isCategory ? "font-medium" : ""} truncate cursor-pointer hover:bg-gray-100 px-1 rounded flex-1 pr-16`}  // Increased right padding to pr-16
+            className={`${isCategory ? "font-medium" : ""} truncate cursor-pointer hover:bg-gray-100 px-1 rounded flex-1`}
           >
             {description}
           </span>
           
-          <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex gap-1">
+          <div className="flex items-center gap-1">  {/* Added flex container for buttons */}
             {isCategory && onAddItem && (
               <Button
                 variant="ghost"
@@ -111,4 +111,3 @@ export const ItemDescriptionCell: React.FC<ItemDescriptionCellProps> = ({
     </TableCell>
   );
 };
-
