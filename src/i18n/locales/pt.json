@@ -1,4 +1,3 @@
-
 {
   "common": {
     "appName": "sezir.io",
@@ -52,7 +51,8 @@
       "oct": "Out",
       "nov": "Nov",
       "dec": "Dez"
-    }
+    },
+    "saving": "Guardando..."
   },
   "dashboard": {
     "year": "Ano",
