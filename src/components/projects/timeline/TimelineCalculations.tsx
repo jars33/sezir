@@ -1,21 +1,7 @@
 
 import { getYear } from "date-fns"
 import { useProjectSettings } from "@/hooks/use-project-settings"
-
-interface TimelineItem {
-  id: string
-  month: string
-  amount: number
-  description?: string
-}
-
-interface AllocationItem {
-  id: string
-  month: string
-  allocation_percentage: number
-  team_member_name: string
-  salary_cost: number
-}
+import { calculateFinancialSummary, TimelineItem, AllocationItem } from "@/utils/financial-calculations"
 
 interface TimelineCalculationsResult {
   totalRevenues: number
@@ -35,32 +21,20 @@ export function useTimelineCalculations(
   const { getOverheadPercentage } = useProjectSettings()
   const overheadPercentage = getOverheadPercentage(currentYear)
 
-  const totalRevenues = revenues?.reduce((sum, r) => {
-    const year = getYear(new Date(r.month))
-    return year === currentYear ? sum + Number(r.amount) : sum
-  }, 0) || 0
-
-  const totalVariableCosts = variableCosts?.reduce((sum, c) => {
-    const year = getYear(new Date(c.month))
-    return year === currentYear ? sum + Number(c.amount) : sum
-  }, 0) || 0
-
-  const totalSalaryCosts = allocations?.reduce((sum, a) => {
-    const year = getYear(new Date(a.month))
-    return year === currentYear ? sum + Number(a.salary_cost) : sum
-  }, 0) || 0
-  
-  // Calculate base costs (variable costs + salary costs)
-  const baseCosts = totalVariableCosts + totalSalaryCosts
-  
-  // Calculate overhead costs using the percentage of base costs
-  const totalOverheadCosts = (baseCosts * overheadPercentage) / 100
-  
-  // Calculate total costs with overhead included: baseCosts * (1 + overheadPercentage/100)
-  const totalCostsWithOverhead = baseCosts * (1 + overheadPercentage / 100)
-
-  // Total profit is revenues minus total costs with overhead
-  const totalProfit = totalRevenues - totalCostsWithOverhead
+  // Use the centralized calculation function
+  const {
+    totalRevenues,
+    totalVariableCosts,
+    totalSalaryCosts,
+    totalOverheadCosts,
+    totalProfit,
+  } = calculateFinancialSummary(
+    revenues, 
+    variableCosts, 
+    allocations, 
+    currentYear, 
+    overheadPercentage
+  )
 
   return {
     totalRevenues,

@@ -2,7 +2,7 @@
 import { useMemo } from "react"
 import { getYear } from "date-fns"
 import { useProjectSettings } from "@/hooks/use-project-settings"
-import type { TimelineItem, AllocationItem } from "./actions/types"
+import { TimelineItem, AllocationItem } from "@/utils/financial-calculations"
 
 interface TotalProjectFinancialsProps {
   allProjectRevenues: TimelineItem[]

@@ -1,5 +1,6 @@
 
 import i18next from "i18next"
+import { generateMonthlyFinancialData } from "@/utils/financial-calculations"
 
 // Helper for generating chart data
 export function generateChartData(
@@ -80,29 +81,34 @@ export function generateDashboardChartData(
   allocations: any[],
   overheadPercentage: number
 ) {
-  const baseChartData = generateChartData(
-    selectedYear,
-    projectRevenues,
-    variableCosts,
-    overheadCosts,
-    allocations
-  )
+  // Use the centralized monthly data generation function
+  const { monthlyData } = generateMonthlyFinancialData(
+    selectedYear, 
+    projectRevenues, 
+    variableCosts, 
+    allocations, 
+    overheadPercentage
+  );
   
-  // Apply the overhead percentage correctly using (variableCost + salaryCost) * (1 + overheadPercentage/100)
-  return baseChartData.map(monthData => {
-    // Get base costs (variable costs and salary costs)
-    const baseCosts = monthData.variableCost + monthData.salaryCost
-    
-    // Apply overhead percentage: (baseCosts) * (1 + overheadPercentage/100)
-    // This properly computes total cost with overhead percentage included
-    const calculatedOverhead = (baseCosts * overheadPercentage) / 100
-    const totalCost = baseCosts + calculatedOverhead + monthData.overheadCost
-    
+  // Transform the data to match the expected format for the dashboard
+  const months = []
+  for (let i = 0; i < 12; i++) {
+    const month = new Date(selectedYear, i, 1)
+    const monthKey = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'][month.getMonth()]
+    const monthName = i18next.t(`common.months.${monthKey}`)
+    months.push({ date: month, name: monthName })
+  }
+  
+  return monthlyData.map((data, index) => {
     return {
-      ...monthData,
-      calculatedOverhead: calculatedOverhead,
-      cost: totalCost,
-      profit: monthData.revenue - totalCost
+      month: months[index].name,
+      revenue: data.revenue,
+      cost: data.totalCost,
+      profit: data.profit,
+      variableCost: data.variableCost,
+      salaryCost: data.salaryCost,
+      calculatedOverhead: data.overheadCost,
+      overheadCost: 0, // Explicit overhead costs (not used in centralized calculation)
     }
-  })
+  });
 }

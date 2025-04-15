@@ -1,9 +1,10 @@
 
-import { useCallback, useMemo } from "react"
+import { useCallback } from "react"
 import { format } from "date-fns"
 import { useProjectSettings } from "@/hooks/use-project-settings"
 import type { TimelineItem, AllocationItem } from "../actions/types"
 import { useLocalStorage } from "@/hooks/use-local-storage"
+import { calculateAccumulatedProfitUpToMonth } from "@/utils/financial-calculations"
 
 export function useTimelineProfitability(
   revenues: TimelineItem[],
@@ -12,41 +13,19 @@ export function useTimelineProfitability(
   year: number
 ) {
   const { getOverheadPercentage } = useProjectSettings()
-  // Use useLocalStorage hook directly instead of manually accessing localStorage
+  // Use useLocalStorage hook directly
   const [showDecimalsValue] = useLocalStorage<boolean>("showDecimals", true)
   
-  // Calculate accumulated profit up to a specific month
+  // Calculate accumulated profit up to a specific month using shared utility
   const calculateAccumulatedProfitUpToMonth = useCallback((targetMonth: Date) => {
-    const targetMonthStr = format(targetMonth, "yyyy-MM")
-    
-    // Calculate accumulated revenues
-    const accumulatedRevenues = revenues
-      ?.filter(r => r.month <= targetMonthStr)
-      .reduce((sum, r) => sum + Number(r.amount), 0) || 0
-
-    // Calculate accumulated variable costs
-    const accumulatedVariableCosts = variableCosts
-      ?.filter(c => c.month <= targetMonthStr)
-      .reduce((sum, c) => sum + Number(c.amount), 0) || 0
-
-    // Calculate accumulated salary costs
-    const accumulatedSalaryCosts = allocations
-      ?.filter(a => a.month <= targetMonthStr)
-      .reduce((sum, a) => sum + Number(a.salary_cost), 0) || 0
-
     const overheadPercentage = getOverheadPercentage(year)
-    
-    // Calculate base costs
-    const baseCosts = accumulatedVariableCosts + accumulatedSalaryCosts
-    
-    // Calculate overhead costs
-    const overheadCosts = (baseCosts * overheadPercentage) / 100
-    
-    // Calculate total costs with overhead
-    const totalAccumulatedCosts = baseCosts + overheadCosts
-
-    // Return accumulated profit: revenues minus total costs
-    return accumulatedRevenues - totalAccumulatedCosts
+    return calculateAccumulatedProfitUpToMonth(
+      targetMonth, 
+      revenues, 
+      variableCosts, 
+      allocations, 
+      overheadPercentage
+    )
   }, [revenues, variableCosts, allocations, year, getOverheadPercentage])
 
   return {

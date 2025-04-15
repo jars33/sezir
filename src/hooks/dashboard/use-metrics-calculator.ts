@@ -1,9 +1,9 @@
+
 import { startOfYear, endOfYear, isWithinInterval, getYear } from "date-fns"
 import { DashboardMetrics } from "./types"
 import {
   calculateProjectProfitability,
   calculateResourceUtilization,
-  generateChartData,
   generateDashboardChartData,
   calculateProjectMargins,
   calculateUtilizationProfitability,
@@ -86,7 +86,8 @@ export const useMetricsCalculator = (
     variableCosts,
     overheadCosts,
     allocations,
-    selectedYear
+    selectedYear,
+    overheadPercentage  // Pass overhead percentage
   )
   
   // 4. Calculate Resource Utilization using extracted calculation function
@@ -143,10 +144,11 @@ export const useMetricsCalculator = (
     variableCosts,
     overheadCosts,
     allocations,
-    selectedYear
+    selectedYear,
+    overheadPercentage
   )
   
-  // 10. Generate cash flow data - Update to include overhead percentage
+  // 10. Generate cash flow data
   const cashFlowData = generateCashFlowData(
     selectedYear,
     projectRevenues,
@@ -156,7 +158,7 @@ export const useMetricsCalculator = (
     overheadPercentage
   )
   
-  // 11. Generate year comparison data - Update to include overhead percentage and allocations
+  // 11. Generate year comparison data
   const yearComparisonData = generateYearComparisonData(
     selectedYear,
     projectRevenues,
