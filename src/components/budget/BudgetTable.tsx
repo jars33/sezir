@@ -20,6 +20,7 @@ interface BudgetTableProps {
   onDeleteItem: (id: string) => void;
   onUpdateDescription: (itemId: string, description: string) => void;
   onUpdateCompanyName?: (companyId: string, name: string) => void;
+  onAddCompany: (name: string) => void;
 }
 
 export const BudgetTable: React.FC<BudgetTableProps> = ({
@@ -31,7 +32,8 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
   onRemoveCompany,
   onDeleteItem,
   onUpdateDescription,
-  onUpdateCompanyName
+  onUpdateCompanyName,
+  onAddCompany
 }) => {
   const { t } = useTranslation();
   
@@ -53,6 +55,7 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
           companies={companies}
           onRemoveCompany={onRemoveCompany}
           onUpdateCompanyName={onUpdateCompanyName}
+          onAddCompany={onAddCompany}
         />
       </UITableHeader>
 

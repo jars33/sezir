@@ -4,23 +4,27 @@ import { useTranslation } from "react-i18next";
 import { TableHead, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { X, Check } from "lucide-react";
+import { X, Check, Plus } from "lucide-react";
 import { Company } from "@/types/budget";
 
 interface TableHeaderProps {
   companies: Company[];
   onRemoveCompany: (id: string) => void;
   onUpdateCompanyName?: (companyId: string, name: string) => void;
+  onAddCompany: (name: string) => void;
 }
 
 export const TableHeader: React.FC<TableHeaderProps> = ({
   companies,
   onRemoveCompany,
-  onUpdateCompanyName
+  onUpdateCompanyName,
+  onAddCompany
 }) => {
   const { t } = useTranslation();
   const [editingCompanyId, setEditingCompanyId] = useState<string | null>(null);
   const [editingCompanyName, setEditingCompanyName] = useState<string>("");
+  const [newCompanyName, setNewCompanyName] = useState<string>("");
+  const [isAddingCompany, setIsAddingCompany] = useState<boolean>(false);
   
   const handleEditCompanyName = (companyId: string, currentName: string) => {
     if (onUpdateCompanyName) {
@@ -38,6 +42,19 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   
   const handleCancelCompanyEdit = () => {
     setEditingCompanyId(null);
+  };
+
+  const handleAddNewCompany = () => {
+    if (newCompanyName.trim() !== "") {
+      onAddCompany(newCompanyName);
+      setNewCompanyName("");
+      setIsAddingCompany(false);
+    }
+  };
+
+  const handleCancelAddCompany = () => {
+    setIsAddingCompany(false);
+    setNewCompanyName("");
   };
 
   return (
@@ -100,6 +117,52 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
           </div>
         </TableHead>
       ))}
+
+      <TableHead className="w-10 border border-border bg-primary/10 text-center">
+        {isAddingCompany ? (
+          <div className="flex items-center justify-between w-full pr-1">
+            <Input
+              value={newCompanyName}
+              onChange={(e) => setNewCompanyName(e.target.value)}
+              placeholder={t('budget.companyName')}
+              className="w-full h-6 py-0 px-1 text-xs"
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleAddNewCompany();
+                if (e.key === 'Escape') handleCancelAddCompany();
+              }}
+            />
+            <div className="flex gap-1">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-5 w-5"
+                onClick={handleAddNewCompany}
+              >
+                <Check className="h-3 w-3" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-5 w-5"
+                onClick={handleCancelAddCompany}
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-6 w-6 mx-auto"
+            onClick={() => setIsAddingCompany(true)}
+            title={t('budget.addCompany')}
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
+        )}
+      </TableHead>
 
       <TableHead className="w-28 border border-border bg-secondary/10 text-center">
         {t('budget.lowestPrice')}

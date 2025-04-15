@@ -78,7 +78,6 @@ export const BudgetDetails: React.FC<BudgetDetailsProps> = ({
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>{t('budget.companiesComparison')}</CardTitle>
           <BudgetActions
-            onAddCompany={onAddCompany}
             onAddBudgetItem={onAddBudgetItem}
             items={items}
           />
@@ -95,6 +94,7 @@ export const BudgetDetails: React.FC<BudgetDetailsProps> = ({
               onUpdateCompanyName={onUpdateCompanyName}
               onRemoveCompany={onRemoveCompany}
               onDeleteItem={onDeleteItem}
+              onAddCompany={onAddCompany}
             />
           </div>
         </CardContent>
