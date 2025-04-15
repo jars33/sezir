@@ -1,10 +1,12 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import type { TeamNode } from "@/types/team";
 import { ChevronDown, ChevronRight, Users } from "lucide-react";
+import { TeamMemberDialog } from "./TeamMemberDialog";
+import { useTeamMember } from "@/hooks/use-team-member";
 
 interface OrganizationChartProps {
   teams: TeamNode[];
@@ -41,6 +43,15 @@ function TeamNodeCard({ team, level }: TeamNodeCardProps) {
   const navigate = useNavigate();
   const [expanded, setExpanded] = React.useState(true);
   const hasChildren = team.children && team.children.length > 0;
+  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const { member } = useTeamMember(selectedMemberId || undefined);
+  
+  // Function to handle member click
+  const handleMemberClick = (memberId: string) => {
+    setSelectedMemberId(memberId);
+    setDialogOpen(true);
+  };
   
   return (
     <div className="team-node-wrapper mb-4" style={{ marginLeft: `${level * 24}px` }}>
@@ -63,7 +74,10 @@ function TeamNodeCard({ team, level }: TeamNodeCardProps) {
               </div>
               
               {team.manager && (
-                <div className="mt-1 text-sm text-muted-foreground">
+                <div 
+                  className="mt-1 text-sm text-muted-foreground cursor-pointer hover:text-primary"
+                  onClick={() => handleMemberClick(team.manager!.id)}
+                >
                   Manager: {team.manager.name}
                 </div>
               )}
@@ -75,7 +89,8 @@ function TeamNodeCard({ team, level }: TeamNodeCardProps) {
                     {team.members.map((member) => (
                       <div
                         key={member.id}
-                        className="text-xs px-2 py-1 bg-secondary rounded-full"
+                        className="text-xs px-2 py-1 bg-secondary rounded-full cursor-pointer hover:bg-primary/20 transition-colors"
+                        onClick={() => handleMemberClick(member.id)}
                       >
                         {member.name}
                         {member.role === "lead" && (
@@ -105,6 +120,17 @@ function TeamNodeCard({ team, level }: TeamNodeCardProps) {
             <TeamNodeCard key={child.id} team={child} level={level + 1} />
           ))}
         </div>
+      )}
+      
+      {/* Team Member Dialog */}
+      {dialogOpen && selectedMemberId && (
+        <TeamMemberDialog
+          member={member}
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          userId=""
+          onSuccess={() => {}}
+        />
       )}
     </div>
   );

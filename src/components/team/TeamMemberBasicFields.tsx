@@ -1,28 +1,36 @@
 
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
+import React from "react"
+import type { UseFormReturn } from "react-hook-form"
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import type { UseFormReturn } from "react-hook-form"
-import type { TeamMemberFormSchema } from "./team-member-schema"
 import { useTranslation } from "react-i18next"
+import type { TeamMemberFormSchema } from "./team-member-schema"
 
 interface TeamMemberBasicFieldsProps {
   form: UseFormReturn<TeamMemberFormSchema>
+  readOnly?: boolean
 }
 
-export function TeamMemberBasicFields({ form }: TeamMemberBasicFieldsProps) {
+export function TeamMemberBasicFields({ form, readOnly = false }: TeamMemberBasicFieldsProps) {
   const { t } = useTranslation()
-  
+
   return (
-    <>
+    <div className="space-y-4">
       <FormField
         control={form.control}
         name="name"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{t('team.name')}</FormLabel>
+            <FormLabel>{t('common.name')}</FormLabel>
             <FormControl>
-              <Input {...field} />
+              <Input placeholder={t('common.name')} {...field} disabled={readOnly} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -34,19 +42,20 @@ export function TeamMemberBasicFields({ form }: TeamMemberBasicFieldsProps) {
         name="type"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{t('team.type', "Type")}</FormLabel>
+            <FormLabel>{t('team.type')}</FormLabel>
             <Select
               onValueChange={field.onChange}
               defaultValue={field.value}
+              disabled={readOnly}
             >
               <FormControl>
                 <SelectTrigger>
-                  <SelectValue placeholder={t('team.selectType', "Select type")} />
+                  <SelectValue placeholder={t('team.selectType')} />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                <SelectItem value="contract">{t('team.contract', "Contract")}</SelectItem>
-                <SelectItem value="external">{t('team.external', "External")}</SelectItem>
+                <SelectItem value="contract">{t('team.contract')}</SelectItem>
+                <SelectItem value="external">{t('team.external')}</SelectItem>
               </SelectContent>
             </Select>
             <FormMessage />
@@ -62,7 +71,7 @@ export function TeamMemberBasicFields({ form }: TeamMemberBasicFieldsProps) {
             <FormItem>
               <FormLabel>{t('salary.startDate')}</FormLabel>
               <FormControl>
-                <Input type="date" {...field} />
+                <Input type="date" {...field} disabled={readOnly} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -80,10 +89,7 @@ export function TeamMemberBasicFields({ form }: TeamMemberBasicFieldsProps) {
                   type="date" 
                   {...field} 
                   value={field.value || ''} 
-                  onChange={(e) => {
-                    const value = e.target.value || null;
-                    field.onChange(value);
-                  }}
+                  disabled={readOnly}
                 />
               </FormControl>
               <FormMessage />
@@ -91,6 +97,6 @@ export function TeamMemberBasicFields({ form }: TeamMemberBasicFieldsProps) {
           )}
         />
       </div>
-    </>
+    </div>
   )
 }

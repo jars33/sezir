@@ -14,6 +14,15 @@ export default function Teams() {
   const { toast } = useToast()
   const { t } = useTranslation()
 
+  // Get current user
+  const { data: user } = useQuery({
+    queryKey: ["current-user"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      return user
+    },
+  })
+
   const { data: teams } = useQuery({
     queryKey: ["teams"],
     queryFn: async () => {

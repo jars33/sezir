@@ -1,27 +1,40 @@
 
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
+import React from "react"
 import type { UseFormReturn } from "react-hook-form"
-import type { TeamMemberFormSchema } from "./team-member-schema"
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
 import { useTranslation } from "react-i18next"
+import type { TeamMemberFormSchema } from "./team-member-schema"
 
 interface TeamMemberContactFieldsProps {
   form: UseFormReturn<TeamMemberFormSchema>
+  readOnly?: boolean
 }
 
-export function TeamMemberContactFields({ form }: TeamMemberContactFieldsProps) {
+export function TeamMemberContactFields({ form, readOnly = false }: TeamMemberContactFieldsProps) {
   const { t } = useTranslation()
-  
+
   return (
-    <>
+    <div className="space-y-4">
       <FormField
         control={form.control}
         name="company_phone"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{t('team.companyPhone', "Company Phone")}</FormLabel>
+            <FormLabel>{t('team.companyPhone')}</FormLabel>
             <FormControl>
-              <Input {...field} value={field.value || ''} />
+              <Input 
+                placeholder={t('team.companyPhone')} 
+                {...field} 
+                value={field.value || ''} 
+                disabled={readOnly}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -33,14 +46,20 @@ export function TeamMemberContactFields({ form }: TeamMemberContactFieldsProps) 
         name="company_email"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{t('team.companyEmail', "Company Email")}</FormLabel>
+            <FormLabel>{t('team.companyEmail')}</FormLabel>
             <FormControl>
-              <Input type="email" {...field} value={field.value || ''} />
+              <Input 
+                placeholder={t('team.companyEmail')} 
+                type="email"
+                {...field} 
+                value={field.value || ''} 
+                disabled={readOnly}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
         )}
       />
-    </>
+    </div>
   )
 }
