@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Table, TableHeader as UITableHeader, TableBody } from "@/components/ui/table";
@@ -24,6 +23,7 @@ interface BudgetTableProps {
   onUpdateCompanyName?: (companyId: string, name: string) => void;
   onAddCompany: (name: string) => void;
   onReorderItems?: (reorderedItems: BudgetComparisonItem[]) => void;
+  onAddCategory?: () => void;
 }
 
 export const BudgetTable: React.FC<BudgetTableProps> = ({
@@ -37,7 +37,8 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
   onUpdateDescription,
   onUpdateCompanyName,
   onAddCompany,
-  onReorderItems
+  onReorderItems,
+  onAddCategory
 }) => {
   const { t } = useTranslation();
   const [inlineAddingParentCode, setInlineAddingParentCode] = useState<string | null>(null);
@@ -90,18 +91,6 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
   
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
-        <Button 
-          onClick={handleAddCategory}
-          size="sm"
-          variant="outline"
-          className="flex items-center gap-1"
-        >
-          <Plus className="h-4 w-4" />
-          {t('budget.addCategory')}
-        </Button>
-      </div>
-      
       <DragDropContext onDragEnd={handleDragEnd}>
         <Table className="min-w-full border-collapse">
           <UITableHeader className="bg-muted sticky top-0 z-10">
@@ -170,6 +159,19 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
           </Droppable>
         </Table>
       </DragDropContext>
+
+      {/* Add category button below the table */}
+      <div className="flex justify-end mt-4">
+        <Button 
+          onClick={onAddCategory}
+          size="sm"
+          variant="outline"
+          className="flex items-center gap-2"
+        >
+          <Plus className="h-4 w-4" />
+          {t('budget.addCategory')}
+        </Button>
+      </div>
     </div>
   );
 };

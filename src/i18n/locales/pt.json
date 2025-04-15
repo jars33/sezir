@@ -270,6 +270,7 @@
     "projectUpdated": "Associação a projeto atualizada",
     "enterBudgetDescription": "Inserir descrição do orçamento...",
     "descriptionRequired": "A descrição é obrigatória",
-    "noProject": "Sem projeto"
+    "noProject": "Sem projeto",
+    "addCategory": "Adicionar Categoria"
   }
 }
