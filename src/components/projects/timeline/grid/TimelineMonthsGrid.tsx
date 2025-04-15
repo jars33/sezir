@@ -1,4 +1,3 @@
-
 import { useCallback, useMemo, useRef, useState } from "react"
 import { format, addMonths } from "date-fns"
 import { TimelineMonth } from "../TimelineMonth"
@@ -85,15 +84,6 @@ export function TimelineMonthsGrid({
     containerRef.current.scrollLeft = scrollLeft - distance
   }
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "EUR",
-      minimumFractionDigits: showDecimals ? 2 : 0,
-      maximumFractionDigits: showDecimals ? 2 : 0,
-    }).format(amount)
-  }
-
   return (
     <div className="space-y-4">
       <div 
@@ -144,7 +134,6 @@ export function TimelineMonthsGrid({
         </div>
       </div>
       
-      {/* Add the Timeline Details Table */}
       <div className="mt-6">
         <h3 className="text-lg font-medium mb-2">{t('costs.detailedBreakdown')}</h3>
         <TimelineDetailsTable

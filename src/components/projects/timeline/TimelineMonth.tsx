@@ -173,20 +173,8 @@ export function TimelineMonth({
       ))}
 
       <div className="flex-grow"></div>
-
-      <div className={cn(
-        "text-center font-medium text-sm p-2 rounded-md",
-        monthProfit >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
-      )}>
-        {formatCurrency(monthProfit)}
-      </div>
       
-      <div className={cn(
-        "text-center font-semibold text-sm p-2 rounded-md bg-slate-50 dark:bg-slate-900",
-        accumulatedProfit >= 0 ? "text-green-700 dark:text-green-500" : "text-red-700 dark:text-red-500"
-      )}>
-        {formatCurrency(accumulatedProfit)}
-      </div>
+      {/* Removed the profit lines here */}
     </div>
   )
 }
