@@ -83,8 +83,7 @@ export function useBudgetItems(initialItems: BudgetComparisonItem[] = []) {
         }
       }
       
-      // Always recalculate codes after adding an item
-      return recalculateItemCodes(updatedItems);
+      return updatedItems;
     });
   };
   
