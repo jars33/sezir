@@ -1,9 +1,10 @@
+
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertTriangle, ArrowLeft, Download, Save, Upload, Check } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Download, Save, Upload } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { projectService } from "@/services/supabase/project-service";
 import { toast } from "sonner";
@@ -31,8 +32,8 @@ export const BudgetHeader: React.FC<BudgetHeaderProps> = ({
   const [description, setDescription] = useState(budgetDescription);
   const [selectedProjectId, setSelectedProjectId] = useState<string>(projectId || "none");
   const [isSaving, setIsSaving] = useState(false);
-  const [isSaveSuccessful, setIsSaveSuccessful] = useState(false);
   
+  // Fetch projects from the API
   const { data: projects, isLoading: isLoadingProjects } = useQuery({
     queryKey: ["projects"],
     queryFn: async () => {
@@ -48,7 +49,6 @@ export const BudgetHeader: React.FC<BudgetHeaderProps> = ({
     }
     
     setIsSaving(true);
-    setIsSaveSuccessful(false);
     toast.loading(t('budget.saving'), { id: "saving-budget" });
     
     try {
@@ -56,11 +56,6 @@ export const BudgetHeader: React.FC<BudgetHeaderProps> = ({
       await onSave(description, projectIdToSave);
       toast.dismiss("saving-budget");
       toast.success(t('budget.savedSuccessfully'));
-      
-      setIsSaveSuccessful(true);
-      setTimeout(() => {
-        setIsSaveSuccessful(false);
-      }, 2000);
     } catch (error) {
       toast.dismiss("saving-budget");
       toast.error(t('budget.errorSaving'));
@@ -111,11 +106,7 @@ export const BudgetHeader: React.FC<BudgetHeaderProps> = ({
             disabled={!description || isSaving}
             className="whitespace-nowrap"
           >
-            {isSaveSuccessful ? (
-              <Check className="h-4 w-4 mr-2" />
-            ) : (
-              <Save className="h-4 w-4 mr-2" />
-            )}
+            <Save className="h-4 w-4 mr-2" />
             {isSaving ? t('common.saving') : t('common.save')}
           </Button>
           
