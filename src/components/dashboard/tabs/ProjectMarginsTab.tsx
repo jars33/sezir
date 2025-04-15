@@ -49,7 +49,7 @@ export function ProjectMarginsTab({ projectMargins, isLoading }: ProjectMarginsT
                 <XAxis 
                   type="number" 
                   domain={['auto', 'auto']}
-                  tickFormatter={(value) => `${value}%`}
+                  tickFormatter={(value) => `${value.toFixed(1)}%`}
                   className="text-muted-foreground" 
                 />
                 <YAxis 
@@ -77,12 +77,12 @@ export function ProjectMarginsTab({ projectMargins, isLoading }: ProjectMarginsT
                 />
                 <Legend 
                   formatter={(value) => {
-                    return value === "Margin" ? t('costs.rentability') : value;
+                    return value === "margin" ? t('costs.rentability') : value;
                   }}
                 />
                 <Bar 
                   dataKey="margin" 
-                  name="Margin" 
+                  name="margin" 
                   radius={[0, 4, 4, 0]}
                   fill="#10B981" // Default fill color
                 >

@@ -87,7 +87,8 @@ export const useMetricsCalculator = (
     variableCosts,
     overheadCosts,
     allocations,
-    selectedYear
+    selectedYear,
+    overheadPercentage
   )
   
   // 4. Calculate Resource Utilization using extracted calculation function
@@ -98,7 +99,6 @@ export const useMetricsCalculator = (
   )
   
   // 5. Generate chart data using extracted function WITH overhead percentage
-  // overheadPercentage is applied to both variable costs and allocations
   const chartData = generateDashboardChartData(
     selectedYear,
     projectRevenues,
@@ -108,14 +108,15 @@ export const useMetricsCalculator = (
     overheadPercentage
   )
   
-  // 6. Calculate project margins
+  // 6. Calculate project margins - Pass the overhead percentage
   const projectMargins = calculateProjectMargins(
     projects,
     projectRevenues,
     variableCosts,
     overheadCosts,
     allocations,
-    selectedYear
+    selectedYear,
+    overheadPercentage
   )
   
   // 7. Calculate utilization vs profitability
@@ -126,7 +127,8 @@ export const useMetricsCalculator = (
     variableCosts,
     overheadCosts,
     yearStart,
-    yearEnd
+    yearEnd,
+    overheadPercentage
   )
   
   // 8. Generate forecast data
@@ -135,7 +137,8 @@ export const useMetricsCalculator = (
     projectRevenues,
     variableCosts,
     overheadCosts,
-    allocations
+    allocations,
+    overheadPercentage
   )
   
   // 9. Calculate cost breakdown
@@ -143,7 +146,8 @@ export const useMetricsCalculator = (
     variableCosts,
     overheadCosts,
     allocations,
-    selectedYear
+    selectedYear,
+    overheadPercentage
   )
   
   // 10. Generate cash flow data
@@ -152,7 +156,8 @@ export const useMetricsCalculator = (
     projectRevenues,
     variableCosts,
     overheadCosts,
-    allocations
+    allocations,
+    overheadPercentage
   )
   
   // 11. Generate year comparison data
@@ -160,7 +165,8 @@ export const useMetricsCalculator = (
     selectedYear,
     projectRevenues,
     variableCosts,
-    overheadCosts
+    overheadCosts,
+    overheadPercentage
   )
   
   return {
