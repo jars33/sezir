@@ -9,14 +9,29 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
 }));
 
+// Mock tanstack/react-query
+jest.mock('@tanstack/react-query', () => ({
+  ...jest.requireActual('@tanstack/react-query'),
+  useQuery: () => ({
+    data: [
+      { id: 'team-1', name: 'Test Team 1' },
+      { id: 'team-2', name: 'Test Team 2' }
+    ],
+    isLoading: false
+  }),
+}));
+
 describe('ProjectHeader', () => {
   const mockProps = {
     projectNumber: 'P-2023-001',
     projectName: 'Test Project',
     projectStatus: 'in_progress' as const,
+    projectId: 'proj-123',
+    teamId: null,
     hasPermission: true,
     onEditClick: jest.fn(),
     onDeleteClick: jest.fn(),
+    onTeamChange: jest.fn().mockResolvedValue(undefined),
   };
 
   beforeEach(() => {
