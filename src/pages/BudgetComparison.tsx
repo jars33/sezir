@@ -7,6 +7,7 @@ import { BudgetComparisonListView } from "@/components/budget/budget-comparison/
 import { BudgetComparisonView } from "@/components/budget/budget-comparison/BudgetComparisonView";
 import { useSaveBudgetHandler } from "@/components/budget/budget-comparison/SaveBudgetHandler";
 import { useCategoryTotals } from "@/components/budget/budget-comparison/useCategoryTotals";
+import { toast } from "sonner";
 
 const BudgetComparison = () => {
   const navigate = useNavigate();
@@ -42,6 +43,7 @@ const BudgetComparison = () => {
     onSuccess: (budgetId) => {
       setShowNewBudget(false);
       setCurrentBudgetId(budgetId);
+      toast.success("Budget saved successfully");
     }
   });
   
@@ -72,6 +74,7 @@ const BudgetComparison = () => {
       const success = await budgetComparisonService.deleteBudgetComparison(budgetId);
       if (success) {
         setBudgets(currentBudgets => currentBudgets.filter(b => b.id !== budgetId));
+        toast.success("Budget deleted successfully");
         
         if (currentBudgetId === budgetId) {
           setCurrentBudgetId(undefined);
@@ -79,6 +82,7 @@ const BudgetComparison = () => {
       }
     } catch (error) {
       console.error('Error deleting budget:', error);
+      toast.error("Failed to delete budget");
     }
   };
 

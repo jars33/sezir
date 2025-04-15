@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { AlertTriangle, ArrowLeft, Download, Save, Upload } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { projectService } from "@/services/supabase/project-service";
+import { toast } from "sonner";
 
 interface BudgetHeaderProps {
   onBack: () => void;
@@ -43,15 +44,22 @@ export const BudgetHeader: React.FC<BudgetHeaderProps> = ({
   
   const handleSave = async () => {
     if (!description) {
-      // TODO: Add validation error UI
+      toast.warning(t('budget.descriptionRequired'));
       return;
     }
     
     setIsSaving(true);
+    toast.loading(t('budget.saving'), { id: "saving-budget" });
     
     try {
       const projectIdToSave = selectedProjectId === "none" ? undefined : selectedProjectId;
       await onSave(description, projectIdToSave);
+      toast.dismiss("saving-budget");
+      toast.success(t('budget.savedSuccessfully'));
+    } catch (error) {
+      toast.dismiss("saving-budget");
+      toast.error(t('budget.errorSaving'));
+      console.error("Error saving budget:", error);
     } finally {
       setIsSaving(false);
     }
@@ -99,7 +107,7 @@ export const BudgetHeader: React.FC<BudgetHeaderProps> = ({
             className="whitespace-nowrap"
           >
             <Save className="h-4 w-4 mr-2" />
-            {t('common.save')}
+            {isSaving ? t('common.saving') : t('common.save')}
           </Button>
           
           {onExport && (
