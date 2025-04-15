@@ -1,4 +1,5 @@
 
+
 export interface CategoryTotals {
   [categoryId: string]: {
     [companyId: string]: number;
@@ -29,8 +30,10 @@ export function calculateCategoryTotals(
     
     directChildren.forEach(child => {
       Object.entries(child.prices).forEach(([companyId, price]) => {
-        if (price && price > 0) {
-          totals[companyId] = (totals[companyId] || 0) + (price as number);
+        // Fix the typing issue by explicitly casting price to number and checking it's a valid number
+        const numericPrice = Number(price);
+        if (!isNaN(numericPrice) && numericPrice > 0) {
+          totals[companyId] = (totals[companyId] || 0) + numericPrice;
         }
       });
     });

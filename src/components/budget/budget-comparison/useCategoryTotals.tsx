@@ -21,8 +21,10 @@ export const useCategoryTotals = (budgetItems: BudgetComparisonItem[]) => {
       
       directChildren.forEach(child => {
         Object.entries(child.prices).forEach(([companyId, price]) => {
-          if (price && price > 0) {
-            totals[companyId] = (totals[companyId] || 0) + price;
+          // Fix the typing issue by explicitly casting price to number and checking it's a valid number
+          const numericPrice = Number(price);
+          if (!isNaN(numericPrice) && numericPrice > 0) {
+            totals[companyId] = (totals[companyId] || 0) + numericPrice;
           }
         });
       });
