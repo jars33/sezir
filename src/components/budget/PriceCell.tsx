@@ -23,7 +23,6 @@ export const PriceCell: React.FC<PriceCellProps> = ({
 }) => {
   // Calculate percentage variance
   const variance = average > 0 ? ((price - average) / average) * 100 : 0;
-  const absVariance = Math.abs(variance);
   
   // Determine color based on deviation (normalize by standard deviation)
   const getColorClass = () => {
@@ -53,7 +52,7 @@ export const PriceCell: React.FC<PriceCellProps> = ({
         <TooltipTrigger className="w-full" asChild>
           <div className={`${price > 0 && !isCategory ? colorClass : ""} p-1 rounded h-full w-full`}>
             {isCategory || readOnly ? (
-              <div className="text-right">
+              <div className="text-right p-1">
                 {price > 0 ? formattedValue : ""}
               </div>
             ) : (
@@ -62,6 +61,7 @@ export const PriceCell: React.FC<PriceCellProps> = ({
                 value={price || ""}
                 onChange={(e) => onChange(Number(e.target.value))}
                 className="text-right border-0 bg-transparent p-0 focus:ring-0"
+                placeholder="0.00"
               />
             )}
           </div>

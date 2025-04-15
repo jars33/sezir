@@ -6,6 +6,7 @@ import { BudgetComparisonItem, Company } from "@/types/budget";
 import { PriceCell } from "../PriceCell";
 import { ItemDescriptionCell } from "./ItemDescriptionCell";
 import { formatCurrency } from "@/lib/utils";
+import { Textarea } from "@/components/ui/textarea";
 
 interface BudgetItemRowProps {
   item: BudgetComparisonItem;
@@ -77,17 +78,20 @@ export const BudgetItemRow: React.FC<BudgetItemRowProps> = ({
             : ""}
       </TableCell>
       <TableCell className="border border-border text-right">
-        {isCategoryWithValues && categoryTotals?.averagePrice && categoryTotals.averagePrice > 0
-          ? formatCurrency(categoryTotals.averagePrice)
-          : item.averagePrice > 0 
-            ? formatCurrency(item.averagePrice) 
-            : ""}
+        <PriceCell 
+          price={item.averagePrice} 
+          average={item.averagePrice}
+          stdDev={0}
+          onChange={() => {}}
+          readOnly={true}
+        />
       </TableCell>
       <TableCell className="border border-border">
-        <Input
+        <Textarea
           value={item.observations || ""}
           onChange={(e) => onUpdateObservation(item.id, e.target.value)}
-          className="w-full"
+          className="w-full min-h-[38px] resize-none border-0 focus-visible:ring-0 p-2"
+          placeholder="Add observations..."
         />
       </TableCell>
     </TableRow>

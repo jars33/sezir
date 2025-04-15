@@ -4,6 +4,7 @@ import { TableRow, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTranslation } from "react-i18next";
+import { Check, X } from "lucide-react";
 
 interface InlineItemCreationProps {
   parentCode: string;
@@ -61,15 +62,17 @@ export const InlineItemCreation: React.FC<InlineItemCreationProps> = ({
             size="sm" 
             onClick={handleSubmit}
             disabled={!description.trim()}
+            className="px-2"
           >
-            {t('common.add')}
+            <Check className="h-4 w-4" />
           </Button>
           <Button 
             variant="ghost" 
             size="sm"
             onClick={onCancel}
+            className="px-2"
           >
-            {t('common.cancel')}
+            <X className="h-4 w-4" />
           </Button>
         </div>
       </TableCell>

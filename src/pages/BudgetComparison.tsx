@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams, useNavigate } from "react-router-dom";
@@ -48,7 +49,12 @@ const BudgetComparison = () => {
   const handleSave = async (description: string, selectedProjectId?: string) => {
     const projectIdToSave = selectedProjectId === 'none' ? undefined : selectedProjectId;
     
-    if (isSaving) return;
+    if (isSaving) {
+      toast.info(t('budget.alreadySaving'), {
+        description: t('budget.pleasewait')
+      });
+      return;
+    }
     
     setIsSaving(true);
     
@@ -77,6 +83,7 @@ const BudgetComparison = () => {
         });
       }
     } catch (error) {
+      console.error("Error saving budget:", error);
       toast.dismiss(toastId);
       toast.error(t('budget.errorSavingBudget'), {
         description: error instanceof Error ? error.message : t('budget.unknownError'),
