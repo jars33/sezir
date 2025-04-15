@@ -1,18 +1,14 @@
-import { Card, CardContent } from "@/components/ui/card"
+
+import { Card } from "@/components/ui/card"
 import { TimelineHeader } from "./timeline/TimelineHeader"
-import { TimelineSummary } from "./timeline/TimelineSummary"
-import { TimelineMonthsGrid } from "./timeline/grid/TimelineMonthsGrid"
-import { TimelineActions } from "./timeline/TimelineActions"
-import { TimelineAllocationManager } from "./timeline/allocation/TimelineAllocationManager"
+import { TimelineContent } from "./timeline/TimelineContent"
+import { LoadingIndicator } from "./timeline/LoadingIndicator" 
 import { useTimelineCalculations } from "./timeline/TimelineCalculations"
 import { useTimelineData } from "./timeline/useTimelineData"
 import { useTimelineState } from "./timeline/useTimelineState"
 import { useTimelineProfitability } from "./timeline/hooks/useTimelineProfitability"
+import { TotalProjectFinancials } from "./timeline/TotalProjectFinancials"
 import { useQueryClient } from "@tanstack/react-query"
-import { SynchronizedScrollProvider } from "@/hooks/use-synchronized-scroll"
-import { useMemo } from "react"
-import { format, getYear } from "date-fns"
-import { useProjectSettings } from "@/hooks/use-project-settings"
 
 interface ProjectTimelineViewProps {
   projectId: string
@@ -57,9 +53,6 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
     handleAddAllocation
   } = useTimelineState()
 
-  // Get project settings for overhead percentage
-  const { getOverheadPercentage } = useProjectSettings()
-
   // Calculate timeline data for current year
   const { totalProfit, totalRevenues } = useTimelineCalculations(
     revenues,
@@ -68,58 +61,12 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
     year
   )
   
-  // Calculate total project profit across all years, including overhead
-  const { totalProjectProfit, totalProjectRevenues } = useMemo(() => {
-    // Calculate total revenues across all years
-    const totalRevs = allProjectRevenues?.reduce((sum, r) => sum + Number(r.amount), 0) || 0;
-    
-    // Calculate total variable costs across all years
-    const totalVarCosts = allProjectVariableCosts?.reduce((sum, c) => sum + Number(c.amount), 0) || 0;
-    
-    // Calculate total salary costs across all years
-    const totalSalaryCosts = allProjectAllocations?.reduce((sum, a) => sum + Number(a.salary_cost), 0) || 0;
-    
-    // Group costs by year for proper overhead calculation
-    const costsByYear = new Map<number, { varCosts: number, salaryCosts: number }>();
-    
-    // Group variable costs by year
-    allProjectVariableCosts?.forEach(cost => {
-      const costYear = getYear(new Date(cost.month));
-      if (!costsByYear.has(costYear)) {
-        costsByYear.set(costYear, { varCosts: 0, salaryCosts: 0 });
-      }
-      const yearData = costsByYear.get(costYear)!;
-      yearData.varCosts += Number(cost.amount);
-      costsByYear.set(costYear, yearData);
-    });
-    
-    // Group salary costs by year
-    allProjectAllocations?.forEach(allocation => {
-      const allocYear = getYear(new Date(allocation.month));
-      if (!costsByYear.has(allocYear)) {
-        costsByYear.set(allocYear, { varCosts: 0, salaryCosts: 0 });
-      }
-      const yearData = costsByYear.get(allocYear)!;
-      yearData.salaryCosts += Number(allocation.salary_cost);
-      costsByYear.set(allocYear, yearData);
-    });
-    
-    // Calculate overhead costs for each year based on that year's costs (variable + salary)
-    let totalOverheadCosts = 0;
-    costsByYear.forEach((costs, yearNum) => {
-      const yearOverheadPercentage = getOverheadPercentage(yearNum);
-      const yearTotalCosts = costs.varCosts + costs.salaryCosts;
-      totalOverheadCosts += (yearTotalCosts * yearOverheadPercentage) / 100;
-    });
-    
-    // Calculate total profit with overhead included
-    const totalProfit = totalRevs - totalVarCosts - totalSalaryCosts - totalOverheadCosts;
-    
-    return {
-      totalProjectProfit: totalProfit,
-      totalProjectRevenues: totalRevs
-    };
-  }, [allProjectRevenues, allProjectVariableCosts, allProjectAllocations, getOverheadPercentage]);
+  // Get total project financials across all years
+  const { totalProjectProfit, totalProjectRevenues } = TotalProjectFinancials({
+    allProjectRevenues,
+    allProjectVariableCosts,
+    allProjectAllocations
+  })
 
   const { calculateAccumulatedProfitUpToMonth, showDecimals } = useTimelineProfitability(
     revenues,
@@ -138,7 +85,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
   }
 
   if (isLoading) {
-    return <div className="p-4">Loading...</div>
+    return <LoadingIndicator />
   }
 
   return (
@@ -153,55 +100,37 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
         totalProjectRevenues={totalProjectRevenues}
         startDate={startDate}
       />
-      <CardContent className="space-y-6">
-        <TimelineSummary
-          year={year}
-          revenues={revenues}
-          variableCosts={variableCosts}
-          allocations={allocations}
-        />
-        
-        <SynchronizedScrollProvider>
-          <TimelineMonthsGrid
-            startDate={startDate}
-            revenues={revenues}
-            variableCosts={variableCosts}
-            allocations={allocations}
-            onSelectRevenue={handleRevenueSeleсtion}
-            onSelectVariableCost={setSelectedVariableCost}
-            onSelectAllocation={handleAllocationSelection}
-            calculateAccumulatedProfitUpToMonth={calculateAccumulatedProfitUpToMonth}
-            year={year}
-            showDecimals={showDecimals}
-          />
-        </SynchronizedScrollProvider>
-
-        <TimelineActions
-          projectId={projectId}
-          addRevenueDate={addRevenueDate}
-          addVariableCostDate={addVariableCostDate}
-          selectedRevenue={selectedRevenue}
-          selectedVariableCost={selectedVariableCost}
-          deleteRevenue={deleteRevenue}
-          deleteVariableCost={deleteVariableCost}
-          setAddRevenueDate={setAddRevenueDate}
-          setAddVariableCostDate={setAddVariableCostDate}
-          setSelectedRevenue={setSelectedRevenue}
-          setSelectedVariableCost={setSelectedVariableCost}
-          setDeleteRevenue={setDeleteRevenue}
-          setDeleteVariableCost={setDeleteVariableCost}
-          onVariableCostUpdate={handleVariableCostUpdate}
-        />
-
-        <TimelineAllocationManager
-          projectId={projectId}
-          selectedAllocation={selectedAllocation}
-          allocationDialogOpen={allocationDialogOpen}
-          setAllocationDialogOpen={setAllocationDialogOpen}
-          setSelectedAllocation={setSelectedAllocation}
-          refetchTimelineData={refetchTimelineData}
-        />
-      </CardContent>
+      <TimelineContent 
+        projectId={projectId}
+        year={year}
+        startDate={startDate}
+        revenues={revenues}
+        variableCosts={variableCosts}
+        allocations={allocations}
+        calculateAccumulatedProfitUpToMonth={calculateAccumulatedProfitUpToMonth}
+        showDecimals={showDecimals}
+        onSelectRevenue={handleRevenueSeleсtion}
+        onSelectVariableCost={setSelectedVariableCost}
+        onSelectAllocation={handleAllocationSelection}
+        addRevenueDate={addRevenueDate}
+        addVariableCostDate={addVariableCostDate}
+        selectedRevenue={selectedRevenue}
+        selectedVariableCost={selectedVariableCost}
+        deleteRevenue={deleteRevenue}
+        deleteVariableCost={deleteVariableCost}
+        setAddRevenueDate={setAddRevenueDate}
+        setAddVariableCostDate={setAddVariableCostDate}
+        setSelectedRevenue={setSelectedRevenue}
+        setSelectedVariableCost={setSelectedVariableCost}
+        setDeleteRevenue={setDeleteRevenue}
+        setDeleteVariableCost={setDeleteVariableCost}
+        onVariableCostUpdate={handleVariableCostUpdate}
+        selectedAllocation={selectedAllocation}
+        allocationDialogOpen={allocationDialogOpen}
+        setAllocationDialogOpen={setAllocationDialogOpen}
+        setSelectedAllocation={setSelectedAllocation}
+        refetchTimelineData={refetchTimelineData}
+      />
     </Card>
   )
 }
