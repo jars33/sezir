@@ -14,7 +14,7 @@ interface BudgetItemRowProps {
   onUpdateObservation: (itemId: string, observation: string) => void;
   onDeleteItem: (id: string) => void;
   onUpdateDescription: (itemId: string, description: string) => void;
-  onAddItemToCategory?: (parentCode: string) => void;
+  onAddItemToCategory: (parentCode: string) => void;
   categoryTotals?: Record<string, number>;
 }
 

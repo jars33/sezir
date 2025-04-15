@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Table, TableHeader as UITableHeader, TableBody } from "@/components/ui/table";
 import { BudgetComparisonItem, Company } from "@/types/budget";
@@ -7,6 +7,7 @@ import { TableHeader as BudgetTableHeader } from "./table/TableHeader";
 import { BudgetItemRow } from "./table/BudgetItemRow";
 import { TotalsRow } from "./table/TotalsRow";
 import { AddItemRow } from "./table/AddItemRow";
+import { InlineItemCreation } from "./table/InlineItemCreation";
 import { calculateCategoryTotals } from "./table/categoryCalculations";
 
 interface BudgetTableProps {
@@ -37,14 +38,74 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
   onAddBudgetItem
 }) => {
   const { t } = useTranslation();
+  const [inlineAddingParentCode, setInlineAddingParentCode] = useState<string | null>(null);
   
-  // Handler for adding an item to a category
+  // Handler for adding an item to a category - now opens inline editor
   const handleAddItemToCategory = (parentCode: string) => {
-    // Open a prompt to get the item description
-    const description = prompt(t('budget.enterItemDescription'));
-    if (description && description.trim()) {
-      onAddBudgetItem(parentCode, description.trim(), false);
+    setInlineAddingParentCode(parentCode);
+  };
+  
+  // Handle adding item from inline editor
+  const handleInlineItemAdd = (description: string) => {
+    if (inlineAddingParentCode && description.trim()) {
+      onAddBudgetItem(inlineAddingParentCode, description.trim(), false);
+      setInlineAddingParentCode(null);
     }
+  };
+  
+  // Generate table rows with inline editor inserted at the right position
+  const tableRows = () => {
+    if (items.length === 0) {
+      return (
+        <tr>
+          <td colSpan={6 + companies.length} className="text-center py-8">
+            {t('budget.noItemsAdded')}
+          </td>
+        </tr>
+      );
+    }
+    
+    const rows: JSX.Element[] = [];
+    
+    // Add each item row and insert inline editor if needed
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      
+      // Add the regular item row
+      rows.push(
+        <BudgetItemRow 
+          key={item.id}
+          item={item}
+          companies={companies}
+          onUpdateItem={onUpdateItem}
+          onUpdateObservation={onUpdateObservation}
+          onDeleteItem={onDeleteItem}
+          onUpdateDescription={onUpdateDescription}
+          categoryTotals={categoryTotals[item.id]}
+          onAddItemToCategory={handleAddItemToCategory}
+        />
+      );
+      
+      // Add inline editor if this is the category we're adding to
+      if (inlineAddingParentCode === item.code) {
+        rows.push(
+          <InlineItemCreation
+            key={`inline-${item.code}`}
+            parentCode={item.code}
+            companiesCount={companies.length}
+            onAddItem={handleInlineItemAdd}
+            onCancel={() => setInlineAddingParentCode(null)}
+          />
+        );
+      }
+    }
+    
+    // Add totals row
+    rows.push(
+      <TotalsRow key="totals" items={items} companies={companies} />
+    );
+    
+    return rows;
   };
   
   return (
@@ -59,39 +120,16 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
       </UITableHeader>
 
       <TableBody>
-        {items.length === 0 ? (
-          <tr>
-            <td colSpan={6 + companies.length} className="text-center py-8">
-              {t('budget.noItemsAdded')}
-            </td>
-          </tr>
-        ) : (
-          <>
-            {items.map((item) => (
-              <BudgetItemRow 
-                key={item.id}
-                item={item}
-                companies={companies}
-                onUpdateItem={onUpdateItem}
-                onUpdateObservation={onUpdateObservation}
-                onDeleteItem={onDeleteItem}
-                onUpdateDescription={onUpdateDescription}
-                categoryTotals={categoryTotals[item.id]}
-                onAddItemToCategory={handleAddItemToCategory}
-              />
-            ))}
-
-            {items.length > 0 && (
-              <TotalsRow items={items} companies={companies} />
-            )}
-          </>
-        )}
+        {tableRows()}
         
-        <AddItemRow 
-          items={items}
-          companiesCount={companies.length}
-          onAddItem={onAddBudgetItem}
-        />
+        {/* Only show the add item row when not adding inline */}
+        {!inlineAddingParentCode && (
+          <AddItemRow 
+            items={items}
+            companiesCount={companies.length}
+            onAddItem={onAddBudgetItem}
+          />
+        )}
       </TableBody>
     </Table>
   );
