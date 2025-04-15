@@ -1,4 +1,3 @@
-
 export interface CategoryTotals {
   [categoryId: string]: {
     [companyId: string]: number;
@@ -142,4 +141,20 @@ export function recalculateItemCodes(items: any[]): any[] {
   });
   
   return updatedItems;
+}
+
+/**
+ * Get text color class based on price comparison
+ */
+export function getTextColorClass(price: number, lowestPrice: number, averagePrice: number): string {
+  if (price <= 0) return "";
+  
+  // If this is the lowest price, make it green
+  if (price === lowestPrice) return "text-green-600 font-bold";
+  
+  // If the price is higher than average, make it red
+  if (price > averagePrice) return "text-red-600";
+  
+  // Otherwise, make it a neutral color
+  return "text-amber-600";
 }
