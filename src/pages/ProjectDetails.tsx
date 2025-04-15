@@ -21,7 +21,7 @@ export default function ProjectDetails() {
   const projectId = id || "";
 
   // Fetch project data
-  const { data: project, isLoading: isLoadingProject } = useQuery({
+  const { data: project, isLoading: isLoadingProject, refetch: refetchProject } = useQuery({
     queryKey: ["project", projectId],
     queryFn: async () => {
       try {
@@ -55,6 +55,23 @@ export default function ProjectDetails() {
     handleDeleteProject
   } = useProjectManagement(projectId, hasPermission);
 
+  // Handle team change
+  const handleTeamChange = async (newTeamId: string | null) => {
+    if (!hasPermission) {
+      toast.error(t('project.noPermission'));
+      return;
+    }
+
+    try {
+      await projectService.updateProject(projectId, { team_id: newTeamId });
+      refetchProject(); // Refresh project data after update
+    } catch (error) {
+      console.error("Error updating team:", error);
+      toast.error(t('project.teamUpdateError'));
+      throw error;
+    }
+  };
+
   if (isLoadingProject || isLoadingPermission) {
     return <div className="p-4">{t('common.loading')}</div>;
   }
@@ -80,9 +97,12 @@ export default function ProjectDetails() {
         projectNumber={project.number}
         projectName={project.name}
         projectStatus={project.status || "planned"} 
+        projectId={project.id}
+        teamId={project.team_id}
         hasPermission={hasPermission}
         onEditClick={() => setEditDialogOpen(true)}
         onDeleteClick={() => setDeleteDialogOpen(true)}
+        onTeamChange={handleTeamChange}
       />
 
       <Tabs defaultValue="timeline" className="mt-6">
