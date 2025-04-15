@@ -78,13 +78,11 @@ export const BudgetItemRow: React.FC<BudgetItemRowProps> = ({
             : ""}
       </TableCell>
       <TableCell className="border border-border text-right">
-        <PriceCell 
-          price={item.averagePrice} 
-          average={item.averagePrice}
-          stdDev={0}
-          onChange={() => {}}
-          readOnly={true}
-        />
+        {isCategoryWithValues && categoryTotals?.averagePrice && categoryTotals.averagePrice > 0
+          ? formatCurrency(categoryTotals.averagePrice)
+          : item.averagePrice > 0
+            ? formatCurrency(item.averagePrice)
+            : ""}
       </TableCell>
       <TableCell className="border border-border">
         <Textarea
