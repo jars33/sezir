@@ -14,6 +14,7 @@ interface BudgetItemRowProps {
   onUpdateObservation: (itemId: string, observation: string) => void;
   onDeleteItem: (id: string) => void;
   onUpdateDescription: (itemId: string, description: string) => void;
+  onAddItemToCategory?: (parentCode: string) => void;
   categoryTotals?: Record<string, number>;
 }
 
@@ -24,6 +25,7 @@ export const BudgetItemRow: React.FC<BudgetItemRowProps> = ({
   onUpdateObservation,
   onDeleteItem,
   onUpdateDescription,
+  onAddItemToCategory,
   categoryTotals
 }) => {
   const isCategoryWithValues = item.isCategory && categoryTotals;
@@ -39,6 +41,8 @@ export const BudgetItemRow: React.FC<BudgetItemRowProps> = ({
           isCategory={item.isCategory}
           onUpdate={(description) => onUpdateDescription(item.id, description)}
           onDelete={() => onDeleteItem(item.id)}
+          onAddItem={onAddItemToCategory}
+          parentCode={item.code}
         />
       </TableCell>
 

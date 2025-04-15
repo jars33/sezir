@@ -38,6 +38,15 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
 }) => {
   const { t } = useTranslation();
   
+  // Handler for adding an item to a category
+  const handleAddItemToCategory = (parentCode: string) => {
+    // Open a prompt to get the item description
+    const description = prompt(t('budget.enterItemDescription'));
+    if (description && description.trim()) {
+      onAddBudgetItem(parentCode, description.trim(), false);
+    }
+  };
+  
   return (
     <Table className="min-w-full border-collapse">
       <UITableHeader className="bg-muted sticky top-0 z-10">
@@ -68,6 +77,7 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
                 onDeleteItem={onDeleteItem}
                 onUpdateDescription={onUpdateDescription}
                 categoryTotals={categoryTotals[item.id]}
+                onAddItemToCategory={handleAddItemToCategory}
               />
             ))}
 
