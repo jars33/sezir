@@ -2,9 +2,8 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TableHead, TableRow } from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { X, Plus, Check, Edit2 } from "lucide-react";
+import { X } from "lucide-react";
 import { Company } from "@/types/budget";
 import { AddCompanyDialog } from "@/components/budget/AddCompanyDialog";
 
@@ -75,15 +74,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                 </span>
                 
                 <div className="flex items-center">
-                  {/* Edit company button */}
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="h-5 w-5"
-                    onClick={() => onUpdateCompanyName && handleEditCompanyName(company.id, company.name)}
-                  >
-                    <Edit2 className="h-3 w-3" />
-                  </Button>
+                  {/* Remove edit icon as per user request */}
                   
                   {/* Remove company button */}
                   <Button 
@@ -104,7 +95,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                       onClick={() => setIsAddingCompany(true)}
                       title={t('budget.addCompany')}
                     >
-                      <Plus className="h-3 w-3" />
+                      <X className="h-3 w-3" />
                     </Button>
                   )}
                 </div>
@@ -135,7 +126,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
             className="w-full h-8"
             onClick={() => setIsAddingCompany(true)}
           >
-            <Plus className="h-4 w-4 mr-1" />
+            <X className="h-4 w-4 mr-1" />
             {t('budget.addCompany')}
           </Button>
           
