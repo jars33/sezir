@@ -51,7 +51,7 @@ export const ItemDescriptionCell: React.FC<ItemDescriptionCellProps> = ({
 
   return (
     <TableCell 
-      className="border border-border relative"
+      className="border border-border relative w-64"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -79,7 +79,7 @@ export const ItemDescriptionCell: React.FC<ItemDescriptionCellProps> = ({
         <div className="flex items-center justify-between">
           <span 
             onClick={() => setIsEditing(true)}
-            className={`${isCategory ? "font-medium" : ""} truncate cursor-pointer hover:bg-gray-100 px-1 rounded`}
+            className={`${isCategory ? "font-medium" : ""} truncate cursor-pointer hover:bg-gray-100 px-1 rounded flex-1 pr-8`}
           >
             {description}
           </span>
