@@ -2,6 +2,8 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TableCell } from "@/components/ui/table";
+import { X, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface ItemDescriptionCellProps {
   description: string;
@@ -23,6 +25,7 @@ export const ItemDescriptionCell: React.FC<ItemDescriptionCellProps> = ({
   const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState(description);
+  const [isHovered, setIsHovered] = useState(false);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
@@ -47,7 +50,11 @@ export const ItemDescriptionCell: React.FC<ItemDescriptionCellProps> = ({
   };
 
   return (
-    <TableCell className="border border-border">
+    <TableCell 
+      className="border border-border relative"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       {isEditing ? (
         <div className="flex items-center gap-2">
           <input
@@ -76,23 +83,28 @@ export const ItemDescriptionCell: React.FC<ItemDescriptionCellProps> = ({
           >
             {description}
           </span>
-          <div className="flex gap-1">
+          
+          <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex gap-1">
             {isCategory && onAddItem && (
-              <button 
+              <Button
+                variant="ghost"
+                size="icon"
+                className={`h-6 w-6 p-0 opacity-0 transition-opacity ${isHovered ? "opacity-100" : ""}`}
                 onClick={handleAddItem}
-                className="h-6 w-6 p-0"
                 title={t('budget.addItemToCategory')}
               >
-                +
-              </button>
+                <Plus className="h-4 w-4" />
+              </Button>
             )}
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
+              className={`h-6 w-6 p-0 opacity-0 transition-opacity ${isHovered ? "opacity-100" : ""}`}
               onClick={onDelete}
-              className="h-6 w-6 p-0"
               title={t('common.delete')}
             >
-              ×
-            </button>
+              <X className="h-4 w-4" />
+            </Button>
           </div>
         </div>
       )}
