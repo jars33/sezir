@@ -3,8 +3,8 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BudgetComparisonItem, Company } from "@/types/budget";
+import { BudgetHeader } from "./BudgetHeader";
 import { BudgetTable } from "./BudgetTable";
-import { BudgetHeaderWithSwappedInputs } from "./custom/BudgetHeaderWithSwappedInputs";
 
 interface BudgetDetailsProps {
   items: BudgetComparisonItem[];
@@ -63,7 +63,7 @@ export const BudgetDetails: React.FC<BudgetDetailsProps> = ({
 
   return (
     <div className="space-y-6">
-      <BudgetHeaderWithSwappedInputs
+      <BudgetHeader
         onBack={onBack}
         onSave={handleSave}
         onExport={onExport}
