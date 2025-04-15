@@ -5,13 +5,13 @@ import i18next from "i18next"
 export function generateForecastData(
   selectedYear: number,
   projectRevenues: any[] = [],
-  variableCosts: any[] = [],
+  projectVariableCosts: any[] = [], // Renamed parameter to avoid name clash
   overheadCosts: any[] = [],
   allocations: any[] = []
 ) {
   // Initialize with empty arrays if inputs are undefined
   projectRevenues = projectRevenues || []
-  variableCosts = variableCosts || []
+  projectVariableCosts = projectVariableCosts || [] // Use renamed parameter
   overheadCosts = overheadCosts || []
   allocations = allocations || []
   
@@ -36,32 +36,26 @@ export function generateForecastData(
       }
     })
     
-    // Fix: Ensure variableCosts is an array before using forEach
-    if (Array.isArray(variableCosts)) {
-      variableCosts.forEach(cost => {
-        if (cost && cost.month && cost.month.startsWith(monthStr)) {
-          monthlyVariableCosts += Number(cost.amount || 0)
-        }
-      })
-    }
+    // Use the renamed parameter projectVariableCosts (which is always an array)
+    projectVariableCosts.forEach(cost => {
+      if (cost && cost.month && cost.month.startsWith(monthStr)) {
+        monthlyVariableCosts += Number(cost.amount || 0)
+      }
+    })
     
-    // Fix: Ensure overheadCosts is an array before using forEach
-    if (Array.isArray(overheadCosts)) {
-      overheadCosts.forEach(cost => {
-        if (cost && cost.month && cost.month.startsWith(monthStr)) {
-          explicitOverheadCosts += Number(cost.amount || 0)
-        }
-      })
-    }
+    // Overhead costs
+    overheadCosts.forEach(cost => {
+      if (cost && cost.month && cost.month.startsWith(monthStr)) {
+        explicitOverheadCosts += Number(cost.amount || 0)
+      }
+    })
     
-    // Fix: Ensure allocations is an array before using forEach
-    if (Array.isArray(allocations)) {
-      allocations.forEach(allocation => {
-        if (allocation && allocation.month && allocation.month.startsWith(monthStr) && allocation.salary_cost) {
-          monthlySalaryCosts += Number(allocation.salary_cost || 0)
-        }
-      })
-    }
+    // Allocations for salary costs
+    allocations.forEach(allocation => {
+      if (allocation && allocation.month && allocation.month.startsWith(monthStr) && allocation.salary_cost) {
+        monthlySalaryCosts += Number(allocation.salary_cost || 0)
+      }
+    })
     
     // Calculate base costs (variable + salary costs)
     const baseCosts = monthlyVariableCosts + monthlySalaryCosts

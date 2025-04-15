@@ -1,4 +1,3 @@
-
 import { startOfYear, endOfYear, isWithinInterval, getYear } from "date-fns"
 import { DashboardMetrics } from "./types"
 import {
@@ -129,7 +128,7 @@ export const useMetricsCalculator = (
     yearEnd
   )
   
-  // 8. Generate forecast data
+  // 8. Generate forecast data - Update to use the renamed parameter
   const forecastData = generateForecastData(
     selectedYear,
     projectRevenues,
