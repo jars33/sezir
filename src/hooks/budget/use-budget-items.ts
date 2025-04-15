@@ -51,7 +51,39 @@ export function useBudgetItems(initialItems: BudgetComparisonItem[] = []) {
         averagePrice: 0
       };
       
-      return [...prevItems, newItem];
+      // Instead of simply appending to the end, insert at the appropriate position
+      const updatedItems = [...prevItems];
+      
+      if (isCategory) {
+        // For categories (top-level items), just append at the end
+        updatedItems.push(newItem);
+      } else {
+        // For child items, find the right position - after all existing children of the same category
+        const categoryIndex = updatedItems.findIndex(item => item.code === parentCode);
+        
+        if (categoryIndex !== -1) {
+          // Get the last index of items in this category
+          let insertIndex = categoryIndex + 1;
+          
+          for (let i = categoryIndex + 1; i < updatedItems.length; i++) {
+            const [currentParent] = updatedItems[i].code.split('.');
+            if (currentParent === parentCode) {
+              insertIndex = i + 1;
+            } else if (currentParent !== parentCode && !updatedItems[i].code.includes('.')) {
+              // We've reached the next category
+              break;
+            }
+          }
+          
+          // Insert the new item at the determined position
+          updatedItems.splice(insertIndex, 0, newItem);
+        } else {
+          // Fallback: if category not found, just append
+          updatedItems.push(newItem);
+        }
+      }
+      
+      return updatedItems;
     });
   };
   
