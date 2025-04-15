@@ -71,15 +71,17 @@ export function calculateProjectProfitability(
   
   projectProfitabilityMap.forEach((data) => {
     const totalCost = data.variableCosts + data.overheadCosts + data.salaryCosts
+    const profit = data.revenue - totalCost
+    
     // Only count if there's any financial data
     if (data.revenue > 0 || totalCost > 0) {
-      // Avoid division by zero
-      if (totalCost === 0) {
-        totalProfitability += 100 // 100% profit if no costs
-      } else {
-        const profit = data.revenue - totalCost
-        const profitabilityPercent = (profit / totalCost) * 100
+      // Calculate profitability as profit / revenue
+      if (data.revenue > 0) {
+        const profitabilityPercent = (profit / data.revenue) * 100
         totalProfitability += profitabilityPercent
+      } else if (totalCost > 0) {
+        // If there's no revenue but there are costs, it's -100%
+        totalProfitability -= 100
       }
       projectsWithFinancials++
     }

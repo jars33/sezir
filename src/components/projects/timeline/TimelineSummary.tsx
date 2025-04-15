@@ -68,16 +68,18 @@ export function TimelineSummary({
     const totalCosts = filteredVariableCosts + filteredOverheadCosts + filteredSalaryCosts
 
     const profit = filteredRevenues - totalCosts
-    const rentability = totalCosts > 0 ? (profit / totalCosts) * 100 : 0
+    
+    // Calculate profit percentage based on revenue instead of cost
+    const profitPercentage = filteredRevenues > 0 ? (profit / filteredRevenues) * 100 : 0
 
     return {
       profit,
-      rentability
+      profitPercentage
     }
   }
 
-  const formatRentability = (rentability: number) => {
-    return `${rentability.toFixed(2).replace(/\.?0+$/, '')}%`
+  const formatProfitPercentage = (percentage: number) => {
+    return `${percentage.toFixed(2).replace(/\.?0+$/, '')}%`
   }
 
   const yearStart = startOfYear(new Date(year, 0, 1))
@@ -114,11 +116,11 @@ export function TimelineSummary({
                   {formatCurrency(result.profit, showDecimals)}
                 </div>
                 <div className={`text-sm ${
-                  result.rentability >= 0 
+                  result.profitPercentage >= 0 
                     ? "text-emerald-600 dark:text-emerald-400"
                     : "text-red-600 dark:text-red-400"
                 }`}>
-                  {formatRentability(result.rentability)}
+                  {formatProfitPercentage(result.profitPercentage)}
                 </div>
               </Card>
             )
@@ -141,11 +143,11 @@ export function TimelineSummary({
                   {formatCurrency(result.profit, showDecimals)}
                 </div>
                 <div className={`text-sm ${
-                  result.rentability >= 0 
+                  result.profitPercentage >= 0 
                     ? "text-emerald-600 dark:text-emerald-400"
                     : "text-red-600 dark:text-red-400"
                 }`}>
-                  {formatRentability(result.rentability)}
+                  {formatProfitPercentage(result.profitPercentage)}
                 </div>
               </Card>
             )
@@ -162,11 +164,11 @@ export function TimelineSummary({
             {formatCurrency(yearResult.profit, showDecimals)}
           </div>
           <div className={`text-sm ${
-            yearResult.rentability >= 0 
+            yearResult.profitPercentage >= 0 
               ? "text-emerald-600 dark:text-emerald-400"
               : "text-red-600 dark:text-red-400"
           }`}>
-            {formatRentability(yearResult.rentability)}
+            {formatProfitPercentage(yearResult.profitPercentage)}
           </div>
         </Card>
       </div>

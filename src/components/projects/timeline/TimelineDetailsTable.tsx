@@ -1,4 +1,3 @@
-
 import { useTranslation } from "react-i18next";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TrendingDown, TrendingUp } from "lucide-react";
@@ -98,7 +97,7 @@ export function TimelineDetailsTable({
     
     const monthlyProfit = monthRevenues - totalCosts;
     
-    const monthlyRentabilityPercentage = totalCosts > 0 ? (monthlyProfit / totalCosts) * 100 : 0;
+    const monthlyProfitPercentage = monthRevenues > 0 ? (monthlyProfit / monthRevenues) * 100 : 0;
     
     const accumulatedProfit = calculateAccumulatedProfitUpToMonth(month);
     
@@ -133,18 +132,18 @@ export function TimelineDetailsTable({
       })
       .reduce((s, r) => s + Number(r.amount), 0);
     
-    const accumulatedRentabilityPercentage = accumulatedTotalCosts > 0 ? (accumulatedProfit / accumulatedTotalCosts) * 100 : 0;
+    const accumulatedProfitPercentage = accumulatedRevenues > 0 ? (accumulatedProfit / accumulatedRevenues) * 100 : 0;
     
     return {
       month,
       monthlyCosts: totalCosts,
       monthlyRevenues: monthRevenues,
       monthlyProfit,
-      monthlyRentabilityPercentage,
+      monthlyProfitPercentage,
       accumulatedCosts: accumulatedTotalCosts,
       accumulatedRevenues,
       accumulatedProfit,
-      accumulatedRentabilityPercentage
+      accumulatedProfitPercentage
     };
   }), [months, revenues, variableCosts, allocations, getOverheadPercentage, year, calculateAccumulatedProfitUpToMonth]);
   
@@ -267,10 +266,10 @@ export function TimelineDetailsTable({
                   key={index} 
                   className={cn(
                     "text-right font-medium",
-                    getValueColorClass(data.monthlyRentabilityPercentage, true)
+                    getValueColorClass(data.monthlyProfitPercentage, true)
                   )}
                 >
-                  {formatPercentage(data.monthlyRentabilityPercentage)}
+                  {formatPercentage(data.monthlyProfitPercentage)}
                 </TableCell>
               ))}
             </TableRow>
@@ -301,10 +300,10 @@ export function TimelineDetailsTable({
                   key={index} 
                   className={cn(
                     "text-right font-medium",
-                    getValueColorClass(data.accumulatedRentabilityPercentage, true)
+                    getValueColorClass(data.accumulatedProfitPercentage, true)
                   )}
                 >
-                  {formatPercentage(data.accumulatedRentabilityPercentage)}
+                  {formatPercentage(data.accumulatedProfitPercentage)}
                 </TableCell>
               ))}
             </TableRow>

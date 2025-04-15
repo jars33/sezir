@@ -12,8 +12,8 @@ interface TimelineHeaderProps {
   onAddAllocation?: () => void
   onPreviousYear: () => void
   onNextYear: () => void
-  totalProjectProfit: number // Renamed to totalProjectProfit for clarity
-  totalProjectRevenues: number // Renamed to totalProjectRevenues for clarity
+  totalProjectProfit: number
+  totalProjectRevenues: number
   startDate: Date
 }
 
@@ -23,15 +23,15 @@ export function TimelineHeader({
   onAddAllocation,
   onPreviousYear,
   onNextYear,
-  totalProjectProfit, // Updated parameter name
-  totalProjectRevenues, // Updated parameter name
+  totalProjectProfit,
+  totalProjectRevenues,
   startDate,
 }: TimelineHeaderProps) {
   const { t } = useTranslation();
   const [showDecimals] = useLocalStorage<boolean>("showDecimals", true)
 
-  // Calculate the rentability percentage only if there are revenues
-  const rentabilityPercentage = totalProjectRevenues > 0 
+  // Calculate the profit percentage based on revenue instead of cost
+  const profitPercentage = totalProjectRevenues > 0 
     ? (totalProjectProfit / totalProjectRevenues) * 100
     : 0;
 
@@ -59,7 +59,7 @@ export function TimelineHeader({
               })}
               {totalProjectRevenues > 0 && (
                 <span className="ml-2 text-sm">
-                  ({rentabilityPercentage.toFixed(1)}%)
+                  ({profitPercentage.toFixed(1)}%)
                 </span>
               )}
             </div>

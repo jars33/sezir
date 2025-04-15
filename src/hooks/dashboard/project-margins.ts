@@ -70,10 +70,12 @@ export function calculateProjectMargins(
   const projectMargins = []
   
   projectFinancialsMap.forEach((data) => {
-    // Calculate margin for ALL projects, including those with zero values
-    // Just ensure we don't divide by zero
+    // Calculate margin as (profit / revenue) * 100 instead of (profit / cost) * 100
+    const profit = data.revenue - data.cost
+    
     if (data.revenue > 0) {
-      data.margin = ((data.revenue - data.cost) / data.revenue) * 100
+      // Calculate margin as profit / revenue
+      data.margin = (profit / data.revenue) * 100
     } else if (data.cost > 0) {
       data.margin = -100 // -100% margin if no revenue but has costs
     } else {
