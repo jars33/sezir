@@ -87,8 +87,7 @@ export const useMetricsCalculator = (
     variableCosts,
     overheadCosts,
     allocations,
-    selectedYear,
-    overheadPercentage
+    selectedYear
   )
   
   // 4. Calculate Resource Utilization using extracted calculation function
@@ -127,8 +126,7 @@ export const useMetricsCalculator = (
     variableCosts,
     overheadCosts,
     yearStart,
-    yearEnd,
-    overheadPercentage
+    yearEnd
   )
   
   // 8. Generate forecast data
@@ -137,8 +135,7 @@ export const useMetricsCalculator = (
     projectRevenues,
     variableCosts,
     overheadCosts,
-    allocations,
-    overheadPercentage
+    allocations
   )
   
   // 9. Calculate cost breakdown
@@ -146,8 +143,7 @@ export const useMetricsCalculator = (
     variableCosts,
     overheadCosts,
     allocations,
-    selectedYear,
-    overheadPercentage
+    selectedYear
   )
   
   // 10. Generate cash flow data
@@ -156,8 +152,7 @@ export const useMetricsCalculator = (
     projectRevenues,
     variableCosts,
     overheadCosts,
-    allocations,
-    overheadPercentage
+    allocations
   )
   
   // 11. Generate year comparison data
@@ -165,8 +160,7 @@ export const useMetricsCalculator = (
     selectedYear,
     projectRevenues,
     variableCosts,
-    overheadCosts,
-    overheadPercentage
+    overheadCosts
   )
   
   return {
