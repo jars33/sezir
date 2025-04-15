@@ -2,7 +2,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RevenueTab } from "./tabs/RevenueTab";
 import { ProjectMarginsTab } from "./tabs/ProjectMarginsTab";
-import { UtilizationTab } from "./tabs/UtilizationTab";
 import { CostBreakdownTab } from "./tabs/CostBreakdownTab";
 import { CashFlowTab } from "./tabs/CashFlowTab";
 import { YearComparisonTab } from "./tabs/YearComparisonTab";
@@ -23,7 +22,7 @@ export function DashboardTabs({ metrics, isLoading, selectedYear, overheadPercen
       <TabsList className="mb-4">
         <TabsTrigger value="revenue">{t('dashboard.tabs.revenueCosts')}</TabsTrigger>
         <TabsTrigger value="project-margins">{t('dashboard.tabs.projectMargins')}</TabsTrigger>
-        <TabsTrigger value="utilization">{t('dashboard.tabs.utilizationProfitability')}</TabsTrigger>
+        {/* Removed utilization tab trigger */}
         <TabsTrigger value="cost-breakdown">{t('dashboard.tabs.costBreakdown')}</TabsTrigger>
         <TabsTrigger value="cash-flow">{t('dashboard.tabs.cashFlow')}</TabsTrigger>
         <TabsTrigger value="year-comparison">{t('dashboard.tabs.yearComparison')}</TabsTrigger>
@@ -47,13 +46,7 @@ export function DashboardTabs({ metrics, isLoading, selectedYear, overheadPercen
         />
       </TabsContent>
       
-      {/* Utilization vs Profitability Tab */}
-      <TabsContent value="utilization">
-        <UtilizationTab 
-          utilizationProfitabilityData={metrics.utilizationProfitabilityData} 
-          isLoading={isLoading} 
-        />
-      </TabsContent>
+      {/* Removed utilization tab content */}
       
       {/* Cost Breakdown Tab */}
       <TabsContent value="cost-breakdown">
