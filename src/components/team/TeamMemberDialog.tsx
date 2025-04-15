@@ -96,8 +96,6 @@ export function TeamMemberDialog({
   }, [member, userId, form, open])
 
   const handleFormSubmit = async (values: TeamMemberFormSchema) => {
-    if (readOnly) return;
-    
     try {
       console.log("Submitting form with values:", values)
       const result = await submitHandler(values, isNewMember, member?.id, userId)
@@ -136,20 +134,20 @@ export function TeamMemberDialog({
       <DialogContentComponent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>
-            {readOnly ? t('team.member') : (isNewMember ? t('team.addTeamMember') : t('team.editTeamMember'))}
+            {isNewMember ? t('team.addTeamMember') : t('team.editTeamMember')}
           </DialogTitle>
           {!isNewMember && (
             <DialogDescription>
-              {readOnly ? member?.name : t('team.editMemberDescription', "Update team member details or manage their salary history")}
+              {t('team.editMemberDescription', "Update team member details or manage their salary history")}
             </DialogDescription>
           )}
         </DialogHeader>
         
-        {isNewMember && !readOnly ? (
+        {isNewMember ? (
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4">
-              <TeamMemberBasicFields form={form} readOnly={readOnly} />
-              <TeamMemberContactFields form={form} readOnly={readOnly} />
+              <TeamMemberBasicFields form={form} />
+              <TeamMemberContactFields form={form} />
               <DialogFooter>
                 <Button type="submit">
                   {t('team.addTeamMember')}
@@ -161,21 +159,19 @@ export function TeamMemberDialog({
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="basic">{t('common.details', "Details")}</TabsTrigger>
-              <TabsTrigger value="salary" disabled={isNewMember || readOnly}>{t('salary.history')}</TabsTrigger>
+              <TabsTrigger value="salary" disabled={isNewMember}>{t('salary.history')}</TabsTrigger>
             </TabsList>
             
             <TabsContent value="basic" className="space-y-4 pt-4">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4">
-                  <TeamMemberBasicFields form={form} readOnly={readOnly} />
-                  <TeamMemberContactFields form={form} readOnly={readOnly} />
-                  {!readOnly && (
-                    <DialogFooter>
-                      <Button type="submit">
-                        {t('team.updateTeamMember', "Update Team Member")}
-                      </Button>
-                    </DialogFooter>
-                  )}
+                  <TeamMemberBasicFields form={form} />
+                  <TeamMemberContactFields form={form} />
+                  <DialogFooter>
+                    <Button type="submit">
+                      {t('team.updateTeamMember', "Update Team Member")}
+                    </Button>
+                  </DialogFooter>
                 </form>
               </Form>
             </TabsContent>

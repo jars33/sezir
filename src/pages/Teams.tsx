@@ -23,7 +23,7 @@ export default function Teams() {
     },
   })
 
-  const { data: teams } = useQuery({
+  const { data: teams, refetch: refetchTeams } = useQuery({
     queryKey: ["teams"],
     queryFn: async () => {
       const { data: teams, error } = await supabase

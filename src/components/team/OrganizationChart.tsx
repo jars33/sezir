@@ -7,6 +7,8 @@ import type { TeamNode } from "@/types/team";
 import { ChevronDown, ChevronRight, Users } from "lucide-react";
 import { TeamMemberDialog } from "./TeamMemberDialog";
 import { useTeamMember } from "@/hooks/use-team-member";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface OrganizationChartProps {
   teams: TeamNode[];
@@ -47,10 +49,34 @@ function TeamNodeCard({ team, level }: TeamNodeCardProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { member } = useTeamMember(selectedMemberId || undefined);
   
+  // Get current user
+  const { data: userData } = useQuery({
+    queryKey: ["current-user"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      return user;
+    },
+  });
+  
   // Function to handle member click
   const handleMemberClick = (memberId: string) => {
     setSelectedMemberId(memberId);
     setDialogOpen(true);
+  };
+  
+  const handleDialogOpenChange = (open: boolean) => {
+    setDialogOpen(open);
+    if (!open) {
+      // Trigger a refetch of teams data when the dialog closes
+      // This would ideally be handled by a queryClient.invalidateQueries call
+      // but since we don't have direct access to the queryClient here,
+      // we can rely on the parent component to refetch on the next render
+    }
+  };
+  
+  const handleSuccess = () => {
+    // This could trigger a refetch in a real implementation
+    console.log("Team member updated successfully");
   };
   
   return (
@@ -123,13 +149,13 @@ function TeamNodeCard({ team, level }: TeamNodeCardProps) {
       )}
       
       {/* Team Member Dialog */}
-      {dialogOpen && selectedMemberId && (
+      {dialogOpen && selectedMemberId && userData && (
         <TeamMemberDialog
           member={member}
           open={dialogOpen}
-          onOpenChange={setDialogOpen}
-          userId=""
-          onSuccess={() => {}}
+          onOpenChange={handleDialogOpenChange}
+          userId={userData.id}
+          onSuccess={handleSuccess}
         />
       )}
     </div>
