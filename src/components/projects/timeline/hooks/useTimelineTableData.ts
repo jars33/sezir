@@ -44,52 +44,39 @@ export function useTimelineTableData({
   const monthlyData = useMemo(() => months.map(month => {
     const monthStr = format(month, "yyyy-MM");
     
+    // Calculate monthly revenue
     const monthRevenues = revenues
       .filter(r => r.month.startsWith(monthStr))
       .reduce((sum, r) => sum + Number(r.amount), 0);
       
+    // Calculate monthly variable costs
     const monthVariableCosts = variableCosts
       .filter(c => c.month.startsWith(monthStr))
       .reduce((sum, c) => sum + Number(c.amount), 0);
     
+    // Calculate monthly salary costs
     const monthAllocations = allocations
       .filter(a => a.month.startsWith(monthStr))
       .reduce((sum, a) => sum + Number(a.salary_cost), 0);
     
     const overheadPercentage = getOverheadPercentage(year);
     
-    // Fixed calculation: Base costs * (1 + overhead percentage/100)
+    // Calculate monthly base costs
     const baseCosts = monthVariableCosts + monthAllocations;
-    const totalCosts = baseCosts * (1 + overheadPercentage / 100);
     
+    // Calculate monthly overhead costs
+    const overheadCosts = (baseCosts * overheadPercentage) / 100;
+    
+    // Calculate total monthly costs including overhead
+    const totalCosts = baseCosts + overheadCosts;
+    
+    // Calculate monthly profit
     const monthlyProfit = monthRevenues - totalCosts;
     
+    // Calculate monthly profit percentage
     const monthlyProfitPercentage = monthRevenues > 0 ? (monthlyProfit / monthRevenues) * 100 : 0;
     
-    const accumulatedProfit = calculateAccumulatedProfitUpToMonth(month);
-    
-    const accumulatedVariableCosts = months
-      .filter(m => m <= month)
-      .flatMap(m => {
-        const mStr = format(m, "yyyy-MM");
-        return variableCosts
-          .filter(c => c.month.startsWith(mStr));
-      })
-      .reduce((s, c) => s + Number(c.amount), 0);
-      
-    const accumulatedAllocCosts = months
-      .filter(m => m <= month)
-      .flatMap(m => {
-        const mStr = format(m, "yyyy-MM");
-        return allocations
-          .filter(a => a.month.startsWith(mStr));
-      })
-      .reduce((s, a) => s + Number(a.salary_cost), 0);
-      
-    // Calculate accumulated base costs and total costs with overhead
-    const accumulatedBaseCosts = accumulatedVariableCosts + accumulatedAllocCosts;
-    const accumulatedTotalCosts = accumulatedBaseCosts * (1 + overheadPercentage / 100);
-    
+    // Calculate accumulated revenue up to this month
     const accumulatedRevenues = months
       .filter(m => m <= month)
       .flatMap(m => {
@@ -99,6 +86,39 @@ export function useTimelineTableData({
       })
       .reduce((s, r) => s + Number(r.amount), 0);
     
+    // Calculate accumulated variable costs up to this month
+    const accumulatedVariableCosts = months
+      .filter(m => m <= month)
+      .flatMap(m => {
+        const mStr = format(m, "yyyy-MM");
+        return variableCosts
+          .filter(c => c.month.startsWith(mStr));
+      })
+      .reduce((s, c) => s + Number(c.amount), 0);
+      
+    // Calculate accumulated salary costs up to this month
+    const accumulatedAllocCosts = months
+      .filter(m => m <= month)
+      .flatMap(m => {
+        const mStr = format(m, "yyyy-MM");
+        return allocations
+          .filter(a => a.month.startsWith(mStr));
+      })
+      .reduce((s, a) => s + Number(a.salary_cost), 0);
+      
+    // Calculate accumulated base costs
+    const accumulatedBaseCosts = accumulatedVariableCosts + accumulatedAllocCosts;
+    
+    // Calculate accumulated overhead costs
+    const accumulatedOverheadCosts = (accumulatedBaseCosts * overheadPercentage) / 100;
+    
+    // Calculate total accumulated costs with overhead
+    const accumulatedTotalCosts = accumulatedBaseCosts + accumulatedOverheadCosts;
+    
+    // Calculate accumulated profit directly as revenue minus costs
+    const accumulatedProfit = accumulatedRevenues - accumulatedTotalCosts;
+    
+    // Calculate accumulated profit percentage
     const accumulatedProfitPercentage = accumulatedRevenues > 0 ? (accumulatedProfit / accumulatedRevenues) * 100 : 0;
     
     return {
@@ -112,7 +132,7 @@ export function useTimelineTableData({
       accumulatedProfit,
       accumulatedProfitPercentage
     } as MonthData;
-  }), [months, revenues, variableCosts, allocations, getOverheadPercentage, year, calculateAccumulatedProfitUpToMonth]);
+  }), [months, revenues, variableCosts, allocations, getOverheadPercentage, year]);
 
   return {
     months,
