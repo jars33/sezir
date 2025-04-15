@@ -10,7 +10,10 @@ import {
   SelectTrigger,
   SelectValue 
 } from "@/components/ui/select";
-import { ArrowLeft, Save, Download, Upload } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Save, Download, Upload } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { projectService } from "@/services/supabase/project-service";
+import { toast } from "sonner";
 
 interface BudgetHeaderWithSwappedInputsProps {
   onBack: () => void;
@@ -33,10 +36,39 @@ export const BudgetHeaderWithSwappedInputs: React.FC<BudgetHeaderWithSwappedInpu
 }) => {
   const { t } = useTranslation();
   const [description, setDescription] = useState(budgetDescription);
-  const [selectedProjectId, setSelectedProjectId] = useState(projectId || "");
-
-  const handleSave = () => {
-    onSave(description, selectedProjectId || undefined);
+  const [selectedProjectId, setSelectedProjectId] = useState<string>(projectId || "none");
+  const [isSaving, setIsSaving] = useState(false);
+  
+  // Fetch projects from the API
+  const { data: projects, isLoading: isLoadingProjects } = useQuery({
+    queryKey: ["projects"],
+    queryFn: async () => {
+      const data = await projectService.getAllProjects();
+      return data;
+    },
+  });
+  
+  const handleSave = async () => {
+    if (!description) {
+      toast.warning(t('budget.descriptionRequired'));
+      return;
+    }
+    
+    setIsSaving(true);
+    toast.loading(t('budget.saving'), { id: "saving-budget" });
+    
+    try {
+      const projectIdToSave = selectedProjectId === "none" ? undefined : selectedProjectId;
+      await onSave(description, projectIdToSave);
+      toast.dismiss("saving-budget");
+      toast.success(t('budget.savedSuccessfully'));
+    } catch (error) {
+      toast.dismiss("saving-budget");
+      toast.error(t('budget.errorSaving'));
+      console.error("Error saving budget:", error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -57,18 +89,21 @@ export const BudgetHeaderWithSwappedInputs: React.FC<BudgetHeaderWithSwappedInpu
           onValueChange={setSelectedProjectId}
         >
           <SelectTrigger className="w-full md:w-[240px]">
-            <SelectValue placeholder="1 - Auchan Matosinhos" />
+            <SelectValue placeholder={t('budget.selectProject')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="1">1 - Auchan Matosinhos</SelectItem>
-            <SelectItem value="2">2 - Continente Maia</SelectItem>
-            <SelectItem value="3">3 - Pingo Doce Gondomar</SelectItem>
+            <SelectItem value="none">{t('budget.noProject')}</SelectItem>
+            {projects?.map((project) => (
+              <SelectItem key={project.id} value={project.id}>
+                {project.number} - {project.name}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
 
         {/* Description input second (swapped from original position) */}
         <Input
-          placeholder={t('budget.descriptionPlaceholder')}
+          placeholder={t('budget.enterBudgetDescription')}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           className="w-full md:w-[240px]"
@@ -94,11 +129,21 @@ export const BudgetHeaderWithSwappedInputs: React.FC<BudgetHeaderWithSwappedInpu
           <Upload className="h-4 w-4" />
         </Button>
 
-        <Button onClick={handleSave}>
+        <Button 
+          onClick={handleSave} 
+          disabled={!description || isSaving}
+        >
           <Save className="h-4 w-4 mr-2" />
-          {t('common.save')}
+          {isSaving ? t('common.saving') : t('common.save')}
         </Button>
       </div>
+      
+      {!description && (
+        <div className="flex items-center gap-2 text-yellow-600 text-sm mt-1">
+          <AlertTriangle className="h-4 w-4" />
+          {t('budget.descriptionRequired')}
+        </div>
+      )}
     </div>
   );
 };
