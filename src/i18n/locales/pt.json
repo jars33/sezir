@@ -249,7 +249,7 @@
     "companyName": "Nome da Empresa",
     "addBudgetItem": "Adicionar Item",
     "parentItem": "Item Pai",
-    "itemDescription": "Descrição do Item",
+    "itemDescription": "Descrição",
     "isCategory": "Categoria",
     "noParent": "Sem item pai (nível superior)",
     "itemCode": "Código",
