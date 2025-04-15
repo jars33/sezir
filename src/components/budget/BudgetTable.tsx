@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Table, TableHeader as UITableHeader, TableBody } from "@/components/ui/table";
@@ -58,7 +59,11 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
 
   // Handle adding a new category
   const handleAddCategory = () => {
-    setIsAddingCategory(true);
+    if (onAddCategory) {
+      onAddCategory();
+    } else {
+      setIsAddingCategory(true);
+    }
   };
 
   // Handle adding category from inline editor
@@ -89,6 +94,74 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
     }
   };
   
+  // Render the table content - empty state or items
+  const renderTableContent = () => {
+    if (items.length === 0 && !isAddingCategory) {
+      return (
+        <tr>
+          <td colSpan={5 + companies.length} className="text-center py-8">
+            {t('budget.noItemsAdded')}
+          </td>
+        </tr>
+      );
+    }
+    
+    return (
+      <>
+        {items.map((item, index) => (
+          <React.Fragment key={item.id}>
+            <BudgetItemRow
+              item={item}
+              companies={companies}
+              onUpdateItem={onUpdateItem}
+              onUpdateObservation={onUpdateObservation}
+              onDeleteItem={onDeleteItem}
+              onUpdateDescription={onUpdateDescription}
+              categoryTotals={categoryTotals[item.id]}
+              onAddItemToCategory={handleAddItemToCategory}
+              index={index}
+            />
+            {inlineAddingParentCode === item.code && (
+              <InlineItemCreation
+                key={`inline-${item.code}`}
+                parentCode={item.code}
+                companiesCount={companies.length}
+                onAddItem={handleInlineItemAdd}
+                onCancel={() => setInlineAddingParentCode(null)}
+              />
+            )}
+          </React.Fragment>
+        ))}
+
+        {isAddingCategory && (
+          <InlineItemCreation
+            key="new-category"
+            isCategory={true}
+            companiesCount={companies.length}
+            onAddItem={handleCategoryAdd}
+            onCancel={() => setIsAddingCategory(false)}
+          />
+        )}
+        <TotalsRow key="totals" items={items} companies={companies} />
+      </>
+    );
+  };
+
+  // Render the add category button
+  const renderAddCategoryButton = () => (
+    <div className="flex justify-end mt-4">
+      <Button 
+        onClick={handleAddCategory}
+        size="sm"
+        variant="outline"
+        className="flex items-center gap-2"
+      >
+        <Plus className="h-4 w-4" />
+        {t('budget.addCategory')}
+      </Button>
+    </div>
+  );
+  
   return (
     <div className="space-y-4">
       <DragDropContext onDragEnd={handleDragEnd}>
@@ -108,52 +181,8 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
                 ref={provided.innerRef}
                 {...provided.droppableProps}
               >
-                {items.length === 0 && !isAddingCategory ? (
-                  <tr>
-                    <td colSpan={5 + companies.length} className="text-center py-8">
-                      {t('budget.noItemsAdded')}
-                    </td>
-                  </tr>
-                ) : (
-                  <>
-                    {items.map((item, index) => (
-                      <React.Fragment key={item.id}>
-                        <BudgetItemRow
-                          item={item}
-                          companies={companies}
-                          onUpdateItem={onUpdateItem}
-                          onUpdateObservation={onUpdateObservation}
-                          onDeleteItem={onDeleteItem}
-                          onUpdateDescription={onUpdateDescription}
-                          categoryTotals={categoryTotals[item.id]}
-                          onAddItemToCategory={handleAddItemToCategory}
-                          index={index}
-                        />
-                        {inlineAddingParentCode === item.code && (
-                          <InlineItemCreation
-                            key={`inline-${item.code}`}
-                            parentCode={item.code}
-                            companiesCount={companies.length}
-                            onAddItem={handleInlineItemAdd}
-                            onCancel={() => setInlineAddingParentCode(null)}
-                          />
-                        )}
-                      </React.Fragment>
-                    ))}
-
-                    {isAddingCategory && (
-                      <InlineItemCreation
-                        key="new-category"
-                        isCategory={true}
-                        companiesCount={companies.length}
-                        onAddItem={handleCategoryAdd}
-                        onCancel={() => setIsAddingCategory(false)}
-                      />
-                    )}
-                    {provided.placeholder}
-                    <TotalsRow key="totals" items={items} companies={companies} />
-                  </>
-                )}
+                {renderTableContent()}
+                {provided.placeholder}
               </TableBody>
             )}
           </Droppable>
@@ -161,17 +190,7 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
       </DragDropContext>
 
       {/* Add category button below the table */}
-      <div className="flex justify-end mt-4">
-        <Button 
-          onClick={onAddCategory}
-          size="sm"
-          variant="outline"
-          className="flex items-center gap-2"
-        >
-          <Plus className="h-4 w-4" />
-          {t('budget.addCategory')}
-        </Button>
-      </div>
+      {renderAddCategoryButton()}
     </div>
   );
 };
