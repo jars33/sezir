@@ -71,8 +71,11 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
       <TableHead className="w-12 border border-border">{t('budget.itemCode')}</TableHead>
       <TableHead className="w-64 border border-border">{t('budget.itemDescription')}</TableHead>
       
-      {companies.map((company) => (
-        <TableHead key={company.id} className="w-32 border border-border bg-primary/10 text-center">
+      {companies.map((company, index) => (
+        <TableHead 
+          key={company.id} 
+          className="w-32 border border-border bg-primary/10 text-center"
+        >
           <div className="flex justify-between items-center">
             {editingCompanyId === company.id ? (
               <div className="flex items-center justify-between w-full pr-1">
@@ -114,65 +117,124 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                 >
                   {company.name || t('budget.clickToEdit')}
                 </span>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-5 w-5"
-                  onClick={() => onRemoveCompany(company.id)}
-                >
-                  <X className="h-3 w-3" />
-                </Button>
+                
+                <div className="flex items-center">
+                  {/* Add company button shown only on the last company */}
+                  {index === companies.length - 1 && (
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-5 w-5 mr-1"
+                      onClick={() => setIsAddingCompany(true)}
+                      title={t('budget.addCompany')}
+                    >
+                      <Plus className="h-3 w-3" />
+                    </Button>
+                  )}
+                  
+                  {/* Remove company button */}
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-5 w-5"
+                    onClick={() => onRemoveCompany(company.id)}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
               </>
             )}
           </div>
+          
+          {/* Show add company form inline in the last company cell when adding */}
+          {index === companies.length - 1 && isAddingCompany && (
+            <div className="absolute top-full left-0 right-0 bg-background border border-border p-2 z-10 rounded-b-md shadow-md">
+              <div className="flex items-center justify-between w-full">
+                <Input
+                  value={newCompanyName}
+                  onChange={(e) => setNewCompanyName(e.target.value)}
+                  placeholder={t('budget.companyName')}
+                  className="w-full h-6 py-0 px-1 text-xs mr-2"
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleAddNewCompany();
+                    if (e.key === 'Escape') handleCancelAddCompany();
+                  }}
+                />
+                <div className="flex gap-1">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-5 w-5"
+                    onClick={handleAddNewCompany}
+                  >
+                    <Check className="h-3 w-3" />
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-5 w-5"
+                    onClick={handleCancelAddCompany}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
         </TableHead>
       ))}
 
-      <TableHead className="w-10 border border-border bg-primary/10 text-center">
-        {isAddingCompany ? (
-          <div className="flex items-center justify-between w-full pr-1">
-            <Input
-              value={newCompanyName}
-              onChange={(e) => setNewCompanyName(e.target.value)}
-              placeholder={t('budget.companyName')}
-              className="w-full h-6 py-0 px-1 text-xs"
-              autoFocus
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleAddNewCompany();
-                if (e.key === 'Escape') handleCancelAddCompany();
-              }}
-            />
-            <div className="flex gap-1">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-5 w-5"
-                onClick={handleAddNewCompany}
-              >
-                <Check className="h-3 w-3" />
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-5 w-5"
-                onClick={handleCancelAddCompany}
-              >
-                <X className="h-3 w-3" />
-              </Button>
-            </div>
-          </div>
-        ) : (
+      {/* Show add company button in a new column if there are no companies */}
+      {companies.length === 0 && (
+        <TableHead className="w-32 border border-border bg-primary/10 text-center">
           <Button 
-            variant="ghost" 
-            size="icon" 
-            className="h-6 w-6 mx-auto"
+            variant="ghost"
+            size="sm"
+            className="w-full h-8"
             onClick={() => setIsAddingCompany(true)}
-            title={t('budget.addCompany')}
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-4 w-4 mr-1" />
+            {t('budget.addCompany')}
           </Button>
-        )}
-      </TableHead>
+          
+          {isAddingCompany && (
+            <div className="absolute top-full left-0 right-0 bg-background border border-border p-2 z-10 rounded-b-md shadow-md">
+              <div className="flex items-center justify-between w-full">
+                <Input
+                  value={newCompanyName}
+                  onChange={(e) => setNewCompanyName(e.target.value)}
+                  placeholder={t('budget.companyName')}
+                  className="w-full h-6 py-0 px-1 text-xs mr-2"
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleAddNewCompany();
+                    if (e.key === 'Escape') handleCancelAddCompany();
+                  }}
+                />
+                <div className="flex gap-1">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-5 w-5"
+                    onClick={handleAddNewCompany}
+                  >
+                    <Check className="h-3 w-3" />
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-5 w-5"
+                    onClick={handleCancelAddCompany}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </TableHead>
+      )}
 
       <TableHead className="w-28 border border-border bg-secondary/10 text-center">
         {t('budget.lowestPrice')}

@@ -58,7 +58,7 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
     if (items.length === 0) {
       return (
         <tr>
-          <td colSpan={6 + companies.length} className="text-center py-8">
+          <td colSpan={5 + companies.length} className="text-center py-8">
             {t('budget.noItemsAdded')}
           </td>
         </tr>
