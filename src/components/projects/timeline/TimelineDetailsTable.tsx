@@ -1,6 +1,7 @@
+
 import { useTranslation } from "react-i18next";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { TrendingDown, TrendingUp } from "lucide-react";
+import { TrendingDown, TrendingUp, DollarSign, Percent, BarChart3, ArrowDownCircle, ArrowUpCircle, PieChart } from "lucide-react";
 import { format, addMonths } from "date-fns";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { cn } from "@/lib/utils";
@@ -166,10 +167,11 @@ export function TimelineDetailsTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow className="bg-red-50 dark:bg-red-950/20">
-              <TableCell className="sticky left-0 z-10 bg-red-50 dark:bg-red-950/20 font-medium">
+            {/* Monthly Costs - Red */}
+            <TableRow className="bg-red-50/80 dark:bg-red-950/30 hover:bg-red-100 dark:hover:bg-red-950/40">
+              <TableCell className="sticky left-0 z-10 bg-red-50/80 dark:bg-red-950/30 font-medium">
                 <div className="flex items-center">
-                  <TrendingDown className="mr-2 h-4 w-4 text-red-500" />
+                  <ArrowDownCircle className="mr-2 h-4 w-4 text-red-500" />
                   {t('costs.monthlyCosts')}
                 </div>
               </TableCell>
@@ -186,9 +188,13 @@ export function TimelineDetailsTable({
               ))}
             </TableRow>
             
-            <TableRow className="bg-red-50/50 dark:bg-red-950/10">
-              <TableCell className="sticky left-0 z-10 bg-red-50/50 dark:bg-red-950/10 font-medium">
-                {t('costs.accumulatedCosts')}
+            {/* Accumulated Costs - Light Red */}
+            <TableRow className="bg-red-50/50 dark:bg-red-950/20 hover:bg-red-100/50 dark:hover:bg-red-950/30">
+              <TableCell className="sticky left-0 z-10 bg-red-50/50 dark:bg-red-950/20 font-medium">
+                <div className="flex items-center">
+                  <TrendingDown className="mr-2 h-4 w-4 text-red-500/80" />
+                  {t('costs.accumulatedCosts')}
+                </div>
               </TableCell>
               {monthlyData.map((data, index) => (
                 <TableCell 
@@ -203,10 +209,11 @@ export function TimelineDetailsTable({
               ))}
             </TableRow>
             
-            <TableRow className="bg-green-50 dark:bg-green-950/20">
-              <TableCell className="sticky left-0 z-10 bg-green-50 dark:bg-green-950/20 font-medium">
+            {/* Monthly Revenues - Green */}
+            <TableRow className="bg-green-50/80 dark:bg-green-950/30 hover:bg-green-100 dark:hover:bg-green-950/40">
+              <TableCell className="sticky left-0 z-10 bg-green-50/80 dark:bg-green-950/30 font-medium">
                 <div className="flex items-center">
-                  <TrendingUp className="mr-2 h-4 w-4 text-green-500" />
+                  <ArrowUpCircle className="mr-2 h-4 w-4 text-green-500" />
                   {t('costs.monthlyRevenues')}
                 </div>
               </TableCell>
@@ -223,9 +230,13 @@ export function TimelineDetailsTable({
               ))}
             </TableRow>
             
-            <TableRow className="bg-green-50/50 dark:bg-green-950/10">
-              <TableCell className="sticky left-0 z-10 bg-green-50/50 dark:bg-green-950/10 font-medium">
-                {t('costs.accumulatedRevenues')}
+            {/* Accumulated Revenues - Light Green */}
+            <TableRow className="bg-green-50/50 dark:bg-green-950/20 hover:bg-green-100/50 dark:hover:bg-green-950/30">
+              <TableCell className="sticky left-0 z-10 bg-green-50/50 dark:bg-green-950/20 font-medium">
+                <div className="flex items-center">
+                  <TrendingUp className="mr-2 h-4 w-4 text-green-500/80" />
+                  {t('costs.accumulatedRevenues')}
+                </div>
               </TableCell>
               {monthlyData.map((data, index) => (
                 <TableCell 
@@ -240,9 +251,13 @@ export function TimelineDetailsTable({
               ))}
             </TableRow>
             
-            <TableRow>
-              <TableCell className="sticky left-0 z-10 bg-white dark:bg-gray-900 font-medium">
-                {t('costs.monthlyProfit')}
+            {/* Monthly Profit - Blue */}
+            <TableRow className="bg-blue-50/70 dark:bg-blue-950/20 hover:bg-blue-100 dark:hover:bg-blue-950/30">
+              <TableCell className="sticky left-0 z-10 bg-blue-50/70 dark:bg-blue-950/20 font-medium">
+                <div className="flex items-center">
+                  <DollarSign className="mr-2 h-4 w-4 text-blue-500" />
+                  {t('costs.monthlyProfit')}
+                </div>
               </TableCell>
               {monthlyData.map((data, index) => (
                 <TableCell 
@@ -257,9 +272,13 @@ export function TimelineDetailsTable({
               ))}
             </TableRow>
             
-            <TableRow>
-              <TableCell className="sticky left-0 z-10 bg-white dark:bg-gray-900 font-medium">
-                {t('costs.monthlyProfitPercentage')}
+            {/* Monthly Profit % - Light Blue */}
+            <TableRow className="bg-blue-50/40 dark:bg-blue-950/10 hover:bg-blue-100/40 dark:hover:bg-blue-950/20">
+              <TableCell className="sticky left-0 z-10 bg-blue-50/40 dark:bg-blue-950/10 font-medium">
+                <div className="flex items-center">
+                  <Percent className="mr-2 h-4 w-4 text-blue-500/80" />
+                  {t('costs.monthlyProfitPercentage')}
+                </div>
               </TableCell>
               {monthlyData.map((data, index) => (
                 <TableCell 
@@ -274,9 +293,13 @@ export function TimelineDetailsTable({
               ))}
             </TableRow>
             
-            <TableRow className="bg-slate-50 dark:bg-slate-900/30">
-              <TableCell className="sticky left-0 z-10 bg-slate-50 dark:bg-slate-900/30 font-medium">
-                {t('costs.accumulatedProfit')}
+            {/* Accumulated Profit - Purple */}
+            <TableRow className="bg-purple-50/70 dark:bg-purple-950/20 hover:bg-purple-100 dark:hover:bg-purple-950/30">
+              <TableCell className="sticky left-0 z-10 bg-purple-50/70 dark:bg-purple-950/20 font-medium">
+                <div className="flex items-center">
+                  <BarChart3 className="mr-2 h-4 w-4 text-purple-500" />
+                  {t('costs.accumulatedProfit')}
+                </div>
               </TableCell>
               {monthlyData.map((data, index) => (
                 <TableCell 
@@ -291,9 +314,13 @@ export function TimelineDetailsTable({
               ))}
             </TableRow>
             
-            <TableRow className="bg-slate-50 dark:bg-slate-900/30">
-              <TableCell className="sticky left-0 z-10 bg-slate-50 dark:bg-slate-900/30 font-medium">
-                {t('costs.accumulatedProfitPercentage')}
+            {/* Accumulated Profit % - Light Purple */}
+            <TableRow className="bg-purple-50/40 dark:bg-purple-950/10 hover:bg-purple-100/40 dark:hover:bg-purple-950/20">
+              <TableCell className="sticky left-0 z-10 bg-purple-50/40 dark:bg-purple-950/10 font-medium">
+                <div className="flex items-center">
+                  <PieChart className="mr-2 h-4 w-4 text-purple-500/80" />
+                  {t('costs.accumulatedProfitPercentage')}
+                </div>
               </TableCell>
               {monthlyData.map((data, index) => (
                 <TableCell 
