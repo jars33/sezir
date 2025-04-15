@@ -1,3 +1,4 @@
+
 import { useCallback, useMemo, useRef, useState } from "react"
 import { format, addMonths } from "date-fns"
 import { TimelineMonth } from "../TimelineMonth"
@@ -6,6 +7,7 @@ import { useProjectSettings } from "@/hooks/use-project-settings"
 import { useTranslation } from "react-i18next"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
+import { TimelineDetailsTable } from "../TimelineDetailsTable"
 
 interface TimelineMonthsGridProps {
   startDate: Date
@@ -93,7 +95,7 @@ export function TimelineMonthsGrid({
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-4">
       <div 
         className="overflow-auto w-full" 
         ref={containerRef}
@@ -140,6 +142,19 @@ export function TimelineMonthsGrid({
             })}
           </div>
         </div>
+      </div>
+      
+      {/* Add the Timeline Details Table */}
+      <div className="mt-6">
+        <h3 className="text-lg font-medium mb-2">{t('costs.detailedBreakdown')}</h3>
+        <TimelineDetailsTable
+          startDate={startDate}
+          revenues={revenues}
+          variableCosts={variableCosts}
+          allocations={allocations}
+          calculateAccumulatedProfitUpToMonth={calculateAccumulatedProfitUpToMonth}
+          year={year}
+        />
       </div>
     </div>
   )
