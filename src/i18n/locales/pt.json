@@ -35,6 +35,7 @@
     "description": "Descrição",
     "createdAt": "Data de Criação",
     "actions": "Ações",
+    "total": "Total",
     "noResultsFound": "Nenhum resultado encontrado",
     "change": "Alterar",
     "months": {
