@@ -1,7 +1,5 @@
 
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 interface ItemDescriptionCellProps {
@@ -58,51 +56,44 @@ export const ItemDescriptionCell: React.FC<ItemDescriptionCellProps> = ({
           onBlur={handleUpdate}
           onKeyDown={handleKeyDown}
         />
-        <Button variant="ghost" size="sm" onClick={() => {
-          setIsEditing(false);
-          setValue(description);
-        }}>
+        <button 
+          onClick={() => {
+            setIsEditing(false);
+            setValue(description);
+          }}
+          className="text-sm text-gray-500"
+        >
           {t('common.cancel')}
-        </Button>
+        </button>
       </div>
     );
   }
 
   return (
     <div className="flex items-center justify-between">
-      <span className={`${isCategory ? "font-medium" : ""} truncate`}>
+      <span 
+        onClick={() => setIsEditing(true)}
+        className={`${isCategory ? "font-medium" : ""} truncate cursor-pointer hover:bg-gray-100 px-1 rounded`}
+      >
         {description}
       </span>
       <div className="flex gap-1">
         {isCategory && onAddItem && parentCode && (
-          <Button 
-            variant="ghost" 
-            size="sm" 
+          <button 
             onClick={handleAddItem}
             className="h-6 w-6 p-0"
             title={t('budget.addItemToCategory')}
           >
-            <Plus className="h-3 w-3" />
-          </Button>
+            +
+          </button>
         )}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setIsEditing(true)}
-          className="h-6 w-6 p-0"
-          title={t('common.edit')}
-        >
-          <Pencil className="h-3 w-3" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
+        <button
           onClick={onDelete}
           className="h-6 w-6 p-0"
           title={t('common.delete')}
         >
-          <Trash2 className="h-3 w-3" />
-        </Button>
+          ×
+        </button>
       </div>
     </div>
   );
