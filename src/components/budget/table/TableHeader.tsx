@@ -82,7 +82,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                 <Input
                   value={editingCompanyName}
                   onChange={(e) => setEditingCompanyName(e.target.value)}
-                  className="w-full h-6 py-0 px-1 text-xs"
+                  className="w-full h-6 py-0 px-1 text-xs bg-white text-foreground" /* Fixed styling */
                   autoFocus
                   placeholder={t('budget.companyName')}
                   onKeyDown={(e) => {
@@ -154,7 +154,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                   value={newCompanyName}
                   onChange={(e) => setNewCompanyName(e.target.value)}
                   placeholder={t('budget.companyName')}
-                  className="w-full h-6 py-0 px-1 text-xs mr-2"
+                  className="w-full h-6 py-0 px-1 text-xs mr-2 bg-white text-foreground" /* Fixed styling */
                   autoFocus
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') handleAddNewCompany();
@@ -205,7 +205,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                   value={newCompanyName}
                   onChange={(e) => setNewCompanyName(e.target.value)}
                   placeholder={t('budget.companyName')}
-                  className="w-full h-6 py-0 px-1 text-xs mr-2"
+                  className="w-full h-6 py-0 px-1 text-xs mr-2 bg-white text-foreground" /* Fixed styling */
                   autoFocus
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') handleAddNewCompany();
