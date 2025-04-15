@@ -82,7 +82,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                 <Input
                   value={editingCompanyName}
                   onChange={(e) => setEditingCompanyName(e.target.value)}
-                  className="w-full h-6 py-0 px-1 text-xs bg-white text-foreground" /* Fixed styling */
+                  className="w-full h-8 py-0 px-2 text-sm bg-white text-foreground" /* Increased width and height */
                   autoFocus
                   placeholder={t('budget.companyName')}
                   onKeyDown={(e) => {
