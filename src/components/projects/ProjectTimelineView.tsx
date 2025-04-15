@@ -45,7 +45,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
   } = useTimelineState()
 
   // Calculate timeline data
-  const { totalProfit } = useTimelineCalculations(
+  const { totalProfit, totalRevenues } = useTimelineCalculations(
     revenues,
     variableCosts,
     allocations,
@@ -81,6 +81,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
         onPreviousYear={handlePreviousYear}
         onNextYear={handleNextYear}
         totalProfit={totalProfit}
+        totalRevenues={totalRevenues}
         startDate={startDate}
       />
       <CardContent className="space-y-6">

@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { TimelineHeader } from "./TimelineHeader"
@@ -37,7 +36,7 @@ export function TimelineView({ projectId }: TimelineViewProps) {
 
   const { revenues, variableCosts, allocations, isLoading, refetchTimelineData } = useTimelineData(projectId)
 
-  const { totalProfit: totalProfitCalc } = useTimelineCalculations(
+  const { totalProfit: totalProfitCalc, totalRevenues } = useTimelineCalculations(
     revenues,
     variableCosts,
     allocations,
@@ -70,7 +69,6 @@ export function TimelineView({ projectId }: TimelineViewProps) {
   }
 
   const handleRevenueSeleсtion = (revenue: TimelineItem) => {
-    // Check if revenue has the isNew property and it's true
     if (revenue.isNew === true) {
       setAddRevenueDate(new Date(revenue.month))
     } else {
@@ -97,6 +95,7 @@ export function TimelineView({ projectId }: TimelineViewProps) {
         onPreviousYear={handlePreviousYear}
         onNextYear={handleNextYear}
         totalProfit={totalProfitCalc}
+        totalRevenues={totalRevenues}
         startDate={startDate}
       />
       <CardContent className="space-y-6">

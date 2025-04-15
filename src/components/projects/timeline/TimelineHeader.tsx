@@ -13,6 +13,7 @@ interface TimelineHeaderProps {
   onPreviousYear: () => void
   onNextYear: () => void
   totalProfit: number
+  totalRevenues: number // Added totalRevenues prop
   startDate: Date
 }
 
@@ -23,10 +24,16 @@ export function TimelineHeader({
   onPreviousYear,
   onNextYear,
   totalProfit,
+  totalRevenues, // Use the new prop
   startDate,
 }: TimelineHeaderProps) {
   const { t } = useTranslation();
   const [showDecimals] = useLocalStorage<boolean>("showDecimals", true)
+
+  // Calculate the rentability percentage only if there are revenues
+  const rentabilityPercentage = totalRevenues > 0 
+    ? (totalProfit / totalRevenues) * 100
+    : 0;
 
   const formatAmount = (amount: number) => {
     return showDecimals ? amount.toFixed(2) : Math.round(amount).toString()
@@ -50,6 +57,11 @@ export function TimelineHeader({
                 minimumFractionDigits: showDecimals ? 2 : 0, 
                 maximumFractionDigits: showDecimals ? 2 : 0 
               })}
+              {totalRevenues > 0 && (
+                <span className="ml-2 text-sm">
+                  ({rentabilityPercentage.toFixed(1)}%)
+                </span>
+              )}
             </div>
           </div>
         </div>
