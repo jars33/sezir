@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { BudgetComparisonItem, Company, BudgetComparison } from "@/types/budget";
 import { toast } from "sonner";

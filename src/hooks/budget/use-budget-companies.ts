@@ -1,33 +1,31 @@
 
 import { useState } from "react";
 import { Company } from "@/types/budget";
-import { v4 as uuidv4 } from "uuid";
 
 export function useBudgetCompanies(initialCompanies: Company[] = []) {
   const [companies, setCompanies] = useState<Company[]>(initialCompanies);
   
   const addCompany = (name: string) => {
     const newCompany: Company = {
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       name
     };
-    
-    setCompanies(prev => [...prev, newCompany]);
+    setCompanies(prevCompanies => [...prevCompanies, newCompany]);
   };
   
-  const removeCompany = (id: string) => {
-    // Remove protection for the last company - allow removing all companies
-    setCompanies(prev => prev.filter(company => company.id !== id));
+  const removeCompany = (companyId: string) => {
+    setCompanies(prevCompanies => prevCompanies.filter(company => company.id !== companyId));
   };
-
-  const updateCompanyName = (id: string, name: string) => {
-    setCompanies(prev => 
-      prev.map(company => 
-        company.id === id 
-          ? { ...company, name } 
-          : company
-      )
-    );
+  
+  const updateCompanyName = (companyId: string, name: string) => {
+    setCompanies(prevCompanies => {
+      return prevCompanies.map(company => {
+        if (company.id === companyId) {
+          return { ...company, name };
+        }
+        return company;
+      });
+    });
   };
   
   return {
@@ -35,6 +33,6 @@ export function useBudgetCompanies(initialCompanies: Company[] = []) {
     setCompanies,
     addCompany,
     removeCompany,
-    updateCompanyName
+    updateCompanyName: updateCompanyName
   };
 }

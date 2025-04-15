@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
-import { BudgetComparisonData } from "@/services/supabase/budget-utils/types";
 import { BudgetComparison } from "@/types/budget";
+import { BudgetComparisonData } from "@/services/supabase/budget-utils/types";
 import { budgetDataService } from "@/services/supabase/budget-data-service";
 import { budgetSaveService } from "@/services/supabase/budget-save-service";
 import { budgetCompaniesService } from "@/services/supabase/budget-companies-service";
