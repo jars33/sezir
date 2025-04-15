@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams, useNavigate } from "react-router-dom";
@@ -7,11 +6,13 @@ import { BudgetList } from "@/components/budget/BudgetList";
 import { BudgetDetails } from "@/components/budget/BudgetDetails";
 import { toast } from "sonner";
 import { budgetComparisonService } from "@/services/supabase/budget-comparison-service";
+import { Loader2, Check, X } from "lucide-react";
 
 const BudgetComparison = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { id: projectId } = useParams();
+  const [isSaving, setIsSaving] = useState(false);
   const { 
     budgetItems, 
     companies, 
@@ -41,21 +42,48 @@ const BudgetComparison = () => {
   
   const handleCreateNew = () => {
     setShowNewBudget(true);
-    // Reset current budget ID when creating a new budget
     setCurrentBudgetId(undefined);
   };
   
   const handleSave = async (description: string, selectedProjectId?: string) => {
-    // If 'none' is selected, set to undefined
     const projectIdToSave = selectedProjectId === 'none' ? undefined : selectedProjectId;
     
-    const budgetId = await saveBudget(description, projectIdToSave);
-    if (budgetId) {
-      setShowNewBudget(false);
-      setCurrentBudgetId(budgetId);
-      toast.success(t('budget.budgetSaved'));
-    } else {
-      toast.error(t('budget.errorSavingBudget'));
+    if (isSaving) return;
+    
+    setIsSaving(true);
+    
+    const toastId = toast.loading(t('budget.saving'), {
+      description: t('budget.pleasewait'),
+      icon: <Loader2 className="h-4 w-4 animate-spin" />
+    });
+    
+    try {
+      const budgetId = await saveBudget(description, projectIdToSave);
+      
+      if (budgetId) {
+        toast.dismiss(toastId);
+        toast.success(t('budget.budgetSaved'), {
+          description: description,
+          icon: <Check className="h-4 w-4" />
+        });
+        
+        setShowNewBudget(false);
+        setCurrentBudgetId(budgetId);
+      } else {
+        toast.dismiss(toastId);
+        toast.error(t('budget.errorSavingBudget'), {
+          description: t('budget.pleaseTryAgain'),
+          icon: <X className="h-4 w-4" />
+        });
+      }
+    } catch (error) {
+      toast.dismiss(toastId);
+      toast.error(t('budget.errorSavingBudget'), {
+        description: error instanceof Error ? error.message : t('budget.unknownError'),
+        icon: <X className="h-4 w-4" />
+      });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -82,13 +110,11 @@ const BudgetComparison = () => {
   };
   
   const handleExportToCSV = () => {
-    // CSV export functionality would be implemented here
     console.log("Exporting to CSV...");
     toast.success(t('common.exported'));
   };
 
   const handleImportFromCSV = () => {
-    // CSV import functionality would be implemented here
     console.log("Importing from CSV...");
     toast.info(t('common.importing'));
   };
@@ -97,10 +123,8 @@ const BudgetComparison = () => {
     try {
       const success = await budgetComparisonService.deleteBudgetComparison(budgetId);
       if (success) {
-        // Update the budgets list by removing the deleted budget
         setBudgets(currentBudgets => currentBudgets.filter(b => b.id !== budgetId));
         
-        // If the currently selected budget is the one being deleted, reset it
         if (currentBudgetId === budgetId) {
           setCurrentBudgetId(undefined);
         }
@@ -115,24 +139,20 @@ const BudgetComparison = () => {
     }
   };
   
-  // Calculate category totals
   const calculateCategoryTotals = () => {
     const categoryTotals: Record<string, Record<string, number>> = {};
     
-    // Get all categories
     const categories = budgetItems.filter(item => item.isCategory);
     
     categories.forEach(category => {
       const childPrefix = category.code + ".";
       
-      // Find all direct children of this category that aren't categories themselves
       const directChildren = budgetItems.filter(item => 
         !item.isCategory && 
         item.code.startsWith(childPrefix) &&
         !item.code.substring(childPrefix.length).includes(".")
       );
       
-      // Calculate totals per company for this category
       const totals: Record<string, number> = {};
       
       directChildren.forEach(child => {
@@ -149,7 +169,6 @@ const BudgetComparison = () => {
   
   const categoryTotals = calculateCategoryTotals();
 
-  // Show list if no budget is selected or creating a new one
   if (!showNewBudget && !currentBudgetId) {
     return (
       <div className="container mx-auto py-6 space-y-6">
@@ -165,7 +184,6 @@ const BudgetComparison = () => {
     );
   }
 
-  // Show details for selected budget or new budget
   return (
     <div className="container mx-auto py-6 space-y-6">
       <BudgetDetails 
