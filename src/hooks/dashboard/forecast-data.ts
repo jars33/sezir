@@ -25,9 +25,9 @@ export function generateForecastData(
     const monthStr = month.toISOString().substr(0, 7) // YYYY-MM
     
     let actualRevenue = 0
-    let variableCosts = 0
+    let monthlySalaryCosts = 0
+    let monthlyVariableCosts = 0
     let explicitOverheadCosts = 0
-    let salaryCosts = 0
     
     // Calculate actuals for the month
     projectRevenues?.forEach(rev => {
@@ -36,26 +36,35 @@ export function generateForecastData(
       }
     })
     
-    variableCosts?.forEach(cost => {
-      if (cost && cost.month && cost.month.startsWith(monthStr)) {
-        variableCosts += Number(cost.amount || 0)
-      }
-    })
+    // Fix: Ensure variableCosts is an array before using forEach
+    if (Array.isArray(variableCosts)) {
+      variableCosts.forEach(cost => {
+        if (cost && cost.month && cost.month.startsWith(monthStr)) {
+          monthlyVariableCosts += Number(cost.amount || 0)
+        }
+      })
+    }
     
-    overheadCosts?.forEach(cost => {
-      if (cost && cost.month && cost.month.startsWith(monthStr)) {
-        explicitOverheadCosts += Number(cost.amount || 0)
-      }
-    })
+    // Fix: Ensure overheadCosts is an array before using forEach
+    if (Array.isArray(overheadCosts)) {
+      overheadCosts.forEach(cost => {
+        if (cost && cost.month && cost.month.startsWith(monthStr)) {
+          explicitOverheadCosts += Number(cost.amount || 0)
+        }
+      })
+    }
     
-    allocations?.forEach(allocation => {
-      if (allocation && allocation.month && allocation.month.startsWith(monthStr) && allocation.salary_cost) {
-        salaryCosts += Number(allocation.salary_cost || 0)
-      }
-    })
+    // Fix: Ensure allocations is an array before using forEach
+    if (Array.isArray(allocations)) {
+      allocations.forEach(allocation => {
+        if (allocation && allocation.month && allocation.month.startsWith(monthStr) && allocation.salary_cost) {
+          monthlySalaryCosts += Number(allocation.salary_cost || 0)
+        }
+      })
+    }
     
     // Calculate base costs (variable + salary costs)
-    const baseCosts = variableCosts + salaryCosts
+    const baseCosts = monthlyVariableCosts + monthlySalaryCosts
     
     // In forecast view, we include explicit overhead costs only, not calculated from percentage
     // as the focus is on actual recorded costs
