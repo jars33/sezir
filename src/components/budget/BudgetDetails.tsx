@@ -71,6 +71,9 @@ export const BudgetDetails: React.FC<BudgetDetailsProps> = ({
         isNew={isNew}
         budgetDescription={budgetDescription}
         projectId={projectId}
+        // The BudgetHeader component will need to swap the order of rendering
+        // the input fields for description and company dropdown
+        swapInputOrder={true}
       />
 
       <Card>
