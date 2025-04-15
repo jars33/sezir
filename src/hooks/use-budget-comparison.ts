@@ -40,17 +40,23 @@ export function useBudgetComparison(projectId?: string) {
     updateCompanyName: updateCompanyNameInDatabase
   } = useBudgetData(projectId);
   
-  // Initialize with empty arrays for new budget
+  // Initialize with empty company for new budget
   useEffect(() => {
     if (!currentBudgetId && companies.length === 0) {
-      // Start with empty companies and items lists
-      setCompanies([]);
+      // Initialize with an empty company
+      setCompanies(createSampleCompanies());
       setBudgetItems([]);
     }
   }, [currentBudgetId, companies.length]);
   
   // Handle company removal - also need to remove company prices from items
   const handleRemoveCompany = (companyId: string) => {
+    // Ensure we don't remove the last company
+    if (companies.length <= 1) {
+      toast.warning(t('budget.cantRemoveLastCompany'));
+      return;
+    }
+    
     removeCompany(companyId);
     updateItemsForCompanyRemoval(companyId);
   };

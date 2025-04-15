@@ -26,6 +26,15 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   const [newCompanyName, setNewCompanyName] = useState<string>("");
   const [isAddingCompany, setIsAddingCompany] = useState<boolean>(false);
   
+  // Automatically enter edit mode for empty company names
+  React.useEffect(() => {
+    const emptyCompany = companies.find(company => company.name === "");
+    if (emptyCompany && onUpdateCompanyName) {
+      setEditingCompanyId(emptyCompany.id);
+      setEditingCompanyName("");
+    }
+  }, [companies]);
+  
   const handleEditCompanyName = (companyId: string, currentName: string) => {
     if (onUpdateCompanyName) {
       setEditingCompanyId(companyId);
@@ -72,6 +81,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                   onChange={(e) => setEditingCompanyName(e.target.value)}
                   className="w-full h-6 py-0 px-1 text-xs"
                   autoFocus
+                  placeholder={t('budget.companyName')}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') handleSaveCompanyName(company.id);
                     if (e.key === 'Escape') handleCancelCompanyEdit();
@@ -102,7 +112,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                   className="flex-grow cursor-pointer"
                   onClick={() => onUpdateCompanyName && handleEditCompanyName(company.id, company.name)}
                 >
-                  {company.name}
+                  {company.name || t('budget.clickToEdit')}
                 </span>
                 <Button 
                   variant="ghost" 

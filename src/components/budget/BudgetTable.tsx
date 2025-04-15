@@ -3,8 +3,6 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { Table, TableHeader as UITableHeader, TableBody } from "@/components/ui/table";
 import { BudgetComparisonItem, Company } from "@/types/budget";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
 import { TableHeader as BudgetTableHeader } from "./table/TableHeader";
 import { BudgetItemRow } from "./table/BudgetItemRow";
 import { TotalsRow } from "./table/TotalsRow";
@@ -36,17 +34,6 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
   onAddCompany
 }) => {
   const { t } = useTranslation();
-  
-  if (companies.length === 0) {
-    return (
-      <Alert>
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>
-          {t('budget.noCompaniesAdded')}
-        </AlertDescription>
-      </Alert>
-    );
-  }
   
   return (
     <Table className="min-w-full border-collapse">
