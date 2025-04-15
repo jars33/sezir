@@ -8,6 +8,7 @@ import { BudgetComparisonView } from "@/components/budget/budget-comparison/Budg
 import { useSaveBudgetHandler } from "@/components/budget/budget-comparison/SaveBudgetHandler";
 import { useCategoryTotals } from "@/components/budget/budget-comparison/useCategoryTotals";
 import { toast } from "sonner";
+import { BudgetComparisonItem } from "@/types/budget";
 
 const BudgetComparison = () => {
   const navigate = useNavigate();
@@ -31,7 +32,8 @@ const BudgetComparison = () => {
     loadBudget,
     setCurrentBudgetId,
     updateBudgetProject,
-    setBudgets
+    setBudgets,
+    setBudgetItems
   } = useBudgetComparison(projectId);
 
   const categoryTotals = useCategoryTotals(budgetItems);
@@ -82,6 +84,11 @@ const BudgetComparison = () => {
     }
   };
 
+  const handleReorderItems = (reorderedItems: BudgetComparisonItem[]) => {
+    setBudgetItems(reorderedItems);
+    toast.success("Items reordered successfully");
+  };
+
   if (!showNewBudget && !currentBudgetId) {
     return (
       <BudgetComparisonListView
@@ -112,6 +119,7 @@ const BudgetComparison = () => {
       onDeleteBudgetItem={deleteBudgetItem}
       onSave={handleSave}
       onUpdateProject={updateBudgetProject}
+      onReorderItems={handleReorderItems}
     />
   );
 };

@@ -21,6 +21,7 @@ interface BudgetDetailsProps {
   onSave: (description: string, projectId?: string) => void;
   onExport: () => void;
   onImport: () => void;
+  onReorderItems?: (reorderedItems: BudgetComparisonItem[]) => void;
   isNew?: boolean;
   budgetDescription?: string;
   projectId?: string;
@@ -42,6 +43,7 @@ export const BudgetDetails: React.FC<BudgetDetailsProps> = ({
   onSave,
   onExport,
   onImport,
+  onReorderItems,
   isNew = true,
   budgetDescription = "",
   projectId,
@@ -86,6 +88,7 @@ export const BudgetDetails: React.FC<BudgetDetailsProps> = ({
               onRemoveCompany={onRemoveCompany}
               onDeleteItem={onDeleteItem}
               onAddCompany={onAddCompany}
+              onReorderItems={onReorderItems}
             />
           </div>
         </CardContent>

@@ -134,6 +134,7 @@ export function useBudgetComparison(projectId?: string) {
     loadBudget,
     setCurrentBudgetId,
     updateBudgetProject,
-    setBudgets
+    setBudgets,
+    setBudgetItems
   };
 }

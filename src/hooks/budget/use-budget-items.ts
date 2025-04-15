@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { BudgetComparisonItem } from "@/types/budget";
 import { recalculateItemCodes } from "@/components/budget/table/categoryCalculations";
@@ -102,35 +103,6 @@ export function useBudgetItems(initialItems: BudgetComparisonItem[] = []) {
       // Recalculate item codes after deletion
       return recalculateItemCodes(itemsToKeep);
     });
-  };
-  
-  // Helper function to generate a new code based on parent code
-  const generateNewCode = (parentCode: string | null, items: BudgetComparisonItem[]): string => {
-    if (!parentCode) {
-      // Generate a top-level code (e.g., 1, 2, 3)
-      const topLevelCodes = items
-        .filter(item => !item.code.includes('.'))
-        .map(item => parseInt(item.code, 10))
-        .filter(code => !isNaN(code));
-      
-      const maxCode = topLevelCodes.length > 0 ? Math.max(...topLevelCodes) : 0;
-      return (maxCode + 1).toString();
-    } else {
-      // Generate a child code (e.g., 1.1, 1.2, 1.3)
-      const childCodes = items
-        .filter(item => 
-          item.code.startsWith(parentCode + '.') && 
-          !item.code.substring(parentCode.length + 1).includes('.')
-        )
-        .map(item => {
-          const subCode = item.code.substring(parentCode.length + 1);
-          return parseInt(subCode, 10);
-        })
-        .filter(code => !isNaN(code));
-      
-      const maxChildCode = childCodes.length > 0 ? Math.max(...childCodes) : 0;
-      return `${parentCode}.${maxChildCode + 1}`;
-    }
   };
   
   return {
