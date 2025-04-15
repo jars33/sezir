@@ -138,6 +138,7 @@
       "edit": "Edit Team Member Allocation",
       "description": "Add allocation for a single month or a period",
       "period": "Period",
+      "project": "Project",
       "month": "Month",
       "startMonth": "Start Month",
       "endMonth": "End Month",
