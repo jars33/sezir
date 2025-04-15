@@ -91,10 +91,10 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
     const [removed] = reorderedItems.splice(source.index, 1);
     reorderedItems.splice(destination.index, 0, removed);
     
-    // Update item codes based on their new order
+    // Always recalculate item codes after reordering
     const updatedItems = recalculateItemCodes(reorderedItems);
     
-    // Pass the reordered items back to parent
+    // Pass the reordered and recalculated items back to parent
     if (onReorderItems) {
       onReorderItems(updatedItems);
     }

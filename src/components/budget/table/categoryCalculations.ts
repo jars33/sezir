@@ -1,5 +1,4 @@
 
-
 export interface CategoryTotals {
   [categoryId: string]: {
     [companyId: string]: number;
@@ -109,6 +108,35 @@ export function recalculateItemCodes(items: any[]): any[] {
         };
       }
     }
+  });
+  
+  // Third pass: ensure sub-items are properly numbered within each category
+  const categories = updatedItems.filter(item => item.isCategory);
+  categories.forEach(category => {
+    // Find all direct children of this category
+    const children = updatedItems.filter(item => {
+      if (item.isCategory) return false;
+      const [parent, subCode] = item.code.split('.');
+      return parent === category.code && subCode && !subCode.includes('.');
+    });
+    
+    // Sort children by their current sub-code
+    children.sort((a, b) => {
+      const [, aSubCode] = a.code.split('.');
+      const [, bSubCode] = b.code.split('.');
+      return parseInt(aSubCode) - parseInt(bSubCode);
+    });
+    
+    // Renumber the children sequentially
+    children.forEach((child, childIndex) => {
+      const itemIndex = updatedItems.findIndex(i => i.id === child.id);
+      if (itemIndex !== -1) {
+        updatedItems[itemIndex] = {
+          ...updatedItems[itemIndex],
+          code: `${category.code}.${childIndex + 1}`
+        };
+      }
+    });
   });
   
   return updatedItems;

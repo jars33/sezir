@@ -148,7 +148,7 @@ export function useBudgetItems(initialItems: BudgetComparisonItem[] = []) {
         itemsToKeep = itemsToKeep.filter(item => !item.code.startsWith(categoryPrefix));
       }
       
-      // Recalculate item codes after deletion
+      // Always recalculate item codes after deletion
       return recalculateItemCodes(itemsToKeep);
     });
   };
