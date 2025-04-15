@@ -3,6 +3,7 @@ import { format, getYear, getQuarter, startOfYear, endOfYear } from "date-fns"
 import { Card } from "@/components/ui/card"
 import { useProjectSettings } from "@/hooks/use-project-settings"
 import { useMemo } from "react"
+import { useLocalStorage } from "@/hooks/use-local-storage"
 
 interface TimelineItem {
   id: string
@@ -33,19 +34,8 @@ export function TimelineSummary({
   allocations,
 }: TimelineSummaryProps) {
   const { getOverheadPercentage } = useProjectSettings()
-  
-  const showDecimals = useMemo(() => {
-    try {
-      if (typeof window !== 'undefined') {
-        const item = window.localStorage.getItem("showDecimals")
-        return item ? JSON.parse(item) : true
-      }
-      return true
-    } catch (error) {
-      console.error("Error reading showDecimals from localStorage:", error)
-      return true
-    }
-  }, [])
+  // Use useLocalStorage hook directly for consistency
+  const [showDecimals] = useLocalStorage<boolean>("showDecimals", true)
   
   const calculateProfit = (items: any[], startDate: Date, endDate: Date) => {
     const filteredRevenues = revenues.filter(

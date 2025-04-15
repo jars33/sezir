@@ -12,20 +12,8 @@ export function useTimelineProfitability(
   year: number
 ) {
   const { getOverheadPercentage } = useProjectSettings()
-  // Use useMemo to conditionally access localStorage only when component is mounted
-  const showDecimalsValue = useMemo(() => {
-    try {
-      // Safe way to access localStorage that won't cause React initialization errors
-      if (typeof window !== 'undefined') {
-        const storedValue = window.localStorage.getItem("showDecimals")
-        return storedValue ? JSON.parse(storedValue) : true
-      }
-      return true
-    } catch (error) {
-      console.error("Error reading from localStorage:", error)
-      return true
-    }
-  }, [])
+  // Use useLocalStorage hook directly instead of manually accessing localStorage
+  const [showDecimalsValue] = useLocalStorage<boolean>("showDecimals", true)
   
   // Calculate accumulated profit up to a specific month
   const calculateAccumulatedProfitUpToMonth = useCallback((targetMonth: Date) => {

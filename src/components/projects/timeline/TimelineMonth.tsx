@@ -167,14 +167,12 @@ export function TimelineMonth({
             {formatCurrency(-cost.amount)}
           </div>
           <div className="truncate">
-            {cost.description || `${cost.percentage}% overhead`}
+            {cost.description || `${showDecimals ? cost.percentage.toFixed(1) : Math.round(cost.percentage)}% overhead`}
           </div>
         </div>
       ))}
 
       <div className="flex-grow"></div>
-      
-      {/* Removed the profit lines here */}
     </div>
   )
 }

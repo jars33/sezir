@@ -1,3 +1,4 @@
+
 import { useTranslation } from "react-i18next";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TrendingDown, TrendingUp } from "lucide-react";
