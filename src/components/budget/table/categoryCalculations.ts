@@ -1,3 +1,4 @@
+
 export interface CategoryTotals {
   [categoryId: string]: {
     [companyId: string]: number;
@@ -57,45 +58,47 @@ export function calculateCategoryTotals(
 }
 
 /**
- * Recalculate item codes when items are deleted or reordered
+ * Recalculate item codes when items are deleted, added or reordered
  */
 export function recalculateItemCodes(items: any[]): any[] {
-  // First, identify all top-level items
+  if (items.length === 0) return items;
+  
+  // First, identify all top-level items (categories)
   const topLevelItems = items.filter(item => !item.code.includes('.'));
   
-  // Sort top-level items by their index in the array
-  // This preserves the order after dragging
+  // Sort top-level items by their current order in the array
+  // This ensures we preserve the order after dragging
   const sortedTopLevelItems = [...topLevelItems].sort((a, b) => {
     const aIndex = items.findIndex(item => item.id === a.id);
     const bIndex = items.findIndex(item => item.id === b.id);
     return aIndex - bIndex;
   });
   
-  // Assign sequential codes to top-level items
-  let currentTopCode = 1;
-  const updatedItems = [...items]; // Clone to avoid mutating the original
-  const codeMap = new Map(); // Map to track old code -> new code
+  // Clone the items array to avoid mutating the original
+  const updatedItems = [...items];
   
-  // First pass: update top-level codes and build the mapping
+  // Map to track old code -> new code mappings
+  const codeMap = new Map();
+  
+  // First pass: update top-level codes to sequential numbers
+  let currentTopCode = 1;
   sortedTopLevelItems.forEach(item => {
     const oldCode = item.code;
     const newCode = String(currentTopCode);
     
-    // Update the item's code
-    const itemIndex = updatedItems.findIndex(i => i.id === item.id);
-    if (itemIndex !== -1) {
-      updatedItems[itemIndex] = { 
-        ...updatedItems[itemIndex], 
-        code: newCode 
-      };
-    }
-    
     // Store mapping for children updates
     codeMap.set(oldCode, newCode);
+    
+    // Update the item's code in the updatedItems array
+    const itemIndex = updatedItems.findIndex(i => i.id === item.id);
+    if (itemIndex !== -1) {
+      updatedItems[itemIndex] = { ...updatedItems[itemIndex], code: newCode };
+    }
+    
     currentTopCode++;
   });
   
-  // Second pass: update all child items using the code map
+  // Second pass: update all child items using the code mappings
   updatedItems.forEach((item, index) => {
     if (item.code.includes('.')) {
       const [parentCode, ...rest] = item.code.split('.');
@@ -111,17 +114,19 @@ export function recalculateItemCodes(items: any[]): any[] {
   });
   
   // Third pass: ensure sub-items are properly numbered within each category
-  const categories = updatedItems.filter(item => item.isCategory);
-  categories.forEach(category => {
+  // Get the updated categories after the first pass
+  const updatedCategories = updatedItems.filter(item => item.isCategory);
+  
+  updatedCategories.forEach(category => {
     // Find all direct children of this category
     const children = updatedItems.filter(item => {
       if (item.isCategory) return false;
+      
       const [parent, subCode] = item.code.split('.');
       return parent === category.code && subCode && !subCode.includes('.');
     });
     
     // Sort children by their current order in the array
-    // This preserves the drag order within a category
     children.sort((a, b) => {
       const aIndex = updatedItems.findIndex(item => item.id === a.id);
       const bIndex = updatedItems.findIndex(item => item.id === b.id);
@@ -130,11 +135,13 @@ export function recalculateItemCodes(items: any[]): any[] {
     
     // Renumber the children sequentially
     children.forEach((child, childIndex) => {
+      const sequentialCode = `${category.code}.${childIndex + 1}`;
       const itemIndex = updatedItems.findIndex(i => i.id === child.id);
-      if (itemIndex !== -1) {
+      
+      if (itemIndex !== -1 && updatedItems[itemIndex].code !== sequentialCode) {
         updatedItems[itemIndex] = {
           ...updatedItems[itemIndex],
-          code: `${category.code}.${childIndex + 1}`
+          code: sequentialCode
         };
       }
     });
