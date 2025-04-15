@@ -6,6 +6,7 @@ import { BudgetComparisonItem, Company } from "@/types/budget";
 import { TableHeader as BudgetTableHeader } from "./table/TableHeader";
 import { BudgetItemRow } from "./table/BudgetItemRow";
 import { TotalsRow } from "./table/TotalsRow";
+import { AddItemRow } from "./table/AddItemRow";
 import { calculateCategoryTotals } from "./table/categoryCalculations";
 
 interface BudgetTableProps {
@@ -19,6 +20,7 @@ interface BudgetTableProps {
   onUpdateDescription: (itemId: string, description: string) => void;
   onUpdateCompanyName?: (companyId: string, name: string) => void;
   onAddCompany: (name: string) => void;
+  onAddBudgetItem: (parentCode: string | null, description: string, isCategory: boolean) => void;
 }
 
 export const BudgetTable: React.FC<BudgetTableProps> = ({
@@ -31,7 +33,8 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
   onDeleteItem,
   onUpdateDescription,
   onUpdateCompanyName,
-  onAddCompany
+  onAddCompany,
+  onAddBudgetItem
 }) => {
   const { t } = useTranslation();
   
@@ -73,6 +76,12 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
             )}
           </>
         )}
+        
+        <AddItemRow 
+          items={items}
+          companiesCount={companies.length}
+          onAddItem={onAddBudgetItem}
+        />
       </TableBody>
     </Table>
   );

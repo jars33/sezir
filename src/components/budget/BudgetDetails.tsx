@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -95,6 +94,7 @@ export const BudgetDetails: React.FC<BudgetDetailsProps> = ({
               onRemoveCompany={onRemoveCompany}
               onDeleteItem={onDeleteItem}
               onAddCompany={onAddCompany}
+              onAddBudgetItem={onAddBudgetItem}
             />
           </div>
         </CardContent>
