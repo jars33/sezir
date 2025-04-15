@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,6 +27,7 @@ interface BudgetDetailsProps {
   budgetDescription?: string;
   projectId?: string;
   onUpdateProject?: (projectId: string) => void;
+  onReorderItems?: (reorderedItems: BudgetComparisonItem[]) => void;
 }
 
 export const BudgetDetails: React.FC<BudgetDetailsProps> = ({
@@ -47,7 +49,8 @@ export const BudgetDetails: React.FC<BudgetDetailsProps> = ({
   isNew = true,
   budgetDescription = "",
   projectId,
-  onUpdateProject
+  onUpdateProject,
+  onReorderItems
 }) => {
   const { t } = useTranslation();
 
@@ -95,6 +98,7 @@ export const BudgetDetails: React.FC<BudgetDetailsProps> = ({
               onDeleteItem={onDeleteItem}
               onAddCompany={onAddCompany}
               onAddBudgetItem={onAddBudgetItem}
+              onReorderItems={onReorderItems}
             />
           </div>
         </CardContent>

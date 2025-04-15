@@ -26,7 +26,8 @@ export function useBudgetComparison(projectId?: string) {
     updateItemDescription,
     addBudgetItem,
     updateItemsForCompanyRemoval,
-    deleteBudgetItem
+    deleteBudgetItem,
+    reorderItems
   } = useBudgetItems([]);
   const { 
     budgets,
@@ -132,6 +133,7 @@ export function useBudgetComparison(projectId?: string) {
     updateCompanyName,
     addBudgetItem,
     deleteBudgetItem,
+    reorderItems,
     saveBudget,
     loadBudget,
     setCurrentBudgetId,

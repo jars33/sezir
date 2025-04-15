@@ -29,7 +29,9 @@ export function calculateCategoryTotals(
     
     directChildren.forEach(child => {
       Object.entries(child.prices).forEach(([companyId, price]) => {
-        totals[companyId] = (totals[companyId] || 0) + (price as number);
+        if (typeof price === 'number' && price > 0) {
+          totals[companyId] = (totals[companyId] || 0) + (price as number);
+        }
       });
     });
     
@@ -51,4 +53,77 @@ export function calculateCategoryTotals(
   });
   
   return categoryTotals;
+}
+
+// Recalculate item codes after deletion or reordering
+export function recalculateItemCodes(items: any[]): any[] {
+  // Group items by their parent code or null for top-level items
+  const itemsByParent: Record<string, any[]> = {};
+  
+  // First pass: group items by parent
+  items.forEach(item => {
+    const parentCode = item.code.includes('.') 
+      ? item.code.substring(0, item.code.lastIndexOf('.'))
+      : null;
+      
+    if (!itemsByParent[parentCode || '']) {
+      itemsByParent[parentCode || ''] = [];
+    }
+    
+    itemsByParent[parentCode || ''].push(item);
+  });
+  
+  // Second pass: recalculate codes
+  const recalculate = (parentCode: string | null): any[] => {
+    const children = itemsByParent[parentCode || ''] || [];
+    
+    // Sort children by their current code to maintain relative order
+    children.sort((a, b) => {
+      const aLastPart = a.code.includes('.')
+        ? parseInt(a.code.substring(a.code.lastIndexOf('.') + 1))
+        : parseInt(a.code);
+        
+      const bLastPart = b.code.includes('.')
+        ? parseInt(b.code.substring(b.code.lastIndexOf('.') + 1))
+        : parseInt(b.code);
+        
+      return aLastPart - bLastPart;
+    });
+    
+    // Recalculate codes
+    return children.map((item, index) => {
+      const newCode = parentCode ? `${parentCode}.${index + 1}` : `${index + 1}`;
+      
+      // Update item code
+      const updatedItem = { ...item, code: newCode };
+      
+      // If this item has children, recalculate their codes too
+      const childParentCode = item.code;
+      if (itemsByParent[childParentCode]) {
+        itemsByParent[newCode] = itemsByParent[childParentCode];
+        delete itemsByParent[childParentCode];
+      }
+      
+      return updatedItem;
+    });
+  };
+  
+  // Start with top-level items
+  const result = recalculate(null);
+  
+  // Process all levels
+  const processChildren = (items: any[]): any[] => {
+    return items.flatMap(item => {
+      const children = itemsByParent[item.code] || [];
+      
+      if (children.length > 0) {
+        const recalculatedChildren = recalculate(item.code);
+        return [item, ...processChildren(recalculatedChildren)];
+      }
+      
+      return [item];
+    });
+  };
+  
+  return processChildren(result);
 }

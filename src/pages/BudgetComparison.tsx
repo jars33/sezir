@@ -7,6 +7,7 @@ import { BudgetComparisonListView } from "@/components/budget/budget-comparison/
 import { BudgetComparisonView } from "@/components/budget/budget-comparison/BudgetComparisonView";
 import { useSaveBudgetHandler } from "@/components/budget/budget-comparison/SaveBudgetHandler";
 import { useCategoryTotals } from "@/components/budget/budget-comparison/useCategoryTotals";
+import { BudgetComparisonItem } from "@/types/budget";
 
 const BudgetComparison = () => {
   const navigate = useNavigate();
@@ -27,6 +28,7 @@ const BudgetComparison = () => {
     updateCompanyName,
     addBudgetItem,
     deleteBudgetItem,
+    reorderItems,
     saveBudget,
     loadBudget,
     setCurrentBudgetId,
@@ -82,6 +84,11 @@ const BudgetComparison = () => {
     }
   };
 
+  // Handle items reordering
+  const handleReorderItems = (reorderedItems: BudgetComparisonItem[]) => {
+    reorderItems(reorderedItems);
+  };
+
   // Determine view to show
   if (!showNewBudget && !currentBudgetId) {
     return (
@@ -114,6 +121,7 @@ const BudgetComparison = () => {
       onDeleteBudgetItem={deleteBudgetItem}
       onSave={handleSave}
       onUpdateProject={updateBudgetProject}
+      onReorderItems={handleReorderItems}
     />
   );
 };
