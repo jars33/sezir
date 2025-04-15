@@ -79,8 +79,8 @@ export const BudgetItemRow: React.FC<BudgetItemRowProps> = ({
           
           {companies.map((company, index) => {
             const price = item.prices[company.id] || 0;
-            // Alternate between light green and light red backgrounds
-            const bgColorClass = index % 2 === 0 ? "bg-green-50" : "bg-red-50";
+            // Use a soft neutral gray background
+            const bgColorClass = "bg-gray-50";
             
             if (item.isCategory && categoryTotals) {
               const categoryPrice = categoryTotals[company.id] || 0;

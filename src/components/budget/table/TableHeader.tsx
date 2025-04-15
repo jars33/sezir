@@ -78,8 +78,8 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
       </TableHead>
       
       {companies.map((company, index) => {
-        // Alternate between light green and light red backgrounds
-        const bgColorClass = index % 2 === 0 ? "bg-green-50" : "bg-red-50";
+        // Use a soft neutral gray background
+        const bgColorClass = "bg-gray-50";
         
         return (
           <TableHead 
