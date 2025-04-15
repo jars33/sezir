@@ -4,7 +4,7 @@ import { format } from "date-fns"
 import { useProjectSettings } from "@/hooks/use-project-settings"
 import type { TimelineItem, AllocationItem } from "../actions/types"
 import { useLocalStorage } from "@/hooks/use-local-storage"
-import { calculateAccumulatedProfitUpToMonth } from "@/utils/financial-calculations"
+import { calculateAccumulatedProfitUpToMonth as calculateProfit } from "@/utils/financial-calculations"
 
 export function useTimelineProfitability(
   revenues: TimelineItem[],
@@ -19,7 +19,7 @@ export function useTimelineProfitability(
   // Calculate accumulated profit up to a specific month using shared utility
   const calculateAccumulatedProfitUpToMonth = useCallback((targetMonth: Date) => {
     const overheadPercentage = getOverheadPercentage(year)
-    return calculateAccumulatedProfitUpToMonth(
+    return calculateProfit(
       targetMonth, 
       revenues, 
       variableCosts, 
