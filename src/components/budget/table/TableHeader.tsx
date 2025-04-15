@@ -4,8 +4,9 @@ import { useTranslation } from "react-i18next";
 import { TableHead, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { X, Plus, Check } from "lucide-react";
+import { X, Plus, Check, Edit2 } from "lucide-react";
 import { Company } from "@/types/budget";
+import { AddCompanyDialog } from "@/components/budget/AddCompanyDialog";
 
 interface TableHeaderProps {
   companies: Company[];
@@ -22,8 +23,6 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
 }) => {
   const { t } = useTranslation();
   const [editingCompanyId, setEditingCompanyId] = useState<string | null>(null);
-  const [editingCompanyName, setEditingCompanyName] = useState<string>("");
-  const [newCompanyName, setNewCompanyName] = useState<string>("");
   const [isAddingCompany, setIsAddingCompany] = useState<boolean>(false);
   
   // Automatically enter edit mode for empty company names
@@ -31,39 +30,20 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
     const emptyCompany = companies.find(company => company.name === "");
     if (emptyCompany && onUpdateCompanyName) {
       setEditingCompanyId(emptyCompany.id);
-      setEditingCompanyName("");
     }
-  }, [companies]);
+  }, [companies, onUpdateCompanyName]);
   
   const handleEditCompanyName = (companyId: string, currentName: string) => {
     if (onUpdateCompanyName) {
       setEditingCompanyId(companyId);
-      setEditingCompanyName(currentName);
     }
   };
   
-  const handleSaveCompanyName = (companyId: string) => {
-    if (onUpdateCompanyName && editingCompanyName.trim() !== "") {
-      onUpdateCompanyName(companyId, editingCompanyName);
+  const handleUpdateCompanyName = (companyId: string, newName: string) => {
+    if (onUpdateCompanyName && newName.trim() !== "") {
+      onUpdateCompanyName(companyId, newName);
+      setEditingCompanyId(null);
     }
-    setEditingCompanyId(null);
-  };
-  
-  const handleCancelCompanyEdit = () => {
-    setEditingCompanyId(null);
-  };
-
-  const handleAddNewCompany = () => {
-    if (newCompanyName.trim() !== "") {
-      onAddCompany(newCompanyName);
-      setNewCompanyName("");
-      setIsAddingCompany(false);
-    }
-  };
-
-  const handleCancelAddCompany = () => {
-    setIsAddingCompany(false);
-    setNewCompanyName("");
   };
 
   return (
@@ -78,37 +58,13 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
         >
           <div className="flex justify-between items-center">
             {editingCompanyId === company.id ? (
-              <div className="flex items-center justify-between w-full pr-1">
-                <Input
-                  value={editingCompanyName}
-                  onChange={(e) => setEditingCompanyName(e.target.value)}
-                  className="w-full h-8 py-0 px-2 text-sm bg-white text-foreground" /* Increased width and height */
-                  autoFocus
-                  placeholder={t('budget.companyName')}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleSaveCompanyName(company.id);
-                    if (e.key === 'Escape') handleCancelCompanyEdit();
-                  }}
-                />
-                <div className="flex gap-1">
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="h-5 w-5"
-                    onClick={() => handleSaveCompanyName(company.id)}
-                  >
-                    <Check className="h-3 w-3" />
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="h-5 w-5"
-                    onClick={handleCancelCompanyEdit}
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                </div>
-              </div>
+              <AddCompanyDialog
+                initialName={company.name}
+                onAddCompany={(name) => handleUpdateCompanyName(company.id, name)}
+                onDialogClose={() => setEditingCompanyId(null)}
+                isEditMode={true}
+                isOpen={true}
+              />
             ) : (
               <>
                 <span 
@@ -119,7 +75,17 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                 </span>
                 
                 <div className="flex items-center">
-                  {/* Remove company button now placed BEFORE add company button */}
+                  {/* Edit company button */}
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-5 w-5"
+                    onClick={() => onUpdateCompanyName && handleEditCompanyName(company.id, company.name)}
+                  >
+                    <Edit2 className="h-3 w-3" />
+                  </Button>
+                  
+                  {/* Remove company button */}
                   <Button 
                     variant="ghost" 
                     size="icon" 
@@ -146,41 +112,16 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
             )}
           </div>
           
-          {/* Show add company form inline in the last company cell when adding */}
+          {/* Show add company dialog when adding */}
           {index === companies.length - 1 && isAddingCompany && (
-            <div className="absolute top-full left-0 right-0 bg-background border border-border p-2 z-10 rounded-b-md shadow-md">
-              <div className="flex items-center justify-between w-full">
-                <Input
-                  value={newCompanyName}
-                  onChange={(e) => setNewCompanyName(e.target.value)}
-                  placeholder={t('budget.companyName')}
-                  className="w-full h-6 py-0 px-1 text-xs mr-2 bg-white text-foreground" /* Fixed styling */
-                  autoFocus
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleAddNewCompany();
-                    if (e.key === 'Escape') handleCancelAddCompany();
-                  }}
-                />
-                <div className="flex gap-1">
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="h-5 w-5"
-                    onClick={handleAddNewCompany}
-                  >
-                    <Check className="h-3 w-3" />
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="h-5 w-5"
-                    onClick={handleCancelAddCompany}
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                </div>
-              </div>
-            </div>
+            <AddCompanyDialog
+              onAddCompany={(name) => {
+                onAddCompany(name);
+                setIsAddingCompany(false);
+              }}
+              onDialogClose={() => setIsAddingCompany(false)}
+              isOpen={true}
+            />
           )}
         </TableHead>
       ))}
@@ -199,39 +140,14 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
           </Button>
           
           {isAddingCompany && (
-            <div className="absolute top-full left-0 right-0 bg-background border border-border p-2 z-10 rounded-b-md shadow-md">
-              <div className="flex items-center justify-between w-full">
-                <Input
-                  value={newCompanyName}
-                  onChange={(e) => setNewCompanyName(e.target.value)}
-                  placeholder={t('budget.companyName')}
-                  className="w-full h-6 py-0 px-1 text-xs mr-2 bg-white text-foreground" /* Fixed styling */
-                  autoFocus
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleAddNewCompany();
-                    if (e.key === 'Escape') handleCancelAddCompany();
-                  }}
-                />
-                <div className="flex gap-1">
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="h-5 w-5"
-                    onClick={handleAddNewCompany}
-                  >
-                    <Check className="h-3 w-3" />
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="h-5 w-5"
-                    onClick={handleCancelAddCompany}
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                </div>
-              </div>
-            </div>
+            <AddCompanyDialog
+              onAddCompany={(name) => {
+                onAddCompany(name);
+                setIsAddingCompany(false);
+              }}
+              onDialogClose={() => setIsAddingCompany(false)}
+              isOpen={true}
+            />
           )}
         </TableHead>
       )}

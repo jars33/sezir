@@ -1,3 +1,4 @@
+
 {
   "common": {
     "appName": "sezir.io",
@@ -243,6 +244,8 @@
     "errorLoadingBudget": "Erro ao carregar orçamento",
     "companiesComparison": "Comparação de Empresas",
     "addCompany": "Adicionar Empresa",
+    "editCompany": "Editar Empresa",
+    "clickToEdit": "Clique para editar",
     "companyName": "Nome da Empresa",
     "addBudgetItem": "Adicionar Item",
     "parentItem": "Item Pai",
