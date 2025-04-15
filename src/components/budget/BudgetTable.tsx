@@ -6,7 +6,6 @@ import { BudgetComparisonItem, Company } from "@/types/budget";
 import { TableHeader as BudgetTableHeader } from "./table/TableHeader";
 import { BudgetItemRow } from "./table/BudgetItemRow";
 import { TotalsRow } from "./table/TotalsRow";
-import { AddItemRow } from "./table/AddItemRow";
 import { InlineItemCreation } from "./table/InlineItemCreation";
 import { calculateCategoryTotals } from "./table/categoryCalculations";
 
@@ -21,7 +20,7 @@ interface BudgetTableProps {
   onUpdateDescription: (itemId: string, description: string) => void;
   onUpdateCompanyName?: (companyId: string, name: string) => void;
   onAddCompany: (name: string) => void;
-  onAddBudgetItem: (parentCode: string | null, description: string, isCategory: boolean) => void;
+  onAddBudgetItem?: (parentCode: string | null, description: string, isCategory: boolean) => void;
 }
 
 export const BudgetTable: React.FC<BudgetTableProps> = ({
@@ -47,7 +46,7 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
   
   // Handle adding item from inline editor
   const handleInlineItemAdd = (description: string) => {
-    if (inlineAddingParentCode && description.trim()) {
+    if (inlineAddingParentCode && description.trim() && onAddBudgetItem) {
       onAddBudgetItem(inlineAddingParentCode, description.trim(), false);
       setInlineAddingParentCode(null);
     }
@@ -121,15 +120,6 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
 
       <TableBody>
         {tableRows()}
-        
-        {/* Only show the add item row when not adding inline */}
-        {!inlineAddingParentCode && (
-          <AddItemRow 
-            items={items}
-            companiesCount={companies.length}
-            onAddItem={onAddBudgetItem}
-          />
-        )}
       </TableBody>
     </Table>
   );

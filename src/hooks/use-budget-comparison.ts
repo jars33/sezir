@@ -24,7 +24,6 @@ export function useBudgetComparison(projectId?: string) {
     updateItem, 
     updateItemObservation,
     updateItemDescription,
-    addBudgetItem,
     updateItemsForCompanyRemoval,
     deleteBudgetItem
   } = useBudgetItems([]);
@@ -130,7 +129,6 @@ export function useBudgetComparison(projectId?: string) {
     updateItemObservation,
     updateItemDescription,
     updateCompanyName,
-    addBudgetItem,
     deleteBudgetItem,
     saveBudget,
     loadBudget,
