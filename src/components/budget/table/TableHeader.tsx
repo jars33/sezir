@@ -1,11 +1,11 @@
 
-import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
-import { TableHead, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import React from "react";
+import { TableRow, TableHead } from "@/components/ui/table";
 import { Company } from "@/types/budget";
-import { AddCompanyDialog } from "@/components/budget/AddCompanyDialog";
+import { Trash2, PlusCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface TableHeaderProps {
   companies: Company[];
@@ -18,138 +18,91 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   companies,
   onRemoveCompany,
   onUpdateCompanyName,
-  onAddCompany
+  onAddCompany,
 }) => {
   const { t } = useTranslation();
-  const [editingCompanyId, setEditingCompanyId] = useState<string | null>(null);
-  const [isAddingCompany, setIsAddingCompany] = useState<boolean>(false);
+  const [newCompanyName, setNewCompanyName] = React.useState("");
+  const [editingCompanyId, setEditingCompanyId] = React.useState<string | null>(null);
+  const [editValue, setEditValue] = React.useState("");
   
-  // Automatically enter edit mode for empty company names
-  React.useEffect(() => {
-    const emptyCompany = companies.find(company => company.name === "");
-    if (emptyCompany && onUpdateCompanyName) {
-      setEditingCompanyId(emptyCompany.id);
-    }
-  }, [companies, onUpdateCompanyName]);
-  
-  const handleEditCompanyName = (companyId: string, currentName: string) => {
-    if (onUpdateCompanyName) {
-      setEditingCompanyId(companyId);
+  const handleAddCompany = () => {
+    if (newCompanyName.trim()) {
+      onAddCompany(newCompanyName.trim());
+      setNewCompanyName("");
     }
   };
   
-  const handleUpdateCompanyName = (companyId: string, newName: string) => {
-    if (onUpdateCompanyName && newName.trim() !== "") {
-      onUpdateCompanyName(companyId, newName);
+  const startEditing = (company: Company) => {
+    setEditingCompanyId(company.id);
+    setEditValue(company.name);
+  };
+  
+  const submitEdit = () => {
+    if (editingCompanyId && editValue.trim() && onUpdateCompanyName) {
+      onUpdateCompanyName(editingCompanyId, editValue.trim());
       setEditingCompanyId(null);
     }
   };
-
+  
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      submitEdit();
+    } else if (e.key === "Escape") {
+      setEditingCompanyId(null);
+    }
+  };
+  
   return (
     <TableRow>
-      <TableHead className="w-12 border border-border">{t('budget.itemCode')}</TableHead>
-      <TableHead className="w-64 border border-border">{t('budget.itemDescription')}</TableHead>
+      <TableHead className="border border-border w-24">
+        {t('budget.itemCode')}
+      </TableHead>
       
-      {companies.map((company, index) => (
-        <TableHead 
-          key={company.id} 
-          className="w-32 border border-border bg-primary/10 text-center"
-        >
-          <div className="flex justify-between items-center">
+      <TableHead className="border border-border w-64">
+        {t('budget.description')}
+      </TableHead>
+      
+      {companies.map((company) => (
+        <TableHead key={company.id} className="border border-border text-center relative">
+          <div className="flex items-center justify-between min-w-[100px] pr-8">
             {editingCompanyId === company.id ? (
-              <AddCompanyDialog
-                initialName={company.name}
-                onAddCompany={(name) => handleUpdateCompanyName(company.id, name)}
-                onDialogClose={() => setEditingCompanyId(null)}
-                isEditMode={true}
-                isOpen={true}
+              <Input 
+                value={editValue}
+                onChange={(e) => setEditValue(e.target.value)}
+                onBlur={submitEdit}
+                onKeyDown={handleKeyDown}
+                autoFocus
+                className="min-w-24"
               />
             ) : (
-              <>
-                <span 
-                  className="flex-grow cursor-pointer"
-                  onClick={() => onUpdateCompanyName && handleEditCompanyName(company.id, company.name)}
-                >
-                  {company.name || t('budget.clickToEdit')}
-                </span>
-                
-                <div className="flex items-center">
-                  {/* Remove edit icon as per user request */}
-                  
-                  {/* Remove company button */}
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="h-5 w-5"
-                    onClick={() => onRemoveCompany(company.id)}
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                  
-                  {/* Add company button shown only on the last company */}
-                  {index === companies.length - 1 && (
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-5 w-5 mr-1"
-                      onClick={() => setIsAddingCompany(true)}
-                      title={t('budget.addCompany')}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  )}
-                </div>
-              </>
+              <div 
+                className="w-full text-center cursor-pointer hover:text-primary transition-colors" 
+                onClick={() => onUpdateCompanyName && startEditing(company)}
+              >
+                {company.name}
+              </div>
             )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 absolute right-1 top-1/2 transform -translate-y-1/2"
+              onClick={() => onRemoveCompany(company.id)}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
           </div>
-          
-          {/* Show add company dialog when adding */}
-          {index === companies.length - 1 && isAddingCompany && (
-            <AddCompanyDialog
-              onAddCompany={(name) => {
-                onAddCompany(name);
-                setIsAddingCompany(false);
-              }}
-              onDialogClose={() => setIsAddingCompany(false)}
-              isOpen={true}
-            />
-          )}
         </TableHead>
       ))}
-
-      {/* Show add company button in a new column if there are no companies */}
-      {companies.length === 0 && (
-        <TableHead className="w-32 border border-border bg-primary/10 text-center">
-          <Button 
-            variant="ghost"
-            size="sm"
-            className="w-full h-8"
-            onClick={() => setIsAddingCompany(true)}
-          >
-            <X className="h-4 w-4 mr-1" />
-            {t('budget.addCompany')}
-          </Button>
-          
-          {isAddingCompany && (
-            <AddCompanyDialog
-              onAddCompany={(name) => {
-                onAddCompany(name);
-                setIsAddingCompany(false);
-              }}
-              onDialogClose={() => setIsAddingCompany(false)}
-              isOpen={true}
-            />
-          )}
-        </TableHead>
-      )}
-
-      <TableHead className="w-28 border border-border bg-secondary/10 text-center">
+      
+      <TableHead className="border border-border text-center min-w-[100px]">
         {t('budget.lowestPrice')}
       </TableHead>
-      <TableHead className="w-28 border border-border bg-secondary/10 text-center">
-        {t('budget.avgPrice')}
+      
+      <TableHead className="border border-border text-center min-w-[100px]">
+        {t('budget.averagePrice')}
       </TableHead>
-      <TableHead className="w-28 border border-border bg-secondary/10 text-center">
+      
+      <TableHead className="border border-border text-center min-w-[150px]">
         {t('budget.observations')}
       </TableHead>
     </TableRow>

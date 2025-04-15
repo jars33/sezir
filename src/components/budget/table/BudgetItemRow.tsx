@@ -109,7 +109,7 @@ export const BudgetItemRow: React.FC<BudgetItemRowProps> = ({
           
           <TableCell className="border border-border text-right">
             {item.isCategory && lowestPrice > 0 
-              ? <span className="text-green-600 font-bold">{formatCurrency(lowestPrice)}</span>
+              ? formatCurrency(lowestPrice)
               : item.lowestPrice > 0 
                 ? formatCurrency(item.lowestPrice)
                 : ""
@@ -125,28 +125,8 @@ export const BudgetItemRow: React.FC<BudgetItemRowProps> = ({
             }
           </TableCell>
           
-          <TableCell className="border border-border">
-            <div className="flex justify-end">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => onDeleteItem(item.id)}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-              
-              {item.isCategory && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={handleAddItem}
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
+          <TableCell className="border border-border px-4 py-2">
+            {item.observations || ""}
           </TableCell>
         </TableRow>
       )}
