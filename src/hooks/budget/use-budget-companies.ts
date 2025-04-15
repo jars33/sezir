@@ -16,6 +16,7 @@ export function useBudgetCompanies(initialCompanies: Company[] = []) {
   };
   
   const removeCompany = (id: string) => {
+    // Remove protection for the last company - allow removing all companies
     setCompanies(prev => prev.filter(company => company.id !== id));
   };
 

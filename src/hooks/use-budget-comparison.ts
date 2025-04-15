@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { BudgetComparisonItem, Company, BudgetComparison } from "@/types/budget";
 import { toast } from "sonner";
@@ -40,23 +39,18 @@ export function useBudgetComparison(projectId?: string) {
     updateCompanyName: updateCompanyNameInDatabase
   } = useBudgetData(projectId);
   
-  // Initialize with empty company for new budget
+  // Initialize with no companies for new budget
   useEffect(() => {
     if (!currentBudgetId && companies.length === 0) {
-      // Initialize with an empty company
-      setCompanies(createSampleCompanies());
+      // Initialize with no companies (changed from empty company)
+      setCompanies([]);
       setBudgetItems([]);
     }
   }, [currentBudgetId, companies.length]);
   
   // Handle company removal - also need to remove company prices from items
   const handleRemoveCompany = (companyId: string) => {
-    // Ensure we don't remove the last company
-    if (companies.length <= 1) {
-      toast.warning(t('budget.cantRemoveLastCompany'));
-      return;
-    }
-    
+    // Remove protection for the last company
     removeCompany(companyId);
     updateItemsForCompanyRemoval(companyId);
   };
