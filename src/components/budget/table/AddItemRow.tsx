@@ -101,14 +101,14 @@ export const AddItemRow: React.FC<AddItemRowProps> = ({
           />
           {!isCategory && categoryItems.length > 0 && (
             <Select 
-              value={parentCode || ""} 
-              onValueChange={(value) => setParentCode(value || null)}
+              value={parentCode || "none"} 
+              onValueChange={(value) => setParentCode(value === "none" ? null : value)}
             >
               <SelectTrigger className="h-8 text-xs">
                 <SelectValue placeholder={t('budget.selectCategory')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">
+                <SelectItem value="none">
                   {t('common.none')}
                 </SelectItem>
                 {categoryItems.map(category => (
