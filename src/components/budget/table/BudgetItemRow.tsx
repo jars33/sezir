@@ -69,9 +69,12 @@ export const BudgetItemRow: React.FC<BudgetItemRowProps> = ({
           </TableCell>
           
           <ItemDescriptionCell
-            item={item}
-            onUpdateDescription={onUpdateDescription}
-            onAddItemToCategory={item.isCategory ? handleAddItem : undefined}
+            description={item.description}
+            isCategory={item.isCategory}
+            onUpdate={(description) => onUpdateDescription(item.id, description)}
+            onDelete={() => onDeleteItem(item.id)}
+            onAddItem={item.isCategory ? handleAddItem : undefined}
+            parentCode={item.isCategory ? item.code : undefined}
           />
           
           {companies.map((company) => {
