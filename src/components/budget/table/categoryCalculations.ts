@@ -29,7 +29,9 @@ export function calculateCategoryTotals(
     
     directChildren.forEach(child => {
       Object.entries(child.prices).forEach(([companyId, price]) => {
-        totals[companyId] = (totals[companyId] || 0) + (price as number);
+        if (price && price > 0) {
+          totals[companyId] = (totals[companyId] || 0) + (price as number);
+        }
       });
     });
     
@@ -51,4 +53,60 @@ export function calculateCategoryTotals(
   });
   
   return categoryTotals;
+}
+
+/**
+ * Recalculate item codes when items are deleted or reordered
+ */
+export function recalculateItemCodes(items: any[]): any[] {
+  // First, identify all top-level items
+  const topLevelItems = items.filter(item => !item.code.includes('.'));
+  
+  // Sort top-level items by their numeric code
+  topLevelItems.sort((a, b) => {
+    const aCode = parseInt(a.code);
+    const bCode = parseInt(b.code);
+    return aCode - bCode;
+  });
+  
+  // Assign sequential codes to top-level items
+  let currentTopCode = 1;
+  const updatedItems = [...items]; // Clone to avoid mutating the original
+  const codeMap = new Map(); // Map to track old code -> new code
+  
+  // First pass: update top-level codes and build the mapping
+  topLevelItems.forEach(item => {
+    const oldCode = item.code;
+    const newCode = String(currentTopCode);
+    
+    // Update the item's code
+    const itemIndex = updatedItems.findIndex(i => i.id === item.id);
+    if (itemIndex !== -1) {
+      updatedItems[itemIndex] = { 
+        ...updatedItems[itemIndex], 
+        code: newCode 
+      };
+    }
+    
+    // Store mapping for children updates
+    codeMap.set(oldCode, newCode);
+    currentTopCode++;
+  });
+  
+  // Second pass: update all child items using the code map
+  updatedItems.forEach((item, index) => {
+    if (item.code.includes('.')) {
+      const [parentCode, ...rest] = item.code.split('.');
+      const newParentCode = codeMap.get(parentCode);
+      
+      if (newParentCode) {
+        updatedItems[index] = {
+          ...item,
+          code: `${newParentCode}.${rest.join('.')}`
+        };
+      }
+    }
+  });
+  
+  return updatedItems;
 }

@@ -1,5 +1,5 @@
 
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { BudgetComparisonItem } from "@/types/budget";
 
 export const useCategoryTotals = (budgetItems: BudgetComparisonItem[]) => {
@@ -21,11 +21,27 @@ export const useCategoryTotals = (budgetItems: BudgetComparisonItem[]) => {
       
       directChildren.forEach(child => {
         Object.entries(child.prices).forEach(([companyId, price]) => {
-          totals[companyId] = (totals[companyId] || 0) + price;
+          if (price && price > 0) {
+            totals[companyId] = (totals[companyId] || 0) + price;
+          }
         });
       });
       
-      categoryTotals[category.id] = totals;
+      // Calculate lowest price
+      const priceValues = Object.values(totals).filter(p => p > 0);
+      let lowestPrice = 0;
+      let averagePrice = 0;
+      
+      if (priceValues.length > 0) {
+        lowestPrice = Math.min(...priceValues);
+        averagePrice = priceValues.reduce((sum, price) => sum + price, 0) / priceValues.length;
+      }
+      
+      categoryTotals[category.id] = {
+        ...totals,
+        lowestPrice,
+        averagePrice
+      };
     });
     
     return categoryTotals;

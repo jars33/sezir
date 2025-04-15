@@ -1,6 +1,7 @@
 
 import { useState } from "react";
 import { BudgetComparisonItem } from "@/types/budget";
+import { recalculateItemCodes } from "@/components/budget/table/categoryCalculations";
 
 export function useBudgetItems(initialItems: BudgetComparisonItem[] = []) {
   const [budgetItems, setBudgetItems] = useState<BudgetComparisonItem[]>(initialItems);
@@ -65,7 +66,23 @@ export function useBudgetItems(initialItems: BudgetComparisonItem[] = []) {
   };
   
   const deleteBudgetItem = (id: string) => {
-    setBudgetItems(prevItems => prevItems.filter(item => item.id !== id));
+    setBudgetItems(prevItems => {
+      // First, identify the item to be deleted
+      const itemToDelete = prevItems.find(item => item.id === id);
+      
+      if (!itemToDelete) return prevItems;
+      
+      // If it's a category, also delete all its children
+      let itemsToKeep = prevItems.filter(item => item.id !== id);
+      
+      if (itemToDelete.isCategory) {
+        const categoryPrefix = itemToDelete.code + ".";
+        itemsToKeep = itemsToKeep.filter(item => !item.code.startsWith(categoryPrefix));
+      }
+      
+      // Recalculate item codes after deletion
+      return recalculateItemCodes(itemsToKeep);
+    });
   };
   
   // Helper function to generate a new code based on parent code
