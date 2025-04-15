@@ -1,19 +1,18 @@
 
-import React, { useState, useEffect } from "react";
-import { useTranslation } from "react-i18next";
+import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useBudgetComparison } from "@/hooks/use-budget-comparison";
-import { BudgetList } from "@/components/budget/BudgetList";
-import { BudgetDetails } from "@/components/budget/BudgetDetails";
-import { toast } from "sonner";
 import { budgetComparisonService } from "@/services/supabase/budget-comparison-service";
-import { Loader2, Check, X } from "lucide-react";
+import { BudgetComparisonListView } from "@/components/budget/budget-comparison/BudgetComparisonListView";
+import { BudgetComparisonView } from "@/components/budget/budget-comparison/BudgetComparisonView";
+import { useSaveBudgetHandler } from "@/components/budget/budget-comparison/SaveBudgetHandler";
+import { useCategoryTotals } from "@/components/budget/budget-comparison/useCategoryTotals";
 
 const BudgetComparison = () => {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const { id: projectId } = useParams();
-  const [isSaving, setIsSaving] = useState(false);
+  const [showNewBudget, setShowNewBudget] = useState(false);
+  
   const { 
     budgetItems, 
     companies, 
@@ -35,76 +34,18 @@ const BudgetComparison = () => {
     setBudgets
   } = useBudgetComparison(projectId);
 
-  const [showNewBudget, setShowNewBudget] = useState(false);
+  const categoryTotals = useCategoryTotals(budgetItems);
   
-  const handleSelectBudget = (id: string) => {
-    loadBudget(id);
-  };
-  
-  const handleCreateNew = () => {
-    setShowNewBudget(true);
-    setCurrentBudgetId(undefined);
-  };
-  
-  const handleSave = async (description: string, selectedProjectId?: string) => {
-    const projectIdToSave = selectedProjectId === 'none' ? undefined : selectedProjectId;
-    
-    if (isSaving) {
-      toast.info(t('budget.alreadySaving'), {
-        description: t('budget.pleasewait')
-      });
-      return;
+  // Setup save handler
+  const { handleSave } = useSaveBudgetHandler({
+    onSave: saveBudget,
+    onSuccess: (budgetId) => {
+      setShowNewBudget(false);
+      setCurrentBudgetId(budgetId);
     }
-    
-    setIsSaving(true);
-    
-    const toastId = toast.loading(t('budget.saving'), {
-      description: t('budget.pleasewait'),
-      icon: <Loader2 className="h-4 w-4 animate-spin" />
-    });
-    
-    try {
-      const budgetId = await saveBudget(description, projectIdToSave);
-      
-      if (budgetId) {
-        toast.dismiss(toastId);
-        toast.success(t('budget.budgetSaved'), {
-          description: description,
-          icon: <Check className="h-4 w-4" />
-        });
-        
-        setShowNewBudget(false);
-        setCurrentBudgetId(budgetId);
-      } else {
-        toast.dismiss(toastId);
-        toast.error(t('budget.errorSavingBudget'), {
-          description: t('budget.pleaseTryAgain'),
-          icon: <X className="h-4 w-4" />
-        });
-      }
-    } catch (error) {
-      console.error("Error saving budget:", error);
-      toast.dismiss(toastId);
-      toast.error(t('budget.errorSavingBudget'), {
-        description: error instanceof Error ? error.message : t('budget.unknownError'),
-        icon: <X className="h-4 w-4" />
-      });
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleUpdateProject = async (newProjectId: string) => {
-    if (!currentBudgetId) return;
-    
-    const updated = await updateBudgetProject(currentBudgetId, newProjectId);
-    if (updated) {
-      toast.success(t('budget.projectUpdated'));
-    } else {
-      toast.error(t('budget.errorUpdatingProject'));
-    }
-  };
+  });
   
+  // Navigation handlers
   const handleBack = () => {
     if (currentBudgetId) {
       setCurrentBudgetId(undefined);
@@ -116,16 +57,16 @@ const BudgetComparison = () => {
     }
   };
   
-  const handleExportToCSV = () => {
-    console.log("Exporting to CSV...");
-    toast.success(t('common.exported'));
-  };
-
-  const handleImportFromCSV = () => {
-    console.log("Importing from CSV...");
-    toast.info(t('common.importing'));
+  const handleCreateNew = () => {
+    setShowNewBudget(true);
+    setCurrentBudgetId(undefined);
   };
   
+  const handleSelectBudget = (id: string) => {
+    loadBudget(id);
+  };
+  
+  // Budget deletion handler
   const handleDeleteBudget = async (budgetId: string) => {
     try {
       const success = await budgetComparisonService.deleteBudgetComparison(budgetId);
@@ -135,86 +76,45 @@ const BudgetComparison = () => {
         if (currentBudgetId === budgetId) {
           setCurrentBudgetId(undefined);
         }
-        
-        toast.success(t('budget.deletedSuccess'));
-      } else {
-        toast.error(t('budget.errorDeleting'));
       }
     } catch (error) {
       console.error('Error deleting budget:', error);
-      toast.error(t('budget.errorDeleting'));
     }
   };
-  
-  const calculateCategoryTotals = () => {
-    const categoryTotals: Record<string, Record<string, number>> = {};
-    
-    const categories = budgetItems.filter(item => item.isCategory);
-    
-    categories.forEach(category => {
-      const childPrefix = category.code + ".";
-      
-      const directChildren = budgetItems.filter(item => 
-        !item.isCategory && 
-        item.code.startsWith(childPrefix) &&
-        !item.code.substring(childPrefix.length).includes(".")
-      );
-      
-      const totals: Record<string, number> = {};
-      
-      directChildren.forEach(child => {
-        Object.entries(child.prices).forEach(([companyId, price]) => {
-          totals[companyId] = (totals[companyId] || 0) + price;
-        });
-      });
-      
-      categoryTotals[category.id] = totals;
-    });
-    
-    return categoryTotals;
-  };
-  
-  const categoryTotals = calculateCategoryTotals();
 
+  // Determine view to show
   if (!showNewBudget && !currentBudgetId) {
     return (
-      <div className="container mx-auto py-6 space-y-6">
-        <h1 className="text-3xl font-bold">{t('budget.comparisonTitle')}</h1>
-        <BudgetList 
-          budgets={budgets}
-          onCreateNew={handleCreateNew}
-          onSelectBudget={handleSelectBudget}
-          onDeleteBudget={handleDeleteBudget}
-          isLoading={isLoading}
-        />
-      </div>
+      <BudgetComparisonListView
+        budgets={budgets}
+        isLoading={isLoading}
+        onCreateNew={handleCreateNew}
+        onSelectBudget={handleSelectBudget}
+        onDeleteBudget={handleDeleteBudget}
+      />
     );
   }
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      <BudgetDetails 
-        items={budgetItems}
-        companies={companies}
-        categoryTotals={categoryTotals}
-        onBack={handleBack}
-        onAddCompany={addCompany}
-        onRemoveCompany={removeCompany}
-        onUpdateItem={updateItem}
-        onUpdateObservation={updateItemObservation}
-        onUpdateDescription={updateItemDescription}
-        onUpdateCompanyName={updateCompanyName}
-        onAddBudgetItem={addBudgetItem}
-        onDeleteItem={deleteBudgetItem}
-        onSave={handleSave}
-        onExport={handleExportToCSV}
-        onImport={handleImportFromCSV}
-        isNew={!currentBudgetId}
-        budgetDescription={!currentBudgetId ? "" : budgets.find(b => b.id === currentBudgetId)?.description}
-        projectId={projectId || budgets.find(b => b.id === currentBudgetId)?.projectId}
-        onUpdateProject={handleUpdateProject}
-      />
-    </div>
+    <BudgetComparisonView
+      budgetItems={budgetItems}
+      companies={companies}
+      categoryTotals={categoryTotals}
+      budgets={budgets}
+      currentBudgetId={currentBudgetId}
+      projectId={projectId}
+      onBack={handleBack}
+      onAddCompany={addCompany}
+      onRemoveCompany={removeCompany}
+      onUpdateItem={updateItem}
+      onUpdateObservation={updateItemObservation}
+      onUpdateDescription={updateItemDescription}
+      onUpdateCompanyName={updateCompanyName}
+      onAddBudgetItem={addBudgetItem}
+      onDeleteBudgetItem={deleteBudgetItem}
+      onSave={handleSave}
+      onUpdateProject={updateBudgetProject}
+    />
   );
 };
 
