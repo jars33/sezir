@@ -105,7 +105,9 @@ export function TimelineMonth({
     <div 
       className={cn(
         "p-4 space-y-2 border-r border-gray-200 dark:border-gray-800 flex flex-col",
-        isCurrentMonth ? "bg-blue-50 dark:bg-blue-900/20" : "bg-white dark:bg-gray-900"
+        isCurrentMonth
+          ? "bg-blue-100/50 dark:bg-blue-900/20 border-blue-300/50 dark:border-blue-700/30"
+          : "bg-white dark:bg-gray-900"
       )}
     >
       <div className="text-center font-medium text-sm mb-3">
@@ -179,7 +181,6 @@ export function TimelineMonth({
         {formatCurrency(monthProfit)}
       </div>
       
-      {/* Add accumulated profit at the bottom of each month */}
       <div className={cn(
         "text-center font-semibold text-sm p-2 rounded-md bg-slate-50 dark:bg-slate-900",
         accumulatedProfit >= 0 ? "text-green-700 dark:text-green-500" : "text-red-700 dark:text-red-500"

@@ -1,4 +1,3 @@
-
 import { useCallback, useMemo, useRef, useState } from "react"
 import { format, addMonths } from "date-fns"
 import { TimelineMonth } from "../TimelineMonth"
@@ -40,7 +39,6 @@ export function TimelineMonthsGrid({
   const [startX, setStartX] = useState(0)
   const [scrollLeft, setScrollLeft] = useState(0)
   
-  // Generate an array of 12 months starting from startDate
   const months = useMemo(() => 
     Array.from({ length: 12 }, (_, i) => addMonths(startDate, i)), 
     [startDate]
@@ -53,7 +51,6 @@ export function TimelineMonthsGrid({
     setStartX(e.clientX)
     setScrollLeft(containerRef.current.scrollLeft)
     
-    // Change cursor to grabbing
     if (containerRef.current) {
       containerRef.current.style.cursor = 'grabbing'
     }
@@ -62,7 +59,6 @@ export function TimelineMonthsGrid({
   const handleMouseUp = () => {
     setIsDragging(false)
     
-    // Restore cursor
     if (containerRef.current) {
       containerRef.current.style.cursor = 'grab'
     }
@@ -72,7 +68,6 @@ export function TimelineMonthsGrid({
     if (isDragging) {
       setIsDragging(false)
       
-      // Restore cursor
       if (containerRef.current) {
         containerRef.current.style.cursor = 'grab'
       }
@@ -115,11 +110,9 @@ export function TimelineMonthsGrid({
               const monthVariableCosts = variableCosts?.filter(c => c.month.startsWith(monthStr)) || []
               const overheadPercentage = getOverheadPercentage(year)
               
-              // Calculate overhead costs for the month based on variable costs
               const totalVariableCosts = monthVariableCosts.reduce((sum, c) => sum + Number(c.amount), 0)
               const overheadAmount = (totalVariableCosts * overheadPercentage) / 100
               
-              // Create a derived overhead cost item
               const overheadCosts = overheadAmount > 0 ? [{
                 id: `overhead-${monthStr}`,
                 month: monthStr,
@@ -147,11 +140,6 @@ export function TimelineMonthsGrid({
             })}
           </div>
         </div>
-      </div>
-      
-      {/* Add a label for the accumulated profit row */}
-      <div className="text-right text-sm font-medium text-gray-500 dark:text-gray-400 pr-4">
-        {t('project.accumulatedProfit')}
       </div>
     </div>
   )
