@@ -33,7 +33,8 @@ const BudgetComparison = () => {
     setCurrentBudgetId,
     updateBudgetProject,
     setBudgets,
-    setBudgetItems
+    setBudgetItems,
+    addBudgetItem
   } = useBudgetComparison(projectId);
 
   const categoryTotals = useCategoryTotals(budgetItems);
@@ -89,6 +90,11 @@ const BudgetComparison = () => {
     toast.success("Items reordered successfully");
   };
 
+  const handleAddItem = (description: string, parentCode?: string) => {
+    addBudgetItem(description, parentCode);
+    toast.success(parentCode ? "Item added successfully" : "Category added successfully");
+  };
+
   if (!showNewBudget && !currentBudgetId) {
     return (
       <BudgetComparisonListView
@@ -120,6 +126,7 @@ const BudgetComparison = () => {
       onSave={handleSave}
       onUpdateProject={updateBudgetProject}
       onReorderItems={handleReorderItems}
+      onAddItem={handleAddItem}
     />
   );
 };

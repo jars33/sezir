@@ -58,7 +58,7 @@ export const InlineItemCreation: React.FC<InlineItemCreationProps> = ({
             ref={inputRef}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder={t('budget.itemDescription')}
+            placeholder={t('budget.description')}
             onKeyDown={handleKeyDown}
             className="flex-1"
           />

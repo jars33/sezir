@@ -23,6 +23,7 @@ interface BudgetComparisonViewProps {
   onSave: (description: string, projectId?: string) => Promise<void>;
   onUpdateProject: (budgetId: string, newProjectId: string) => Promise<boolean>;
   onReorderItems?: (reorderedItems: BudgetComparisonItem[]) => void;
+  onAddItem?: (description: string, parentCode?: string) => void;
 }
 
 export const BudgetComparisonView: React.FC<BudgetComparisonViewProps> = ({
@@ -42,7 +43,8 @@ export const BudgetComparisonView: React.FC<BudgetComparisonViewProps> = ({
   onDeleteBudgetItem,
   onSave,
   onUpdateProject,
-  onReorderItems
+  onReorderItems,
+  onAddItem
 }) => {
   const { t } = useTranslation();
   
@@ -89,6 +91,7 @@ export const BudgetComparisonView: React.FC<BudgetComparisonViewProps> = ({
         projectId={projectId || budgets.find(b => b.id === currentBudgetId)?.projectId}
         onUpdateProject={handleUpdateProject}
         onReorderItems={onReorderItems}
+        onAddItem={onAddItem}
       />
     </div>
   );

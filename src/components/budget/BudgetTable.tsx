@@ -25,6 +25,7 @@ interface BudgetTableProps {
   onAddCompany: (name: string) => void;
   onReorderItems?: (reorderedItems: BudgetComparisonItem[]) => void;
   onAddCategory?: () => void;
+  onAddItem?: (description: string, parentCode?: string) => void;
 }
 
 export const BudgetTable: React.FC<BudgetTableProps> = ({
@@ -39,7 +40,8 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
   onUpdateCompanyName,
   onAddCompany,
   onReorderItems,
-  onAddCategory
+  onAddCategory,
+  onAddItem
 }) => {
   const { t } = useTranslation();
   const [inlineAddingParentCode, setInlineAddingParentCode] = useState<string | null>(null);
@@ -52,7 +54,8 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
   
   // Handle adding item from inline editor
   const handleInlineItemAdd = (description: string) => {
-    if (inlineAddingParentCode && description.trim()) {
+    if (inlineAddingParentCode && description.trim() && onAddItem) {
+      onAddItem(description, inlineAddingParentCode);
       setInlineAddingParentCode(null);
     }
   };
@@ -68,7 +71,10 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
 
   // Handle adding category from inline editor
   const handleCategoryAdd = (description: string) => {
-    setIsAddingCategory(false);
+    if (description.trim() && onAddItem) {
+      onAddItem(description);
+      setIsAddingCategory(false);
+    }
   };
 
   // Handle drag end event

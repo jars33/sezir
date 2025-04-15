@@ -250,7 +250,7 @@
     "isCategory": "Categoria",
     "noParent": "Sem item pai (nível superior)",
     "itemCode": "Código",
-    "itemDescription": "Descrição",
+    "description": "Descrição",
     "lowestPrice": "Menor Preço",
     "avgPrice": "Preço Médio",
     "observations": "Observações",
