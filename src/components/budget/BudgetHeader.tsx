@@ -1,10 +1,10 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertTriangle, ArrowLeft, Download, Save, Upload } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Check, Download, Save, Upload } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { projectService } from "@/services/supabase/project-service";
 import { toast } from "sonner";
@@ -32,6 +32,7 @@ export const BudgetHeader: React.FC<BudgetHeaderProps> = ({
   const [description, setDescription] = useState(budgetDescription);
   const [selectedProjectId, setSelectedProjectId] = useState<string>(projectId || "none");
   const [isSaving, setIsSaving] = useState(false);
+  const [showCheckMark, setShowCheckMark] = useState(false);
   
   // Fetch projects from the API
   const { data: projects, isLoading: isLoadingProjects } = useQuery({
@@ -49,6 +50,8 @@ export const BudgetHeader: React.FC<BudgetHeaderProps> = ({
     }
     
     setIsSaving(true);
+    setShowCheckMark(true);
+    
     toast.loading(t('budget.saving'), { id: "saving-budget" });
     
     try {
@@ -56,11 +59,17 @@ export const BudgetHeader: React.FC<BudgetHeaderProps> = ({
       await onSave(description, projectIdToSave);
       toast.dismiss("saving-budget");
       toast.success(t('budget.savedSuccessfully'));
+      
+      // Reset the icon back to Save after 2 seconds
+      setTimeout(() => {
+        setShowCheckMark(false);
+        setIsSaving(false);
+      }, 2000);
     } catch (error) {
       toast.dismiss("saving-budget");
       toast.error(t('budget.errorSaving'));
       console.error("Error saving budget:", error);
-    } finally {
+      setShowCheckMark(false);
       setIsSaving(false);
     }
   };
@@ -75,13 +84,6 @@ export const BudgetHeader: React.FC<BudgetHeaderProps> = ({
       
       <div className="flex flex-col md:flex-row gap-2">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-          <Input
-            placeholder={t('budget.enterBudgetDescription')}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="min-w-[200px]"
-          />
-          
           <Select 
             value={selectedProjectId} 
             onValueChange={setSelectedProjectId}
@@ -98,6 +100,13 @@ export const BudgetHeader: React.FC<BudgetHeaderProps> = ({
               ))}
             </SelectContent>
           </Select>
+
+          <Input
+            placeholder={t('budget.enterBudgetDescription')}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="min-w-[200px]"
+          />
         </div>
 
         <div className="flex gap-2">
@@ -106,7 +115,11 @@ export const BudgetHeader: React.FC<BudgetHeaderProps> = ({
             disabled={!description || isSaving}
             className="whitespace-nowrap"
           >
-            <Save className="h-4 w-4 mr-2" />
+            {showCheckMark ? (
+              <Check className="h-4 w-4 mr-2" />
+            ) : (
+              <Save className="h-4 w-4 mr-2" />
+            )}
             {isSaving ? t('common.saving') : t('common.save')}
           </Button>
           
