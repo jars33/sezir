@@ -1,4 +1,3 @@
-
 import React from "react";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { BudgetComparisonItem, Company } from "@/types/budget";
@@ -101,7 +100,7 @@ export const BudgetItemRow: React.FC<BudgetItemRowProps> = ({
             <Textarea
               value={item.observations || ""}
               onChange={(e) => onUpdateObservation(item.id, e.target.value)}
-              className="w-full min-h-[80px] max-h-[200px] resize-y border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="w-64 min-h-[80px] max-h-[200px] resize-y border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             />
           </TableCell>
         </TableRow>
