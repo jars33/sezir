@@ -53,8 +53,15 @@ export function generateCashFlowData(
       }
     })
     
-    // Calculate net cash flow
-    const netCashFlow = monthlyRevenue - monthlyVariableCosts - monthlyOverheadCosts - monthlySalaryCosts
+    // Total base costs (variable + salary costs)
+    const monthlyBaseCosts = monthlyVariableCosts + monthlySalaryCosts
+    
+    // Explicit overhead costs (those entered directly in the system)
+    // Note: This is separate from the overhead percentage calculation
+    
+    // Calculate net cash flow: revenue - (baseCosts + explicit overhead costs)
+    // Note: The overhead percentage is not applied in the cash flow view as we're showing actual cash movements
+    const netCashFlow = monthlyRevenue - monthlyBaseCosts - monthlyOverheadCosts
     
     cashFlowData.push({
       month: name,

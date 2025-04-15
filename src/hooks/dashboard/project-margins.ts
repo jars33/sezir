@@ -78,11 +78,11 @@ export function calculateProjectMargins(
     // Calculate base costs (variable + salary)
     const baseCosts = data.variableCost + data.salaryCost
     
-    // Apply overhead percentage: base costs * (1 + overhead/100)
+    // Apply overhead percentage: base costs * (overheadPercentage/100)
     const calculatedOverheadCost = (baseCosts * overheadPercentage) / 100
     
-    // Calculate total cost with overhead
-    data.totalCost = baseCosts * (1 + overheadPercentage / 100) + data.explicitOverheadCost
+    // Total cost includes base costs with overhead percentage applied plus any explicit overhead costs
+    data.totalCost = baseCosts + calculatedOverheadCost + data.explicitOverheadCost
     
     // Calculate profit
     const profit = data.revenue - data.totalCost

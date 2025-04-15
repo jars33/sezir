@@ -42,7 +42,7 @@ export function calculateProjectProfitability(
     }
   })
   
-  // Add overhead costs
+  // Add explicit overhead costs
   overheadCosts?.forEach(cost => {
     const costYear = getYear(new Date(cost.month))
     if (costYear === selectedYear && projectProfitabilityMap.has(cost.project_id)) {
@@ -70,7 +70,10 @@ export function calculateProjectProfitability(
   let projectsWithFinancials = 0
   
   projectProfitabilityMap.forEach((data) => {
-    const totalCost = data.variableCosts + data.overheadCosts + data.salaryCosts
+    const baseCosts = data.variableCosts + data.salaryCosts
+    // Note: in calculateProjectProfitability we don't have access to the overhead percentage
+    // We're just using the explicit overhead costs entered in the system
+    const totalCost = baseCosts + data.overheadCosts
     const profit = data.revenue - totalCost
     
     // Only count if there's any financial data

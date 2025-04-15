@@ -38,7 +38,7 @@ export function generateChartData(
       }
     })
     
-    // Add explicit overhead costs
+    // Add explicit overhead costs (directly entered in the system)
     let monthlyExplicitOverheadCost = 0
     overheadCosts?.forEach(cost => {
       if (cost.month.startsWith(monthStr)) {
@@ -55,6 +55,7 @@ export function generateChartData(
     })
     
     // Total cost includes variable costs, explicit overhead costs, and salary costs
+    // But doesn't include the overhead percentage calculation which is added in generateDashboardChartData
     const monthlyCost = monthlyVariableCost + monthlyExplicitOverheadCost + monthlySalaryCost
     
     chartData.push({
@@ -93,12 +94,13 @@ export function generateDashboardChartData(
     const baseCosts = monthData.variableCost + monthData.salaryCost
     
     // Apply overhead percentage: (baseCosts) * (1 + overheadPercentage/100)
-    // This properly computes total cost with overhead included
-    const totalCost = baseCosts * (1 + overheadPercentage / 100)
+    // This properly computes total cost with overhead percentage included
+    const calculatedOverhead = (baseCosts * overheadPercentage) / 100
+    const totalCost = baseCosts + calculatedOverhead + monthData.overheadCost
     
     return {
       ...monthData,
-      calculatedOverhead: (baseCosts * overheadPercentage) / 100,
+      calculatedOverhead: calculatedOverhead,
       cost: totalCost,
       profit: monthData.revenue - totalCost
     }
