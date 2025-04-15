@@ -26,7 +26,6 @@ const BudgetComparison = () => {
     updateItemObservation,
     updateItemDescription,
     updateCompanyName,
-    addBudgetItem,
     deleteBudgetItem,
     saveBudget,
     loadBudget,
@@ -37,7 +36,6 @@ const BudgetComparison = () => {
 
   const categoryTotals = useCategoryTotals(budgetItems);
   
-  // Setup save handler
   const { handleSave } = useSaveBudgetHandler({
     onSave: saveBudget,
     onSuccess: (budgetId) => {
@@ -47,7 +45,6 @@ const BudgetComparison = () => {
     }
   });
   
-  // Navigation handlers
   const handleBack = () => {
     if (currentBudgetId) {
       setCurrentBudgetId(undefined);
@@ -68,7 +65,6 @@ const BudgetComparison = () => {
     loadBudget(id);
   };
   
-  // Budget deletion handler
   const handleDeleteBudget = async (budgetId: string) => {
     try {
       const success = await budgetComparisonService.deleteBudgetComparison(budgetId);
@@ -86,7 +82,6 @@ const BudgetComparison = () => {
     }
   };
 
-  // Determine view to show
   if (!showNewBudget && !currentBudgetId) {
     return (
       <BudgetComparisonListView
@@ -114,7 +109,6 @@ const BudgetComparison = () => {
       onUpdateObservation={updateItemObservation}
       onUpdateDescription={updateItemDescription}
       onUpdateCompanyName={updateCompanyName}
-      onAddBudgetItem={addBudgetItem}
       onDeleteBudgetItem={deleteBudgetItem}
       onSave={handleSave}
       onUpdateProject={updateBudgetProject}

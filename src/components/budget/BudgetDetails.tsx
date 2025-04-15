@@ -1,9 +1,9 @@
+
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BudgetComparisonItem, Company } from "@/types/budget";
 import { BudgetHeader } from "./BudgetHeader";
-import { BudgetActions } from "./BudgetActions";
 import { BudgetTable } from "./BudgetTable";
 
 interface BudgetDetailsProps {
@@ -17,7 +17,6 @@ interface BudgetDetailsProps {
   onUpdateObservation: (itemId: string, observation: string) => void;
   onUpdateDescription: (itemId: string, description: string) => void;
   onUpdateCompanyName?: (companyId: string, name: string) => void;
-  onAddBudgetItem: (parentCode: string | null, description: string, isCategory: boolean) => void;
   onDeleteItem: (id: string) => void;
   onSave: (description: string, projectId?: string) => void;
   onExport: () => void;
@@ -39,7 +38,6 @@ export const BudgetDetails: React.FC<BudgetDetailsProps> = ({
   onUpdateObservation,
   onUpdateDescription,
   onUpdateCompanyName,
-  onAddBudgetItem,
   onDeleteItem,
   onSave,
   onExport,
@@ -51,9 +49,7 @@ export const BudgetDetails: React.FC<BudgetDetailsProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  // Handle save with potential project update
   const handleSave = (description: string, newProjectId?: string) => {
-    // If this is an existing budget and the project changed, update it
     if (!isNew && newProjectId !== projectId && onUpdateProject) {
       onUpdateProject(newProjectId || "");
     }
@@ -74,12 +70,8 @@ export const BudgetDetails: React.FC<BudgetDetailsProps> = ({
       />
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader>
           <CardTitle>{t('budget.companiesComparison')}</CardTitle>
-          <BudgetActions
-            onAddBudgetItem={onAddBudgetItem}
-            items={items}
-          />
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -94,7 +86,6 @@ export const BudgetDetails: React.FC<BudgetDetailsProps> = ({
               onRemoveCompany={onRemoveCompany}
               onDeleteItem={onDeleteItem}
               onAddCompany={onAddCompany}
-              onAddBudgetItem={onAddBudgetItem}
             />
           </div>
         </CardContent>

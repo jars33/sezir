@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { BudgetComparisonItem } from "@/types/budget";
 import { recalculateItemCodes } from "@/components/budget/table/categoryCalculations";
@@ -57,21 +56,6 @@ export function useBudgetItems(initialItems: BudgetComparisonItem[] = []) {
         return item;
       });
     });
-  };
-  
-  const addBudgetItem = (parentCode: string | null, description: string, isCategory: boolean) => {
-    const newItem: BudgetComparisonItem = {
-      id: crypto.randomUUID(),
-      code: generateNewCode(parentCode, budgetItems),
-      description,
-      isCategory,
-      prices: {},
-      lowestPrice: 0,
-      middlePrice: 0,
-      averagePrice: 0
-    };
-    
-    setBudgetItems(prevItems => [...prevItems, newItem]);
   };
   
   const updateItemsForCompanyRemoval = (companyId: string) => {
@@ -155,7 +139,6 @@ export function useBudgetItems(initialItems: BudgetComparisonItem[] = []) {
     updateItem,
     updateItemObservation,
     updateItemDescription,
-    addBudgetItem,
     updateItemsForCompanyRemoval,
     deleteBudgetItem
   };

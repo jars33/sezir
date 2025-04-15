@@ -19,7 +19,6 @@ interface BudgetComparisonViewProps {
   onUpdateObservation: (itemId: string, observation: string) => void;
   onUpdateDescription: (itemId: string, description: string) => void;
   onUpdateCompanyName: (companyId: string, name: string) => void;
-  onAddBudgetItem: (parentCode: string | null, description: string, isCategory: boolean) => void;
   onDeleteBudgetItem: (id: string) => void;
   onSave: (description: string, projectId?: string) => Promise<void>;
   onUpdateProject: (budgetId: string, newProjectId: string) => Promise<boolean>;
@@ -39,14 +38,12 @@ export const BudgetComparisonView: React.FC<BudgetComparisonViewProps> = ({
   onUpdateObservation,
   onUpdateDescription,
   onUpdateCompanyName,
-  onAddBudgetItem,
   onDeleteBudgetItem,
   onSave,
   onUpdateProject
 }) => {
   const { t } = useTranslation();
   
-  // Helper handlers
   const handleExportToCSV = () => {
     console.log("Exporting to CSV...");
     toast.success(t('common.exported'));
@@ -81,7 +78,6 @@ export const BudgetComparisonView: React.FC<BudgetComparisonViewProps> = ({
         onUpdateObservation={onUpdateObservation}
         onUpdateDescription={onUpdateDescription}
         onUpdateCompanyName={onUpdateCompanyName}
-        onAddBudgetItem={onAddBudgetItem}
         onDeleteItem={onDeleteBudgetItem}
         onSave={onSave}
         onExport={handleExportToCSV}
