@@ -22,40 +22,41 @@ export function useTimelineProfitability(
   const calculateAccumulatedProfitUpToMonth = useCallback((targetMonth: Date) => {
     const targetMonthStr = format(targetMonth, "yyyy-MM")
     const currentMonthDate = new Date(targetMonthStr);
+    const nextMonth = addMonths(currentMonthDate, 1);
     
-    // Include all revenues from previous years and current year up to target month
+    // Include all revenues from any time period up to the target month
     const accumulatedRevenues = [
       ...allProjectRevenues,
       ...revenues
     ]
       .filter(r => {
         const revDate = new Date(r.month);
-        return isBefore(revDate, addMonths(currentMonthDate, 1)) || 
-               revDate.getTime() === currentMonthDate.getTime();
+        // Include if date is before the end of current month
+        return isBefore(revDate, nextMonth);
       })
       .reduce((sum, r) => sum + Number(r.amount), 0);
     
-    // Include all variable costs from previous years and current year up to target month
+    // Include all variable costs from any time period up to the target month
     const accumulatedVariableCosts = [
       ...allProjectVariableCosts,
       ...variableCosts
     ]
       .filter(c => {
         const costDate = new Date(c.month);
-        return isBefore(costDate, addMonths(currentMonthDate, 1)) || 
-               costDate.getTime() === currentMonthDate.getTime();
+        // Include if date is before the end of current month
+        return isBefore(costDate, nextMonth);
       })
       .reduce((sum, c) => sum + Number(c.amount), 0);
     
-    // Include all allocation costs from previous years and current year up to target month
+    // Include all allocation costs from any time period up to the target month
     const accumulatedAllocCosts = [
       ...allProjectAllocations,
       ...allocations
     ]
       .filter(a => {
         const allocDate = new Date(a.month);
-        return isBefore(allocDate, addMonths(currentMonthDate, 1)) || 
-               allocDate.getTime() === currentMonthDate.getTime();
+        // Include if date is before the end of current month
+        return isBefore(allocDate, nextMonth);
       })
       .reduce((sum, a) => sum + Number(a.salary_cost), 0);
     
@@ -67,8 +68,7 @@ export function useTimelineProfitability(
     [...allProjectVariableCosts, ...variableCosts]
       .filter(c => {
         const costDate = new Date(c.month);
-        return isBefore(costDate, addMonths(currentMonthDate, 1)) || 
-               costDate.getTime() === currentMonthDate.getTime();
+        return isBefore(costDate, nextMonth);
       })
       .forEach(cost => {
         const costYear = getYear(new Date(cost.month));
@@ -84,8 +84,7 @@ export function useTimelineProfitability(
     [...allProjectAllocations, ...allocations]
       .filter(a => {
         const allocDate = new Date(a.month);
-        return isBefore(allocDate, addMonths(currentMonthDate, 1)) || 
-               allocDate.getTime() === currentMonthDate.getTime();
+        return isBefore(allocDate, nextMonth);
       })
       .forEach(allocation => {
         const allocYear = getYear(new Date(allocation.month));
@@ -104,9 +103,9 @@ export function useTimelineProfitability(
       accumulatedOverheadCosts += (yearTotalCosts * yearOverheadPercentage) / 100;
     });
 
-    // Return exact value with all decimals
+    // Calculate total accumulated profit
     return accumulatedRevenues - accumulatedVariableCosts - accumulatedOverheadCosts - accumulatedAllocCosts;
-  }, [revenues, variableCosts, allocations, year, getOverheadPercentage, 
+  }, [revenues, variableCosts, allocations, getOverheadPercentage, 
       allProjectRevenues, allProjectVariableCosts, allProjectAllocations])
 
   return {

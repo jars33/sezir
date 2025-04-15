@@ -1,6 +1,6 @@
 
 import { useMemo } from "react";
-import { format, addMonths, getYear, isBefore } from "date-fns";
+import { format, addMonths, getYear, isBefore, parse, isAfter } from "date-fns";
 import { useProjectSettings } from "@/hooks/use-project-settings";
 import type { TimelineItem, AllocationItem } from "../actions/types";
 
@@ -49,82 +49,84 @@ export function useTimelineTableData({
   // Calculate data for each month
   const monthlyData = useMemo(() => months.map(month => {
     const monthStr = format(month, "yyyy-MM");
+    const currentMonth = new Date(monthStr);
+    const nextMonth = addMonths(currentMonth, 1);
     
     // Calculate monthly values
     const monthRevenues = revenues
-      .filter(r => r.month.startsWith(monthStr))
+      .filter(r => {
+        const revDate = new Date(r.month);
+        return format(revDate, "yyyy-MM") === monthStr;
+      })
       .reduce((sum, r) => sum + Number(r.amount), 0);
       
     const monthVariableCosts = variableCosts
-      .filter(c => c.month.startsWith(monthStr))
+      .filter(c => {
+        const costDate = new Date(c.month);
+        return format(costDate, "yyyy-MM") === monthStr;
+      })
       .reduce((sum, c) => sum + Number(c.amount), 0);
     
     const monthAllocations = allocations
-      .filter(a => a.month.startsWith(monthStr))
+      .filter(a => {
+        const allocDate = new Date(a.month);
+        return format(allocDate, "yyyy-MM") === monthStr;
+      })
       .reduce((sum, a) => sum + Number(a.salary_cost), 0);
     
     const overheadPercentage = getOverheadPercentage(year);
     const monthOverheadCosts = ((monthVariableCosts + monthAllocations) * overheadPercentage) / 100;
     
-    const totalCosts = monthVariableCosts + monthAllocations + monthOverheadCosts;
+    const totalMonthlyCosts = monthVariableCosts + monthAllocations + monthOverheadCosts;
     
-    const monthlyProfit = monthRevenues - totalCosts;
+    const monthlyProfit = monthRevenues - totalMonthlyCosts;
     
     const monthlyProfitPercentage = monthRevenues > 0 ? (monthlyProfit / monthRevenues) * 100 : 0;
     
-    // Calculate accumulated values, including previous years
-    // For accumulated values, we need to consider all entries from previous years + current year up to this month
-    const currentMonthDate = new Date(monthStr);
+    // Calculate accumulated values including all previous months and years
     
     // Calculate accumulated revenues
     const accumulatedRevenues = [
-      ...allProjectRevenues,  // Include all revenues from all years
-      ...revenues             // Ensure current year's revenues are included (may overlap with allProjectRevenues)
+      ...allProjectRevenues,  // All revenues from all years
+      ...revenues             // Current year's revenues (may overlap with allProjectRevenues)
     ]
       .filter(r => {
         const revDate = new Date(r.month);
-        return isBefore(revDate, addMonths(currentMonthDate, 1)) || 
-               revDate.getTime() === currentMonthDate.getTime();
+        // Include if date is before or equal to the end of current month
+        return isBefore(revDate, nextMonth);
       })
       .reduce((sum, r) => sum + Number(r.amount), 0);
     
     // Calculate accumulated variable costs
     const accumulatedVariableCosts = [
-      ...allProjectVariableCosts,  // Include all variable costs from all years
-      ...variableCosts             // Ensure current year's costs are included
+      ...allProjectVariableCosts,  // All variable costs from all years
+      ...variableCosts             // Current year's costs (may overlap)
     ]
       .filter(c => {
         const costDate = new Date(c.month);
-        return isBefore(costDate, addMonths(currentMonthDate, 1)) || 
-               costDate.getTime() === currentMonthDate.getTime();
+        // Include if date is before or equal to the end of current month
+        return isBefore(costDate, nextMonth);
       })
       .reduce((sum, c) => sum + Number(c.amount), 0);
     
     // Calculate accumulated allocation costs
     const accumulatedAllocCosts = [
-      ...allProjectAllocations,  // Include all allocations from all years
-      ...allocations             // Ensure current year's allocations are included
+      ...allProjectAllocations,  // All allocations from all years
+      ...allocations             // Current year's allocations (may overlap)
     ]
       .filter(a => {
         const allocDate = new Date(a.month);
-        return isBefore(allocDate, addMonths(currentMonthDate, 1)) || 
-               allocDate.getTime() === currentMonthDate.getTime();
+        // Include if date is before or equal to the end of current month
+        return isBefore(allocDate, nextMonth);
       })
       .reduce((sum, a) => sum + Number(a.salary_cost), 0);
     
-    // Calculate accumulated overhead based on accumulated costs
-    let accumulatedOverheadCosts = 0;
-    
-    // Group costs by year for proper overhead calculation
+    // Calculate accumulated overhead costs by grouping costs by year for proper overhead percentage
     const costsByYear = new Map<number, { varCosts: number, salaryCosts: number }>();
     
-    // Process variable costs by year
+    // Process variable costs grouped by year
     [...allProjectVariableCosts, ...variableCosts]
-      .filter(c => {
-        const costDate = new Date(c.month);
-        return isBefore(costDate, addMonths(currentMonthDate, 1)) || 
-               costDate.getTime() === currentMonthDate.getTime();
-      })
+      .filter(c => isBefore(new Date(c.month), nextMonth))
       .forEach(cost => {
         const costYear = getYear(new Date(cost.month));
         if (!costsByYear.has(costYear)) {
@@ -132,16 +134,11 @@ export function useTimelineTableData({
         }
         const yearData = costsByYear.get(costYear)!;
         yearData.varCosts += Number(cost.amount);
-        costsByYear.set(costYear, yearData);
       });
     
-    // Process allocation costs by year
+    // Process allocation costs grouped by year
     [...allProjectAllocations, ...allocations]
-      .filter(a => {
-        const allocDate = new Date(a.month);
-        return isBefore(allocDate, addMonths(currentMonthDate, 1)) || 
-               allocDate.getTime() === currentMonthDate.getTime();
-      })
+      .filter(a => isBefore(new Date(a.month), nextMonth))
       .forEach(allocation => {
         const allocYear = getYear(new Date(allocation.month));
         if (!costsByYear.has(allocYear)) {
@@ -149,28 +146,30 @@ export function useTimelineTableData({
         }
         const yearData = costsByYear.get(allocYear)!;
         yearData.salaryCosts += Number(allocation.salary_cost);
-        costsByYear.set(allocYear, yearData);
       });
     
-    // Calculate overhead costs for each year based on that year's overhead percentage
+    // Apply appropriate overhead percentage to each year's costs
+    let accumulatedOverheadCosts = 0;
     costsByYear.forEach((costs, yearNum) => {
       const yearOverheadPercentage = getOverheadPercentage(yearNum);
       const yearTotalCosts = costs.varCosts + costs.salaryCosts;
       accumulatedOverheadCosts += (yearTotalCosts * yearOverheadPercentage) / 100;
     });
     
-    // Total accumulated costs
+    // Calculate total accumulated costs
     const accumulatedTotalCosts = accumulatedVariableCosts + accumulatedAllocCosts + accumulatedOverheadCosts;
     
-    // Use the provided accumulated profit calculation function
+    // Calculate accumulated profit using the provided function
     const accumulatedProfit = calculateAccumulatedProfitUpToMonth(month);
     
     // Calculate accumulated profit percentage
-    const accumulatedProfitPercentage = accumulatedRevenues > 0 ? (accumulatedProfit / accumulatedRevenues) * 100 : 0;
+    const accumulatedProfitPercentage = accumulatedRevenues > 0 
+      ? (accumulatedProfit / accumulatedRevenues) * 100 
+      : 0;
     
     return {
       month,
-      monthlyCosts: totalCosts,
+      monthlyCosts: totalMonthlyCosts,
       monthlyRevenues: monthRevenues,
       monthlyProfit,
       monthlyProfitPercentage,
@@ -179,8 +178,11 @@ export function useTimelineTableData({
       accumulatedProfit,
       accumulatedProfitPercentage
     } as MonthData;
-  }), [months, revenues, variableCosts, allocations, getOverheadPercentage, year, calculateAccumulatedProfitUpToMonth, 
-       allProjectRevenues, allProjectVariableCosts, allProjectAllocations]);
+  }), [
+    months, revenues, variableCosts, allocations, 
+    getOverheadPercentage, year, calculateAccumulatedProfitUpToMonth,
+    allProjectRevenues, allProjectVariableCosts, allProjectAllocations
+  ]);
 
   return {
     months,
