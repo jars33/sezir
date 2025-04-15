@@ -127,6 +127,10 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
     }
   };
   
+  const handleAddCompanyAtIndex = (name: string, index: number) => {
+    onAddCompany(name);
+  };
+
   const renderTableContent = () => {
     if (items.length === 0 && !isAddingCategory) {
       return (
@@ -203,6 +207,7 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
               onRemoveCompany={onRemoveCompany}
               onUpdateCompanyName={onUpdateCompanyName}
               onAddCompany={onAddCompany}
+              onAddCompanyAtIndex={handleAddCompanyAtIndex}
             />
           </UITableHeader>
 

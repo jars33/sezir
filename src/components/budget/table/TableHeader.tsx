@@ -2,7 +2,7 @@
 import React from "react";
 import { TableRow, TableHead } from "@/components/ui/table";
 import { Company } from "@/types/budget";
-import { Trash2, PlusCircle } from "lucide-react";
+import { X, PlusCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,7 @@ interface TableHeaderProps {
   onRemoveCompany: (id: string) => void;
   onUpdateCompanyName?: (companyId: string, name: string) => void;
   onAddCompany: (name: string) => void;
+  onAddCompanyAtIndex?: (name: string, index: number) => void;
 }
 
 export const TableHeader: React.FC<TableHeaderProps> = ({
@@ -19,11 +20,13 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   onRemoveCompany,
   onUpdateCompanyName,
   onAddCompany,
+  onAddCompanyAtIndex,
 }) => {
   const { t } = useTranslation();
   const [newCompanyName, setNewCompanyName] = React.useState("");
   const [editingCompanyId, setEditingCompanyId] = React.useState<string | null>(null);
   const [editValue, setEditValue] = React.useState("");
+  const [hoveredCompanyId, setHoveredCompanyId] = React.useState<string | null>(null);
   
   const handleAddCompany = () => {
     if (newCompanyName.trim()) {
@@ -51,6 +54,18 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
       setEditingCompanyId(null);
     }
   };
+
+  const handleAddAtIndex = (index: number) => {
+    // Default company name with index
+    const newName = `Company ${companies.length + 1}`;
+    
+    if (onAddCompanyAtIndex) {
+      onAddCompanyAtIndex(newName, index);
+    } else {
+      // Fallback to regular add if index-based function not provided
+      onAddCompany(newName);
+    }
+  };
   
   return (
     <TableRow>
@@ -62,37 +77,63 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
         {t('budget.description')}
       </TableHead>
       
-      {companies.map((company) => (
-        <TableHead key={company.id} className="border border-border text-center relative">
-          <div className="flex items-center justify-between min-w-[100px] pr-8">
-            {editingCompanyId === company.id ? (
-              <Input 
-                value={editValue}
-                onChange={(e) => setEditValue(e.target.value)}
-                onBlur={submitEdit}
-                onKeyDown={handleKeyDown}
-                autoFocus
-                className="min-w-24"
-              />
-            ) : (
-              <div 
-                className="w-full text-center cursor-pointer hover:text-primary transition-colors" 
-                onClick={() => onUpdateCompanyName && startEditing(company)}
+      {companies.map((company, index) => {
+        // Alternate between light green and light red backgrounds
+        const bgColorClass = index % 2 === 0 ? "bg-green-50" : "bg-red-50";
+        
+        return (
+          <TableHead 
+            key={company.id} 
+            className={`border border-border text-center relative ${bgColorClass}`}
+            onMouseEnter={() => setHoveredCompanyId(company.id)}
+            onMouseLeave={() => setHoveredCompanyId(null)}
+          >
+            <div className="flex items-center justify-between min-w-[100px] pr-8">
+              {editingCompanyId === company.id ? (
+                <Input 
+                  value={editValue}
+                  onChange={(e) => setEditValue(e.target.value)}
+                  onBlur={submitEdit}
+                  onKeyDown={handleKeyDown}
+                  autoFocus
+                  className="min-w-24"
+                />
+              ) : (
+                <div 
+                  className="w-full text-center cursor-pointer hover:text-primary transition-colors" 
+                  onClick={() => onUpdateCompanyName && startEditing(company)}
+                >
+                  {company.name}
+                </div>
+              )}
+              
+              {/* Delete button - only visible on hover */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className={`h-6 w-6 absolute right-1 top-1/2 transform -translate-y-1/2 opacity-0 transition-opacity ${
+                  hoveredCompanyId === company.id ? "opacity-100" : ""
+                }`}
+                onClick={() => onRemoveCompany(company.id)}
               >
-                {company.name}
-              </div>
-            )}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6 absolute right-1 top-1/2 transform -translate-y-1/2"
-              onClick={() => onRemoveCompany(company.id)}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
-        </TableHead>
-      ))}
+                <X className="h-4 w-4" />
+              </Button>
+              
+              {/* Add column button - only visible on hover */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className={`h-6 w-6 absolute right-1 top-3/4 transform translate-y-4 opacity-0 transition-opacity ${
+                  hoveredCompanyId === company.id ? "opacity-100" : ""
+                }`}
+                onClick={() => handleAddAtIndex(index + 1)}
+              >
+                <PlusCircle className="h-4 w-4" />
+              </Button>
+            </div>
+          </TableHead>
+        );
+      })}
       
       <TableHead className="border border-border text-center min-w-[100px]">
         {t('budget.lowestPrice')}

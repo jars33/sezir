@@ -77,17 +77,18 @@ export const BudgetItemRow: React.FC<BudgetItemRowProps> = ({
             parentCode={item.isCategory ? item.code : undefined}
           />
           
-          {companies.map((company) => {
+          {companies.map((company, index) => {
             const price = item.prices[company.id] || 0;
+            // Alternate between light green and light red backgrounds
+            const bgColorClass = index % 2 === 0 ? "bg-green-50" : "bg-red-50";
             
             if (item.isCategory && categoryTotals) {
               const categoryPrice = categoryTotals[company.id] || 0;
-              const colorClass = getTextColorClass(categoryPrice, lowestPrice, averagePrice);
               
               return (
                 <TableCell
                   key={`${item.id}-${company.id}`}
-                  className={`border border-border text-right ${colorClass}`}
+                  className={`border border-border text-right ${bgColorClass}`}
                 >
                   {categoryPrice > 0 ? formatCurrency(categoryPrice) : ""}
                 </TableCell>
@@ -95,7 +96,7 @@ export const BudgetItemRow: React.FC<BudgetItemRowProps> = ({
             }
             
             return (
-              <TableCell key={`${item.id}-${company.id}`} className="border border-border p-0">
+              <TableCell key={`${item.id}-${company.id}`} className={`border border-border p-0 ${bgColorClass}`}>
                 <PriceCell
                   price={price}
                   average={item.averagePrice}
