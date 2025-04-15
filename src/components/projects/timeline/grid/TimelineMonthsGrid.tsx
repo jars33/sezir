@@ -39,26 +39,44 @@ export function TimelineMonthsGrid({
 }: TimelineMonthsGridProps) {
   const { register } = useSynchronizedScroll();
   
+  // Register the scroll container
+  const scrollProps = register("timeline-months-grid");
+  
   return (
     <div className="space-y-6">
       <div 
         className="grid auto-cols-[180px] grid-flow-col gap-2 overflow-x-scroll scrollbar-hide"
-        {...register("timeline-months-grid")}
+        ref={scrollProps.ref}
+        onScroll={scrollProps.onScroll}
       >
         {Array.from({ length: 12 }, (_, i) => {
           const monthDate = new Date(startDate);
           monthDate.setMonth(startDate.getMonth() + i);
+          const accumulatedProfit = calculateAccumulatedProfitUpToMonth(monthDate);
+          
+          // Determine overhead costs for this month
+          // This is a simplification - you might need to calculate this differently
+          const monthStr = `${year}-${String(i + 1).padStart(2, '0')}`;
+          const monthRevenues = revenues.filter(r => r.month.startsWith(monthStr));
+          const monthVarCosts = variableCosts.filter(c => c.month.startsWith(monthStr));
+          const monthAllocations = allocations.filter(a => a.month.startsWith(monthStr));
+          
+          // Create empty overhead costs array - will be populated in TimelineMonth if needed
+          const overheadCosts: any[] = [];
           
           return (
             <TimelineMonth
               key={i}
-              date={monthDate}
-              revenues={revenues.filter(r => r.month.startsWith(`${year}-${String(i + 1).padStart(2, '0')}`))}
-              variableCosts={variableCosts.filter(c => c.month.startsWith(`${year}-${String(i + 1).padStart(2, '0')}`))}
-              allocations={allocations.filter(a => a.month.startsWith(`${year}-${String(i + 1).padStart(2, '0')}`))}
+              month={monthDate}
+              revenues={monthRevenues}
+              variableCosts={monthVarCosts}
+              overheadCosts={overheadCosts}
+              allocations={monthAllocations}
               onSelectRevenue={onSelectRevenue}
               onSelectVariableCost={onSelectVariableCost}
+              onSelectOverheadCost={(cost: any) => {/* Not implemented yet */}}
               onSelectAllocation={onSelectAllocation}
+              accumulatedProfit={accumulatedProfit}
               showDecimals={showDecimals}
             />
           );
