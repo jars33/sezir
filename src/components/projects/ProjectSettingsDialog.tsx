@@ -34,20 +34,6 @@ const projectSettingsSchema = z.object({
     .number()
     .min(0, "Percentage must be at least 0")
     .max(100, "Percentage cannot exceed 100")
-    .refine(
-      (value) => {
-        // Convert to string to handle decimal parsing
-        const decimalStr = value.toString();
-        const decimalPart = decimalStr.includes('.') ? 
-          decimalStr.split('.')[1] : '';
-        
-        // Ensure decimal part is at most 2 digits
-        return decimalPart.length <= 2;
-      },
-      {
-        message: "Decimal values must have at most 2 decimal places",
-      }
-    ),
 });
 
 type ProjectSettingsFormValues = z.infer<typeof projectSettingsSchema>;
@@ -141,7 +127,7 @@ export function ProjectSettingsDialog() {
                           type="number"
                           min={0}
                           max={100}
-                          step={0.1}
+                          step={0.01}
                           {...field}
                         />
                       </FormControl>
