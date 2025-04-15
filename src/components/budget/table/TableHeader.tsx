@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { TableHead, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { X, Check, Plus } from "lucide-react";
+import { X, Plus, Check } from "lucide-react";
 import { Company } from "@/types/budget";
 
 interface TableHeaderProps {
@@ -119,6 +119,16 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                 </span>
                 
                 <div className="flex items-center">
+                  {/* Remove company button now placed BEFORE add company button */}
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-5 w-5"
+                    onClick={() => onRemoveCompany(company.id)}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                  
                   {/* Add company button shown only on the last company */}
                   {index === companies.length - 1 && (
                     <Button 
@@ -131,16 +141,6 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                       <Plus className="h-3 w-3" />
                     </Button>
                   )}
-                  
-                  {/* Remove company button */}
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="h-5 w-5"
-                    onClick={() => onRemoveCompany(company.id)}
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
                 </div>
               </>
             )}
