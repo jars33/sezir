@@ -286,7 +286,7 @@
     "categoryPricesAdded": "Category prices will be calculated from items",
     "statsCalculated": "Stats will be calculated automatically",
     "categoryName": "Enter category name",
-    "itemDescription": "Enter item description",
+    "itemDescription": "Description",
     "comparison": "Budget Comparison",
     "createNewBudget": "Create New Budget",
     "noItemsAddedMessage": "No items added. Add items to start the comparison.",
