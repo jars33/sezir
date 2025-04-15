@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useMemo } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { TimelineHeader } from "./TimelineHeader"
 import { TimelineActions } from "./TimelineActions"
