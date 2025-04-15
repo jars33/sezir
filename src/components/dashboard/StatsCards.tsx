@@ -2,6 +2,7 @@
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from "react-i18next";
+import { formatCurrency } from "@/lib/utils";
 
 interface Stat {
   name: string;

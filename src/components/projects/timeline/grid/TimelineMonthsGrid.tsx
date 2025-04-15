@@ -135,7 +135,7 @@ export function TimelineMonthsGrid({
                 month: monthStr,
                 amount: overheadAmount,
                 percentage: overheadPercentage,
-                description: `${showDecimals ? overheadPercentage.toFixed(1) : Math.round(overheadPercentage)}% overhead`
+                description: `${overheadPercentage.toFixed(2).replace(/\.?0+$/, '')}% overhead`
               }] : []
               
               return (

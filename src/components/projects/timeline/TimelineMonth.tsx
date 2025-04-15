@@ -7,7 +7,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { Badge } from "@/components/ui/badge"
-import { cn } from "@/lib/utils"
+import { cn, formatCurrency } from "@/lib/utils"
 import {
   CircleDollarSign,
   TrendingDown,
@@ -73,15 +73,6 @@ export function TimelineMonth({
     new Date().getMonth() === month.getMonth() &&
     new Date().getFullYear() === month.getFullYear()
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "EUR",
-      minimumFractionDigits: showDecimals ? 2 : 0,
-      maximumFractionDigits: showDecimals ? 2 : 0,
-    }).format(amount)
-  }
-
   const handleRevenueClick = () => {
     if (revenues.length === 1) {
       onSelectRevenue(revenues[0]);
@@ -122,7 +113,7 @@ export function TimelineMonth({
         )}
       >
         <div className="text-sm font-medium">
-          {formatCurrency(totalRevenues)}
+          {formatCurrency(totalRevenues, showDecimals)}
         </div>
       </div>
 
@@ -133,7 +124,7 @@ export function TimelineMonth({
           className="bg-blue-50 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 p-2 rounded-md text-xs cursor-pointer"
         >
           <div className="font-medium">
-            {formatCurrency(-allocation.salary_cost)}
+            {formatCurrency(-allocation.salary_cost, showDecimals)}
           </div>
           <div className="truncate">
             {allocation.team_member_name} ({allocation.allocation_percentage}%)
@@ -148,7 +139,7 @@ export function TimelineMonth({
           className="bg-red-50 text-red-800 dark:bg-red-900/30 dark:text-red-300 p-2 rounded-md text-xs cursor-pointer"
         >
           <div className="font-medium">
-            {formatCurrency(-cost.amount)}
+            {formatCurrency(-cost.amount, showDecimals)}
           </div>
           {cost.description && (
             <div className="truncate">
@@ -164,10 +155,10 @@ export function TimelineMonth({
           className="bg-orange-50 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300 p-2 rounded-md text-xs"
         >
           <div className="font-medium">
-            {formatCurrency(-cost.amount)}
+            {formatCurrency(-cost.amount, showDecimals)}
           </div>
           <div className="truncate">
-            {cost.description || `${showDecimals ? cost.percentage.toFixed(1) : Math.round(cost.percentage)}% overhead`}
+            {cost.description || `${cost.percentage.toFixed(2).replace(/\.?0+$/, '')}% overhead`}
           </div>
         </div>
       ))}

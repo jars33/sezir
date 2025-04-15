@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card"
 import { useProjectSettings } from "@/hooks/use-project-settings"
 import { useMemo } from "react"
 import { useLocalStorage } from "@/hooks/use-local-storage"
+import { formatCurrency } from "@/lib/utils"
 
 interface TimelineItem {
   id: string
@@ -75,17 +76,8 @@ export function TimelineSummary({
     }
   }
 
-  const formatAmount = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'EUR',
-      minimumFractionDigits: showDecimals ? 2 : 0,
-      maximumFractionDigits: showDecimals ? 2 : 0
-    }).format(amount);
-  }
-
   const formatRentability = (rentability: number) => {
-    return `${showDecimals ? rentability.toFixed(1) : Math.round(rentability)}%`
+    return `${rentability.toFixed(2).replace(/\.?0+$/, '')}%`
   }
 
   const yearStart = startOfYear(new Date(year, 0, 1))
@@ -119,7 +111,7 @@ export function TimelineSummary({
                     ? "text-emerald-600 dark:text-emerald-400"
                     : "text-red-600 dark:text-red-400"
                 }`}>
-                  {formatAmount(result.profit)}
+                  {formatCurrency(result.profit, showDecimals)}
                 </div>
                 <div className={`text-sm ${
                   result.rentability >= 0 
@@ -146,7 +138,7 @@ export function TimelineSummary({
                     ? "text-emerald-600 dark:text-emerald-400"
                     : "text-red-600 dark:text-red-400"
                 }`}>
-                  {formatAmount(result.profit)}
+                  {formatCurrency(result.profit, showDecimals)}
                 </div>
                 <div className={`text-sm ${
                   result.rentability >= 0 
@@ -167,7 +159,7 @@ export function TimelineSummary({
               ? "text-emerald-600 dark:text-emerald-400"
               : "text-red-600 dark:text-red-400"
           }`}>
-            {formatAmount(yearResult.profit)}
+            {formatCurrency(yearResult.profit, showDecimals)}
           </div>
           <div className={`text-sm ${
             yearResult.rentability >= 0 

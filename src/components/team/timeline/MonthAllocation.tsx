@@ -45,6 +45,12 @@ export function MonthAllocation({ month, allocations, currentDate }: MonthAlloca
     return monthNames[month.getMonth()]
   }
 
+  // Format percentage with proper decimal handling
+  const formatPercentage = (value: number): string => {
+    // Format with 2 decimal places, then remove trailing zeros
+    return value.toFixed(2).replace(/\.?0+$/, '');
+  }
+
   return (
     <div 
       key={month.getTime()} 
@@ -62,7 +68,7 @@ export function MonthAllocation({ month, allocations, currentDate }: MonthAlloca
           totalAllocation > 0 ? 'text-yellow-700 dark:text-yellow-400' :
           isCurrentMonth(month) ? 'text-blue-800 dark:text-blue-300' : ''
         )}>
-          {totalAllocation}%
+          {formatPercentage(totalAllocation)}%
         </div>
       </div>
       <div className="text-center space-y-1">
@@ -77,7 +83,7 @@ export function MonthAllocation({ month, allocations, currentDate }: MonthAlloca
               {allocation.project.name}
             </div>
             <div className="font-medium">
-              {allocation.allocation_percentage}%
+              {formatPercentage(allocation.allocation_percentage)}%
             </div>
           </div>
         ))}
