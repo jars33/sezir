@@ -88,7 +88,6 @@ export const BudgetItemRow: React.FC<BudgetItemRowProps> = ({
           value={item.observations || ""}
           onChange={(e) => onUpdateObservation(item.id, e.target.value)}
           className="w-full min-h-[80px] max-h-[200px] resize-y border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-          placeholder="Add detailed observations..."
         />
       </TableCell>
     </TableRow>
