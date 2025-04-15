@@ -84,11 +84,11 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
         return (
           <TableHead 
             key={company.id} 
-            className={`border border-border text-center relative ${bgColorClass}`}
+            className={`border border-border text-center ${bgColorClass}`}
             onMouseEnter={() => setHoveredCompanyId(company.id)}
             onMouseLeave={() => setHoveredCompanyId(null)}
           >
-            <div className="flex items-center justify-between min-w-[100px] pr-8">
+            <div className="flex items-center justify-center gap-2 min-w-[100px]">
               {editingCompanyId === company.id ? (
                 <Input 
                   value={editValue}
@@ -99,37 +99,39 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                   className="min-w-24"
                 />
               ) : (
-                <div 
-                  className="w-full text-center cursor-pointer hover:text-primary transition-colors" 
-                  onClick={() => onUpdateCompanyName && startEditing(company)}
-                >
-                  {company.name}
-                </div>
+                <>
+                  <div 
+                    className="cursor-pointer hover:text-primary transition-colors"
+                    onClick={() => onUpdateCompanyName && startEditing(company)}
+                  >
+                    {company.name}
+                  </div>
+                  
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className={`h-6 w-6 p-0 opacity-0 transition-opacity ${
+                        hoveredCompanyId === company.id ? "opacity-100" : ""
+                      }`}
+                      onClick={() => onRemoveCompany(company.id)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                    
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className={`h-6 w-6 p-0 opacity-0 transition-opacity ${
+                        hoveredCompanyId === company.id ? "opacity-100" : ""
+                      }`}
+                      onClick={() => handleAddAtIndex(index + 1)}
+                    >
+                      <PlusCircle className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </>
               )}
-              
-              {/* Delete button - only visible on hover */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className={`h-6 w-6 absolute right-1 top-1/2 transform -translate-y-1/2 opacity-0 transition-opacity ${
-                  hoveredCompanyId === company.id ? "opacity-100" : ""
-                }`}
-                onClick={() => onRemoveCompany(company.id)}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-              
-              {/* Add column button - only visible on hover */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className={`h-6 w-6 absolute right-1 top-3/4 transform translate-y-4 opacity-0 transition-opacity ${
-                  hoveredCompanyId === company.id ? "opacity-100" : ""
-                }`}
-                onClick={() => handleAddAtIndex(index + 1)}
-              >
-                <PlusCircle className="h-4 w-4" />
-              </Button>
             </div>
           </TableHead>
         );
