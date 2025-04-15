@@ -73,7 +73,7 @@ export const ItemDescriptionCell: React.FC<ItemDescriptionCellProps> = ({
       <span className={`${isCategory ? "font-medium" : ""} truncate`}>
         {description}
       </span>
-      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="flex gap-1">
         {isCategory && onAddItem && parentCode && (
           <Button 
             variant="ghost" 

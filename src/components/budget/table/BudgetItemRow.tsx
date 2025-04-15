@@ -31,7 +31,7 @@ export const BudgetItemRow: React.FC<BudgetItemRowProps> = ({
   const isCategoryWithValues = item.isCategory && categoryTotals;
   
   return (
-    <TableRow className={item.isCategory ? "bg-muted/50 font-bold" : ""}>
+    <TableRow className={`${item.isCategory ? "bg-muted/50 font-bold" : "hover:bg-muted/20"}`}>
       <TableCell className="border border-border text-center">
         {item.code}
       </TableCell>
