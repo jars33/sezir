@@ -1,3 +1,4 @@
+
 {
   "common": {
     "appName": "sezir.io",
@@ -38,6 +39,7 @@
     "total": "Total",
     "noResultsFound": "Nenhum resultado encontrado",
     "change": "Alterar",
+    "submitting": "Enviando...",
     "months": {
       "jan": "Jan",
       "feb": "Fev",
@@ -135,6 +137,7 @@
     "saveError": "Falha ao salvar membro da equipa",
     "allocation": {
       "title": "Alocação",
+      "edit": "Editar Alocação do Membro da Equipa",
       "description": "Adicione alocação para um único mês ou um período",
       "period": "Período",
       "project": "Projeto",
@@ -143,8 +146,14 @@
       "endMonth": "Mês de Fim",
       "percentage": "Percentagem de Alocação",
       "add": "Adicionar Alocação",
-      "success": "Alocação adicionada com sucesso",
-      "error": "Erro ao adicionar alocação. Por favor, tente novamente."
+      "update": "Atualizar Alocação",
+      "delete": "Excluir Alocação",
+      "added": "Alocação do membro da equipa adicionada com sucesso",
+      "updated": "Alocação do membro da equipa atualizada com sucesso",
+      "deleted": "Alocação do membro da equipa excluída com sucesso",
+      "error": "Erro ao adicionar alocação. Por favor, tente novamente.",
+      "permissionError": "Erro de permissão: Você não tem acesso para criar esta alocação.",
+      "success": "Alocação adicionada com sucesso"
     }
   },
   "project": {
@@ -184,14 +193,20 @@
     "delete": "Eliminar"
   },
   "costs": {
+    "cost": "Custo",
+    "costs": "Custos",
     "variableCost": "Custo Variável",
+    "variable": "Variável",
+    "fixed": "Fixo",
     "overheadCost": "Custo Fixo",
     "revenue": "Receita",
     "editCost": "Editar Custo",
     "deleteCost": "Eliminar Custo",
     "actions": "Ações de Custo",
     "entry": "Entrada",
-    "cost": "Custo",
+    "add": "Adicionar Custo",
+    "confirmation": "Tem certeza que deseja eliminar este custo?",
+    "list": "Lista de Custos",
     "deleteWarning": "Esta ação não pode ser desfeita. Isto irá eliminar permanentemente a {type} {entryType}.",
     "costBreakdown": "Discriminação de Custos",
     "totalCosts": "Custos Totais",
@@ -204,7 +219,20 @@
     "totalProfit": "Lucro Total",
     "salaries": "Salários",
     "variableCosts": "Custos Variáveis",
-    "overhead": "Custos Fixos"
+    "overhead": "Custos Fixos",
+    "date": "Data",
+    "description": "Descrição",
+    "amount": "Montante",
+    "detailedBreakdown": "Detalhamento Financeiro Detalhado",
+    "metric": "Métrica",
+    "monthlyCosts": "Custos Mensais",
+    "accumulatedCosts": "Custos Acumulados",
+    "monthlyRevenues": "Receitas Mensais",
+    "accumulatedRevenues": "Receitas Acumuladas",
+    "monthlyProfit": "Lucro Mensal",
+    "monthlyProfitPercentage": "Lucro Mensal (%)",
+    "accumulatedProfit": "Lucro Acumulado",
+    "accumulatedProfitPercentage": "Lucro Acumulado (%)"
   },
   "salary": {
     "history": "Histórico Salarial",
@@ -274,6 +302,15 @@
     "enterBudgetDescription": "Inserir descrição do orçamento...",
     "descriptionRequired": "A descrição é obrigatória",
     "noProject": "Sem projeto",
-    "addCategory": "Adicionar Categoria"
+    "addCategory": "Adicionar Categoria",
+    "autoCode": "Auto",
+    "selectCategory": "Selecione categoria pai",
+    "pricesAddedLater": "Os preços podem ser adicionados após a criação do item",
+    "categoryPricesAdded": "Os preços da categoria serão calculados a partir dos itens",
+    "statsCalculated": "As estatísticas serão calculadas automaticamente",
+    "categoryName": "Inserir nome da categoria",
+    "deletedSuccess": "Orçamento eliminado com sucesso",
+    "errorDeleting": "Erro ao eliminar orçamento",
+    "deleteWarning": "Esta ação não pode ser desfeita. Isto irá eliminar permanentemente este orçamento."
   }
 }
