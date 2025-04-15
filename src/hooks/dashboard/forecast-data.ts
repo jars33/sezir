@@ -7,7 +7,8 @@ export function generateForecastData(
   projectRevenues: any[] = [],
   projectVariableCosts: any[] = [], // Renamed parameter to avoid name clash
   overheadCosts: any[] = [],
-  allocations: any[] = []
+  allocations: any[] = [],
+  overheadPercentage: number = 15 // Add overhead percentage parameter with default
 ) {
   // Initialize with empty arrays if inputs are undefined
   projectRevenues = projectRevenues || []
@@ -27,7 +28,6 @@ export function generateForecastData(
     let actualRevenue = 0
     let monthlySalaryCosts = 0
     let monthlyVariableCosts = 0
-    let explicitOverheadCosts = 0
     
     // Calculate actuals for the month
     projectRevenues?.forEach(rev => {
@@ -43,13 +43,6 @@ export function generateForecastData(
       }
     })
     
-    // Overhead costs
-    overheadCosts.forEach(cost => {
-      if (cost && cost.month && cost.month.startsWith(monthStr)) {
-        explicitOverheadCosts += Number(cost.amount || 0)
-      }
-    })
-    
     // Allocations for salary costs
     allocations.forEach(allocation => {
       if (allocation && allocation.month && allocation.month.startsWith(monthStr) && allocation.salary_cost) {
@@ -60,9 +53,11 @@ export function generateForecastData(
     // Calculate base costs (variable + salary costs)
     const baseCosts = monthlyVariableCosts + monthlySalaryCosts
     
-    // In forecast view, we include explicit overhead costs only, not calculated from percentage
-    // as the focus is on actual recorded costs
-    const totalCosts = baseCosts + explicitOverheadCosts
+    // Calculate overhead costs based on the overhead percentage
+    const calculatedOverheadCosts = (baseCosts * overheadPercentage) / 100
+    
+    // Total costs = base costs + calculated overhead
+    const totalCosts = baseCosts + calculatedOverheadCosts
     
     forecastData.push({
       month: monthName,

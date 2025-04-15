@@ -8,7 +8,8 @@ export function generateCashFlowData(
   projectRevenues: any[],
   variableCosts: any[],
   overheadCosts: any[],
-  allocations: any[]
+  allocations: any[],
+  overheadPercentage: number = 15 // Add overhead percentage parameter
 ) {
   const cashFlowData = []
   
@@ -39,13 +40,6 @@ export function generateCashFlowData(
       }
     })
     
-    let monthlyOverheadCosts = 0
-    overheadCosts?.forEach(cost => {
-      if (cost.month.startsWith(monthStr)) {
-        monthlyOverheadCosts += Number(cost.amount)
-      }
-    })
-    
     let monthlySalaryCosts = 0
     allocations?.forEach(allocation => {
       if (allocation.month.startsWith(monthStr) && allocation.salary_cost !== undefined && allocation.salary_cost !== null) {
@@ -56,18 +50,17 @@ export function generateCashFlowData(
     // Total base costs (variable + salary costs)
     const monthlyBaseCosts = monthlyVariableCosts + monthlySalaryCosts
     
-    // Explicit overhead costs (those entered directly in the system)
-    // Note: This is separate from the overhead percentage calculation
+    // Calculate overhead costs using the percentage
+    const calculatedOverheadCosts = (monthlyBaseCosts * overheadPercentage) / 100
     
-    // Calculate net cash flow: revenue - (baseCosts + explicit overhead costs)
-    // Note: The overhead percentage is not applied in the cash flow view as we're showing actual cash movements
-    const netCashFlow = monthlyRevenue - monthlyBaseCosts - monthlyOverheadCosts
+    // Calculate net cash flow: revenue - (baseCosts + calculated overhead costs)
+    const netCashFlow = monthlyRevenue - monthlyBaseCosts - calculatedOverheadCosts
     
     cashFlowData.push({
       month: name,
       revenue: monthlyRevenue,
       variableCosts: monthlyVariableCosts,
-      overheadCosts: monthlyOverheadCosts,
+      overheadCosts: calculatedOverheadCosts, // Use calculated overhead costs
       salaryCosts: monthlySalaryCosts,
       netCashFlow: netCashFlow
     })

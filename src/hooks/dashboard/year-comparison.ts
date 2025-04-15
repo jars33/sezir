@@ -7,7 +7,8 @@ export function generateYearComparisonData(
   selectedYear: number,
   projectRevenues: any[],
   variableCosts: any[],
-  overheadCosts: any[]
+  overheadCosts: any[],
+  overheadPercentage: number = 15 // Add overhead percentage parameter
 ) {
   const yearComparisonData = []
   const currentYear = selectedYear
@@ -43,18 +44,25 @@ export function generateYearComparisonData(
       }
     })
     
-    // Explicit overhead costs directly entered in the system
-    let explicitOverheadCost = 0
-    overheadCosts?.forEach(cost => {
-      const costYear = getYear(new Date(cost.month))
-      if (costYear === year && cost.month.startsWith(monthStr)) {
-        explicitOverheadCost += Number(cost.amount)
+    // Instead of explicit overhead costs, calculate based on the overhead percentage
+    let salaryCost = 0
+    allocations?.forEach(allocation => {
+      const allocYear = getYear(new Date(allocation.month))
+      if (allocYear === year && allocation.month.startsWith(monthStr) && allocation.salary_cost) {
+        salaryCost += Number(allocation.salary_cost)
       }
     })
     
-    // For year comparison, we only have explicit overhead costs, not the calculated percentage
-    // since we don't have allocation data here
-    const totalCost = variableCost + explicitOverheadCost
+    // Calculate base costs
+    const baseCosts = variableCost + salaryCost
+    
+    // Calculate overhead costs using the percentage
+    const calculatedOverheadCosts = (baseCosts * overheadPercentage) / 100
+    
+    // Calculate total cost: base costs + calculated overhead costs
+    const totalCost = baseCosts + calculatedOverheadCosts
+    
+    // Calculate profit
     const profit = revenue - totalCost
     
     return { revenue, profit }

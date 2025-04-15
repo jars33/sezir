@@ -1,3 +1,4 @@
+
 import { startOfYear, endOfYear, isWithinInterval, getYear } from "date-fns"
 import { DashboardMetrics } from "./types"
 import {
@@ -128,13 +129,14 @@ export const useMetricsCalculator = (
     yearEnd
   )
   
-  // 8. Generate forecast data - Update to use the renamed parameter
+  // 8. Generate forecast data - Pass the overhead percentage
   const forecastData = generateForecastData(
     selectedYear,
     projectRevenues,
     variableCosts,
     overheadCosts,
-    allocations
+    allocations,
+    overheadPercentage
   )
   
   // 9. Calculate cost breakdown
@@ -145,21 +147,23 @@ export const useMetricsCalculator = (
     selectedYear
   )
   
-  // 10. Generate cash flow data
+  // 10. Generate cash flow data - Update to include overhead percentage
   const cashFlowData = generateCashFlowData(
     selectedYear,
     projectRevenues,
     variableCosts,
     overheadCosts,
-    allocations
+    allocations,
+    overheadPercentage
   )
   
-  // 11. Generate year comparison data
+  // 11. Generate year comparison data - Update to include overhead percentage
   const yearComparisonData = generateYearComparisonData(
     selectedYear,
     projectRevenues,
     variableCosts,
-    overheadCosts
+    overheadCosts,
+    overheadPercentage
   )
   
   return {

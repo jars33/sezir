@@ -6,11 +6,11 @@ export function calculateCostBreakdown(
   variableCosts: any[],
   overheadCosts: any[],
   allocations: any[],
-  selectedYear: number
+  selectedYear: number,
+  overheadPercentage: number = 15 // Add overhead percentage parameter
 ) {
   // Calculate total costs by category
   let totalVariableCosts = 0
-  let totalExplicitOverheadCosts = 0 // These are overhead costs directly entered in the system
   let totalSalaryCosts = 0
   
   // Sum variable costs
@@ -18,14 +18,6 @@ export function calculateCostBreakdown(
     const costYear = getYear(new Date(cost.month))
     if (costYear === selectedYear) {
       totalVariableCosts += Number(cost.amount)
-    }
-  })
-  
-  // Sum explicit overhead costs - these are directly entered overhead costs
-  overheadCosts?.forEach(cost => {
-    const costYear = getYear(new Date(cost.month))
-    if (costYear === selectedYear) {
-      totalExplicitOverheadCosts += Number(cost.amount)
     }
   })
   
@@ -39,8 +31,14 @@ export function calculateCostBreakdown(
     }
   })
   
+  // Calculate total base costs
+  const totalBaseCosts = totalVariableCosts + totalSalaryCosts
+  
+  // Calculate overhead costs using the percentage
+  const totalOverheadCosts = (totalBaseCosts * overheadPercentage) / 100
+  
   // Calculate total
-  const totalCosts = totalVariableCosts + totalExplicitOverheadCosts + totalSalaryCosts
+  const totalCosts = totalBaseCosts + totalOverheadCosts
   
   // Create breakdown items with percentages
   const costBreakdown = [
@@ -56,8 +54,8 @@ export function calculateCostBreakdown(
     },
     {
       category: "Overhead",
-      value: totalExplicitOverheadCosts,
-      percentage: totalCosts > 0 ? (totalExplicitOverheadCosts / totalCosts) * 100 : 0
+      value: totalOverheadCosts,
+      percentage: totalCosts > 0 ? (totalOverheadCosts / totalCosts) * 100 : 0
     }
   ]
   
