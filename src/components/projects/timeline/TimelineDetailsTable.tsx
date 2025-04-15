@@ -7,6 +7,7 @@ import { SynchronizedTableContainer } from "./table/SynchronizedTableContainer";
 import { TimelineTableHeader } from "./table/TableHeader";
 import { MetricRow } from "./table/MetricRow";
 import { useTimelineTableData } from "./hooks/useTimelineTableData";
+import type { TimelineItem, AllocationItem } from "./actions/types";
 
 interface TimelineDetailsTableProps {
   startDate: Date;
@@ -15,6 +16,9 @@ interface TimelineDetailsTableProps {
   allocations: any[];
   calculateAccumulatedProfitUpToMonth: (targetMonth: Date) => number;
   year: number;
+  allProjectRevenues?: TimelineItem[];
+  allProjectVariableCosts?: TimelineItem[];
+  allProjectAllocations?: AllocationItem[];
 }
 
 export function TimelineDetailsTable({
@@ -23,7 +27,10 @@ export function TimelineDetailsTable({
   variableCosts,
   allocations,
   calculateAccumulatedProfitUpToMonth,
-  year
+  year,
+  allProjectRevenues = [],
+  allProjectVariableCosts = [],
+  allProjectAllocations = []
 }: TimelineDetailsTableProps) {
   const { t } = useTranslation();
   const [showDecimals] = useLocalStorage<boolean>("showDecimals", true);
@@ -35,7 +42,10 @@ export function TimelineDetailsTable({
     variableCosts,
     allocations,
     calculateAccumulatedProfitUpToMonth,
-    year
+    year,
+    allProjectRevenues,
+    allProjectVariableCosts,
+    allProjectAllocations
   });
   
   return (

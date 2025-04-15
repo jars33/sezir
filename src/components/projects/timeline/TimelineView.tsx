@@ -113,7 +113,10 @@ export function TimelineView({ projectId }: TimelineViewProps) {
     revenues,
     variableCosts,
     allocations,
-    year
+    year,
+    allProjectRevenues,
+    allProjectVariableCosts,
+    allProjectAllocations
   )
 
   const handlePreviousYear = () => {
@@ -184,6 +187,9 @@ export function TimelineView({ projectId }: TimelineViewProps) {
             calculateAccumulatedProfitUpToMonth={calculateAccumulatedProfitUpToMonth}
             year={year}
             showDecimals={showDecimals}
+            allProjectRevenues={allProjectRevenues}
+            allProjectVariableCosts={allProjectVariableCosts}
+            allProjectAllocations={allProjectAllocations}
           />
         </SynchronizedScrollProvider>
 
