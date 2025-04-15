@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { Settings } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -35,11 +36,12 @@ const projectSettingsSchema = z.object({
     .max(100, "Percentage cannot exceed 100")
     .refine(
       (value) => {
-        // Check if the decimal part has at most 2 decimal places
+        // Convert to string to handle decimal parsing
         const decimalStr = value.toString();
         const decimalPart = decimalStr.includes('.') ? 
           decimalStr.split('.')[1] : '';
         
+        // Ensure decimal part is at most 2 digits
         return decimalPart.length <= 2;
       },
       {
