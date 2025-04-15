@@ -120,10 +120,15 @@ export function TimelineMonthsGrid({
             {months.map((month) => {
               const monthStr = format(month, "yyyy-MM")
               const monthVariableCosts = variableCosts?.filter(c => c.month.startsWith(monthStr)) || []
+              const monthAllocations = allocations?.filter(a => a.month.startsWith(monthStr)) || []
+              
               const overheadPercentage = getOverheadPercentage(year)
               
               const totalVariableCosts = monthVariableCosts.reduce((sum, c) => sum + Number(c.amount), 0)
-              const overheadAmount = (totalVariableCosts * overheadPercentage) / 100
+              const totalSalaryCosts = monthAllocations.reduce((sum, a) => sum + Number(a.salary_cost), 0)
+              
+              // Calculate overhead based on both variable costs and allocations
+              const overheadAmount = ((totalVariableCosts + totalSalaryCosts) * overheadPercentage) / 100
               
               const overheadCosts = overheadAmount > 0 ? [{
                 id: `overhead-${monthStr}`,
@@ -140,7 +145,7 @@ export function TimelineMonthsGrid({
                   revenues={revenues?.filter(r => r.month.startsWith(monthStr)) || []}
                   variableCosts={monthVariableCosts}
                   overheadCosts={overheadCosts}
-                  allocations={allocations?.filter(a => a.month.startsWith(monthStr)) || []}
+                  allocations={monthAllocations}
                   onSelectRevenue={onSelectRevenue}
                   onSelectVariableCost={onSelectVariableCost}
                   onSelectOverheadCost={() => {}}

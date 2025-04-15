@@ -39,14 +39,14 @@ export function useTimelineProfitability(
       ?.filter(c => c.month <= targetMonthStr)
       .reduce((sum, c) => sum + Number(c.amount), 0) || 0
 
-    const overheadPercentage = getOverheadPercentage(year)
-    
-    // Calculate overhead costs without rounding
-    const accumulatedOverheadCosts = (accumulatedVariableCosts * overheadPercentage) / 100
-
     const accumulatedSalaryCosts = allocations
       ?.filter(a => a.month <= targetMonthStr)
       .reduce((sum, a) => sum + Number(a.salary_cost), 0) || 0
+
+    const overheadPercentage = getOverheadPercentage(year)
+    
+    // Calculate overhead costs based on variable costs AND salary costs
+    const accumulatedOverheadCosts = ((accumulatedVariableCosts + accumulatedSalaryCosts) * overheadPercentage) / 100
 
     // Return exact value with all decimals
     return accumulatedRevenues - accumulatedVariableCosts - accumulatedOverheadCosts - accumulatedSalaryCosts

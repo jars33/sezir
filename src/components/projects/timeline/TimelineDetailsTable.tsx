@@ -1,4 +1,3 @@
-
 import { useTranslation } from "react-i18next";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TrendingDown, TrendingUp } from "lucide-react";
@@ -6,7 +5,8 @@ import { format, addMonths } from "date-fns";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { cn } from "@/lib/utils";
 import { useSynchronizedScroll } from "@/hooks/use-synchronized-scroll";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useMemo } from "react";
+import { useProjectSettings } from "@/hooks/use-project-settings";
 
 interface TimelineDetailsTableProps {
   startDate: Date;
@@ -29,6 +29,7 @@ export function TimelineDetailsTable({
   const [showDecimals] = useLocalStorage<boolean>("showDecimals", true);
   const { registerContainer, scrollLeft, setScrollLeft } = useSynchronizedScroll();
   const tableContainerRef = useRef<HTMLDivElement>(null);
+  const { getOverheadPercentage } = useProjectSettings();
   
   useEffect(() => {
     registerContainer(tableContainerRef.current);
@@ -68,14 +69,13 @@ export function TimelineDetailsTable({
     }
   };
   
-  // Handle scroll event
   const handleScroll = () => {
     if (tableContainerRef.current) {
       setScrollLeft(tableContainerRef.current.scrollLeft);
     }
   };
   
-  const monthlyData = months.map(month => {
+  const monthlyData = useMemo(() => months.map(month => {
     const monthStr = format(month, "yyyy-MM");
     
     const monthRevenues = revenues
@@ -90,7 +90,10 @@ export function TimelineDetailsTable({
       .filter(a => a.month.startsWith(monthStr))
       .reduce((sum, a) => sum + Number(a.salary_cost), 0);
     
-    const totalCosts = monthVariableCosts + monthAllocations;
+    const overheadPercentage = getOverheadPercentage(year);
+    const monthOverheadCosts = ((monthVariableCosts + monthAllocations) * overheadPercentage) / 100;
+    
+    const totalCosts = monthVariableCosts + monthAllocations + monthOverheadCosts;
     
     const monthlyProfit = monthRevenues - totalCosts;
     
@@ -98,30 +101,38 @@ export function TimelineDetailsTable({
     
     const accumulatedProfit = calculateAccumulatedProfitUpToMonth(month);
     
-    const accumulatedCosts = months
+    const accumulatedVariableCosts = months
       .filter(m => m <= month)
-      .reduce((sum, m) => {
+      .flatMap(m => {
         const mStr = format(m, "yyyy-MM");
-        const mVarCosts = variableCosts
-          .filter(c => c.month.startsWith(mStr))
-          .reduce((s, c) => s + Number(c.amount), 0);
-        const mAllocCosts = allocations
-          .filter(a => a.month.startsWith(mStr))
-          .reduce((s, a) => s + Number(a.salary_cost), 0);
-        return sum + mVarCosts + mAllocCosts;
-      }, 0);
+        return variableCosts
+          .filter(c => c.month.startsWith(mStr));
+      })
+      .reduce((s, c) => s + Number(c.amount), 0);
       
+    const accumulatedAllocCosts = months
+      .filter(m => m <= month)
+      .flatMap(m => {
+        const mStr = format(m, "yyyy-MM");
+        return allocations
+          .filter(a => a.month.startsWith(mStr));
+      })
+      .reduce((s, a) => s + Number(a.salary_cost), 0);
+      
+    const accumulatedOverheadCosts = ((accumulatedVariableCosts + accumulatedAllocCosts) * overheadPercentage) / 100;
+      
+    const accumulatedTotalCosts = accumulatedVariableCosts + accumulatedAllocCosts + accumulatedOverheadCosts;
+    
     const accumulatedRevenues = months
       .filter(m => m <= month)
-      .reduce((sum, m) => {
+      .flatMap(m => {
         const mStr = format(m, "yyyy-MM");
-        const mRev = revenues
-          .filter(r => r.month.startsWith(mStr))
-          .reduce((s, r) => s + Number(r.amount), 0);
-        return sum + mRev;
-      }, 0);
+        return revenues
+          .filter(r => r.month.startsWith(mStr));
+      })
+      .reduce((s, r) => s + Number(r.amount), 0);
     
-    const accumulatedRentabilityPercentage = accumulatedCosts > 0 ? (accumulatedProfit / accumulatedCosts) * 100 : 0;
+    const accumulatedRentabilityPercentage = accumulatedTotalCosts > 0 ? (accumulatedProfit / accumulatedTotalCosts) * 100 : 0;
     
     return {
       month,
@@ -129,12 +140,12 @@ export function TimelineDetailsTable({
       monthlyRevenues: monthRevenues,
       monthlyProfit,
       monthlyRentabilityPercentage,
-      accumulatedCosts,
+      accumulatedCosts: accumulatedTotalCosts,
       accumulatedRevenues,
       accumulatedProfit,
       accumulatedRentabilityPercentage
     };
-  });
+  }), [months, revenues, variableCosts, allocations, getOverheadPercentage, year, calculateAccumulatedProfitUpToMonth]);
   
   return (
     <div 

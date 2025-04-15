@@ -1,3 +1,4 @@
+
 import { format, getYear, getQuarter, startOfYear, endOfYear } from "date-fns"
 import { Card } from "@/components/ui/card"
 import { useProjectSettings } from "@/hooks/use-project-settings"
@@ -61,21 +62,21 @@ export function TimelineSummary({
       }
     ).reduce((sum, c) => sum + Number(c.amount), 0)
     
-    const overheadPercentage = getOverheadPercentage(year)
-    
-    // Calculate overhead costs without rounding
-    const filteredOverheadCosts = (filteredVariableCosts * overheadPercentage) / 100
-
     const filteredSalaryCosts = allocations.filter(
       a => {
         const date = new Date(a.month)
         return date >= startDate && date <= endDate
       }
     ).reduce((sum, a) => sum + Number(a.salary_cost), 0)
+    
+    const overheadPercentage = getOverheadPercentage(year)
+    
+    // Calculate overhead costs based on variable costs AND salary costs
+    const filteredOverheadCosts = ((filteredVariableCosts + filteredSalaryCosts) * overheadPercentage) / 100
 
     const totalCosts = filteredVariableCosts + filteredOverheadCosts + filteredSalaryCosts
-    const profit = filteredRevenues - totalCosts
 
+    const profit = filteredRevenues - totalCosts
     const rentability = totalCosts > 0 ? (profit / totalCosts) * 100 : 0
 
     return {

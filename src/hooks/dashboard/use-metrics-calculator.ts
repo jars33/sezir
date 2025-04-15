@@ -98,6 +98,7 @@ export const useMetricsCalculator = (
   )
   
   // 5. Generate chart data using extracted function WITH overhead percentage
+  // overheadPercentage is applied to both variable costs and allocations
   const chartData = generateDashboardChartData(
     selectedYear,
     projectRevenues,

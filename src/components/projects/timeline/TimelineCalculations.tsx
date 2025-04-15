@@ -45,14 +45,14 @@ export function useTimelineCalculations(
     return year === currentYear ? sum + Number(c.amount) : sum
   }, 0) || 0
 
-  // Calculate overhead costs as a percentage of the variable costs
-  // Using precise decimal calculation
-  const totalOverheadCosts = (totalVariableCosts * overheadPercentage) / 100
-
   const totalSalaryCosts = allocations?.reduce((sum, a) => {
     const year = getYear(new Date(a.month))
     return year === currentYear ? sum + Number(a.salary_cost) : sum
   }, 0) || 0
+  
+  // Calculate overhead costs as a percentage of the variable costs AND allocation costs combined
+  // Using precise decimal calculation
+  const totalOverheadCosts = ((totalVariableCosts + totalSalaryCosts) * overheadPercentage) / 100
 
   const totalProfit = totalRevenues - totalVariableCosts - totalOverheadCosts - totalSalaryCosts
 

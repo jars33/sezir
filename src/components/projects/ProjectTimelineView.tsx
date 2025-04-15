@@ -1,4 +1,3 @@
-
 import { Card, CardContent } from "@/components/ui/card"
 import { TimelineHeader } from "./timeline/TimelineHeader"
 import { TimelineSummary } from "./timeline/TimelineSummary"
@@ -80,22 +79,37 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
     // Calculate total salary costs across all years
     const totalSalaryCosts = allProjectAllocations?.reduce((sum, a) => sum + Number(a.salary_cost), 0) || 0;
     
-    // Calculate overhead costs for each year separately, then sum them
-    let totalOverheadCosts = 0;
+    // Group costs by year for proper overhead calculation
+    const costsByYear = new Map<number, { varCosts: number, salaryCosts: number }>();
     
     // Group variable costs by year
-    const varCostsByYear = allProjectVariableCosts?.reduce((acc, cost) => {
+    allProjectVariableCosts?.forEach(cost => {
       const costYear = getYear(new Date(cost.month));
-      if (!acc[costYear]) acc[costYear] = 0;
-      acc[costYear] += Number(cost.amount);
-      return acc;
-    }, {} as Record<number, number>) || {};
+      if (!costsByYear.has(costYear)) {
+        costsByYear.set(costYear, { varCosts: 0, salaryCosts: 0 });
+      }
+      const yearData = costsByYear.get(costYear)!;
+      yearData.varCosts += Number(cost.amount);
+      costsByYear.set(costYear, yearData);
+    });
     
-    // Calculate overhead for each year based on that year's variable costs
-    Object.entries(varCostsByYear).forEach(([yearStr, yearCosts]) => {
-      const yearNum = parseInt(yearStr);
+    // Group salary costs by year
+    allProjectAllocations?.forEach(allocation => {
+      const allocYear = getYear(new Date(allocation.month));
+      if (!costsByYear.has(allocYear)) {
+        costsByYear.set(allocYear, { varCosts: 0, salaryCosts: 0 });
+      }
+      const yearData = costsByYear.get(allocYear)!;
+      yearData.salaryCosts += Number(allocation.salary_cost);
+      costsByYear.set(allocYear, yearData);
+    });
+    
+    // Calculate overhead costs for each year based on that year's costs (variable + salary)
+    let totalOverheadCosts = 0;
+    costsByYear.forEach((costs, yearNum) => {
       const yearOverheadPercentage = getOverheadPercentage(yearNum);
-      totalOverheadCosts += (yearCosts * yearOverheadPercentage) / 100;
+      const yearTotalCosts = costs.varCosts + costs.salaryCosts;
+      totalOverheadCosts += (yearTotalCosts * yearOverheadPercentage) / 100;
     });
     
     // Calculate total profit with overhead included
