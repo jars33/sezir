@@ -64,11 +64,12 @@ export function recalculateItemCodes(items: any[]): any[] {
   // First, identify all top-level items
   const topLevelItems = items.filter(item => !item.code.includes('.'));
   
-  // Sort top-level items by their numeric code
-  topLevelItems.sort((a, b) => {
-    const aCode = parseInt(a.code);
-    const bCode = parseInt(b.code);
-    return aCode - bCode;
+  // Sort top-level items by their index in the array
+  // This preserves the order after dragging
+  const sortedTopLevelItems = [...topLevelItems].sort((a, b) => {
+    const aIndex = items.findIndex(item => item.id === a.id);
+    const bIndex = items.findIndex(item => item.id === b.id);
+    return aIndex - bIndex;
   });
   
   // Assign sequential codes to top-level items
@@ -77,7 +78,7 @@ export function recalculateItemCodes(items: any[]): any[] {
   const codeMap = new Map(); // Map to track old code -> new code
   
   // First pass: update top-level codes and build the mapping
-  topLevelItems.forEach(item => {
+  sortedTopLevelItems.forEach(item => {
     const oldCode = item.code;
     const newCode = String(currentTopCode);
     
@@ -120,11 +121,12 @@ export function recalculateItemCodes(items: any[]): any[] {
       return parent === category.code && subCode && !subCode.includes('.');
     });
     
-    // Sort children by their current sub-code
+    // Sort children by their current order in the array
+    // This preserves the drag order within a category
     children.sort((a, b) => {
-      const [, aSubCode] = a.code.split('.');
-      const [, bSubCode] = b.code.split('.');
-      return parseInt(aSubCode) - parseInt(bSubCode);
+      const aIndex = updatedItems.findIndex(item => item.id === a.id);
+      const bIndex = updatedItems.findIndex(item => item.id === b.id);
+      return aIndex - bIndex;
     });
     
     // Renumber the children sequentially

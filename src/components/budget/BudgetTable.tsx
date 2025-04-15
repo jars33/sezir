@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Table, TableHeader as UITableHeader, TableBody } from "@/components/ui/table";
@@ -47,12 +46,10 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
   const [inlineAddingParentCode, setInlineAddingParentCode] = useState<string | null>(null);
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   
-  // Handler for adding an item to a category - opens inline editor
   const handleAddItemToCategory = (parentCode: string) => {
     setInlineAddingParentCode(parentCode);
   };
   
-  // Handle adding item from inline editor
   const handleInlineItemAdd = (description: string) => {
     if (inlineAddingParentCode && description.trim() && onAddItem) {
       onAddItem(description, inlineAddingParentCode);
@@ -60,7 +57,6 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
     }
   };
 
-  // Handle adding a new category
   const handleAddCategory = () => {
     if (onAddCategory) {
       onAddCategory();
@@ -69,7 +65,6 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
     }
   };
 
-  // Handle adding category from inline editor
   const handleCategoryAdd = (description: string) => {
     if (description.trim() && onAddItem) {
       onAddItem(description);
@@ -77,30 +72,61 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
     }
   };
 
-  // Handle drag end event
   const handleDragEnd = (result: DropResult) => {
-    const { destination, source } = result;
+    const { destination, source, draggableId } = result;
     
-    // Dropped outside the list or no movement
     if (!destination || (destination.index === source.index)) {
       return;
     }
     
-    // Create reordered array
+    const draggedItem = items.find(item => item.id === draggableId);
+    if (!draggedItem) return;
+    
     const reorderedItems = Array.from(items);
-    const [removed] = reorderedItems.splice(source.index, 1);
-    reorderedItems.splice(destination.index, 0, removed);
     
-    // Always recalculate item codes after reordering
-    const updatedItems = recalculateItemCodes(reorderedItems);
-    
-    // Pass the reordered and recalculated items back to parent
-    if (onReorderItems) {
-      onReorderItems(updatedItems);
+    if (draggedItem.isCategory) {
+      const categoryCode = draggedItem.code;
+      const categoryItems = items.filter(item => {
+        if (item.id === draggableId) return true;
+        
+        if (!item.code.includes('.')) return false;
+        
+        const [parentCode] = item.code.split('.');
+        return parentCode === categoryCode;
+      });
+      
+      const itemIndices = categoryItems.map(item => 
+        items.findIndex(i => i.id === item.id)
+      ).sort((a, b) => b - a);
+      
+      const withoutCategoryItems = [...reorderedItems];
+      itemIndices.forEach(index => {
+        withoutCategoryItems.splice(index, 1);
+      });
+      
+      const insertPosition = destination.index > source.index 
+        ? destination.index - categoryItems.length + 1 
+        : destination.index;
+      
+      withoutCategoryItems.splice(insertPosition, 0, ...categoryItems);
+      
+      const updatedItems = recalculateItemCodes(withoutCategoryItems);
+      
+      if (onReorderItems) {
+        onReorderItems(updatedItems);
+      }
+    } else {
+      const [removed] = reorderedItems.splice(source.index, 1);
+      reorderedItems.splice(destination.index, 0, removed);
+      
+      const updatedItems = recalculateItemCodes(reorderedItems);
+      
+      if (onReorderItems) {
+        onReorderItems(updatedItems);
+      }
     }
   };
   
-  // Render the table content - empty state or items
   const renderTableContent = () => {
     if (items.length === 0 && !isAddingCategory) {
       return (
@@ -153,7 +179,6 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
     );
   };
 
-  // Render the add category button
   const renderAddCategoryButton = () => (
     <div className="flex justify-end mt-4">
       <Button 
@@ -195,7 +220,6 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
         </Table>
       </DragDropContext>
 
-      {/* Add category button below the table */}
       {renderAddCategoryButton()}
     </div>
   );
