@@ -7,17 +7,19 @@ import { useTranslation } from "react-i18next";
 import { Check, X } from "lucide-react";
 
 interface InlineItemCreationProps {
-  parentCode: string;
+  parentCode?: string;
   companiesCount: number;
   onAddItem: (description: string) => void;
   onCancel: () => void;
+  isCategory?: boolean;
 }
 
 export const InlineItemCreation: React.FC<InlineItemCreationProps> = ({ 
   parentCode, 
   companiesCount, 
   onAddItem,
-  onCancel
+  onCancel,
+  isCategory = false
 }) => {
   const { t } = useTranslation();
   const [description, setDescription] = useState("");
@@ -43,10 +45,12 @@ export const InlineItemCreation: React.FC<InlineItemCreationProps> = ({
     }
   };
 
+  const displayCode = isCategory ? "X" : `${parentCode}.X`;
+
   return (
-    <TableRow className="bg-muted/5 border-l-2 border-l-primary">
+    <TableRow className={`${isCategory ? "bg-muted/50" : "bg-muted/5 border-l-2 border-l-primary"}`}>
       <TableCell className="border border-border text-center text-xs text-muted-foreground">
-        {`${parentCode}.X`}
+        {displayCode}
       </TableCell>
       <TableCell className="border border-border">
         <div className="flex items-center gap-2">
@@ -54,7 +58,7 @@ export const InlineItemCreation: React.FC<InlineItemCreationProps> = ({
             ref={inputRef}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder={t('budget.itemDescription')}
+            placeholder={isCategory ? t('budget.categoryDescription') : t('budget.itemDescription')}
             onKeyDown={handleKeyDown}
             className="flex-1"
           />

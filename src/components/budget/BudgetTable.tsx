@@ -7,8 +7,10 @@ import { TableHeader as BudgetTableHeader } from "./table/TableHeader";
 import { BudgetItemRow } from "./table/BudgetItemRow";
 import { TotalsRow } from "./table/TotalsRow";
 import { InlineItemCreation } from "./table/InlineItemCreation";
-import { calculateCategoryTotals } from "./table/categoryCalculations";
+import { calculateCategoryTotals, recalculateItemCodes } from "./table/categoryCalculations";
 import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 interface BudgetTableProps {
   items: BudgetComparisonItem[];
@@ -39,6 +41,7 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
 }) => {
   const { t } = useTranslation();
   const [inlineAddingParentCode, setInlineAddingParentCode] = useState<string | null>(null);
+  const [isAddingCategory, setIsAddingCategory] = useState(false);
   
   // Handler for adding an item to a category - opens inline editor
   const handleAddItemToCategory = (parentCode: string) => {
@@ -50,6 +53,16 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
     if (inlineAddingParentCode && description.trim()) {
       setInlineAddingParentCode(null);
     }
+  };
+
+  // Handle adding a new category
+  const handleAddCategory = () => {
+    setIsAddingCategory(true);
+  };
+
+  // Handle adding category from inline editor
+  const handleCategoryAdd = (description: string) => {
+    setIsAddingCategory(false);
   };
 
   // Handle drag end event
@@ -67,133 +80,96 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
     reorderedItems.splice(destination.index, 0, removed);
     
     // Update item codes based on their new order
-    const updatedItems = updateItemCodes(reorderedItems);
+    const updatedItems = recalculateItemCodes(reorderedItems);
     
     // Pass the reordered items back to parent
     if (onReorderItems) {
       onReorderItems(updatedItems);
     }
   };
-
-  // Helper function to update item codes after reordering
-  const updateItemCodes = (reorderedItems: BudgetComparisonItem[]): BudgetComparisonItem[] => {
-    // First, separate items by their level (top-level vs. children)
-    const topLevelItems: BudgetComparisonItem[] = [];
-    const childrenByParentCode: Record<string, BudgetComparisonItem[]> = {};
-    
-    reorderedItems.forEach(item => {
-      if (!item.code.includes('.')) {
-        topLevelItems.push(item);
-      } else {
-        const [parentCode] = item.code.split('.');
-        if (!childrenByParentCode[parentCode]) {
-          childrenByParentCode[parentCode] = [];
-        }
-        childrenByParentCode[parentCode].push(item);
-      }
-    });
-    
-    // Reorder top-level items first
-    const result: BudgetComparisonItem[] = [];
-    topLevelItems.forEach((item, index) => {
-      const oldCode = item.code;
-      const newCode = String(index + 1);
-      
-      // Add the top-level item with updated code
-      result.push({
-        ...item,
-        code: newCode
-      });
-      
-      // Add its children with updated codes
-      if (childrenByParentCode[oldCode]) {
-        childrenByParentCode[oldCode].forEach((child, childIndex) => {
-          const childSuffix = child.code.split('.').slice(1).join('.');
-          result.push({
-            ...child,
-            code: `${newCode}.${childSuffix}`
-          });
-        });
-      }
-    });
-    
-    return result;
-  };
-  
-  // Generate table rows with inline editor inserted at the right position
-  const tableRows = () => {
-    if (items.length === 0) {
-      return (
-        <tr>
-          <td colSpan={5 + companies.length} className="text-center py-8">
-            {t('budget.noItemsAdded')}
-          </td>
-        </tr>
-      );
-    }
-    
-    // Regular rows are now handled by the Droppable
-    return null;
-  };
   
   return (
-    <DragDropContext onDragEnd={handleDragEnd}>
-      <Table className="min-w-full border-collapse">
-        <UITableHeader className="bg-muted sticky top-0 z-10">
-          <BudgetTableHeader 
-            companies={companies}
-            onRemoveCompany={onRemoveCompany}
-            onUpdateCompanyName={onUpdateCompanyName}
-            onAddCompany={onAddCompany}
-          />
-        </UITableHeader>
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <Button 
+          onClick={handleAddCategory}
+          size="sm"
+          variant="outline"
+          className="flex items-center gap-1"
+        >
+          <Plus className="h-4 w-4" />
+          {t('budget.addCategory')}
+        </Button>
+      </div>
+      
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <Table className="min-w-full border-collapse">
+          <UITableHeader className="bg-muted sticky top-0 z-10">
+            <BudgetTableHeader 
+              companies={companies}
+              onRemoveCompany={onRemoveCompany}
+              onUpdateCompanyName={onUpdateCompanyName}
+              onAddCompany={onAddCompany}
+            />
+          </UITableHeader>
 
-        <Droppable droppableId="budget-items">
-          {(provided) => (
-            <TableBody
-              ref={provided.innerRef}
-              {...provided.droppableProps}
-            >
-              {items.length === 0 ? (
-                <tr>
-                  <td colSpan={5 + companies.length} className="text-center py-8">
-                    {t('budget.noItemsAdded')}
-                  </td>
-                </tr>
-              ) : (
-                <>
-                  {items.map((item, index) => (
-                    <React.Fragment key={item.id}>
-                      <BudgetItemRow
-                        item={item}
-                        companies={companies}
-                        onUpdateItem={onUpdateItem}
-                        onUpdateObservation={onUpdateObservation}
-                        onDeleteItem={onDeleteItem}
-                        onUpdateDescription={onUpdateDescription}
-                        categoryTotals={categoryTotals[item.id]}
-                        onAddItemToCategory={handleAddItemToCategory}
-                        index={index}
-                      />
-                      {inlineAddingParentCode === item.code && (
-                        <InlineItemCreation
-                          key={`inline-${item.code}`}
-                          parentCode={item.code}
-                          companiesCount={companies.length}
-                          onAddItem={handleInlineItemAdd}
-                          onCancel={() => setInlineAddingParentCode(null)}
+          <Droppable droppableId="budget-items">
+            {(provided) => (
+              <TableBody
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+              >
+                {items.length === 0 && !isAddingCategory ? (
+                  <tr>
+                    <td colSpan={5 + companies.length} className="text-center py-8">
+                      {t('budget.noItemsAdded')}
+                    </td>
+                  </tr>
+                ) : (
+                  <>
+                    {items.map((item, index) => (
+                      <React.Fragment key={item.id}>
+                        <BudgetItemRow
+                          item={item}
+                          companies={companies}
+                          onUpdateItem={onUpdateItem}
+                          onUpdateObservation={onUpdateObservation}
+                          onDeleteItem={onDeleteItem}
+                          onUpdateDescription={onUpdateDescription}
+                          categoryTotals={categoryTotals[item.id]}
+                          onAddItemToCategory={handleAddItemToCategory}
+                          index={index}
                         />
-                      )}
-                    </React.Fragment>
-                  ))}
-                </>
-              )}
-              {provided.placeholder}
-              <TotalsRow key="totals" items={items} companies={companies} />
-            </TableBody>
-          )}
-        </Droppable>
-      </Table>
-    </DragDropContext>
+                        {inlineAddingParentCode === item.code && (
+                          <InlineItemCreation
+                            key={`inline-${item.code}`}
+                            parentCode={item.code}
+                            companiesCount={companies.length}
+                            onAddItem={handleInlineItemAdd}
+                            onCancel={() => setInlineAddingParentCode(null)}
+                          />
+                        )}
+                      </React.Fragment>
+                    ))}
+
+                    {isAddingCategory && (
+                      <InlineItemCreation
+                        key="new-category"
+                        isCategory={true}
+                        companiesCount={companies.length}
+                        onAddItem={handleCategoryAdd}
+                        onCancel={() => setIsAddingCategory(false)}
+                      />
+                    )}
+                    {provided.placeholder}
+                    <TotalsRow key="totals" items={items} companies={companies} />
+                  </>
+                )}
+              </TableBody>
+            )}
+          </Droppable>
+        </Table>
+      </DragDropContext>
+    </div>
   );
 };

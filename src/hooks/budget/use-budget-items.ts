@@ -3,9 +3,57 @@ import { useState } from "react";
 import { BudgetComparisonItem } from "@/types/budget";
 import { recalculateItemCodes } from "@/components/budget/table/categoryCalculations";
 import { calculatePriceStats } from "@/services/supabase/budget-utils/price-calculator";
+import { v4 as uuidv4 } from "uuid";
 
 export function useBudgetItems(initialItems: BudgetComparisonItem[] = []) {
   const [budgetItems, setBudgetItems] = useState<BudgetComparisonItem[]>(initialItems);
+  
+  const addBudgetItem = (description: string, parentCode?: string) => {
+    setBudgetItems(prevItems => {
+      let newCode: string;
+      let isCategory = false;
+      
+      if (!parentCode) {
+        // This is a new category
+        isCategory = true;
+        const topLevelItems = prevItems.filter(item => !item.code.includes('.'));
+        const maxCode = topLevelItems.length > 0 
+          ? Math.max(...topLevelItems.map(item => parseInt(item.code)))
+          : 0;
+        newCode = String(maxCode + 1);
+      } else {
+        // This is an item within a category
+        const childItems = prevItems.filter(item => {
+          const [parent] = item.code.split('.');
+          return parent === parentCode && item.code.includes('.');
+        });
+        
+        // If there are no child items yet, use .1, otherwise increment the max
+        if (childItems.length === 0) {
+          newCode = `${parentCode}.1`;
+        } else {
+          const maxSubCode = Math.max(...childItems.map(item => {
+            const [, subCode] = item.code.split('.');
+            return parseInt(subCode);
+          }));
+          newCode = `${parentCode}.${maxSubCode + 1}`;
+        }
+      }
+      
+      const newItem: BudgetComparisonItem = {
+        id: uuidv4(),
+        code: newCode,
+        description,
+        isCategory,
+        prices: {},
+        lowestPrice: 0,
+        middlePrice: 0,
+        averagePrice: 0
+      };
+      
+      return [...prevItems, newItem];
+    });
+  };
   
   const updateItem = (itemId: string, companyId: string, price: number) => {
     setBudgetItems(prevItems => {
@@ -108,6 +156,7 @@ export function useBudgetItems(initialItems: BudgetComparisonItem[] = []) {
   return {
     budgetItems,
     setBudgetItems,
+    addBudgetItem,
     updateItem,
     updateItemObservation,
     updateItemDescription,
