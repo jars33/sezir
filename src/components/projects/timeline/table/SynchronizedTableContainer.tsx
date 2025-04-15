@@ -7,16 +7,30 @@ interface SynchronizedTableContainerProps {
 }
 
 export function SynchronizedTableContainer({ children }: SynchronizedTableContainerProps) {
-  const { register } = useSynchronizedScroll();
+  const { registerContainer, scrollLeft, setScrollLeft } = useSynchronizedScroll();
+  const tableContainerRef = useRef<HTMLDivElement>(null);
   
-  // Register this container with the synchronized scroll system
-  const scrollProps = register("timeline-table-container");
+  useEffect(() => {
+    registerContainer(tableContainerRef.current);
+  }, [registerContainer]);
+  
+  useEffect(() => {
+    if (tableContainerRef.current && tableContainerRef.current.scrollLeft !== scrollLeft) {
+      tableContainerRef.current.scrollLeft = scrollLeft;
+    }
+  }, [scrollLeft]);
+  
+  const handleScroll = () => {
+    if (tableContainerRef.current) {
+      setScrollLeft(tableContainerRef.current.scrollLeft);
+    }
+  };
   
   return (
     <div 
       className="overflow-x-auto border rounded-lg" 
-      ref={scrollProps.ref}
-      onScroll={scrollProps.onScroll}
+      ref={tableContainerRef}
+      onScroll={handleScroll}
     >
       <div style={{ minWidth: "2400px" }}>
         {children}

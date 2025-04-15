@@ -1,4 +1,3 @@
-
 import { Card, CardContent } from "@/components/ui/card"
 import { TimelineHeader } from "./timeline/TimelineHeader"
 import { TimelineSummary } from "./timeline/TimelineSummary"
@@ -126,10 +125,7 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
     revenues,
     variableCosts,
     allocations,
-    year,
-    allProjectRevenues,
-    allProjectVariableCosts,
-    allProjectAllocations
+    year
   )
 
   const queryClient = useQueryClient()
@@ -177,9 +173,6 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
             calculateAccumulatedProfitUpToMonth={calculateAccumulatedProfitUpToMonth}
             year={year}
             showDecimals={showDecimals}
-            allProjectRevenues={allProjectRevenues}
-            allProjectVariableCosts={allProjectVariableCosts}
-            allProjectAllocations={allProjectAllocations}
           />
         </SynchronizedScrollProvider>
 

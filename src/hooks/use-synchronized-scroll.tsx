@@ -6,7 +6,6 @@ interface SynchronizedScrollContextType {
   setScrollLeft: (position: number) => void;
   registerContainer: (container: HTMLDivElement | null) => void;
   scrollContainers: React.MutableRefObject<(HTMLDivElement | null)[]>;
-  register: (id: string) => { ref: (element: HTMLDivElement | null) => void; onScroll: React.UIEventHandler; };
 }
 
 const SynchronizedScrollContext = createContext<SynchronizedScrollContextType | undefined>(undefined);
@@ -14,31 +13,12 @@ const SynchronizedScrollContext = createContext<SynchronizedScrollContextType | 
 export function SynchronizedScrollProvider({ children }: { children: React.ReactNode }) {
   const [scrollLeft, setScrollLeft] = useState(0);
   const scrollContainers = useRef<(HTMLDivElement | null)[]>([]);
-  const containerRefs = useRef<Record<string, HTMLDivElement | null>>({});
   
   // Register a container to be synchronized
   const registerContainer = (container: HTMLDivElement | null) => {
     if (container && !scrollContainers.current.includes(container)) {
       scrollContainers.current.push(container);
     }
-  };
-
-  // Register a container with an ID for more controlled synchronization
-  const register = (id: string) => {
-    return {
-      ref: (element: HTMLDivElement | null) => {
-        if (element && containerRefs.current[id] !== element) {
-          containerRefs.current[id] = element;
-          scrollContainers.current.push(element);
-        }
-      },
-      onScroll: (e: React.UIEvent) => {
-        const target = e.currentTarget as HTMLDivElement;
-        if (target.scrollLeft !== scrollLeft) {
-          setScrollLeft(target.scrollLeft);
-        }
-      }
-    };
   };
 
   // Synchronize all containers when scrollLeft changes
@@ -48,23 +28,10 @@ export function SynchronizedScrollProvider({ children }: { children: React.React
         container.scrollLeft = scrollLeft;
       }
     });
-    
-    // Also update containers registered with IDs
-    Object.values(containerRefs.current).forEach(container => {
-      if (container && container.scrollLeft !== scrollLeft) {
-        container.scrollLeft = scrollLeft;
-      }
-    });
   }, [scrollLeft]);
 
   return (
-    <SynchronizedScrollContext.Provider value={{ 
-      scrollLeft, 
-      setScrollLeft, 
-      registerContainer, 
-      scrollContainers,
-      register 
-    }}>
+    <SynchronizedScrollContext.Provider value={{ scrollLeft, setScrollLeft, registerContainer, scrollContainers }}>
       {children}
     </SynchronizedScrollContext.Provider>
   );

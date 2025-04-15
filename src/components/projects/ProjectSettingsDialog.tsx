@@ -42,8 +42,7 @@ export function ProjectSettingsDialog() {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const [loading, setLoading] = useState(false); // Add local loading state
-  const { getOverheadPercentage, setOverheadPercentage } = useProjectSettings();
+  const { getOverheadPercentage, updateOverheadPercentage, loading } = useProjectSettings();
   
   const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() + i);
   
@@ -71,14 +70,9 @@ export function ProjectSettingsDialog() {
   };
   
   const onSubmit = async (data: ProjectSettingsFormValues) => {
-    setLoading(true);
-    try {
-      setOverheadPercentage(selectedYear, data.overheadPercentage);
-      toast.success(`Overhead percentage for ${selectedYear} updated to ${data.overheadPercentage}%`);
-      setOpen(false);
-    } finally {
-      setLoading(false);
-    }
+    await updateOverheadPercentage(selectedYear, data.overheadPercentage);
+    toast.success(`Overhead percentage for ${selectedYear} updated to ${data.overheadPercentage}%`);
+    setOpen(false);
   };
   
   return (
@@ -146,7 +140,7 @@ export function ProjectSettingsDialog() {
                 />
                 
                 <DialogFooter>
-                  <Button type="submit" disabled={loading}>{t('project.saveSettings')}</Button>
+                  <Button type="submit">{t('project.saveSettings')}</Button>
                 </DialogFooter>
               </form>
             </Form>
