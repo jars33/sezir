@@ -10,6 +10,7 @@ import { useTimelineData } from "./timeline/useTimelineData"
 import { useTimelineState } from "./timeline/useTimelineState"
 import { useTimelineProfitability } from "./timeline/hooks/useTimelineProfitability"
 import { useQueryClient } from "@tanstack/react-query"
+import { SynchronizedScrollProvider } from "@/hooks/use-synchronized-scroll"
 
 interface ProjectTimelineViewProps {
   projectId: string
@@ -92,18 +93,20 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
           allocations={allocations}
         />
         
-        <TimelineMonthsGrid
-          startDate={startDate}
-          revenues={revenues}
-          variableCosts={variableCosts}
-          allocations={allocations}
-          onSelectRevenue={handleRevenueSeleсtion}
-          onSelectVariableCost={setSelectedVariableCost}
-          onSelectAllocation={handleAllocationSelection}
-          calculateAccumulatedProfitUpToMonth={calculateAccumulatedProfitUpToMonth}
-          year={year}
-          showDecimals={showDecimals}
-        />
+        <SynchronizedScrollProvider>
+          <TimelineMonthsGrid
+            startDate={startDate}
+            revenues={revenues}
+            variableCosts={variableCosts}
+            allocations={allocations}
+            onSelectRevenue={handleRevenueSeleсtion}
+            onSelectVariableCost={setSelectedVariableCost}
+            onSelectAllocation={handleAllocationSelection}
+            calculateAccumulatedProfitUpToMonth={calculateAccumulatedProfitUpToMonth}
+            year={year}
+            showDecimals={showDecimals}
+          />
+        </SynchronizedScrollProvider>
 
         <TimelineActions
           projectId={projectId}

@@ -1,10 +1,11 @@
-
 import { useTranslation } from "react-i18next";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TrendingDown, TrendingUp } from "lucide-react";
 import { format, addMonths } from "date-fns";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { cn } from "@/lib/utils";
+import { useSynchronizedScroll } from "@/hooks/use-synchronized-scroll";
+import { useRef, useEffect } from "react";
 
 interface TimelineDetailsTableProps {
   startDate: Date;
@@ -25,11 +26,21 @@ export function TimelineDetailsTable({
 }: TimelineDetailsTableProps) {
   const { t } = useTranslation();
   const [showDecimals] = useLocalStorage<boolean>("showDecimals", true);
+  const { registerContainer, scrollLeft } = useSynchronizedScroll();
+  const tableContainerRef = useRef<HTMLDivElement>(null);
   
-  // Generate months array
+  useEffect(() => {
+    registerContainer(tableContainerRef.current);
+  }, [registerContainer]);
+  
+  useEffect(() => {
+    if (tableContainerRef.current) {
+      tableContainerRef.current.scrollLeft = scrollLeft;
+    }
+  }, [scrollLeft]);
+  
   const months = Array.from({ length: 12 }, (_, i) => addMonths(startDate, i));
   
-  // Format currency function
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -39,16 +50,13 @@ export function TimelineDetailsTable({
     }).format(amount);
   };
   
-  // Format percentage function
   const formatPercentage = (percentage: number) => {
     return `${showDecimals ? percentage.toFixed(1) : Math.round(percentage)}%`;
   };
   
-  // Calculate monthly costs, revenues, and profits for each month
   const monthlyData = months.map(month => {
     const monthStr = format(month, "yyyy-MM");
     
-    // Filter revenues, costs and allocations for the current month
     const monthRevenues = revenues
       .filter(r => r.month.startsWith(monthStr))
       .reduce((sum, r) => sum + Number(r.amount), 0);
@@ -61,19 +69,14 @@ export function TimelineDetailsTable({
       .filter(a => a.month.startsWith(monthStr))
       .reduce((sum, a) => sum + Number(a.salary_cost), 0);
     
-    // Calculate total costs (variable + allocations)
     const totalCosts = monthVariableCosts + monthAllocations;
     
-    // Calculate monthly profit
     const monthlyProfit = monthRevenues - totalCosts;
     
-    // Calculate monthly rentability percentage
     const monthlyRentabilityPercentage = totalCosts > 0 ? (monthlyProfit / totalCosts) * 100 : 0;
     
-    // Calculate accumulated values up to this month
     const accumulatedProfit = calculateAccumulatedProfitUpToMonth(month);
     
-    // Calculate accumulated costs and revenues
     const accumulatedCosts = months
       .filter(m => m <= month)
       .reduce((sum, m) => {
@@ -97,7 +100,6 @@ export function TimelineDetailsTable({
         return sum + mRev;
       }, 0);
     
-    // Calculate accumulated rentability percentage
     const accumulatedRentabilityPercentage = accumulatedCosts > 0 ? (accumulatedProfit / accumulatedCosts) * 100 : 0;
     
     return {
@@ -114,154 +116,148 @@ export function TimelineDetailsTable({
   });
   
   return (
-    <div className="overflow-x-auto border rounded-lg">
-      <Table>
-        <TableHeader>
-          <TableRow className="bg-muted/50">
-            <TableHead className="w-[180px] font-medium">{t('costs.metric')}</TableHead>
-            {months.map((month) => (
-              <TableHead key={month.getTime()} className="text-right font-medium">
-                {t(`common.months.${month.toLocaleString('en-US', { month: 'short' }).toLowerCase()}`)}
-              </TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {/* Monthly Costs Row */}
-          <TableRow className="bg-red-50 dark:bg-red-950/20">
-            <TableCell className="font-medium">
-              <div className="flex items-center">
-                <TrendingDown className="mr-2 h-4 w-4 text-red-500" />
-                {t('costs.monthlyCosts')}
-              </div>
-            </TableCell>
-            {monthlyData.map((data, index) => (
-              <TableCell key={index} className="text-right text-red-700 dark:text-red-400">
-                {formatCurrency(data.monthlyCosts)}
+    <div className="overflow-x-auto border rounded-lg" ref={tableContainerRef}>
+      <div style={{ minWidth: "2400px" }}>
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted/50">
+              <TableHead className="sticky left-0 z-10 bg-muted/50 w-[180px] font-medium">{t('costs.metric')}</TableHead>
+              {months.map((month) => (
+                <TableHead key={month.getTime()} className="text-right font-medium">
+                  {t(`common.months.${month.toLocaleString('en-US', { month: 'short' }).toLowerCase()}`)}
+                </TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow className="bg-red-50 dark:bg-red-950/20">
+              <TableCell className="sticky left-0 z-10 bg-red-50 dark:bg-red-950/20 font-medium">
+                <div className="flex items-center">
+                  <TrendingDown className="mr-2 h-4 w-4 text-red-500" />
+                  {t('costs.monthlyCosts')}
+                </div>
               </TableCell>
-            ))}
-          </TableRow>
-          
-          {/* Accumulated Costs Row */}
-          <TableRow className="bg-red-50/50 dark:bg-red-950/10">
-            <TableCell className="font-medium">
-              {t('costs.accumulatedCosts')}
-            </TableCell>
-            {monthlyData.map((data, index) => (
-              <TableCell key={index} className="text-right text-red-700 dark:text-red-400">
-                {formatCurrency(data.accumulatedCosts)}
+              {monthlyData.map((data, index) => (
+                <TableCell key={index} className="text-right text-red-700 dark:text-red-400">
+                  {formatCurrency(data.monthlyCosts)}
+                </TableCell>
+              ))}
+            </TableRow>
+            
+            <TableRow className="bg-red-50/50 dark:bg-red-950/10">
+              <TableCell className="sticky left-0 z-10 bg-red-50/50 dark:bg-red-950/10 font-medium">
+                {t('costs.accumulatedCosts')}
               </TableCell>
-            ))}
-          </TableRow>
-          
-          {/* Monthly Revenues Row */}
-          <TableRow className="bg-green-50 dark:bg-green-950/20">
-            <TableCell className="font-medium">
-              <div className="flex items-center">
-                <TrendingUp className="mr-2 h-4 w-4 text-green-500" />
-                {t('costs.monthlyRevenues')}
-              </div>
-            </TableCell>
-            {monthlyData.map((data, index) => (
-              <TableCell key={index} className="text-right text-green-700 dark:text-green-400">
-                {formatCurrency(data.monthlyRevenues)}
+              {monthlyData.map((data, index) => (
+                <TableCell key={index} className="text-right text-red-700 dark:text-red-400">
+                  {formatCurrency(data.accumulatedCosts)}
+                </TableCell>
+              ))}
+            </TableRow>
+            
+            <TableRow className="bg-green-50 dark:bg-green-950/20">
+              <TableCell className="sticky left-0 z-10 bg-green-50 dark:bg-green-950/20 font-medium">
+                <div className="flex items-center">
+                  <TrendingUp className="mr-2 h-4 w-4 text-green-500" />
+                  {t('costs.monthlyRevenues')}
+                </div>
               </TableCell>
-            ))}
-          </TableRow>
-          
-          {/* Accumulated Revenues Row */}
-          <TableRow className="bg-green-50/50 dark:bg-green-950/10">
-            <TableCell className="font-medium">
-              {t('costs.accumulatedRevenues')}
-            </TableCell>
-            {monthlyData.map((data, index) => (
-              <TableCell key={index} className="text-right text-green-700 dark:text-green-400">
-                {formatCurrency(data.accumulatedRevenues)}
+              {monthlyData.map((data, index) => (
+                <TableCell key={index} className="text-right text-green-700 dark:text-green-400">
+                  {formatCurrency(data.monthlyRevenues)}
+                </TableCell>
+              ))}
+            </TableRow>
+            
+            <TableRow className="bg-green-50/50 dark:bg-green-950/10">
+              <TableCell className="sticky left-0 z-10 bg-green-50/50 dark:bg-green-950/10 font-medium">
+                {t('costs.accumulatedRevenues')}
               </TableCell>
-            ))}
-          </TableRow>
-          
-          {/* Monthly Profit Row */}
-          <TableRow>
-            <TableCell className="font-medium">
-              {t('costs.monthlyProfit')}
-            </TableCell>
-            {monthlyData.map((data, index) => (
-              <TableCell 
-                key={index} 
-                className={cn(
-                  "text-right font-medium",
-                  data.monthlyProfit >= 0 
-                    ? "text-emerald-600 dark:text-emerald-400" 
-                    : "text-red-600 dark:text-red-400"
-                )}
-              >
-                {formatCurrency(data.monthlyProfit)}
+              {monthlyData.map((data, index) => (
+                <TableCell key={index} className="text-right text-green-700 dark:text-green-400">
+                  {formatCurrency(data.accumulatedRevenues)}
+                </TableCell>
+              ))}
+            </TableRow>
+            
+            <TableRow>
+              <TableCell className="sticky left-0 z-10 bg-white dark:bg-gray-900 font-medium">
+                {t('costs.monthlyProfit')}
               </TableCell>
-            ))}
-          </TableRow>
-          
-          {/* Monthly Profit Percentage Row */}
-          <TableRow>
-            <TableCell className="font-medium">
-              {t('costs.monthlyProfitPercentage')}
-            </TableCell>
-            {monthlyData.map((data, index) => (
-              <TableCell 
-                key={index} 
-                className={cn(
-                  "text-right font-medium",
-                  data.monthlyRentabilityPercentage >= 0 
-                    ? "text-emerald-600 dark:text-emerald-400" 
-                    : "text-red-600 dark:text-red-400"
-                )}
-              >
-                {formatPercentage(data.monthlyRentabilityPercentage)}
+              {monthlyData.map((data, index) => (
+                <TableCell 
+                  key={index} 
+                  className={cn(
+                    "text-right font-medium",
+                    data.monthlyProfit >= 0 
+                      ? "text-emerald-600 dark:text-emerald-400" 
+                      : "text-red-600 dark:text-red-400"
+                  )}
+                >
+                  {formatCurrency(data.monthlyProfit)}
+                </TableCell>
+              ))}
+            </TableRow>
+            
+            <TableRow>
+              <TableCell className="sticky left-0 z-10 bg-white dark:bg-gray-900 font-medium">
+                {t('costs.monthlyProfitPercentage')}
               </TableCell>
-            ))}
-          </TableRow>
-          
-          {/* Accumulated Profit Row */}
-          <TableRow className="bg-slate-50 dark:bg-slate-900/30">
-            <TableCell className="font-medium">
-              {t('costs.accumulatedProfit')}
-            </TableCell>
-            {monthlyData.map((data, index) => (
-              <TableCell 
-                key={index} 
-                className={cn(
-                  "text-right font-medium",
-                  data.accumulatedProfit >= 0 
-                    ? "text-emerald-600 dark:text-emerald-400" 
-                    : "text-red-600 dark:text-red-400"
-                )}
-              >
-                {formatCurrency(data.accumulatedProfit)}
+              {monthlyData.map((data, index) => (
+                <TableCell 
+                  key={index} 
+                  className={cn(
+                    "text-right font-medium",
+                    data.monthlyRentabilityPercentage >= 0 
+                      ? "text-emerald-600 dark:text-emerald-400" 
+                      : "text-red-600 dark:text-red-400"
+                  )}
+                >
+                  {formatPercentage(data.monthlyRentabilityPercentage)}
+                </TableCell>
+              ))}
+            </TableRow>
+            
+            <TableRow className="bg-slate-50 dark:bg-slate-900/30">
+              <TableCell className="sticky left-0 z-10 bg-slate-50 dark:bg-slate-900/30 font-medium">
+                {t('costs.accumulatedProfit')}
               </TableCell>
-            ))}
-          </TableRow>
-          
-          {/* Accumulated Profit Percentage Row */}
-          <TableRow className="bg-slate-50 dark:bg-slate-900/30">
-            <TableCell className="font-medium">
-              {t('costs.accumulatedProfitPercentage')}
-            </TableCell>
-            {monthlyData.map((data, index) => (
-              <TableCell 
-                key={index} 
-                className={cn(
-                  "text-right font-medium",
-                  data.accumulatedRentabilityPercentage >= 0 
-                    ? "text-emerald-600 dark:text-emerald-400" 
-                    : "text-red-600 dark:text-red-400"
-                )}
-              >
-                {formatPercentage(data.accumulatedRentabilityPercentage)}
+              {monthlyData.map((data, index) => (
+                <TableCell 
+                  key={index} 
+                  className={cn(
+                    "text-right font-medium",
+                    data.accumulatedProfit >= 0 
+                      ? "text-emerald-600 dark:text-emerald-400" 
+                      : "text-red-600 dark:text-red-400"
+                  )}
+                >
+                  {formatCurrency(data.accumulatedProfit)}
+                </TableCell>
+              ))}
+            </TableRow>
+            
+            <TableRow className="bg-slate-50 dark:bg-slate-900/30">
+              <TableCell className="sticky left-0 z-10 bg-slate-50 dark:bg-slate-900/30 font-medium">
+                {t('costs.accumulatedProfitPercentage')}
               </TableCell>
-            ))}
-          </TableRow>
-        </TableBody>
-      </Table>
+              {monthlyData.map((data, index) => (
+                <TableCell 
+                  key={index} 
+                  className={cn(
+                    "text-right font-medium",
+                    data.accumulatedRentabilityPercentage >= 0 
+                      ? "text-emerald-600 dark:text-emerald-400" 
+                      : "text-red-600 dark:text-red-400"
+                  )}
+                >
+                  {formatPercentage(data.accumulatedRentabilityPercentage)}
+                </TableCell>
+              ))}
+            </TableRow>
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }

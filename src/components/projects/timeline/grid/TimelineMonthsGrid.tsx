@@ -1,12 +1,13 @@
-import { useCallback, useMemo, useRef, useState } from "react"
+
+import { useMemo, useRef, useState } from "react"
 import { format, addMonths } from "date-fns"
 import { TimelineMonth } from "../TimelineMonth"
 import type { TimelineItem, AllocationItem } from "../actions/types"
 import { useProjectSettings } from "@/hooks/use-project-settings"
 import { useTranslation } from "react-i18next"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
 import { TimelineDetailsTable } from "../TimelineDetailsTable"
+import { useSynchronizedScroll } from "@/hooks/use-synchronized-scroll"
 
 interface TimelineMonthsGridProps {
   startDate: Date
@@ -35,10 +36,11 @@ export function TimelineMonthsGrid({
 }: TimelineMonthsGridProps) {
   const { t } = useTranslation()
   const { getOverheadPercentage } = useProjectSettings()
-  const containerRef = useRef<HTMLDivElement>(null)
+  const { registerContainer, setScrollLeft } = useSynchronizedScroll()
+  const timelineContainerRef = useRef<HTMLDivElement>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [startX, setStartX] = useState(0)
-  const [scrollLeft, setScrollLeft] = useState(0)
+  const [scrollLeft, setLocalScrollLeft] = useState(0)
   
   const months = useMemo(() => 
     Array.from({ length: 12 }, (_, i) => addMonths(startDate, i)), 
@@ -46,22 +48,22 @@ export function TimelineMonthsGrid({
   )
   
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!containerRef.current) return
+    if (!timelineContainerRef.current) return
     
     setIsDragging(true)
     setStartX(e.clientX)
-    setScrollLeft(containerRef.current.scrollLeft)
+    setLocalScrollLeft(timelineContainerRef.current.scrollLeft)
     
-    if (containerRef.current) {
-      containerRef.current.style.cursor = 'grabbing'
+    if (timelineContainerRef.current) {
+      timelineContainerRef.current.style.cursor = 'grabbing'
     }
   }
   
   const handleMouseUp = () => {
     setIsDragging(false)
     
-    if (containerRef.current) {
-      containerRef.current.style.cursor = 'grab'
+    if (timelineContainerRef.current) {
+      timelineContainerRef.current.style.cursor = 'grab'
     }
   }
   
@@ -69,31 +71,44 @@ export function TimelineMonthsGrid({
     if (isDragging) {
       setIsDragging(false)
       
-      if (containerRef.current) {
-        containerRef.current.style.cursor = 'grab'
+      if (timelineContainerRef.current) {
+        timelineContainerRef.current.style.cursor = 'grab'
       }
     }
   }
   
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isDragging || !containerRef.current) return
+    if (!isDragging || !timelineContainerRef.current) return
     
     e.preventDefault()
     const x = e.clientX
     const distance = x - startX
-    containerRef.current.scrollLeft = scrollLeft - distance
+    const newScrollLeft = scrollLeft - distance
+    timelineContainerRef.current.scrollLeft = newScrollLeft
+    setScrollLeft(newScrollLeft) // Update the synchronized scroll position
+  }
+
+  // Register the timeline container with the synchronized scroll system
+  const handleTimelineRef = (ref: HTMLDivElement | null) => {
+    timelineContainerRef.current = ref
+    registerContainer(ref)
   }
 
   return (
     <div className="space-y-4">
       <div 
         className="overflow-auto w-full" 
-        ref={containerRef}
+        ref={handleTimelineRef}
         style={{ cursor: 'grab' }}
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseLeave}
         onMouseMove={handleMouseMove}
+        onScroll={() => {
+          if (timelineContainerRef.current && !isDragging) {
+            setScrollLeft(timelineContainerRef.current.scrollLeft)
+          }
+        }}
       >
         <div className="min-w-[2400px]">
           <div className="grid grid-cols-12 gap-px bg-gray-200 rounded-lg overflow-hidden">
