@@ -12,8 +12,8 @@ interface TimelineHeaderProps {
   onAddAllocation?: () => void
   onPreviousYear: () => void
   onNextYear: () => void
-  totalProfit: number
-  totalRevenues: number // Added totalRevenues prop
+  totalProjectProfit: number // Renamed to totalProjectProfit for clarity
+  totalProjectRevenues: number // Renamed to totalProjectRevenues for clarity
   startDate: Date
 }
 
@@ -23,16 +23,16 @@ export function TimelineHeader({
   onAddAllocation,
   onPreviousYear,
   onNextYear,
-  totalProfit,
-  totalRevenues, // Use the new prop
+  totalProjectProfit, // Updated parameter name
+  totalProjectRevenues, // Updated parameter name
   startDate,
 }: TimelineHeaderProps) {
   const { t } = useTranslation();
   const [showDecimals] = useLocalStorage<boolean>("showDecimals", true)
 
   // Calculate the rentability percentage only if there are revenues
-  const rentabilityPercentage = totalRevenues > 0 
-    ? (totalProfit / totalRevenues) * 100
+  const rentabilityPercentage = totalProjectRevenues > 0 
+    ? (totalProjectProfit / totalProjectRevenues) * 100
     : 0;
 
   const formatAmount = (amount: number) => {
@@ -49,15 +49,15 @@ export function TimelineHeader({
               {t('costs.totalProfit')}:
             </span>
             <div className={`text-lg font-semibold min-w-[150px] ${
-              totalProfit >= 0 
+              totalProjectProfit >= 0 
                 ? "text-emerald-600 dark:text-emerald-400"
                 : "text-red-600 dark:text-red-400"
             }`}>
-              {totalProfit < 0 ? '-' : ''}€{Math.abs(totalProfit).toLocaleString('en-US', { 
+              {totalProjectProfit < 0 ? '-' : ''}€{Math.abs(totalProjectProfit).toLocaleString('en-US', { 
                 minimumFractionDigits: showDecimals ? 2 : 0, 
                 maximumFractionDigits: showDecimals ? 2 : 0 
               })}
-              {totalRevenues > 0 && (
+              {totalProjectRevenues > 0 && (
                 <span className="ml-2 text-sm">
                   ({rentabilityPercentage.toFixed(1)}%)
                 </span>

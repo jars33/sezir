@@ -11,6 +11,8 @@ import { useTimelineState } from "./timeline/useTimelineState"
 import { useTimelineProfitability } from "./timeline/hooks/useTimelineProfitability"
 import { useQueryClient } from "@tanstack/react-query"
 import { SynchronizedScrollProvider } from "@/hooks/use-synchronized-scroll"
+import { useMemo } from "react"
+import { format } from "date-fns"
 
 interface ProjectTimelineViewProps {
   projectId: string
@@ -18,7 +20,17 @@ interface ProjectTimelineViewProps {
 
 export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
   // Get timeline data and state
-  const { revenues, variableCosts, allocations, isLoading, refetchTimelineData } = useTimelineData(projectId)
+  const { 
+    revenues, 
+    variableCosts, 
+    allocations, 
+    allProjectRevenues, 
+    allProjectVariableCosts, 
+    allProjectAllocations, 
+    isLoading, 
+    refetchTimelineData 
+  } = useTimelineData(projectId)
+  
   const {
     year,
     startDate,
@@ -45,13 +57,33 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
     handleAddAllocation
   } = useTimelineState()
 
-  // Calculate timeline data
+  // Calculate timeline data for current year
   const { totalProfit, totalRevenues } = useTimelineCalculations(
     revenues,
     variableCosts,
     allocations,
     year
   )
+  
+  // Calculate total project profit across all years
+  const { totalProjectProfit, totalProjectRevenues } = useMemo(() => {
+    // Calculate total revenues across all years
+    const totalRevs = allProjectRevenues?.reduce((sum, r) => sum + Number(r.amount), 0) || 0;
+    
+    // Calculate total variable costs across all years
+    const totalVarCosts = allProjectVariableCosts?.reduce((sum, c) => sum + Number(c.amount), 0) || 0;
+    
+    // Calculate total salary costs across all years
+    const totalSalaryCosts = allProjectAllocations?.reduce((sum, a) => sum + Number(a.salary_cost), 0) || 0;
+    
+    // Calculate total profit
+    const totalProfit = totalRevs - totalVarCosts - totalSalaryCosts;
+    
+    return {
+      totalProjectProfit: totalProfit,
+      totalProjectRevenues: totalRevs
+    };
+  }, [allProjectRevenues, allProjectVariableCosts, allProjectAllocations]);
 
   const { calculateAccumulatedProfitUpToMonth, showDecimals } = useTimelineProfitability(
     revenues,
@@ -81,8 +113,8 @@ export function ProjectTimelineView({ projectId }: ProjectTimelineViewProps) {
         onAddAllocation={handleAddAllocation}
         onPreviousYear={handlePreviousYear}
         onNextYear={handleNextYear}
-        totalProfit={totalProfit}
-        totalRevenues={totalRevenues}
+        totalProjectProfit={totalProjectProfit}
+        totalProjectRevenues={totalProjectRevenues}
         startDate={startDate}
       />
       <CardContent className="space-y-6">

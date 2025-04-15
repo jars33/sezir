@@ -1,3 +1,4 @@
+
 import { useTranslation } from "react-i18next";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TrendingDown, TrendingUp } from "lucide-react";
@@ -192,7 +193,7 @@ export function TimelineDetailsTable({
                   key={index}
                   className={cn(
                     "text-right",
-                    getValueColorClass(data.monthlyRevenues, false)
+                    getValueColorClass(data.monthlyRevenues, true)
                   )}
                 >
                   {formatCurrency(data.monthlyRevenues)}
@@ -209,7 +210,7 @@ export function TimelineDetailsTable({
                   key={index} 
                   className={cn(
                     "text-right",
-                    getValueColorClass(data.accumulatedRevenues, false)
+                    getValueColorClass(data.accumulatedRevenues, true)
                   )}
                 >
                   {formatCurrency(data.accumulatedRevenues)}
