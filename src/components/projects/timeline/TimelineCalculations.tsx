@@ -50,11 +50,17 @@ export function useTimelineCalculations(
     return year === currentYear ? sum + Number(a.salary_cost) : sum
   }, 0) || 0
   
-  // Calculate overhead costs as a percentage of the variable costs AND allocation costs combined
-  // Using precise decimal calculation
-  const totalOverheadCosts = ((totalVariableCosts + totalSalaryCosts) * overheadPercentage) / 100
+  // Calculate base costs (variable costs + salary costs)
+  const baseCosts = totalVariableCosts + totalSalaryCosts
+  
+  // Calculate overhead costs using the percentage of base costs
+  const totalOverheadCosts = (baseCosts * overheadPercentage) / 100
+  
+  // Calculate total costs with overhead included: baseCosts * (1 + overheadPercentage/100)
+  const totalCostsWithOverhead = baseCosts * (1 + overheadPercentage / 100)
 
-  const totalProfit = totalRevenues - totalVariableCosts - totalOverheadCosts - totalSalaryCosts
+  // Total profit is revenues minus total costs with overhead
+  const totalProfit = totalRevenues - totalCostsWithOverhead
 
   return {
     totalRevenues,

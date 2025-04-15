@@ -33,11 +33,13 @@ export function useTimelineProfitability(
 
     const overheadPercentage = getOverheadPercentage(year)
     
-    // Calculate overhead costs based on variable costs AND salary costs
-    const accumulatedOverheadCosts = ((accumulatedVariableCosts + accumulatedSalaryCosts) * overheadPercentage) / 100
+    // Fixed: Calculate total costs with overhead using the correct formula:
+    // (accumulatedVariableCosts + accumulatedSalaryCosts) * (1 + overheadPercentage/100)
+    const baseCosts = accumulatedVariableCosts + accumulatedSalaryCosts
+    const totalCostsWithOverhead = baseCosts * (1 + overheadPercentage / 100)
 
-    // Return exact value with all decimals
-    return accumulatedRevenues - accumulatedVariableCosts - accumulatedOverheadCosts - accumulatedSalaryCosts
+    // Return exact value with all decimals: revenue minus total costs with overhead
+    return accumulatedRevenues - totalCostsWithOverhead
   }, [revenues, variableCosts, allocations, year, getOverheadPercentage])
 
   return {

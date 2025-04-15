@@ -57,9 +57,10 @@ export function useTimelineTableData({
       .reduce((sum, a) => sum + Number(a.salary_cost), 0);
     
     const overheadPercentage = getOverheadPercentage(year);
-    const monthOverheadCosts = ((monthVariableCosts + monthAllocations) * overheadPercentage) / 100;
     
-    const totalCosts = monthVariableCosts + monthAllocations + monthOverheadCosts;
+    // Fixed calculation: Base costs * (1 + overhead percentage/100)
+    const baseCosts = monthVariableCosts + monthAllocations;
+    const totalCosts = baseCosts * (1 + overheadPercentage / 100);
     
     const monthlyProfit = monthRevenues - totalCosts;
     
@@ -85,9 +86,9 @@ export function useTimelineTableData({
       })
       .reduce((s, a) => s + Number(a.salary_cost), 0);
       
-    const accumulatedOverheadCosts = ((accumulatedVariableCosts + accumulatedAllocCosts) * overheadPercentage) / 100;
-      
-    const accumulatedTotalCosts = accumulatedVariableCosts + accumulatedAllocCosts + accumulatedOverheadCosts;
+    // Calculate accumulated base costs and total costs with overhead
+    const accumulatedBaseCosts = accumulatedVariableCosts + accumulatedAllocCosts;
+    const accumulatedTotalCosts = accumulatedBaseCosts * (1 + overheadPercentage / 100);
     
     const accumulatedRevenues = months
       .filter(m => m <= month)

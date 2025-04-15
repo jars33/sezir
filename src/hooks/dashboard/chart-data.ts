@@ -87,18 +87,18 @@ export function generateDashboardChartData(
     allocations
   )
   
-  // Apply the overhead percentage to each month's variable costs
-  // Handle decimal percentages correctly
+  // Apply the overhead percentage correctly using (variableCost + salaryCost) * (1 + overheadPercentage/100)
   return baseChartData.map(monthData => {
-    // Calculate the calculated overhead based on the percentage
-    const calculatedOverhead = (monthData.variableCost * overheadPercentage) / 100
+    // Get base costs (variable costs and salary costs)
+    const baseCosts = monthData.variableCost + monthData.salaryCost
     
-    // Update the cost to include the calculated overhead
-    const totalCost = monthData.cost + calculatedOverhead
+    // Apply overhead percentage: (baseCosts) * (1 + overheadPercentage/100)
+    // This properly computes total cost with overhead included
+    const totalCost = baseCosts * (1 + overheadPercentage / 100)
     
     return {
       ...monthData,
-      calculatedOverhead,
+      calculatedOverhead: (baseCosts * overheadPercentage) / 100,
       cost: totalCost,
       profit: monthData.revenue - totalCost
     }
