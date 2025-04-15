@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { TableHead, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { X, Plus, Check } from "lucide-react";
+import { X, Check, Plus } from "lucide-react";
 import { Company } from "@/types/budget";
 
 interface TableHeaderProps {
@@ -144,44 +144,44 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                 </div>
               </>
             )}
-            
-            {/* Show add company form inline in the last company cell when adding */}
-            {index === companies.length - 1 && isAddingCompany && (
-              <div className="absolute top-full left-0 right-0 bg-background border border-border p-2 z-10 rounded-b-md shadow-md">
-                <div className="flex items-center justify-between w-full">
-                  <Input
-                    value={newCompanyName}
-                    onChange={(e) => setNewCompanyName(e.target.value)}
-                    placeholder={t('budget.companyName')}
-                    className="w-full h-6 py-0 px-1 text-xs mr-2"
-                    autoFocus
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') handleAddNewCompany();
-                      if (e.key === 'Escape') handleCancelAddCompany();
-                    }}
-                  />
-                  <div className="flex gap-1">
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-5 w-5"
-                      onClick={handleAddNewCompany}
-                    >
-                      <Check className="h-3 w-3" />
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-5 w-5"
-                      onClick={handleCancelAddCompany}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </div>
+          </div>
+          
+          {/* Show add company form inline in the last company cell when adding */}
+          {index === companies.length - 1 && isAddingCompany && (
+            <div className="absolute top-full left-0 right-0 bg-background border border-border p-2 z-10 rounded-b-md shadow-md">
+              <div className="flex items-center justify-between w-full">
+                <Input
+                  value={newCompanyName}
+                  onChange={(e) => setNewCompanyName(e.target.value)}
+                  placeholder={t('budget.companyName')}
+                  className="w-full h-6 py-0 px-1 text-xs mr-2"
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleAddNewCompany();
+                    if (e.key === 'Escape') handleCancelAddCompany();
+                  }}
+                />
+                <div className="flex gap-1">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-5 w-5"
+                    onClick={handleAddNewCompany}
+                  >
+                    <Check className="h-3 w-3" />
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-5 w-5"
+                    onClick={handleCancelAddCompany}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </TableHead>
       ))}
 
