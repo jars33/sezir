@@ -53,7 +53,7 @@ export const TotalsRow: React.FC<TotalsRowProps> = ({ items, companies }) => {
         );
       })}
 
-      <TableCell className="border border-border text-right font-bold text-green-600">
+      <TableCell className="border border-border text-right font-bold">
         {lowestPrice > 0 ? formatCurrency(lowestPrice) : ""}
       </TableCell>
       
