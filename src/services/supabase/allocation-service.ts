@@ -43,7 +43,7 @@ export const allocationService = {
   },
 
   async getProjectAllocations(projectId: string): Promise<AllocationWithSalary[]> {
-    // Query the project_member_allocations directly with joins instead of using RPC
+    // Query the project_member_allocations directly with joins
     const { data, error } = await supabase
       .from("project_member_allocations")
       .select(`
@@ -63,17 +63,52 @@ export const allocationService = {
 
     if (error) throw error;
     
-    // Transform the data to match the expected AllocationWithSalary format
-    // This is a simplified version without actual salary cost calculation
-    return data.map(item => ({
-      id: item.id,
-      month: item.month,
-      allocation_percentage: item.allocation_percentage,
-      team_member_id: item.project_assignments.team_members.id,
-      team_member_name: item.project_assignments.team_members.name,
-      project_assignment_id: item.project_assignments.id,
-      salary_cost: 0 // Default to 0 as we don't have the salary calculation logic here
-    }));
+    // Process each allocation and calculate salary costs
+    const allocationPromises = data.map(async (item) => {
+      const teamMemberId = item.project_assignments.team_members.id;
+      const allocationMonth = new Date(item.month);
+      const salaryAmount = await this.getTeamMemberSalaryForMonth(teamMemberId, allocationMonth);
+      
+      // Calculate the allocated salary cost based on the allocation percentage
+      const salaryCost = (salaryAmount * item.allocation_percentage) / 100;
+      
+      return {
+        id: item.id,
+        month: item.month,
+        allocation_percentage: item.allocation_percentage,
+        team_member_id: teamMemberId,
+        team_member_name: item.project_assignments.team_members.name,
+        project_assignment_id: item.project_assignments.id,
+        salary_cost: salaryCost
+      };
+    });
+    
+    return Promise.all(allocationPromises);
+  },
+  
+  async getTeamMemberSalaryForMonth(teamMemberId: string, month: Date): Promise<number> {
+    const monthStr = format(month, "yyyy-MM-dd");
+    
+    // Query salary history to find the applicable salary for the given month
+    const { data, error } = await supabase
+      .from("salary_history")
+      .select("amount")
+      .eq("team_member_id", teamMemberId)
+      .lte("start_date", monthStr)
+      .or(`end_date.gt.${monthStr},end_date.is.null`)
+      .order("start_date", { ascending: false })
+      .limit(1);
+
+    if (error) {
+      console.error("Error fetching salary:", error);
+      return 0;
+    }
+    
+    if (data && data.length > 0) {
+      return data[0].amount;
+    }
+    
+    return 0;
   },
 
   async getExistingAssignment(projectId: string, teamMemberId: string): Promise<{id: string} | null> {
