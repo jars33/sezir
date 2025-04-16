@@ -40,6 +40,33 @@ const ITEM_TYPES = {
   ALLOCATION: 'allocation'
 }
 
+// Helper component for draggable items to ensure hooks are always used in the same order
+function DraggableItem({ item, type, onSelect, children }) {
+  const [{ isDragging }, drag] = useDrag({
+    type,
+    item: { 
+      id: item.id, 
+      type, 
+      month: format(new Date(item.month), "yyyy-MM") 
+    },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+  
+  return (
+    <div
+      ref={drag}
+      onClick={() => onSelect(item)}
+      className={cn(
+        isDragging && "opacity-50"
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
 export function TimelineMonth({
   month,
   revenues,
@@ -103,7 +130,7 @@ export function TimelineMonth({
     }
   }
 
-  // Set up drop target for this month
+  // Set up drop target for this month - always create the drop target regardless of onMoveItem availability
   const [{ isOver }, drop] = useDrop({
     accept: [ITEM_TYPES.REVENUE, ITEM_TYPES.VARIABLE_COST, ITEM_TYPES.ALLOCATION],
     drop: (item: any) => {
@@ -143,31 +170,18 @@ export function TimelineMonth({
         </div>
       </div>
 
-      {allocations.map((allocation) => {
-        // Create draggable allocation item
-        const [{ isDragging }, drag] = useDrag({
-          type: ITEM_TYPES.ALLOCATION,
-          item: { 
-            id: allocation.id, 
-            type: ITEM_TYPES.ALLOCATION, 
-            month: format(new Date(allocation.month), "yyyy-MM") 
-          },
-          collect: (monitor) => ({
-            isDragging: monitor.isDragging(),
-          }),
-        });
-        
-        return (
-          <div
-            key={allocation.id}
-            ref={drag}
-            onClick={() => onSelectAllocation(allocation)}
-            className={cn(
-              "bg-blue-50 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 p-2 rounded-md text-xs cursor-pointer",
-              "flex items-center justify-between gap-1",
-              isDragging && "opacity-50"
-            )}
-          >
+      {/* Allocations - Using the DraggableItem component to ensure consistent hook rendering */}
+      {allocations.map((allocation) => (
+        <DraggableItem 
+          key={allocation.id}
+          item={allocation}
+          type={ITEM_TYPES.ALLOCATION}
+          onSelect={onSelectAllocation}
+        >
+          <div className={cn(
+            "bg-blue-50 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 p-2 rounded-md text-xs cursor-pointer",
+            "flex items-center justify-between gap-1"
+          )}>
             <div className="flex-1">
               <div className="font-medium">
                 {formatCurrency(-allocation.salary_cost, showDecimals)}
@@ -178,34 +192,21 @@ export function TimelineMonth({
             </div>
             <GripVertical className="h-4 w-4 text-blue-500 opacity-50 hover:opacity-100" />
           </div>
-        );
-      })}
+        </DraggableItem>
+      ))}
 
-      {variableCosts.map((cost) => {
-        // Create draggable variable cost item
-        const [{ isDragging }, drag] = useDrag({
-          type: ITEM_TYPES.VARIABLE_COST,
-          item: { 
-            id: cost.id, 
-            type: ITEM_TYPES.VARIABLE_COST, 
-            month: format(new Date(cost.month), "yyyy-MM") 
-          },
-          collect: (monitor) => ({
-            isDragging: monitor.isDragging(),
-          }),
-        });
-        
-        return (
-          <div
-            key={cost.id}
-            ref={drag}
-            onClick={() => onSelectVariableCost(cost)}
-            className={cn(
-              "bg-red-50 text-red-800 dark:bg-red-900/30 dark:text-red-300 p-2 rounded-md text-xs cursor-pointer",
-              "flex items-center justify-between gap-1",
-              isDragging && "opacity-50"
-            )}
-          >
+      {/* Variable Costs - Using the DraggableItem component to ensure consistent hook rendering */}
+      {variableCosts.map((cost) => (
+        <DraggableItem 
+          key={cost.id}
+          item={cost}
+          type={ITEM_TYPES.VARIABLE_COST}
+          onSelect={onSelectVariableCost}
+        >
+          <div className={cn(
+            "bg-red-50 text-red-800 dark:bg-red-900/30 dark:text-red-300 p-2 rounded-md text-xs cursor-pointer",
+            "flex items-center justify-between gap-1"
+          )}>
             <div className="flex-1">
               <div className="font-medium">
                 {formatCurrency(-cost.amount, showDecimals)}
@@ -218,34 +219,21 @@ export function TimelineMonth({
             </div>
             <GripVertical className="h-4 w-4 text-red-500 opacity-50 hover:opacity-100" />
           </div>
-        );
-      })}
+        </DraggableItem>
+      ))}
 
-      {revenues.map((revenue) => {
-        // Create draggable revenue item
-        const [{ isDragging }, drag] = useDrag({
-          type: ITEM_TYPES.REVENUE,
-          item: { 
-            id: revenue.id, 
-            type: ITEM_TYPES.REVENUE, 
-            month: format(new Date(revenue.month), "yyyy-MM") 
-          },
-          collect: (monitor) => ({
-            isDragging: monitor.isDragging(),
-          }),
-        });
-        
-        return (
-          <div
-            key={revenue.id}
-            ref={drag}
-            onClick={() => onSelectRevenue(revenue)}
-            className={cn(
-              "bg-green-50 text-green-800 dark:bg-green-900/30 dark:text-green-300 p-2 rounded-md text-xs cursor-pointer",
-              "flex items-center justify-between gap-1",
-              isDragging && "opacity-50"
-            )}
-          >
+      {/* Revenues - Using the DraggableItem component to ensure consistent hook rendering */}
+      {revenues.map((revenue) => (
+        <DraggableItem 
+          key={revenue.id}
+          item={revenue}
+          type={ITEM_TYPES.REVENUE}
+          onSelect={onSelectRevenue}
+        >
+          <div className={cn(
+            "bg-green-50 text-green-800 dark:bg-green-900/30 dark:text-green-300 p-2 rounded-md text-xs cursor-pointer",
+            "flex items-center justify-between gap-1"
+          )}>
             <div className="flex-1">
               <div className="font-medium">
                 {formatCurrency(revenue.amount, showDecimals)}
@@ -253,9 +241,10 @@ export function TimelineMonth({
             </div>
             <GripVertical className="h-4 w-4 text-green-500 opacity-50 hover:opacity-100" />
           </div>
-        );
-      })}
+        </DraggableItem>
+      ))}
 
+      {/* Overhead Costs - These don't need drag functionality */}
       {overheadCosts.map((cost) => (
         <div
           key={cost.id}
