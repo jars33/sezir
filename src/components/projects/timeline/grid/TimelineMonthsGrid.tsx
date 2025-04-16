@@ -49,6 +49,7 @@ export function TimelineMonthsGrid({
     [startDate]
   )
 
+  // Handle moving a single item between months
   const handleMoveItem = async (itemId: string, itemType: string, sourceMonth: string, targetMonth: string) => {
     try {
       if (onMoveItem) {
@@ -57,6 +58,47 @@ export function TimelineMonthsGrid({
       }
     } catch (error) {
       console.error("Error moving item:", error);
+      toast.error(t('common.errorOccurred'));
+    }
+  };
+
+  // Handle moving all items from one month to another
+  const handleMoveMonth = async (sourceMonth: string, targetMonth: string) => {
+    try {
+      if (onMoveItem) {
+        // Move all revenues from the source month to the target month
+        const monthRevenues = revenues.filter(r => r.month.startsWith(sourceMonth));
+        const monthVariableCosts = variableCosts.filter(c => c.month.startsWith(sourceMonth));
+        const monthAllocations = allocations.filter(a => a.month.startsWith(sourceMonth));
+
+        // Create an array of promises for moving all items
+        const movePromises: Promise<void>[] = [];
+
+        // Move revenues
+        for (const revenue of monthRevenues) {
+          movePromises.push(onMoveItem(revenue.id, 'revenue', sourceMonth, targetMonth));
+        }
+
+        // Move variable costs
+        for (const cost of monthVariableCosts) {
+          movePromises.push(onMoveItem(cost.id, 'variable-cost', sourceMonth, targetMonth));
+        }
+
+        // Move allocations
+        for (const allocation of monthAllocations) {
+          movePromises.push(onMoveItem(allocation.id, 'allocation', sourceMonth, targetMonth));
+        }
+
+        // Wait for all moves to complete
+        if (movePromises.length > 0) {
+          await Promise.all(movePromises);
+          toast.success(t('timeline.monthMoved'));
+        } else {
+          toast.info(t('timeline.noItemsToMove'));
+        }
+      }
+    } catch (error) {
+      console.error("Error moving month:", error);
       toast.error(t('common.errorOccurred'));
     }
   };
@@ -107,6 +149,7 @@ export function TimelineMonthsGrid({
                     onSelectOverheadCost={() => {}}
                     onSelectAllocation={onSelectAllocation}
                     onMoveItem={handleMoveItem}
+                    onMoveMonth={handleMoveMonth}
                     accumulatedProfit={calculateAccumulatedProfitUpToMonth(month)}
                     showDecimals={showDecimals}
                   />

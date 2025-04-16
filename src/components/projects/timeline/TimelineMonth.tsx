@@ -15,6 +15,7 @@ import {
   Info,
   Calculator,
   GripVertical,
+  MoveHorizontal,
 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { useDrag, useDrop } from "react-dnd"
@@ -30,6 +31,7 @@ interface TimelineMonthProps {
   onSelectOverheadCost: (cost: any) => void
   onSelectAllocation: (allocation: any) => void
   onMoveItem?: (itemId: string, itemType: string, sourceMonth: string, targetMonth: string) => void
+  onMoveMonth?: (sourceMonth: string, targetMonth: string) => void
   accumulatedProfit: number
   showDecimals?: boolean
 }
@@ -37,7 +39,8 @@ interface TimelineMonthProps {
 const ITEM_TYPES = {
   REVENUE: 'revenue',
   VARIABLE_COST: 'variable-cost',
-  ALLOCATION: 'allocation'
+  ALLOCATION: 'allocation',
+  MONTH: 'month'
 }
 
 // Helper component for draggable items to ensure hooks are always used in the same order
@@ -78,6 +81,7 @@ export function TimelineMonth({
   onSelectOverheadCost,
   onSelectAllocation,
   onMoveItem,
+  onMoveMonth,
   accumulatedProfit,
   showDecimals = true,
 }: TimelineMonthProps) {
@@ -130,12 +134,32 @@ export function TimelineMonth({
     }
   }
 
+  // Make the month header draggable
+  const [{ isDragging: isMonthDragging }, dragMonth] = useDrag({
+    type: ITEM_TYPES.MONTH,
+    item: { 
+      type: ITEM_TYPES.MONTH, 
+      month: monthStr,
+      revenues: revenues,
+      variableCosts: variableCosts,
+      allocations: allocations
+    },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+
   // Set up drop target for this month - always create the drop target regardless of onMoveItem availability
   const [{ isOver }, drop] = useDrop({
-    accept: [ITEM_TYPES.REVENUE, ITEM_TYPES.VARIABLE_COST, ITEM_TYPES.ALLOCATION],
+    accept: [ITEM_TYPES.REVENUE, ITEM_TYPES.VARIABLE_COST, ITEM_TYPES.ALLOCATION, ITEM_TYPES.MONTH],
     drop: (item: any) => {
-      if (item.month !== monthStr && onMoveItem) {
+      // Handle dropping a single item
+      if (item.type !== ITEM_TYPES.MONTH && item.month !== monthStr && onMoveItem) {
         onMoveItem(item.id, item.type, item.month, monthStr);
+      }
+      // Handle dropping an entire month
+      else if (item.type === ITEM_TYPES.MONTH && item.month !== monthStr && onMoveMonth) {
+        onMoveMonth(item.month, monthStr);
       }
     },
     collect: (monitor) => ({
@@ -154,8 +178,17 @@ export function TimelineMonth({
         isOver && "bg-blue-100 dark:bg-blue-800/30"
       )}
     >
-      <div className="text-center font-medium text-sm mb-3">
-        {t(`common.months.${getMonthKey(month)}`)} {month.getFullYear()}
+      <div 
+        ref={dragMonth}
+        className={cn(
+          "text-center font-medium text-sm mb-3 cursor-grab active:cursor-grabbing",
+          isMonthDragging && "opacity-50"
+        )}
+      >
+        <div className="flex items-center justify-center">
+          {t(`common.months.${getMonthKey(month)}`)} {month.getFullYear()}
+          <MoveHorizontal className="ml-1 h-3 w-3 text-gray-500" />
+        </div>
       </div>
 
       {/* Revenue Summary - Add drag handles to make it clear it's draggable */}
