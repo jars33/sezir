@@ -5,7 +5,10 @@ import { TimelineMonthsGrid } from "./grid/TimelineMonthsGrid"
 import { TimelineActions } from "./TimelineActions"
 import { TimelineAllocationManager } from "./allocation/TimelineAllocationManager"
 import { SynchronizedScrollProvider } from "@/hooks/use-synchronized-scroll"
+import { format } from "date-fns"
 import type { TimelineItem, AllocationItem } from "./actions/types"
+import { allocationService, revenueService, variableCostService } from "@/services/supabase"
+import { toast } from "sonner"
 
 interface TimelineContentProps {
   projectId: string
@@ -74,6 +77,67 @@ export function TimelineContent({
   setSelectedAllocation,
   refetchTimelineData
 }: TimelineContentProps) {
+  
+  // Handle moving items between months
+  const handleMoveItem = async (
+    itemId: string, 
+    itemType: string, 
+    sourceMonth: string, 
+    targetMonth: string
+  ) => {
+    try {
+      const targetMonthDate = new Date(`${targetMonth}-01`);
+      
+      switch (itemType) {
+        case 'revenue':
+          const revenue = revenues.find(r => r.id === itemId);
+          if (revenue) {
+            await revenueService.updateRevenue(
+              itemId,
+              targetMonth + "-01",
+              revenue.amount
+            );
+          }
+          break;
+          
+        case 'variable-cost':
+          const cost = variableCosts.find(c => c.id === itemId);
+          if (cost) {
+            await variableCostService.updateVariableCost(
+              itemId,
+              targetMonth + "-01", 
+              cost.amount, 
+              cost.description || ""
+            );
+          }
+          break;
+          
+        case 'allocation':
+          const allocation = allocations.find(a => a.id === itemId);
+          if (allocation) {
+            await allocationService.updateAllocation(
+              allocation.project_assignment_id,
+              targetMonthDate,
+              allocation.allocation_percentage,
+              itemId
+            );
+          }
+          break;
+          
+        default:
+          throw new Error("Unknown item type");
+      }
+      
+      // Refresh the timeline data
+      await refetchTimelineData();
+      
+    } catch (error) {
+      console.error("Error moving item:", error);
+      toast.error("Failed to move item to new month");
+      throw error;
+    }
+  };
+
   return (
     <CardContent className="space-y-6">
       <TimelineSummary
@@ -92,6 +156,7 @@ export function TimelineContent({
           onSelectRevenue={onSelectRevenue}
           onSelectVariableCost={onSelectVariableCost}
           onSelectAllocation={onSelectAllocation}
+          onMoveItem={handleMoveItem}
           calculateAccumulatedProfitUpToMonth={calculateAccumulatedProfitUpToMonth}
           year={year}
           showDecimals={showDecimals}
