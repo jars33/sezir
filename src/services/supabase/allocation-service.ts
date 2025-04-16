@@ -43,15 +43,37 @@ export const allocationService = {
   },
 
   async getProjectAllocations(projectId: string): Promise<AllocationWithSalary[]> {
-    // This function calls a stored procedure in the database
+    // Query the project_member_allocations directly with joins instead of using RPC
     const { data, error } = await supabase
-      .rpc("get_project_allocations_with_salaries", {
-        p_project_id: projectId
-      })
+      .from("project_member_allocations")
+      .select(`
+        id,
+        month,
+        allocation_percentage,
+        project_assignments!inner (
+          id,
+          team_members!inner (
+            id,
+            name
+          )
+        )
+      `)
+      .eq("project_assignments.project_id", projectId)
       .order("month");
 
     if (error) throw error;
-    return data as AllocationWithSalary[];
+    
+    // Transform the data to match the expected AllocationWithSalary format
+    // This is a simplified version without actual salary cost calculation
+    return data.map(item => ({
+      id: item.id,
+      month: item.month,
+      allocation_percentage: item.allocation_percentage,
+      team_member_id: item.project_assignments.team_members.id,
+      team_member_name: item.project_assignments.team_members.name,
+      project_assignment_id: item.project_assignments.id,
+      salary_cost: 0 // Default to 0 as we don't have the salary calculation logic here
+    }));
   },
 
   async getExistingAssignment(projectId: string, teamMemberId: string): Promise<{id: string} | null> {
@@ -127,12 +149,12 @@ export const allocationService = {
 
         if (error) throw error;
       } else {
-        await this.createAllocation(assignmentId, monthStr, allocationPercentage);
+        await this.createAllocationRecord(assignmentId, monthStr, allocationPercentage);
       }
     }
   },
 
-  async createAllocation(assignmentId: string, monthStr: string, allocationPercentage: number): Promise<void> {
+  async createAllocationRecord(assignmentId: string, monthStr: string, allocationPercentage: number): Promise<void> {
     const { error } = await supabase
       .from("project_member_allocations")
       .insert({
