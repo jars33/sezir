@@ -1,5 +1,5 @@
 
-import { useMemo, useRef, useState, useEffect } from "react"
+import { useMemo } from "react"
 import { format, addMonths } from "date-fns"
 import { TimelineMonth } from "../TimelineMonth"
 import type { TimelineItem, AllocationItem } from "../actions/types"
@@ -36,84 +36,27 @@ export function TimelineMonthsGrid({
 }: TimelineMonthsGridProps) {
   const { t } = useTranslation()
   const { getOverheadPercentage } = useProjectSettings()
-  const { registerContainer, setScrollLeft } = useSynchronizedScroll()
-  const timelineContainerRef = useRef<HTMLDivElement>(null)
-  const [isDragging, setIsDragging] = useState(false)
-  const [startX, setStartX] = useState(0)
+  const { registerContainer } = useSynchronizedScroll()
+  const timelineContainerRef = useMemo(() => ({ current: null }), [])
   
   const months = useMemo(() => 
     Array.from({ length: 12 }, (_, i) => addMonths(startDate, i)), 
     [startDate]
   )
-  
-  useEffect(() => {
-    registerContainer(timelineContainerRef.current);
-  }, [registerContainer]);
-  
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!timelineContainerRef.current) return
-    
-    setIsDragging(true)
-    setStartX(e.clientX)
-    
-    if (timelineContainerRef.current) {
-      timelineContainerRef.current.style.cursor = 'grabbing'
-    }
-  }
-  
-  const handleMouseUp = () => {
-    setIsDragging(false)
-    
-    if (timelineContainerRef.current) {
-      timelineContainerRef.current.style.cursor = 'grab'
-    }
-  }
-  
-  const handleMouseLeave = () => {
-    if (isDragging) {
-      setIsDragging(false)
-      
-      if (timelineContainerRef.current) {
-        timelineContainerRef.current.style.cursor = 'grab'
-      }
-    }
-  }
-  
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isDragging || !timelineContainerRef.current) return
-    
-    e.preventDefault()
-    const x = e.clientX
-    const distance = x - startX
-    
-    // Update start position for continuous drag
-    setStartX(x)
-    
-    // Update scroll position with synchronized scroll
-    if (timelineContainerRef.current) {
-      const newScrollLeft = timelineContainerRef.current.scrollLeft - distance
-      setScrollLeft(newScrollLeft)
-    }
-  }
-  
-  // Handle scroll event to synchronize scrolling
-  const handleScroll = () => {
-    if (timelineContainerRef.current && !isDragging) {
-      setScrollLeft(timelineContainerRef.current.scrollLeft)
-    }
-  }
 
   return (
     <div className="space-y-4">
       <div 
         className="overflow-auto w-full" 
-        ref={timelineContainerRef}
-        style={{ cursor: 'grab' }}
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseLeave}
-        onMouseMove={handleMouseMove}
-        onScroll={handleScroll}
+        ref={(el) => {
+          timelineContainerRef.current = el;
+          registerContainer(el);
+        }}
+        onScroll={() => {
+          if (timelineContainerRef.current) {
+            // Only handle regular scrolling events
+          }
+        }}
       >
         <div className="min-w-[2400px]">
           <div className="grid grid-cols-12 gap-px bg-gray-200 rounded-lg overflow-hidden">

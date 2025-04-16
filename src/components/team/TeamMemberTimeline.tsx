@@ -21,9 +21,7 @@ export function TeamMemberTimeline({ member, selectedYear, onEditMember }: TeamM
   const currentDate = new Date()
   const { t } = useTranslation()
   const containerRef = useRef<HTMLDivElement>(null)
-  const [isDragging, setIsDragging] = useState(false)
-  const [startX, setStartX] = useState(0)
-  const { scrollLeft, setScrollLeft, registerContainer } = useSynchronizedScroll()
+  const { registerContainer, setScrollLeft } = useSynchronizedScroll()
   
   const { allocations, refetch } = useAllocationData(member.id, selectedYear)
   const { handleAllocationSubmit } = useAllocationSubmit(member.id, refetch)
@@ -41,62 +39,16 @@ export function TeamMemberTimeline({ member, selectedYear, onEditMember }: TeamM
   
   // Update the container's scroll position when the shared scrollLeft changes
   useEffect(() => {
-    if (containerRef.current && containerRef.current.scrollLeft !== scrollLeft) {
-      containerRef.current.scrollLeft = scrollLeft;
-    }
-  }, [scrollLeft]);
-  
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!containerRef.current) return
-    
-    setIsDragging(true)
-    setStartX(e.clientX)
-    
-    // Change cursor to grabbing
     if (containerRef.current) {
-      containerRef.current.style.cursor = 'grabbing'
+      // Container scroll position will be handled by the synchronizedScroll hook
     }
-  }
+  }, []);
   
-  const handleMouseUp = () => {
-    setIsDragging(false)
-    
-    // Restore cursor
+  // Handle scroll event to synchronize scrolling
+  const handleScroll = () => {
     if (containerRef.current) {
-      containerRef.current.style.cursor = 'grab'
+      setScrollLeft(containerRef.current.scrollLeft);
     }
-  }
-  
-  const handleMouseLeave = () => {
-    if (isDragging) {
-      setIsDragging(false)
-      
-      // Restore cursor
-      if (containerRef.current) {
-        containerRef.current.style.cursor = 'grab'
-      }
-    }
-  }
-  
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isDragging || !containerRef.current) return
-    
-    e.preventDefault()
-    const x = e.clientX
-    const distance = x - startX
-    
-    // When dragging, update the scroll position of all containers through context
-    const newScrollPosition = containerRef.current.scrollLeft - distance;
-    setScrollLeft(newScrollPosition);
-    
-    // Reset the start X to the current position for smooth continuous scrolling
-    setStartX(x);
-  }
-  
-  // Handle scroll event to update the shared scroll position
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    if (isDragging) return; // Ignore scroll events during drag
-    setScrollLeft(e.currentTarget.scrollLeft);
   };
 
   return (
@@ -111,11 +63,6 @@ export function TeamMemberTimeline({ member, selectedYear, onEditMember }: TeamM
         <div 
           className="overflow-auto w-full"
           ref={containerRef}
-          style={{ cursor: 'grab' }}
-          onMouseDown={handleMouseDown}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseLeave}
-          onMouseMove={handleMouseMove}
           onScroll={handleScroll}
         >
           <div className="min-w-[2400px]">

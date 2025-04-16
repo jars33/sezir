@@ -7,18 +7,12 @@ interface SynchronizedTableContainerProps {
 }
 
 export function SynchronizedTableContainer({ children }: SynchronizedTableContainerProps) {
-  const { registerContainer, scrollLeft, setScrollLeft } = useSynchronizedScroll();
+  const { registerContainer, setScrollLeft } = useSynchronizedScroll();
   const tableContainerRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
     registerContainer(tableContainerRef.current);
   }, [registerContainer]);
-  
-  useEffect(() => {
-    if (tableContainerRef.current && tableContainerRef.current.scrollLeft !== scrollLeft) {
-      tableContainerRef.current.scrollLeft = scrollLeft;
-    }
-  }, [scrollLeft]);
   
   const handleScroll = () => {
     if (tableContainerRef.current) {

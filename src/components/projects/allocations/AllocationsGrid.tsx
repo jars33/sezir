@@ -1,7 +1,8 @@
 
-import { useRef, useState } from "react";
+import { useRef, useEffect } from "react";
 import { AllocationData } from "./types";
 import { MonthAllocations } from "./MonthAllocations";
+import { useSynchronizedScroll } from "@/hooks/use-synchronized-scroll";
 
 interface AllocationsGridProps {
   months: Date[];
@@ -11,61 +12,25 @@ interface AllocationsGridProps {
 
 export function AllocationsGrid({ months, allocations, onAllocationClick }: AllocationsGridProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [scrollLeft, setScrollLeft] = useState(0);
+  const { registerContainer, setScrollLeft } = useSynchronizedScroll();
   
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!containerRef.current) return;
-    
-    setIsDragging(true);
-    setStartX(e.clientX);
-    setScrollLeft(containerRef.current.scrollLeft);
-    
-    // Change cursor to grabbing
+  // Register the container for synchronized scrolling
+  useEffect(() => {
+    registerContainer(containerRef.current);
+  }, [registerContainer]);
+  
+  // Handle scroll event to update the shared scroll position
+  const handleScroll = () => {
     if (containerRef.current) {
-      containerRef.current.style.cursor = 'grabbing';
+      setScrollLeft(containerRef.current.scrollLeft);
     }
-  };
-  
-  const handleMouseUp = () => {
-    setIsDragging(false);
-    
-    // Restore cursor
-    if (containerRef.current) {
-      containerRef.current.style.cursor = 'grab';
-    }
-  };
-  
-  const handleMouseLeave = () => {
-    if (isDragging) {
-      setIsDragging(false);
-      
-      // Restore cursor
-      if (containerRef.current) {
-        containerRef.current.style.cursor = 'grab';
-      }
-    }
-  };
-  
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isDragging || !containerRef.current) return;
-    
-    e.preventDefault();
-    const x = e.clientX;
-    const distance = x - startX;
-    containerRef.current.scrollLeft = scrollLeft - distance;
   };
 
   return (
     <div 
       className="overflow-auto w-full"
       ref={containerRef}
-      style={{ cursor: 'grab' }}
-      onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseLeave}
-      onMouseMove={handleMouseMove}
+      onScroll={handleScroll}
     >
       <div className="min-w-[2400px]">
         <div className="grid grid-cols-12 gap-px bg-gray-200 rounded-lg overflow-hidden">
