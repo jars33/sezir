@@ -11,8 +11,17 @@ export function SynchronizedTableContainer({ children }: SynchronizedTableContai
   const tableContainerRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
-    registerContainer(tableContainerRef.current);
-  }, [registerContainer]);
+    if (tableContainerRef.current) {
+      registerContainer(tableContainerRef.current);
+    }
+    
+    // Re-register on any children updates
+    return () => {
+      if (tableContainerRef.current) {
+        registerContainer(tableContainerRef.current);
+      }
+    };
+  }, [registerContainer, children]);
   
   const handleScroll = () => {
     if (tableContainerRef.current) {
@@ -26,7 +35,7 @@ export function SynchronizedTableContainer({ children }: SynchronizedTableContai
       ref={tableContainerRef}
       onScroll={handleScroll}
     >
-      <div style={{ minWidth: "2400px" }}>
+      <div className="min-w-[2400px]">
         {children}
       </div>
     </div>

@@ -15,10 +15,22 @@ export function SynchronizedScrollProvider({ children }: { children: React.React
   const scrollContainers = useRef<(HTMLDivElement | null)[]>([]);
   const isScrolling = useRef(false);
   
-  // Register a container to be synchronized
+  // Clean up stale references and register new containers
   const registerContainer = (container: HTMLDivElement | null) => {
-    if (container && !scrollContainers.current.includes(container)) {
+    if (!container) return;
+    
+    // Filter out null entries and non-existent nodes
+    scrollContainers.current = scrollContainers.current
+      .filter(c => c && document.body.contains(c));
+    
+    // Only add if not already in the array
+    if (!scrollContainers.current.includes(container)) {
       scrollContainers.current.push(container);
+      
+      // Set initial scroll position for newly added containers
+      if (scrollLeft > 0 && container.scrollLeft !== scrollLeft) {
+        container.scrollLeft = scrollLeft;
+      }
     }
   };
 
@@ -40,6 +52,13 @@ export function SynchronizedScrollProvider({ children }: { children: React.React
       isScrolling.current = false;
     }, 50);
   }, [scrollLeft]);
+  
+  // Clean up on unmount
+  useEffect(() => {
+    return () => {
+      scrollContainers.current = [];
+    };
+  }, []);
 
   return (
     <SynchronizedScrollContext.Provider value={{ scrollLeft, setScrollLeft, registerContainer, scrollContainers }}>

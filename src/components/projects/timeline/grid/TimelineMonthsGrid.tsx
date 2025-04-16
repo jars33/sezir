@@ -11,6 +11,7 @@ import { useSynchronizedScroll } from "@/hooks/use-synchronized-scroll"
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { toast } from "sonner"
+import { useQueryClient } from "@tanstack/react-query"
 
 interface TimelineMonthsGridProps {
   startDate: Date
@@ -24,6 +25,7 @@ interface TimelineMonthsGridProps {
   calculateAccumulatedProfitUpToMonth: (targetMonth: Date) => number
   year: number
   showDecimals?: boolean
+  refetchTimelineData: () => Promise<void>
 }
 
 export function TimelineMonthsGrid({
@@ -37,12 +39,14 @@ export function TimelineMonthsGrid({
   onMoveItem,
   calculateAccumulatedProfitUpToMonth,
   year,
-  showDecimals = true
+  showDecimals = true,
+  refetchTimelineData
 }: TimelineMonthsGridProps) {
   const { t } = useTranslation()
   const { getOverheadPercentage } = useProjectSettings()
   const { registerContainer } = useSynchronizedScroll()
   const timelineContainerRef = useMemo(() => ({ current: null }), [])
+  const queryClient = useQueryClient();
   
   const months = useMemo(() => 
     Array.from({ length: 12 }, (_, i) => addMonths(startDate, i)), 
@@ -54,6 +58,11 @@ export function TimelineMonthsGrid({
     try {
       if (onMoveItem) {
         await onMoveItem(itemId, itemType, sourceMonth, targetMonth);
+        // Invalidate all relevant queries to ensure the data is refreshed
+        queryClient.invalidateQueries({ queryKey: ["project-revenues"] });
+        queryClient.invalidateQueries({ queryKey: ["project-variable-costs"] });
+        queryClient.invalidateQueries({ queryKey: ["project-allocations"] });
+        await refetchTimelineData();
         toast.success(t('timeline.itemMoved'));
       }
     } catch (error) {
@@ -92,6 +101,18 @@ export function TimelineMonthsGrid({
         // Wait for all moves to complete
         if (movePromises.length > 0) {
           await Promise.all(movePromises);
+          
+          // Invalidate all relevant queries to ensure the data is refreshed completely
+          queryClient.invalidateQueries({ queryKey: ["project-revenues"] });
+          queryClient.invalidateQueries({ queryKey: ["project-variable-costs"] });
+          queryClient.invalidateQueries({ queryKey: ["project-allocations"] });
+          queryClient.invalidateQueries({ queryKey: ["all-project-revenues"] });
+          queryClient.invalidateQueries({ queryKey: ["all-project-variable-costs"] });
+          queryClient.invalidateQueries({ queryKey: ["all-project-allocations"] });
+          
+          // Force a complete refresh of timeline data
+          await refetchTimelineData();
+          
           toast.success(t('timeline.monthMoved'));
         } else {
           toast.info(t('timeline.noItemsToMove'));

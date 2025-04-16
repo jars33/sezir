@@ -9,6 +9,7 @@ import { format } from "date-fns"
 import type { TimelineItem, AllocationItem } from "./actions/types"
 import { allocationService, revenueService, variableCostService } from "@/services/supabase"
 import { toast } from "sonner"
+import { useQueryClient } from "@tanstack/react-query"
 
 interface TimelineContentProps {
   projectId: string
@@ -78,6 +79,8 @@ export function TimelineContent({
   refetchTimelineData
 }: TimelineContentProps) {
   
+  const queryClient = useQueryClient();
+  
   // Handle moving items between months
   const handleMoveItem = async (
     itemId: string, 
@@ -128,6 +131,11 @@ export function TimelineContent({
           throw new Error("Unknown item type");
       }
       
+      // Invalidate all relevant query data to ensure complete refresh
+      queryClient.invalidateQueries({ queryKey: ["project-revenues"] });
+      queryClient.invalidateQueries({ queryKey: ["project-variable-costs"] });
+      queryClient.invalidateQueries({ queryKey: ["project-allocations"] });
+      
       // Refresh the timeline data
       await refetchTimelineData();
       
@@ -160,6 +168,7 @@ export function TimelineContent({
           calculateAccumulatedProfitUpToMonth={calculateAccumulatedProfitUpToMonth}
           year={year}
           showDecimals={showDecimals}
+          refetchTimelineData={refetchTimelineData}
         />
       </SynchronizedScrollProvider>
 
