@@ -14,7 +14,7 @@ import {
   CircleUser,
   Info,
   Calculator,
-  DragHandleDots2,
+  GripVertical,
 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { useDrag, useDrop } from "react-dnd"
@@ -176,7 +176,7 @@ export function TimelineMonth({
                 {allocation.team_member_name} ({allocation.allocation_percentage}%)
               </div>
             </div>
-            <DragHandleDots2 className="h-4 w-4 text-blue-500 opacity-50 hover:opacity-100" />
+            <GripVertical className="h-4 w-4 text-blue-500 opacity-50 hover:opacity-100" />
           </div>
         );
       })}
@@ -216,7 +216,7 @@ export function TimelineMonth({
                 </div>
               )}
             </div>
-            <DragHandleDots2 className="h-4 w-4 text-red-500 opacity-50 hover:opacity-100" />
+            <GripVertical className="h-4 w-4 text-red-500 opacity-50 hover:opacity-100" />
           </div>
         );
       })}
@@ -251,7 +251,7 @@ export function TimelineMonth({
                 {formatCurrency(revenue.amount, showDecimals)}
               </div>
             </div>
-            <DragHandleDots2 className="h-4 w-4 text-green-500 opacity-50 hover:opacity-100" />
+            <GripVertical className="h-4 w-4 text-green-500 opacity-50 hover:opacity-100" />
           </div>
         );
       })}

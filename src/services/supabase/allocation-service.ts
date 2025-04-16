@@ -43,6 +43,7 @@ export const allocationService = {
   },
 
   async getProjectAllocations(projectId: string): Promise<AllocationWithSalary[]> {
+    // This function calls a stored procedure in the database
     const { data, error } = await supabase
       .rpc("get_project_allocations_with_salaries", {
         p_project_id: projectId
@@ -150,5 +151,39 @@ export const allocationService = {
       .eq("id", id);
 
     if (error) throw error;
+  },
+
+  async createAllocation(
+    projectId: string,
+    teamMemberId: string,
+    month: Date,
+    allocationPercentage: number
+  ): Promise<void> {
+    try {
+      const existingAssignment = await this.getExistingAssignment(
+        projectId, 
+        teamMemberId
+      );
+      
+      let assignmentId: string;
+      
+      if (existingAssignment) {
+        assignmentId = existingAssignment.id;
+      } else {
+        const newAssignment = await this.createAssignment(
+          projectId,
+          teamMemberId,
+          month
+        );
+        assignmentId = newAssignment.id;
+      }
+      
+      const monthStr = format(month, "yyyy-MM-dd");
+      await this.updateAllocation(assignmentId, month, allocationPercentage);
+      
+    } catch (error) {
+      console.error("Error creating allocation:", error);
+      throw error;
+    }
   }
 };
