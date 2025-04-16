@@ -84,11 +84,17 @@ export const BudgetItemRow: React.FC<BudgetItemRowProps> = ({
             
             if (item.isCategory && categoryTotals) {
               const categoryPrice = categoryTotals[company.id] || 0;
+              const bestPrice = lowestPrice > 0 ? lowestPrice : 0;
+              
+              // Get text color based on price comparison
+              const colorClass = categoryPrice > 0 
+                ? getTextColorClass(categoryPrice, bestPrice, averagePrice)
+                : "";
               
               return (
                 <TableCell
                   key={`${item.id}-${company.id}`}
-                  className={`border border-border text-right ${bgColorClass}`}
+                  className={`border border-border text-right ${bgColorClass} ${colorClass}`}
                 >
                   {categoryPrice > 0 ? formatCurrency(categoryPrice) : ""}
                 </TableCell>
