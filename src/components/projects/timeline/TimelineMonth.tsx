@@ -158,17 +158,38 @@ export function TimelineMonth({
         {t(`common.months.${getMonthKey(month)}`)} {month.getFullYear()}
       </div>
 
-      <div 
-        onClick={handleRevenueClick}
-        className={cn(
-          "p-2 rounded-md text-center cursor-pointer hover:opacity-80 transition-opacity",
-          totalRevenues > 0 ? "bg-green-50 dark:bg-green-900/20" : "bg-gray-50 dark:bg-gray-800/20"
-        )}
-      >
-        <div className="text-sm font-medium">
-          {formatCurrency(totalRevenues, showDecimals)}
+      {/* Revenue Summary - Add drag handles to make it clear it's draggable */}
+      {totalRevenues > 0 ? (
+        revenues.map((revenue) => (
+          <DraggableItem 
+            key={revenue.id}
+            item={revenue}
+            type={ITEM_TYPES.REVENUE}
+            onSelect={onSelectRevenue}
+          >
+            <div className={cn(
+              "bg-green-50 text-green-800 dark:bg-green-900/30 dark:text-green-300 p-2 rounded-md",
+              "flex items-center justify-between gap-1 cursor-pointer"
+            )}>
+              <div className="flex-1">
+                <div className="font-medium">
+                  {formatCurrency(revenue.amount, showDecimals)}
+                </div>
+              </div>
+              <GripVertical className="h-4 w-4 text-green-500 opacity-50 hover:opacity-100" />
+            </div>
+          </DraggableItem>
+        ))
+      ) : (
+        <div 
+          onClick={handleRevenueClick}
+          className="p-2 rounded-md text-center cursor-pointer hover:opacity-80 transition-opacity bg-gray-50 dark:bg-gray-800/20"
+        >
+          <div className="text-sm font-medium">
+            {formatCurrency(0, showDecimals)}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Allocations - Using the DraggableItem component to ensure consistent hook rendering */}
       {allocations.map((allocation) => (
@@ -218,28 +239,6 @@ export function TimelineMonth({
               )}
             </div>
             <GripVertical className="h-4 w-4 text-red-500 opacity-50 hover:opacity-100" />
-          </div>
-        </DraggableItem>
-      ))}
-
-      {/* Revenues - Using the DraggableItem component to ensure consistent hook rendering */}
-      {revenues.map((revenue) => (
-        <DraggableItem 
-          key={revenue.id}
-          item={revenue}
-          type={ITEM_TYPES.REVENUE}
-          onSelect={onSelectRevenue}
-        >
-          <div className={cn(
-            "bg-green-50 text-green-800 dark:bg-green-900/30 dark:text-green-300 p-2 rounded-md text-xs cursor-pointer",
-            "flex items-center justify-between gap-1"
-          )}>
-            <div className="flex-1">
-              <div className="font-medium">
-                {formatCurrency(revenue.amount, showDecimals)}
-              </div>
-            </div>
-            <GripVertical className="h-4 w-4 text-green-500 opacity-50 hover:opacity-100" />
           </div>
         </DraggableItem>
       ))}
