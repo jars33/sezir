@@ -13,6 +13,7 @@ const SynchronizedScrollContext = createContext<SynchronizedScrollContextType | 
 export function SynchronizedScrollProvider({ children }: { children: React.ReactNode }) {
   const [scrollLeft, setScrollLeft] = useState(0);
   const scrollContainers = useRef<(HTMLDivElement | null)[]>([]);
+  const isScrolling = useRef(false);
   
   // Register a container to be synchronized
   const registerContainer = (container: HTMLDivElement | null) => {
@@ -23,11 +24,21 @@ export function SynchronizedScrollProvider({ children }: { children: React.React
 
   // Synchronize all containers when scrollLeft changes
   useEffect(() => {
+    // Prevent infinite scroll loops by checking if we're already scrolling
+    if (isScrolling.current) return;
+    
+    isScrolling.current = true;
+    
     scrollContainers.current.forEach(container => {
       if (container && container.scrollLeft !== scrollLeft) {
         container.scrollLeft = scrollLeft;
       }
     });
+    
+    // Reset the scrolling flag after a short delay
+    setTimeout(() => {
+      isScrolling.current = false;
+    }, 50);
   }, [scrollLeft]);
 
   return (

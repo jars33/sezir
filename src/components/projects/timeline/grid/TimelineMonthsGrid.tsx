@@ -65,7 +65,7 @@ export function TimelineMonthsGrid({
     <div className="space-y-4">
       <DndProvider backend={HTML5Backend}>
         <div 
-          className="overflow-auto w-full" 
+          className="overflow-auto w-full sync-scroll" 
           ref={(el) => {
             timelineContainerRef.current = el;
             registerContainer(el);

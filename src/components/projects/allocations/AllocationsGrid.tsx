@@ -28,7 +28,7 @@ export function AllocationsGrid({ months, allocations, onAllocationClick }: Allo
 
   return (
     <div 
-      className="overflow-auto w-full"
+      className="overflow-auto w-full sync-scroll"
       ref={containerRef}
       onScroll={handleScroll}
     >

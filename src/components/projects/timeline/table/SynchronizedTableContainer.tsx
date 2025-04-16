@@ -22,7 +22,7 @@ export function SynchronizedTableContainer({ children }: SynchronizedTableContai
   
   return (
     <div 
-      className="overflow-x-auto border rounded-lg" 
+      className="overflow-x-auto border rounded-lg sync-scroll" 
       ref={tableContainerRef}
       onScroll={handleScroll}
     >
