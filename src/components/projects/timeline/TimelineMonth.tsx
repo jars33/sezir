@@ -1,11 +1,5 @@
-
 import { format } from "date-fns"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Badge } from "@/components/ui/badge"
 import { cn, formatCurrency } from "@/lib/utils"
 import {
@@ -14,8 +8,6 @@ import {
   CircleUser,
   Info,
   Calculator,
-  GripVertical,
-  MoveHorizontal,
 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { useDrag, useDrop } from "react-dnd"
@@ -43,7 +35,6 @@ const ITEM_TYPES = {
   MONTH: 'month'
 }
 
-// Helper component for draggable items to ensure hooks are always used in the same order
 function DraggableItem({ item, type, onSelect, children }) {
   const [{ isDragging }, drag] = useDrag({
     type,
@@ -123,7 +114,6 @@ export function TimelineMonth({
       onSelectRevenue(revenues[0]);
     } 
     else {
-      // Create a new revenue item with the correct month format (YYYY-MM)
       const formattedMonth = format(month, "yyyy-MM")
       onSelectRevenue({ 
         id: null, 
@@ -134,7 +124,6 @@ export function TimelineMonth({
     }
   }
 
-  // Make the month header draggable
   const [{ isDragging: isMonthDragging }, dragMonth] = useDrag({
     type: ITEM_TYPES.MONTH,
     item: { 
@@ -149,15 +138,12 @@ export function TimelineMonth({
     }),
   });
 
-  // Set up drop target for this month - always create the drop target regardless of onMoveItem availability
   const [{ isOver }, drop] = useDrop({
     accept: [ITEM_TYPES.REVENUE, ITEM_TYPES.VARIABLE_COST, ITEM_TYPES.ALLOCATION, ITEM_TYPES.MONTH],
     drop: (item: any) => {
-      // Handle dropping a single item
       if (item.type !== ITEM_TYPES.MONTH && item.month !== monthStr && onMoveItem) {
         onMoveItem(item.id, item.type, item.month, monthStr);
       }
-      // Handle dropping an entire month
       else if (item.type === ITEM_TYPES.MONTH && item.month !== monthStr && onMoveMonth) {
         onMoveMonth(item.month, monthStr);
       }
@@ -187,11 +173,9 @@ export function TimelineMonth({
       >
         <div className="flex items-center justify-center">
           {t(`common.months.${getMonthKey(month)}`)} {month.getFullYear()}
-          <MoveHorizontal className="ml-1 h-3 w-3 text-gray-500" />
         </div>
       </div>
 
-      {/* Revenue Summary - Add drag handles to make it clear it's draggable */}
       {totalRevenues > 0 ? (
         revenues.map((revenue) => (
           <DraggableItem 
@@ -209,7 +193,6 @@ export function TimelineMonth({
                   {formatCurrency(revenue.amount, showDecimals)}
                 </div>
               </div>
-              <GripVertical className="h-4 w-4 text-green-500 opacity-50 hover:opacity-100" />
             </div>
           </DraggableItem>
         ))
@@ -224,7 +207,6 @@ export function TimelineMonth({
         </div>
       )}
 
-      {/* Allocations - Using the DraggableItem component to ensure consistent hook rendering */}
       {allocations.map((allocation) => (
         <DraggableItem 
           key={allocation.id}
@@ -244,12 +226,10 @@ export function TimelineMonth({
                 {allocation.team_member_name} ({allocation.allocation_percentage}%)
               </div>
             </div>
-            <GripVertical className="h-4 w-4 text-blue-500 opacity-50 hover:opacity-100" />
           </div>
         </DraggableItem>
       ))}
 
-      {/* Variable Costs - Using the DraggableItem component to ensure consistent hook rendering */}
       {variableCosts.map((cost) => (
         <DraggableItem 
           key={cost.id}
@@ -271,12 +251,10 @@ export function TimelineMonth({
                 </div>
               )}
             </div>
-            <GripVertical className="h-4 w-4 text-red-500 opacity-50 hover:opacity-100" />
           </div>
         </DraggableItem>
       ))}
 
-      {/* Overhead Costs - These don't need drag functionality */}
       {overheadCosts.map((cost) => (
         <div
           key={cost.id}
