@@ -17,7 +17,6 @@ export function SynchronizedTableContainer({ children }: SynchronizedTableContai
     
     return () => {
       if (tableContainerRef.current) {
-        // Properly clean up the registration
         registerContainer(null);
       }
     };
@@ -31,7 +30,7 @@ export function SynchronizedTableContainer({ children }: SynchronizedTableContai
   
   return (
     <div 
-      className="overflow-x-auto border rounded-lg sync-scroll" 
+      className="overflow-x-auto border rounded-lg sync-scroll isolate" 
       ref={tableContainerRef}
       onScroll={handleScroll}
     >

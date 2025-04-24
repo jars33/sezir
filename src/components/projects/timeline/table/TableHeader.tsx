@@ -12,7 +12,7 @@ export function TimelineTableHeader({ months }: TableHeaderProps) {
   return (
     <TableHeader>
       <TableRow className="bg-muted/50">
-        <TableHead className="sticky left-0 z-10 bg-muted/50 w-[180px] font-medium">
+        <TableHead className="sticky left-0 z-20 bg-muted/50 w-[180px] font-medium border-r">
           {t('costs.metric')}
         </TableHead>
         {months.map((month) => (

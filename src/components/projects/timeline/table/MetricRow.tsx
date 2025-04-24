@@ -15,6 +15,7 @@ interface MetricRowProps {
   isPositive: boolean;
   bgClass: string;
   hoverClass: string;
+  showDecimals?: boolean;
 }
 
 export function MetricRow({
@@ -26,12 +27,16 @@ export function MetricRow({
   bgClass,
   hoverClass,
   showDecimals = true
-}: MetricRowProps & { showDecimals?: boolean }) {
+}: MetricRowProps) {
   return (
-    <TableRow className={`${bgClass} ${hoverClass}`}>
-      <TableCell className={`sticky left-0 z-10 ${bgClass} font-medium`}>
-        <div className="flex items-center">
-          <Icon className={`mr-2 h-4 w-4 ${iconColor}`} />
+    <TableRow className={cn(bgClass, hoverClass)}>
+      <TableCell className={cn(
+        "sticky left-0 z-20 w-[180px] font-medium border-r", 
+        bgClass,
+        "after:absolute after:top-0 after:right-0 after:border-r after:h-full after:border-border"
+      )}>
+        <div className="flex items-center gap-2">
+          <Icon className={cn("h-4 w-4", iconColor)} />
           {label}
         </div>
       </TableCell>

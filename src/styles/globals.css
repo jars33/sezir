@@ -1,4 +1,3 @@
-
 .project-timeline-bar {
   left: var(--start-position);
   width: var(--width);
@@ -63,4 +62,22 @@
 
 .month-header-draggable:hover::after {
   opacity: 1;
+}
+
+/* Add sticky column styles */
+.sticky-column {
+  position: sticky;
+  left: 0;
+  z-index: 20;
+  background-color: inherit;
+  border-right-width: 1px;
+}
+
+.sticky-column::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  border-right: 1px solid var(--border);
 }
