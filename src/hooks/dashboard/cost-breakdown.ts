@@ -1,28 +1,38 @@
 
 import { getYear } from "date-fns"
-import { calculateFinancialSummary } from "@/utils/financial-calculations"
+import { calculateFinancialSummary, calculateFinancialSummaryWithFullSalaries } from "@/utils/financial-calculations"
+import { TeamMemberSalary } from "./types"
 
 // Calculate cost breakdown by category
 export function calculateCostBreakdown(
   variableCosts: any[],
   overheadCosts: any[],
-  allocations: any[],
+  allocationsOrSalaries: any[],
   selectedYear: number,
-  overheadPercentage: number = 15
+  overheadPercentage: number = 15,
+  useFullSalaries: boolean = false
 ) {
-  // Use the centralized calculation function
+  // Use the appropriate centralized calculation function
   const {
     totalVariableCosts,
     totalSalaryCosts,
     totalOverheadCosts,
     totalCosts
-  } = calculateFinancialSummary(
-    [], // No revenues needed for cost breakdown
-    variableCosts,
-    allocations,
-    selectedYear,
-    overheadPercentage
-  );
+  } = useFullSalaries 
+    ? calculateFinancialSummaryWithFullSalaries(
+        [], // No revenues needed for cost breakdown
+        variableCosts,
+        allocationsOrSalaries as TeamMemberSalary[],
+        selectedYear,
+        overheadPercentage
+      )
+    : calculateFinancialSummary(
+        [], // No revenues needed for cost breakdown
+        variableCosts,
+        allocationsOrSalaries,
+        selectedYear,
+        overheadPercentage
+      )
   
   // Create breakdown items with percentages
   const costBreakdown = [

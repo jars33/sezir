@@ -1,114 +1,99 @@
 
+import { format } from "date-fns"
 import i18next from "i18next"
-import { generateMonthlyFinancialData } from "@/utils/financial-calculations"
+import { generateMonthlyFinancialData, generateMonthlyFinancialDataWithFullSalaries } from "@/utils/financial-calculations"
+import { TeamMemberSalary } from "./types"
 
-// Helper for generating chart data
-export function generateChartData(
+// Helper for generating dashboard chart data
+export function generateDashboardChartData(
   selectedYear: number,
-  projectRevenues: any[],
-  variableCosts: any[],
-  overheadCosts: any[],
-  allocations: any[]
+  projectRevenues: any[] = [],
+  variableCosts: any[] = [],
+  overheadCosts: any[] = [],
+  allocationsOrSalaries: any[] = [],
+  overheadPercentage: number = 15,
+  useFullSalaries: boolean = false
 ) {
   const chartData = []
-  const months = []
   
-  // Always include all 12 months of the selected year
+  // Use appropriate function based on data type
+  const { monthlyData } = useFullSalaries
+    ? generateMonthlyFinancialDataWithFullSalaries(
+        selectedYear,
+        projectRevenues,
+        variableCosts,
+        allocationsOrSalaries as TeamMemberSalary[],
+        overheadPercentage
+      )
+    : generateMonthlyFinancialData(
+        selectedYear,
+        projectRevenues,
+        variableCosts,
+        allocationsOrSalaries,
+        overheadPercentage
+      )
+  
+  // Format data for chart display
   for (let i = 0; i < 12; i++) {
-    const month = new Date(selectedYear, i, 1)
-    const monthKey = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'][month.getMonth()]
+    const monthData = monthlyData[i]
+    const monthKey = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'][i]
     const monthName = i18next.t(`common.months.${monthKey}`)
-    months.push({ date: month, name: monthName })
-  }
-  
-  // For each month, calculate the revenue and costs
-  months.forEach(({ date, name }) => {
-    const monthStr = date.toISOString().substr(0, 7) // YYYY-MM
-    
-    let monthlyRevenue = 0
-    projectRevenues?.forEach(rev => {
-      if (rev.month.startsWith(monthStr)) {
-        monthlyRevenue += Number(rev.amount)
-      }
-    })
-    
-    let monthlyVariableCost = 0
-    variableCosts?.forEach(cost => {
-      if (cost.month.startsWith(monthStr)) {
-        monthlyVariableCost += Number(cost.amount)
-      }
-    })
-    
-    // Add explicit overhead costs (directly entered in the system)
-    let monthlyExplicitOverheadCost = 0
-    overheadCosts?.forEach(cost => {
-      if (cost.month.startsWith(monthStr)) {
-        monthlyExplicitOverheadCost += Number(cost.amount)
-      }
-    })
-    
-    // Add allocation costs
-    let monthlySalaryCost = 0
-    allocations?.forEach(allocation => {
-      if (allocation.month.startsWith(monthStr) && allocation.salary_cost) {
-        monthlySalaryCost += Number(allocation.salary_cost)
-      }
-    })
-    
-    // Total cost includes variable costs, explicit overhead costs, and salary costs
-    // But doesn't include the overhead percentage calculation which is added in generateDashboardChartData
-    const monthlyCost = monthlyVariableCost + monthlyExplicitOverheadCost + monthlySalaryCost
     
     chartData.push({
-      month: name,
-      revenue: monthlyRevenue,
-      cost: monthlyCost,
-      variableCost: monthlyVariableCost,
-      overheadCost: monthlyExplicitOverheadCost,
-      salaryCost: monthlySalaryCost
+      month: monthName,
+      revenue: monthData.revenue,
+      cost: monthData.totalCost,
+      profit: monthData.profit
     })
-  })
-
+  }
+  
   return chartData
 }
 
-// Function specifically for dashboard that includes calculated overhead based on project settings
-export function generateDashboardChartData(
+// Generate chart data specifically for use in charts
+export function generateChartData(
   selectedYear: number,
-  projectRevenues: any[],
-  variableCosts: any[],
-  overheadCosts: any[],
-  allocations: any[],
-  overheadPercentage: number
+  projectRevenues: any[] = [],
+  variableCosts: any[] = [],
+  overheadCosts: any[] = [],
+  allocationsOrSalaries: any[] = [],
+  overheadPercentage: number = 15,
+  useFullSalaries: boolean = false
 ) {
-  // Use the centralized monthly data generation function
-  const { monthlyData } = generateMonthlyFinancialData(
-    selectedYear, 
-    projectRevenues, 
-    variableCosts, 
-    allocations, 
-    overheadPercentage
-  );
+  const chartData = []
   
-  // Transform the data to match the expected format for the dashboard
-  const months = []
+  // Use appropriate function based on data type
+  const { monthlyData } = useFullSalaries
+    ? generateMonthlyFinancialDataWithFullSalaries(
+        selectedYear,
+        projectRevenues,
+        variableCosts,
+        allocationsOrSalaries as TeamMemberSalary[],
+        overheadPercentage
+      )
+    : generateMonthlyFinancialData(
+        selectedYear,
+        projectRevenues,
+        variableCosts,
+        allocationsOrSalaries,
+        overheadPercentage
+      )
+  
+  // Format data for chart display - more detailed breakdown
   for (let i = 0; i < 12; i++) {
-    const month = new Date(selectedYear, i, 1)
-    const monthKey = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'][month.getMonth()]
+    const monthData = monthlyData[i]
+    const monthKey = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'][i]
     const monthName = i18next.t(`common.months.${monthKey}`)
-    months.push({ date: month, name: monthName })
+    
+    chartData.push({
+      month: monthName,
+      revenue: monthData.revenue,
+      variableCost: monthData.variableCost,
+      salaryCost: monthData.salaryCost,
+      overheadCost: monthData.overheadCost,
+      profit: monthData.profit
+    })
   }
   
-  return monthlyData.map((data, index) => {
-    return {
-      month: months[index].name,
-      revenue: data.revenue,
-      cost: data.totalCost,
-      profit: data.profit,
-      variableCost: data.variableCost,
-      salaryCost: data.salaryCost,
-      calculatedOverhead: data.overheadCost,
-      overheadCost: 0, // Explicit overhead costs (not used in centralized calculation)
-    }
-  });
+  return chartData
 }

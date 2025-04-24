@@ -161,6 +161,86 @@ export function useOverheadCostsQuery({ selectedYear, teamId, yearStart, yearEnd
   })
 }
 
+// NEW: Query for full team member salaries
+export function useTeamMemberSalariesQuery({ selectedYear, teamId, yearStart, yearEnd }: DashboardQueryParams) {
+  return useQuery({
+    queryKey: ["team-members-salaries", selectedYear, teamId],
+    queryFn: async () => {
+      // First, get team members based on team ID
+      let teamMembersQuery = supabase
+        .from("team_members")
+        .select("id, name, start_date, end_date")
+        .eq("left_company", false)
+      
+      if (teamId) {
+        // Get team members via team_memberships if teamId is provided
+        teamMembersQuery = supabase
+          .from("team_members")
+          .select("id, name, start_date, end_date, team_memberships!inner(team_id)")
+          .eq("left_company", false)
+          .eq("team_memberships.team_id", teamId)
+      }
+      
+      const { data: teamMembers, error: teamMembersError } = await teamMembersQuery
+      
+      if (teamMembersError) throw teamMembersError
+      if (!teamMembers || teamMembers.length === 0) return []
+      
+      // For each team member, get their salaries that were active in the selected year
+      const salaries = await Promise.all(teamMembers.map(async (member) => {
+        const { data: salaryData, error: salaryError } = await supabase
+          .from("salary_history")
+          .select("*")
+          .eq("team_member_id", member.id)
+          .or(`end_date.is.null,end_date.gte.${yearStart.toISOString().substring(0, 10)}`)
+          .lte("start_date", yearEnd.toISOString().substring(0, 10))
+          
+        if (salaryError) throw salaryError
+        
+        if (!salaryData || salaryData.length === 0) {
+          return []
+        }
+        
+        // Process each salary record to calculate monthly salaries for the year
+        const monthlySalaries = []
+        for (const salary of salaryData) {
+          // Create a monthly entry for each month this salary was active within the selected year
+          const salaryStart = new Date(Math.max(
+            new Date(salary.start_date).getTime(),
+            yearStart.getTime()
+          ))
+          
+          const salaryEnd = salary.end_date 
+            ? new Date(Math.min(
+                new Date(salary.end_date).getTime(),
+                yearEnd.getTime()
+              ))
+            : yearEnd
+          
+          // Create entries for each month
+          let currentDate = new Date(salaryStart)
+          while (currentDate <= salaryEnd) {
+            monthlySalaries.push({
+              team_member_id: member.id,
+              team_member_name: member.name,
+              month: currentDate.toISOString().substring(0, 10),
+              amount: Number(salary.amount),
+            })
+            
+            // Move to next month
+            currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)
+          }
+        }
+        
+        return monthlySalaries
+      }))
+      
+      // Flatten the array of arrays into a single array of monthly salaries
+      return salaries.flat()
+    }
+  })
+}
+
 // Query for allocations - Fixed to correctly return salary cost information
 export function useAllocationsQuery({ selectedYear, teamId, yearStart, yearEnd }: DashboardQueryParams) {
   return useQuery({

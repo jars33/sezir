@@ -1,5 +1,6 @@
 
 import { getYear } from "date-fns";
+import { TeamMemberSalary } from "@/hooks/dashboard/types";
 
 /**
  * Types for financial calculation inputs
@@ -66,6 +67,56 @@ export function calculateFinancialSummary(
   }, 0);
 
   // Calculate base costs (variable costs + salary costs)
+  const baseCosts = totalVariableCosts + totalSalaryCosts;
+
+  // Calculate overhead costs using the percentage of base costs
+  const totalOverheadCosts = (baseCosts * overheadPercentage) / 100;
+
+  // Calculate total costs with overhead included
+  const totalCosts = baseCosts + totalOverheadCosts;
+
+  // Total profit is revenues minus total costs
+  const totalProfit = totalRevenues - totalCosts;
+
+  return {
+    totalRevenues,
+    totalVariableCosts,
+    totalSalaryCosts,
+    totalOverheadCosts,
+    totalCosts,
+    totalProfit,
+  };
+}
+
+/**
+ * NEW: Calculate financial summary for specific data and year using full team member salaries
+ */
+export function calculateFinancialSummaryWithFullSalaries(
+  revenues: TimelineItem[] = [],
+  variableCosts: TimelineItem[] = [],
+  teamMemberSalaries: TeamMemberSalary[] = [],
+  year: number,
+  overheadPercentage: number
+): FinancialSummaryResult {
+  // Calculate total revenues for the year
+  const totalRevenues = revenues.reduce((sum, r) => {
+    const revYear = getYear(new Date(r.month));
+    return revYear === year ? sum + Number(r.amount) : sum;
+  }, 0);
+
+  // Calculate total variable costs for the year
+  const totalVariableCosts = variableCosts.reduce((sum, c) => {
+    const costYear = getYear(new Date(c.month));
+    return costYear === year ? sum + Number(c.amount) : sum;
+  }, 0);
+
+  // Calculate total salary costs for the year
+  const totalSalaryCosts = teamMemberSalaries.reduce((sum, s) => {
+    const salaryYear = getYear(new Date(s.month));
+    return salaryYear === year ? sum + Number(s.amount) : sum;
+  }, 0);
+
+  // Calculate base costs (variable costs + full salary costs)
   const baseCosts = totalVariableCosts + totalSalaryCosts;
 
   // Calculate overhead costs using the percentage of base costs
@@ -270,6 +321,67 @@ export function generateMonthlyFinancialData(
       revenue: monthRevenues,
       variableCost: monthVariableCosts,
       salaryCost: monthAllocations,
+      overheadCost: overheadCosts,
+      totalCost: totalCosts,
+      profit: monthlyProfit
+    });
+  }
+
+  return { months, monthlyData };
+}
+
+/**
+ * NEW: Generate monthly financial data for charts using full team member salaries
+ */
+export function generateMonthlyFinancialDataWithFullSalaries(
+  year: number,
+  revenues: TimelineItem[] = [],
+  variableCosts: TimelineItem[] = [],
+  teamMemberSalaries: TeamMemberSalary[] = [],
+  overheadPercentage: number
+) {
+  const months = [];
+  const monthlyData = [];
+
+  // Generate all months for the year
+  for (let i = 0; i < 12; i++) {
+    const month = new Date(year, i, 1);
+    months.push(month);
+    const monthStr = month.toISOString().substring(0, 7); // YYYY-MM
+
+    // Calculate monthly revenue
+    const monthRevenues = revenues
+      .filter(r => r.month.startsWith(monthStr))
+      .reduce((sum, r) => sum + Number(r.amount), 0);
+
+    // Calculate monthly variable costs
+    const monthVariableCosts = variableCosts
+      .filter(c => c.month.startsWith(monthStr))
+      .reduce((sum, c) => sum + Number(c.amount), 0);
+
+    // Calculate monthly full salary costs
+    const monthSalaries = teamMemberSalaries
+      .filter(s => s.month.startsWith(monthStr))
+      .reduce((sum, s) => sum + Number(s.amount), 0);
+
+    // Calculate monthly base costs
+    const baseCosts = monthVariableCosts + monthSalaries;
+
+    // Calculate monthly overhead costs
+    const overheadCosts = (baseCosts * overheadPercentage) / 100;
+
+    // Calculate total monthly costs including overhead
+    const totalCosts = baseCosts + overheadCosts;
+
+    // Calculate monthly profit
+    const monthlyProfit = monthRevenues - totalCosts;
+
+    monthlyData.push({
+      month,
+      monthStr,
+      revenue: monthRevenues,
+      variableCost: monthVariableCosts,
+      salaryCost: monthSalaries,
       overheadCost: overheadCosts,
       totalCost: totalCosts,
       profit: monthlyProfit

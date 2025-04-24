@@ -17,7 +17,12 @@ export function SynchronizedScrollProvider({ children }: { children: React.React
   
   // Clean up stale references and register new containers
   const registerContainer = (container: HTMLDivElement | null) => {
-    if (!container) return;
+    if (!container) {
+      // When null is passed, clean up all non-existent nodes without adding anything
+      scrollContainers.current = scrollContainers.current
+        .filter(c => c && document.body.contains(c));
+      return;
+    }
     
     // Filter out null entries and non-existent nodes
     scrollContainers.current = scrollContainers.current

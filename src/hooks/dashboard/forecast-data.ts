@@ -1,24 +1,34 @@
 
 import { format } from "date-fns"
 import i18next from "i18next"
-import { generateMonthlyFinancialData } from "@/utils/financial-calculations"
+import { generateMonthlyFinancialData, generateMonthlyFinancialDataWithFullSalaries } from "@/utils/financial-calculations"
+import { TeamMemberSalary } from "./types"
 
 export function generateForecastData(
   selectedYear: number,
   projectRevenues: any[] = [],
   projectVariableCosts: any[] = [],
   overheadCosts: any[] = [],
-  allocations: any[] = [],
-  overheadPercentage: number = 15
+  allocationsOrSalaries: any[] = [],
+  overheadPercentage: number = 15,
+  useFullSalaries: boolean = false
 ) {
-  // Use centralized financial calculations
-  const { monthlyData } = generateMonthlyFinancialData(
-    selectedYear, 
-    projectRevenues, 
-    projectVariableCosts, 
-    allocations, 
-    overheadPercentage
-  );
+  // Use appropriate function based on data type
+  const { monthlyData } = useFullSalaries
+    ? generateMonthlyFinancialDataWithFullSalaries(
+        selectedYear, 
+        projectRevenues, 
+        projectVariableCosts, 
+        allocationsOrSalaries as TeamMemberSalary[],
+        overheadPercentage
+      )
+    : generateMonthlyFinancialData(
+        selectedYear, 
+        projectRevenues, 
+        projectVariableCosts, 
+        allocationsOrSalaries,
+        overheadPercentage
+      )
 
   const forecastData = [];
   

@@ -15,10 +15,10 @@ export function SynchronizedTableContainer({ children }: SynchronizedTableContai
       registerContainer(tableContainerRef.current);
     }
     
-    // Re-register on any children updates
     return () => {
       if (tableContainerRef.current) {
-        registerContainer(tableContainerRef.current);
+        // Properly clean up the registration
+        registerContainer(null);
       }
     };
   }, [registerContainer, children]);

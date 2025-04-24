@@ -24,6 +24,7 @@ export const useMetricsCalculator = (
     variableCosts: any[] | null | undefined;
     overheadCosts: any[] | null | undefined;
     allocations: any[] | null | undefined;
+    teamMemberSalaries: any[] | null | undefined;
   },
   filters: {
     selectedYear: number;
@@ -49,7 +50,7 @@ export const useMetricsCalculator = (
     }
   }
 
-  const { teamMembers, projects, projectRevenues, variableCosts, overheadCosts, allocations } = data
+  const { teamMembers, projects, projectRevenues, variableCosts, overheadCosts, allocations, teamMemberSalaries } = data
   const { selectedYear, yearStart, yearEnd } = filters
 
   // 1. Active Projects - projects that are active during the selected year
@@ -79,7 +80,7 @@ export const useMetricsCalculator = (
     (!member.end_date || new Date(member.end_date) >= yearStart)
   ).length || 0
 
-  // 3. Calculate Project Profitability using extracted calculation function
+  // 3. Calculate Project Profitability - still using allocations for project-specific calculations
   const avgProjectProfitability = calculateProjectProfitability(
     projects,
     projectRevenues,
@@ -87,27 +88,28 @@ export const useMetricsCalculator = (
     overheadCosts,
     allocations,
     selectedYear,
-    overheadPercentage  // Pass overhead percentage
+    overheadPercentage
   )
   
-  // 4. Calculate Resource Utilization using extracted calculation function
+  // 4. Calculate Resource Utilization - using allocations data
   const resourceUtilization = calculateResourceUtilization(
     allocations,
     yearStart,
     yearEnd
   )
   
-  // 5. Generate chart data using extracted function WITH overhead percentage
+  // 5. Generate chart data with full team member salaries
   const chartData = generateDashboardChartData(
     selectedYear,
     projectRevenues,
     variableCosts,
     overheadCosts,
-    allocations,
-    overheadPercentage
+    teamMemberSalaries, // Pass team member salaries instead of allocations
+    overheadPercentage,
+    true // Use full salaries
   )
   
-  // 6. Calculate project margins - Pass the overhead percentage
+  // 6. Calculate project margins - still using allocations for project-specific calculations
   const projectMargins = calculateProjectMargins(
     projects,
     projectRevenues,
@@ -129,43 +131,47 @@ export const useMetricsCalculator = (
     yearEnd
   )
   
-  // 8. Generate forecast data - Pass the overhead percentage
+  // 8. Generate forecast data with full team member salaries
   const forecastData = generateForecastData(
     selectedYear,
     projectRevenues,
     variableCosts,
     overheadCosts,
-    allocations,
-    overheadPercentage
+    teamMemberSalaries, // Pass team member salaries instead of allocations
+    overheadPercentage,
+    true // Use full salaries
   )
   
-  // 9. Calculate cost breakdown
+  // 9. Calculate cost breakdown with full team member salaries
   const costBreakdown = calculateCostBreakdown(
     variableCosts,
     overheadCosts,
-    allocations,
+    teamMemberSalaries, // Pass team member salaries instead of allocations
     selectedYear,
-    overheadPercentage
+    overheadPercentage,
+    true // Use full salaries
   )
   
-  // 10. Generate cash flow data
+  // 10. Generate cash flow data with full team member salaries
   const cashFlowData = generateCashFlowData(
     selectedYear,
     projectRevenues,
     variableCosts,
     overheadCosts,
-    allocations,
-    overheadPercentage
+    teamMemberSalaries, // Pass team member salaries instead of allocations
+    overheadPercentage,
+    true // Use full salaries
   )
   
-  // 11. Generate year comparison data
+  // 11. Generate year comparison data with full team member salaries
   const yearComparisonData = generateYearComparisonData(
     selectedYear,
     projectRevenues,
     variableCosts,
     overheadCosts,
-    allocations,
-    overheadPercentage
+    teamMemberSalaries, // Pass team member salaries instead of allocations
+    overheadPercentage,
+    true // Use full salaries
   )
   
   return {

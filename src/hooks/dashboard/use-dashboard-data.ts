@@ -5,7 +5,8 @@ import {
   useProjectRevenuesQuery, 
   useVariableCostsQuery, 
   useOverheadCostsQuery,
-  useAllocationsQuery
+  useAllocationsQuery,
+  useTeamMemberSalariesQuery
 } from "./queries"
 import { DashboardFilters } from "./types"
 import { useDashboardFilters } from "./use-filters"
@@ -31,6 +32,9 @@ export const useDashboardData = (filters: DashboardFilters = {}) => {
   
   const { data: allocations, isLoading: isAllocationsLoading } = useAllocationsQuery(queryParams)
 
+  // New: Fetch full team member salaries
+  const { data: teamMemberSalaries, isLoading: isTeamMemberSalariesLoading } = useTeamMemberSalariesQuery(queryParams)
+
   // Check if any data is still loading
   const isLoading = 
     isTeamMembersLoading || 
@@ -38,7 +42,8 @@ export const useDashboardData = (filters: DashboardFilters = {}) => {
     isRevenuesLoading || 
     isVariableCostsLoading || 
     isOverheadCostsLoading ||
-    isAllocationsLoading
+    isAllocationsLoading ||
+    isTeamMemberSalariesLoading
 
   return {
     data: {
@@ -47,7 +52,8 @@ export const useDashboardData = (filters: DashboardFilters = {}) => {
       projectRevenues,
       variableCosts,
       overheadCosts,
-      allocations
+      allocations,
+      teamMemberSalaries // Add the new data
     },
     filters: {
       selectedYear,
