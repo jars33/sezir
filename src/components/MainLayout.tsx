@@ -1,3 +1,4 @@
+
 import { Outlet, useNavigate, Link, useLocation } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { supabase } from "@/integrations/supabase/client"
@@ -66,7 +67,7 @@ export default function MainLayout() {
                   onClick={() => setSidebarCollapsed(false)}
                   aria-label="Open sidebar"
                 >
-                  <MenuIcon className="h-4 w-4" />
+                  <MenuIcon className="h-4 w-4 text-[#ea384c]" />
                 </Button>
                 
                 <div className="ml-2 flex items-center space-x-2">
@@ -91,7 +92,7 @@ export default function MainLayout() {
                     onClick={handleToggleDecimals}
                     className="text-foreground"
                   >
-                    <Hash className="h-4 w-4" />
+                    <Hash className="h-4 w-4 text-[#ea384c]" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -106,7 +107,7 @@ export default function MainLayout() {
                   <TooltipTrigger asChild>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon" className="text-foreground">
-                        <Languages className="h-4 w-4" />
+                        <Languages className="h-4 w-4 text-[#ea384c]" />
                       </Button>
                     </DropdownMenuTrigger>
                   </TooltipTrigger>
@@ -136,9 +137,9 @@ export default function MainLayout() {
               className="text-foreground"
             >
               {theme === "dark" ? (
-                <Sun className="h-4 w-4" />
+                <Sun className="h-4 w-4 text-[#ea384c]" />
               ) : (
-                <Moon className="h-4 w-4" />
+                <Moon className="h-4 w-4 text-[#ea384c]" />
               )}
             </Button>
             <Button 

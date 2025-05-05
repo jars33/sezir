@@ -48,7 +48,7 @@ export function Sidebar({ className }: SidebarProps) {
                 className="h-8 w-8"
                 onClick={() => setSidebarCollapsed(true)}
               >
-                <ChevronLeft className="h-4 w-4" />
+                <ChevronLeft className="h-4 w-4 text-[#ea384c]" />
               </Button>
             </div>
             
@@ -58,7 +58,7 @@ export function Sidebar({ className }: SidebarProps) {
                 className="w-full justify-start"
                 onClick={() => navigate("/")}
               >
-                <LayoutDashboard className="mr-2 h-4 w-4" />
+                <LayoutDashboard className="mr-2 h-4 w-4 text-[#ea384c]" />
                 {t('common.dashboard')}
               </Button>
               <Button
@@ -66,7 +66,7 @@ export function Sidebar({ className }: SidebarProps) {
                 className="w-full justify-start"
                 onClick={() => navigate("/teams")}
               >
-                <Network className="mr-2 h-4 w-4" />
+                <Network className="mr-2 h-4 w-4 text-[#ea384c]" />
                 {t('common.organization')}
               </Button>
               <Button
@@ -74,7 +74,7 @@ export function Sidebar({ className }: SidebarProps) {
                 className="w-full justify-start"
                 onClick={() => navigate("/team")}
               >
-                <Users className="mr-2 h-4 w-4" />
+                <Users className="mr-2 h-4 w-4 text-[#ea384c]" />
                 {t('common.teamMembers')}
               </Button>
               <Button
@@ -82,7 +82,7 @@ export function Sidebar({ className }: SidebarProps) {
                 className="w-full justify-start"
                 onClick={() => navigate("/projects")}
               >
-                <Folders className="mr-2 h-4 w-4" />
+                <Folders className="mr-2 h-4 w-4 text-[#ea384c]" />
                 {t('common.projects')}
               </Button>
               <Button
@@ -90,7 +90,7 @@ export function Sidebar({ className }: SidebarProps) {
                 className="w-full justify-start"
                 onClick={() => navigate("/budget-comparison")}
               >
-                <Calculator className="mr-2 h-4 w-4" />
+                <Calculator className="mr-2 h-4 w-4 text-[#ea384c]" />
                 {t('budget.comparison')}
               </Button>
             </div>
