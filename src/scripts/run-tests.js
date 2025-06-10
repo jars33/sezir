@@ -1,4 +1,3 @@
-
 #!/usr/bin/env node
 
 /**
@@ -6,7 +5,7 @@
  * Run this script with:
  * node src/scripts/run-tests.js
  */
-const { execSync } = require('child_process');
+import { execSync } from 'child_process';
 
 // Run Jest with the following options
 try {
