@@ -183,7 +183,8 @@
     "saveSettings": "Save Settings",
     "year": "Year",
     "financials": "Financials",
-    "budgetComparison": "Budget Comparison"
+    "budgetComparison": "Budget Comparison",
+    "teamUpdateError": "Failed to update team"
   },
   "dialog": {
     "areYouSure": "Are you sure?",

@@ -184,7 +184,8 @@
     "saveSettings": "Guardar Configurações",
     "year": "Ano",
     "financials": "Finanças",
-    "budgetComparison": "Orçamentos"
+    "budgetComparison": "Orçamentos",
+    "teamUpdateError": "Erro ao atualizar equipa"
   },
   "dialog": {
     "areYouSure": "Tem a certeza?",
